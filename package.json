@@ -100,7 +100,7 @@
   "devDependencies": {
     "@testcontainers/postgresql": "^11.8.0",
     "@testcontainers/redis": "^11.8.0",
-    "@vitest/coverage-istanbul": "^4.0.7",
+    "@vitest/coverage-istanbul": "^4.0.8",
     "cross-env": "^10.1.0",
     "eslint": "^8.44.0",
     "lefthook": "^2.0.2",

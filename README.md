@@ -56,7 +56,7 @@ frys 采用了"站在巨人肩膀上"的设计理念，通过集成业界领先�
 ```bash
 # 克隆项目
 git clone https://github.com/zycxfyh/frys.git
-cd wokeflow
+cd frys
 
 # 安装依赖
 npm install
@@ -97,7 +97,7 @@ open http://localhost:3000/docs
 ### 创建工作流
 
 ```javascript
-import { createWorkflow } from 'wokeflow';
+import { createWorkflow } from 'frys';
 
 // 定义工作流步骤
 const userRegistrationWorkflow = createWorkflow('user-registration')
@@ -115,7 +115,7 @@ await userRegistrationWorkflow.execute({
 ### 使用HTTP客户端
 
 ```javascript
-import { httpClient } from 'wokeflow';
+import { httpClient } from 'frys';
 
 // 发送请求
 const response = await httpClient.get('/api/users');
@@ -128,7 +128,7 @@ const user = await httpClient.post('/api/users', {
 ### 状态管理
 
 ```javascript
-import { useStore } from 'wokeflow';
+import { useStore } from 'frys';
 
 // 创建状态存储
 const useUserStore = createStore((set, get) => ({
@@ -154,7 +154,7 @@ function UserProfile() {
 ## 📁 项目结构
 
 ```
-wokeflow/
+frys/
 ├── src/                          # 源代码
 │   ├── core/                     # 核心模块
 │   │   ├── container.js          # 依赖注入容器 (Awilix)
@@ -228,10 +228,10 @@ npm run test:coverage
 
 ```bash
 # 构建镜像
-docker build -t wokeflow .
+docker build -t frys .
 
 # 运行容器
-docker run -p 3000:3000 wokeflow
+docker run -p 3000:3000 frys
 ```
 
 ### Docker Compose
@@ -331,7 +331,7 @@ npm run format
 - **项目主页**: [https://github.com/zycxfyh/frys](https://github.com/zycxfyh/frys)
 - **问题反馈**: [Issues](https://github.com/zycxfyh/frys/issues)
 - **讨论交流**: [Discussions](https://github.com/zycxfyh/frys/discussions)
-- **邮箱**: wokeflow@example.com
+- **邮箱**: frys@example.com
 
 ---
 

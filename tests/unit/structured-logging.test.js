@@ -11,7 +11,7 @@ describe('结构化日志系统测试', () => {
   beforeAll(() => {
     // 设置测试环境上下文
     setGlobalLogContext({
-      service: 'wokeflow-test',
+      service: 'frys-test',
       version: '1.0.0-test',
       environment: 'test'
     });

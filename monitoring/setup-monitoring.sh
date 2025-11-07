@@ -119,7 +119,7 @@ generate_env_file() {
 # 请根据实际情况修改这些值
 
 # SMTP 配置 (用于告警邮件)
-SMTP_USERNAME=alerts@wokeflow.com
+SMTP_USERNAME=alerts@frys.com
 SMTP_PASSWORD=your-smtp-password
 
 # Slack 配置 (用于告警通知)
@@ -192,7 +192,7 @@ create_basic_dashboards() {
 {
   "dashboard": {
     "title": "frys SLO 状态",
-    "tags": ["wokeflow", "slo"],
+    "tags": ["frys", "slo"],
     "timezone": "browser",
     "panels": [
       {
@@ -254,7 +254,7 @@ services:
   # Prometheus 监控
   prometheus:
     image: prom/prometheus:v2.45.0
-    container_name: wokeflow-prometheus
+    container_name: frys-prometheus
     ports:
       - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
@@ -270,13 +270,13 @@ services:
       - '--storage.tsdb.retention.time=30d'
       - '--web.enable-lifecycle'
     networks:
-      - wokeflow-monitoring
+      - frys-monitoring
     restart: unless-stopped
 
   # Grafana 可视化
   grafana:
     image: grafana/grafana:10.1.0
-    container_name: wokeflow-grafana
+    container_name: frys-grafana
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
@@ -290,13 +290,13 @@ services:
     depends_on:
       - prometheus
     networks:
-      - wokeflow-monitoring
+      - frys-monitoring
     restart: unless-stopped
 
   # AlertManager 告警
   alertmanager:
     image: prom/alertmanager:v0.25.0
-    container_name: wokeflow-alertmanager
+    container_name: frys-alertmanager
     ports:
       - "${ALERTMANAGER_PORT:-9093}:9093"
     volumes:
@@ -306,13 +306,13 @@ services:
       - '--config.file=/etc/alertmanager/config.yml'
       - '--storage.path=/alertmanager'
     networks:
-      - wokeflow-monitoring
+      - frys-monitoring
     restart: unless-stopped
 
   # Node Exporter (系统监控)
   node-exporter:
     image: prom/node-exporter:v1.6.1
-    container_name: wokeflow-node-exporter
+    container_name: frys-node-exporter
     ports:
       - "${NODE_EXPORTER_PORT:-9100}:9100"
     volumes:
@@ -325,13 +325,13 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
-      - wokeflow-monitoring
+      - frys-monitoring
     restart: unless-stopped
     deploy:
       mode: global
 
 networks:
-  wokeflow-monitoring:
+  frys-monitoring:
     driver: bridge
 
 volumes:

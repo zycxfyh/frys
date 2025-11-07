@@ -40,8 +40,8 @@ vi.mock('jsonwebtoken', () => {
         type: 'access',
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 3600,
-        iss: 'wokeflow',
-        aud: 'wokeflow-client',
+        iss: 'frys',
+        aud: 'frys-client',
         sessionId: 'session-123'
       }))
     },
@@ -55,8 +55,8 @@ vi.mock('jsonwebtoken', () => {
       type: 'access',
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 3600,
-      iss: 'wokeflow',
-      aud: 'wokeflow-client',
+      iss: 'frys',
+      aud: 'frys-client',
       sessionId: 'session-123'
     }))
   };

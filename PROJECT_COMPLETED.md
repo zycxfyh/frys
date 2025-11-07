@@ -136,7 +136,7 @@ npm run staging:test     # 回归测试
 ### 文档体系
 ```
 docs/
-├── wokeflow-retrospective.md     # 经验总结
+├── frys-retrospective.md     # 经验总结
 ├── industrial-testing-*.md       # 测试文档
 ├── code-review-checklist.md      # 审查清单
 ├── slo-definition.md            # SLO 定义

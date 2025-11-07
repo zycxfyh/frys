@@ -16,7 +16,7 @@ export class AuthenticationService {
         options.jwtSecret || process.env.JWT_SECRET || 'your-secret-key',
       jwtIssuer: options.jwtIssuer || process.env.JWT_ISSUER || 'frys',
       jwtAudience:
-        options.jwtAudience || process.env.JWT_AUDIENCE || 'wokeflow-client',
+        options.jwtAudience || process.env.JWT_AUDIENCE || 'frys-client',
       accessTokenExpiry: options.accessTokenExpiry || '15m', // 15分钟
       refreshTokenExpiry: options.refreshTokenExpiry || '7d', // 7天
       passwordSaltRounds: options.passwordSaltRounds || 12,

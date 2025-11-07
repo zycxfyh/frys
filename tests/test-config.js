@@ -21,9 +21,9 @@ export const TEST_CONFIG = {
 
   // 认证配置
   auth: {
-    secret: 'test-jwt-secret-key-for-wokeflow-testing',
-    issuer: 'wokeflow-test-suite',
-    audience: 'wokeflow-api',
+    secret: 'test-jwt-secret-key-for-frys-testing',
+    issuer: 'frys-test-suite',
+    audience: 'frys-api',
     expiresIn: '1h',
   },
 
@@ -31,7 +31,7 @@ export const TEST_CONFIG = {
   database: {
     host: 'localhost',
     port: 5432,
-    database: 'wokeflow_test',
+    database: 'frys_test',
     username: 'test_user',
     password: 'test_password',
   },

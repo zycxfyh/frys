@@ -179,14 +179,14 @@ npm run deploy
 ## 📞 联系与支持
 
 ### 团队联系
-- **开发团队**: dev@wokeflow.com
-- **运维团队**: ops@wokeflow.com
-- **安全团队**: security@wokeflow.com
+- **开发团队**: dev@frys.com
+- **运维团队**: ops@frys.com
+- **安全团队**: security@frys.com
 
 ### 社区资源
-- **[GitHub Issues](https://github.com/wokeflow/wokeflow/issues)** - 问题反馈
-- **[文档 Wiki](https://github.com/wokeflow/wokeflow/wiki)** - 详细文档
-- **[讨论区](https://github.com/wokeflow/wokeflow/discussions)** - 技术讨论
+- **[GitHub Issues](https://github.com/frys/frys/issues)** - 问题反馈
+- **[文档 Wiki](https://github.com/frys/frys/wiki)** - 详细文档
+- **[讨论区](https://github.com/frys/frys/discussions)** - 技术讨论
 
 ## 🔄 更新日志
 

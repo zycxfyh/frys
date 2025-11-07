@@ -21,13 +21,13 @@ async function basicAutoScalingExample() {
 
   // 1. 创建容器编排器
   const orchestrator = new DockerContainerOrchestrator({
-    imageName: 'wokeflow-app:latest',
+    imageName: 'frys-app:latest',
     basePort: 3000,
-    containerPrefix: 'wokeflow-example-',
-    network: 'wokeflow-network',
+    containerPrefix: 'frys-example-',
+    network: 'frys-network',
     environment: {
       NODE_ENV: 'production',
-      DATABASE_URL: process.env.DATABASE_URL || 'postgresql://localhost:5432/wokeflow'
+      DATABASE_URL: process.env.DATABASE_URL || 'postgresql://localhost:5432/frys'
     }
   });
 
@@ -48,7 +48,7 @@ async function basicAutoScalingExample() {
 
   // 3. 创建自动扩容管理器
   const autoScaler = new AutoScalingManager({
-    serviceName: 'wokeflow-app',
+    serviceName: 'frys-app',
     minInstances: 1,
     maxInstances: 5,
     initialInstances: 2,

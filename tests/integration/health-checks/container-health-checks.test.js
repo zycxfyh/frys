@@ -476,7 +476,7 @@ describe('容器健康检查集成测试', () => {
       // 创建Docker健康检查器
       const dockerChecker = new DockerHealthChecker({
         eventBus,
-        containerName: 'wokeflow-app',
+        containerName: 'frys-app',
         checkInterval: 500 // 快速检查用于测试
       });
 
@@ -496,7 +496,7 @@ describe('容器健康检查集成测试', () => {
                 Status: 'running',
                 Health: { Status: 'healthy' }
               },
-              Config: { Image: 'wokeflow:latest' },
+              Config: { Image: 'frys:latest' },
               RestartCount: 0
             })
           });

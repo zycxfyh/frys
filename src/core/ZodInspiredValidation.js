@@ -49,8 +49,7 @@ class ZodInspiredValidation {
 
     // 路径遍历防护规则
     this.securityRules.set('path_traversal', {
-      pattern:
-        /(\.\.[\/\\]|\.\.[\/\\]|\/etc\/|\/bin\/|\/usr\/|\/var\/|\/home\/|\/root\/|\/boot\/|windows\/|system32\/)/gi,
+      pattern: /(\.\.[/\\]|\.\.[/\\]|\/etc\/|\/bin\/|\/usr\/|\/var\/|\/home\/|\/root\/|\/boot\/|windows\/|system32\/)/gi,
       severity: 'high',
       message: '检测到潜在的路径遍历攻击',
     });

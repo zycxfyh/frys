@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-07T07:14:55.873Z",
+  "timestamp": "2025-11-07T13:08:12.583Z",
   "summary": {
     "totalVulnerabilities": 0,
     "critical": 0,
@@ -7,7 +7,7 @@
     "moderate": 0,
     "low": 0,
     "info": 0,
-    "scannedFiles": 150,
+    "scannedFiles": 158,
     "executionTime": 0
   },
   "vulnerabilities": [],

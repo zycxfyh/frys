@@ -63,22 +63,12 @@ async function loadCoreModules() {
     eventSystem: asValue(eventSystem),
     errorHandler: asValue(errorHandler),
     pluginManager: asValue(pluginManager),
+  });
 
-    // 业务服务
-    workflowEngine: asClass(WorkflowEngine).singleton().inject(() => ({
-      http: container.resolve('http'),
-      messaging: container.resolve('messaging'),
-      state: container.resolve('state'),
-      date: container.resolve('date'),
-      utils: container.resolve('utils'),
-    })),
-    userService: asClass(UserService).singleton().inject(() => ({
-      http: container.resolve('http'),
-      messaging: container.resolve('messaging'),
-      state: container.resolve('state'),
-      date: container.resolve('date'),
-      utils: container.resolve('utils'),
-    })),
+  // 注册业务服务 - 在核心服务注册之后
+  container.register({
+    workflowEngine: asClass(WorkflowEngine).singleton(),
+    userService: asClass(UserService).singleton(),
   });
 
   modulesLoaded = true;

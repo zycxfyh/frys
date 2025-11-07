@@ -4,7 +4,7 @@
  */
 
 import { BaseModule } from './BaseModule.js';
-import { frysError } from './error-handler.js';
+import { frysError, errorHandler } from './error-handler.js';
 import { logger } from '../utils/logger.js';
 
 class JWTInspiredAuth extends BaseModule {

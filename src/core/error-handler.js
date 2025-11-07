@@ -349,6 +349,35 @@ export class frysError extends Error {
       stack: this.stack,
     };
   }
+
+  // 便捷的错误创建方法
+  static authentication(message, context = {}) {
+    return new frysError(message, 'AUTHENTICATION_ERROR', 401, context);
+  }
+
+  static authorization(message, context = {}) {
+    return new frysError(message, 'AUTHORIZATION_ERROR', 403, context);
+  }
+
+  static validation(message, context = {}) {
+    return new frysError(message, 'VALIDATION_ERROR', 400, context);
+  }
+
+  static notFound(message, context = {}) {
+    return new frysError(message, 'NOT_FOUND_ERROR', 404, context);
+  }
+
+  static conflict(message, context = {}) {
+    return new frysError(message, 'CONFLICT_ERROR', 409, context);
+  }
+
+  static network(message, context = {}) {
+    return new frysError(message, 'NETWORK_ERROR', 500, context);
+  }
+
+  static system(message, context = {}) {
+    return new frysError(message, 'SYSTEM_ERROR', 500, context);
+  }
 }
 
 // 创建全局错误处理器实例

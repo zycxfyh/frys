@@ -7,11 +7,13 @@ import { config } from '../utils/config.js';
 import messagingAdapter from '../core/messaging-adapter.js';
 
 export class UserService {
-  constructor(dependencies) {
-    this.http = dependencies.http;
-    this.auth = dependencies.auth;
-    this.state = dependencies.state;
-    this.messaging = messagingAdapter; // 使用消息适配器
+  constructor({ http, auth, state, messaging, date, utils }) {
+    this.http = http;
+    this.auth = auth;
+    this.state = state;
+    this.messaging = messaging;
+    this.date = date;
+    this.utils = utils;
 
     this.users = new Map();
     this.sessions = new Map();

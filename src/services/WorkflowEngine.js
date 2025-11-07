@@ -7,12 +7,12 @@ import { config } from '../utils/config.js';
 import messagingAdapter from '../core/messaging-adapter.js';
 
 export class WorkflowEngine {
-  constructor(dependencies) {
-    this.http = dependencies.http;
-    this.messaging = messagingAdapter; // 使用消息适配器
-    this.state = dependencies.state;
-    this.date = dependencies.date;
-    this.utils = dependencies.utils;
+  constructor({ http, messaging, state, date, utils }) {
+    this.http = http;
+    this.messaging = messaging;
+    this.state = state;
+    this.date = date;
+    this.utils = utils;
 
     this.workflows = new Map();
     this.runningWorkflows = new Set();

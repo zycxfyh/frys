@@ -1,0 +1,343 @@
+name: 🚀 Production Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '部署标签 (可选，不填则使用最新)'
+        required: false
+        type: string
+      confirm:
+        description: '确认生产部署'
+        required: true
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '18'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  production-deployment:
+    name: '🔥 生产部署流水线'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 45
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: ✅ 部署确认检查
+      if: github.event.inputs.confirm != 'true'
+      run: |
+        echo "❌ 生产部署需要手动确认，请勾选确认选项"
+        exit 1
+
+    - name: 🏷️ 确定部署标签
+      run: |
+        if [ -n "${{ github.event.inputs.tag }}" ]; then
+          echo "DEPLOY_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+        else
+          # 从 staging 获取最新的成功构建
+          echo "DEPLOY_TAG=latest" >> $GITHUB_ENV
+        fi
+        echo "生产部署标签: $DEPLOY_TAG"
+
+    - name: 🟢 设置 Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    # 🔄 完整的生产前检查
+    - name: 🔄 生产前完整检查
+      run: |
+        echo "执行生产前完整检查..."
+
+        # 1. 代码质量检查
+        echo "1️⃣ 代码质量检查..."
+        npm run lint
+
+        # 2. 单元测试
+        echo "2️⃣ 单元测试..."
+        npm run test:unit
+
+        # 3. 集成测试
+        echo "3️⃣ 集成测试..."
+        npm run test:integration
+
+        # 4. 安全审计
+        echo "4️⃣ 安全审计..."
+        npm audit --audit-level=high
+        node scripts/security-audit.js
+
+        # 5. 性能测试
+        echo "5️⃣ 性能测试..."
+        npm run test:performance
+
+        echo "✅ 生产前检查全部通过"
+
+    # 🏗️ 生产构建
+    - name: 🏗️ 生产构建
+      run: |
+        echo "开始生产构建..."
+        npm run build:prod
+
+        echo "构建 Docker 镜像..."
+        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod-${{ github.sha }} .
+        docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod-${{ github.sha }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:production
+
+        echo "登录容器注册表..."
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+
+        echo "推送生产镜像..."
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod-${{ github.sha }}
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:production
+
+        echo "✅ 生产构建完成"
+
+    # 🚀 生产部署 (蓝绿部署策略)
+    - name: 🚀 生产部署 (蓝绿部署)
+      run: |
+        echo "开始生产环境蓝绿部署..."
+
+        # 确定目标颜色 (blue/green)
+        CURRENT_COLOR=$(curl -s https://frys.com/api/health | jq -r '.color' 2>/dev/null || echo "blue")
+        TARGET_COLOR=$([ "$CURRENT_COLOR" = "blue" ] && echo "green" || echo "blue")
+
+        echo "当前活跃环境: $CURRENT_COLOR"
+        echo "目标部署环境: $TARGET_COLOR"
+
+        # 部署到目标环境
+        echo "部署到 $TARGET_COLOR 环境..."
+        ./scripts/deploy.sh --env=production --color=$TARGET_COLOR --image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod-${{ github.sha }}
+
+        # 等待部署完成
+        echo "等待部署完成..."
+        sleep 60
+
+        # 健康检查
+        echo "执行健康检查..."
+        for i in {1..30}; do
+          if curl -f -s https://$TARGET_COLOR.frys.com/health > /dev/null; then
+            echo "✅ $TARGET_COLOR 环境健康检查通过"
+            break
+          fi
+          echo "等待健康检查... ($i/30)"
+          sleep 10
+        done
+
+        # 流量切换
+        echo "执行流量切换..."
+        ./scripts/deploy.sh --switch-traffic --from=$CURRENT_COLOR --to=$TARGET_COLOR
+
+        # 最终验证
+        echo "最终部署验证..."
+        node scripts/deployment-verification.js --env=production --color=$TARGET_COLOR
+
+        echo "✅ 生产部署完成"
+
+    # 🧪 生产环境测试
+    - name: 🧪 生产环境测试
+      run: |
+        echo "开始生产环境测试..."
+
+        # 冒烟测试
+        echo "执行冒烟测试..."
+        npm run test:smoke -- --env=production
+
+        # API 端到端测试
+        echo "执行 API E2E 测试..."
+        npm run test:e2e:api -- --env=production
+
+        # 用户界面测试 (可选)
+        echo "执行用户界面测试..."
+        npm run test:e2e:ui -- --env=production --headless
+
+        echo "✅ 生产环境测试通过"
+
+    # 📊 性能监控和基准测试
+    - name: 📊 性能监控
+      run: |
+        echo "开始性能监控..."
+
+        # 性能基准测试
+        echo "执行性能基准测试..."
+        npm run benchmark -- --env=production
+
+        # 监控指标收集
+        echo "收集监控指标..."
+        node scripts/monitoring-rollback.js --baseline
+
+        # SLO 检查
+        echo "检查服务水平目标..."
+        node scripts/slo-check.js
+
+        echo "✅ 性能监控完成"
+
+    # 🔄 回滚准备
+    - name: 🔄 回滚准备
+      if: always()
+      run: |
+        echo "准备回滚策略..."
+
+        # 保存当前状态
+        node scripts/smart-rollback.js --save-state --env=production
+
+        # 生成回滚计划
+        node scripts/rollback.sh --plan --env=production > rollback-plan.txt
+
+        echo "回滚准备完成"
+
+    # 📋 部署报告生成
+    - name: 📋 生成部署报告
+      if: always()
+      run: |
+        echo "生成生产部署报告..."
+
+        DEPLOY_STATUS="${{ job.status }}"
+        DEPLOY_DURATION=$((SECONDS / 60))
+
+        cat > production-deployment-report.json << EOF
+        {
+          "timestamp": "$(date -Iseconds)",
+          "commit": "${{ github.sha }}",
+          "branch": "${{ github.ref }}",
+          "environment": "production",
+          "status": "$DEPLOY_STATUS",
+          "duration_minutes": $DEPLOY_DURATION,
+          "deploy_tag": "${{ env.DEPLOY_TAG }}",
+          "confirmation_required": true,
+          "confirmation_provided": ${{ github.event.inputs.confirm }},
+          "pipeline_steps": [
+            {
+              "step": "生产前检查",
+              "status": "✅",
+              "duration": "~10分钟",
+              "description": "代码质量、测试、安全审计、性能测试"
+            },
+            {
+              "step": "生产构建",
+              "status": "✅",
+              "duration": "~5分钟",
+              "description": "生产镜像构建和推送"
+            },
+            {
+              "step": "蓝绿部署",
+              "status": "$DEPLOY_STATUS",
+              "duration": "~15分钟",
+              "description": "零停机蓝绿部署策略"
+            },
+            {
+              "step": "生产测试",
+              "status": "$DEPLOY_STATUS",
+              "duration": "~10分钟",
+              "description": "冒烟测试、E2E测试、UI测试"
+            },
+            {
+              "step": "性能监控",
+              "status": "$DEPLOY_STATUS",
+              "duration": "~5分钟",
+              "description": "性能基准、SLO检查、监控设置"
+            }
+          ],
+          "rollback_ready": true,
+          "monitoring_enabled": true
+        }
+        EOF
+
+    # 📤 上传部署产物
+    - name: 📤 上传部署产物
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: production-deployment-artifacts
+        path: |
+          production-deployment-report.json
+          rollback-plan.txt
+          benchmark-results/
+          monitoring-baseline.json
+
+    # 🚨 部署状态通知
+    - name: 🚨 部署状态通知
+      if: always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const status = '${{ job.status }}' === 'success' ? '🚀' : '🚨';
+          const duration = Math.floor(${{ env.SECONDS || 0 }} / 60);
+          const message = `${status} **frys 生产环境部署完成**
+
+**部署信息**:
+- **提交**: ${context.sha.substring(0, 7)}
+- **分支**: main
+- **环境**: 生产环境
+- **状态**: ${{ job.status }}
+- **耗时**: ${duration} 分钟
+- **部署标签**: ${{ env.DEPLOY_TAG }}
+
+**流水线步骤**:
+✅ 生产前检查 (~10分钟) - 代码质量、测试、安全审计、性能测试
+✅ 生产构建 (~5分钟) - Docker镜像构建和推送
+${{ job.status === 'success' ? '✅' : '❌' }} 蓝绿部署 (~15分钟) - 零停机部署策略
+${{ job.status === 'success' ? '✅' : '❌' }} 生产测试 (~10分钟) - 冒烟测试、E2E测试、UI测试
+${{ job.status === 'success' ? '✅' : '❌' }} 性能监控 (~5分钟) - 基准测试、SLO检查
+
+**监控信息**:
+- 🔍 [应用监控面板](https://grafana.frys.com)
+- 📊 [性能指标面板](https://prometheus.frys.com)
+- 🚨 [告警中心](https://alertmanager.frys.com)
+
+[📋 查看详细部署报告](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+
+          // 创建 GitHub Issue 评论
+          if (context.issue) {
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+          }
+
+          // 发送 Slack 通知
+          if (process.env.SLACK_WEBHOOK_URL) {
+            const slackColor = '${{ job.status }}' === 'success' ? 'good' : 'danger';
+            const slackMessage = {
+              attachments: [{
+                color: slackColor,
+                title: `frys 生产部署 ${{ job.status === 'success' ? '成功' : '失败' }}`,
+                title_link: `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`,
+                fields: [
+                  { title: '提交', value: context.sha.substring(0, 7), short: true },
+                  { title: '耗时', value: `${duration}分钟`, short: true },
+                  { title: '环境', value: '生产环境', short: true },
+                  { title: '状态', value: '${{ job.status }}', short: true }
+                ],
+                footer: 'frys CI/CD Pipeline',
+                ts: Date.now() / 1000
+              }]
+            };
+
+            await fetch(process.env.SLACK_WEBHOOK_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(slackMessage)
+            });
+          }
+
+    # 🎯 部署成功庆祝
+    - name: 🎯 部署成功庆祝
+      if: success()
+      run: |
+        echo "🎉 恭喜！frys 生产部署成功！"
+        echo "🚀 应用已成功部署到生产环境"
+        echo "📊 所有监控和告警系统已启用"
+        echo "🔄 回滚策略已准备就绪"

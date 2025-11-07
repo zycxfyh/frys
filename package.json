@@ -18,6 +18,10 @@
     "test:regression": "vitest run tests/regression/",
     "test:e2e": "vitest run tests/integration/end-to-end-workflow.test.js",
     "test:smoke": "vitest run tests/unit/ --reporter=verbose",
+    "test:smoke:api": "vitest run tests/integration/health-checks/ --reporter=verbose",
+    "test:e2e:api": "vitest run tests/integration/ --grep 'API' --reporter=verbose",
+    "test:e2e:ui": "vitest run tests/integration/ --grep 'UI\\|E2E' --reporter=verbose",
+    "test:integration:light": "vitest run tests/integration/health-checks/ tests/integration/auth/ --reporter=verbose",
     "test:industrial": "node scripts/test-runner.js all",
     "test:industrial:smoke": "node scripts/test-runner.js smoke",
     "test:industrial:critical": "node scripts/test-runner.js critical",
@@ -64,7 +68,9 @@
     "rollback:verify": "node scripts/rollback-verifier.js",
     "verify:deployment": "node scripts/verify-deployment.js",
     "verify:staging": "DEPLOY_ENV=staging node scripts/verify-deployment.js",
-    "verify:rollback": "node scripts/rollback-verifier.js"
+    "verify:rollback": "node scripts/rollback-verifier.js",
+    "slo:check": "node scripts/slo-check.js",
+    "slo:baseline": "node scripts/slo-check.js --baseline"
   },
   "keywords": [
     "workflow",

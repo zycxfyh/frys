@@ -1,6 +1,6 @@
 groups:
   # 应用层告警
-  - name: wokeflow_application_alerts
+  - name: frys_application_alerts
     rules:
       # 应用实例宕机
       - alert: frysInstanceDown

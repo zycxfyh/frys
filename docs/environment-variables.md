@@ -27,7 +27,7 @@ frys 使用环境变量来管理所有配置，确保安全性、可移植性和
 
 | 变量名 | 默认值 | 描述 |
 |--------|--------|------|
-| `NATS_CLUSTER` | `wokeflow-prod` | NATS 集群名称 |
+| `NATS_CLUSTER` | `frys-prod` | NATS 集群名称 |
 | `MESSAGING_TIMEOUT` | `5000` | 消息超时时间 (毫秒) |
 | `MESSAGING_MAX_CONNECTIONS` | `10` | 最大连接数 |
 
@@ -38,8 +38,8 @@ frys 使用环境变量来管理所有配置，确保安全性、可移植性和
 | `JWT_SECRET` | `your-super-secret-jwt-key-change-in-production` | JWT 密钥 |
 | `JWT_EXPIRES_IN` | `24h` | JWT 过期时间 |
 | `JWT_REFRESH_EXPIRES_IN` | `7d` | 刷新令牌过期时间 |
-| `JWT_ISSUER` | `wokeflow-production` | JWT 发行者 |
-| `JWT_AUDIENCE` | `wokeflow-users` | JWT 受众 |
+| `JWT_ISSUER` | `frys-production` | JWT 发行者 |
+| `JWT_AUDIENCE` | `frys-users` | JWT 受众 |
 
 ### 数据库配置
 
@@ -48,7 +48,7 @@ frys 使用环境变量来管理所有配置，确保安全性、可移植性和
 | `DB_TYPE` | `mongodb` | 数据库类型 |
 | `DB_HOST` | `localhost` | 数据库主机 |
 | `DB_PORT` | `27017` | 数据库端口 |
-| `DB_NAME` | `wokeflow_prod` | 数据库名称 |
+| `DB_NAME` | `frys_prod` | 数据库名称 |
 | `DB_USERNAME` |  | 数据库用户名 |
 | `DB_PASSWORD` |  | 数据库密码 |
 | `DB_CONNECTION_TIMEOUT` | `30000` | 连接超时时间 (毫秒) |
@@ -104,7 +104,7 @@ frys 使用环境变量来管理所有配置，确保安全性、可移植性和
 | `EMAIL_PASS` |  | SMTP 密码 |
 | `SLACK_ENABLED` | `false` | 是否启用 Slack 通知 |
 | `SLACK_WEBHOOK_URL` |  | Slack Webhook URL |
-| `SLACK_CHANNEL` | `#wokeflow-notifications` | Slack 频道 |
+| `SLACK_CHANNEL` | `#frys-notifications` | Slack 频道 |
 
 ### 日志配置
 
@@ -113,7 +113,7 @@ frys 使用环境变量来管理所有配置，确保安全性、可移植性和
 | `LOG_FORMAT` | `json` | 日志格式 (json/text) |
 | `LOG_CONSOLE_ENABLED` | `true` | 是否启用控制台日志 |
 | `LOG_FILE_ENABLED` | `true` | 是否启用文件日志 |
-| `LOG_FILE_PATH` | `./logs/wokeflow.log` | 日志文件路径 |
+| `LOG_FILE_PATH` | `./logs/frys.log` | 日志文件路径 |
 | `LOG_FILE_MAX_SIZE` | `10m` | 单个日志文件最大大小 |
 | `LOG_FILE_MAX_FILES` | `5` | 最大日志文件数量 |
 
@@ -121,11 +121,11 @@ frys 使用环境变量来管理所有配置，确保安全性、可移植性和
 
 | 变量名 | 默认值 | 描述 |
 |--------|--------|------|
-| `PRODUCTION_URL` | `https://app.wokeflow.com` | 生产环境URL |
-| `MONITORING_URL` | `https://monitoring.wokeflow.com` | 监控面板URL |
-| `LOGS_URL` | `https://logs.wokeflow.com` | 日志系统URL |
-| `ALERTS_URL` | `https://alerts.wokeflow.com` | 告警中心URL |
-| `STAGING_URL` | `https://staging.wokeflow.com` | 测试环境URL |
+| `PRODUCTION_URL` | `https://app.frys.com` | 生产环境URL |
+| `MONITORING_URL` | `https://monitoring.frys.com` | 监控面板URL |
+| `LOGS_URL` | `https://logs.frys.com` | 日志系统URL |
+| `ALERTS_URL` | `https://alerts.frys.com` | 告警中心URL |
+| `STAGING_URL` | `https://staging.frys.com` | 测试环境URL |
 
 ## 使用示例
 
@@ -145,7 +145,7 @@ JWT_SECRET=dev-secret-key
 # .env 文件内容
 NODE_ENV=production
 PORT=8080
-API_BASE_URL=https://api.wokeflow.com/api
+API_BASE_URL=https://api.frys.com/api
 JWT_SECRET=your-production-secret-key
 DB_HOST=prod-database-host
 DB_USERNAME=prod-user
@@ -160,7 +160,7 @@ MONITORING_ENABLED=true
 environment:
   - NODE_ENV=production
   - PORT=3000
-  - API_BASE_URL=https://api.wokeflow.com/api
+  - API_BASE_URL=https://api.frys.com/api
   - JWT_SECRET=${JWT_SECRET}
   - DB_HOST=db
   - DB_PASSWORD=${DB_PASSWORD}

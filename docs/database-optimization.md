@@ -23,8 +23,8 @@ frys 数据库优化架构提供了一套完整的数据库性能优化解决方
 {
   host: 'localhost',
   port: 5432,
-  database: 'wokeflow',
-  user: 'wokeflow',
+  database: 'frys',
+  user: 'frys',
   password: 'password',
   min: 2,              // 最小连接数
   max: 20,             // 最大连接数

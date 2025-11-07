@@ -21,11 +21,11 @@ COPY . .
 
 # 创建非root用户
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S wokeflow -u 1001
+    adduser -S frys -u 1001
 
 # 更改文件所有权
-RUN chown -R wokeflow:nodejs /app
-USER wokeflow
+RUN chown -R frys:nodejs /app
+USER frys
 
 # 暴露端口
 EXPOSE 3000

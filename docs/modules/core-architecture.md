@@ -126,7 +126,7 @@ const config = {
     name: 'frys'
   },
   database: {
-    url: 'postgresql://localhost:5432/wokeflow'
+    url: 'postgresql://localhost:5432/frys'
   }
 };
 

@@ -70,7 +70,7 @@ import { DockerHealthChecker } from './infrastructure/health-checks/DockerHealth
 
 const dockerChecker = new DockerHealthChecker({
   containerName: 'my-app',
-  serviceName: 'wokeflow-app',
+  serviceName: 'frys-app',
   healthCheckEndpoint: '/health'
 });
 
@@ -104,7 +104,7 @@ import { KubernetesHealthChecker } from './infrastructure/health-checks/Kubernet
 const k8sChecker = new KubernetesHealthChecker({
   namespace: 'production',
   podName: process.env.POD_NAME,
-  serviceName: 'wokeflow-api'
+  serviceName: 'frys-api'
 });
 
 // 启动检查
@@ -259,20 +259,20 @@ services:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wokeflow-app
+  name: frys-app
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: wokeflow
+      app: frys
   template:
     metadata:
       labels:
-        app: wokeflow
+        app: frys
     spec:
       containers:
       - name: app
-        image: wokeflow:latest
+        image: frys:latest
         ports:
         - containerPort: 3000
         env:
@@ -316,10 +316,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: wokeflow-service
+  name: frys-service
 spec:
   selector:
-    app: wokeflow
+    app: frys
   ports:
   - port: 80
     targetPort: 3000
@@ -331,7 +331,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: wokeflow-config
+  name: frys-config
 data:
   HEALTH_CHECK_INTERVAL: "30"
   HEALTH_CHECK_TIMEOUT: "5"

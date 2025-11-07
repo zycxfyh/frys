@@ -46,7 +46,7 @@ graph TB
 **配置选项：**
 ```javascript
 const autoScalingManager = new AutoScalingManager({
-  serviceName: 'wokeflow-app',        // 服务名称
+  serviceName: 'frys-app',        // 服务名称
   minInstances: 1,                    // 最小实例数
   maxInstances: 10,                   // 最大实例数
   initialInstances: 2,                // 初始实例数
@@ -194,10 +194,10 @@ metrics.recordRequest({
 #### Docker 实现
 ```javascript
 const dockerOrchestrator = new DockerContainerOrchestrator({
-  imageName: 'wokeflow-app:latest',
+  imageName: 'frys-app:latest',
   basePort: 3000,
-  containerPrefix: 'wokeflow-app-',
-  network: 'wokeflow-network',
+  containerPrefix: 'frys-app-',
+  network: 'frys-network',
   environment: {
     NODE_ENV: 'production',
     DATABASE_URL: process.env.DATABASE_URL
@@ -205,7 +205,7 @@ const dockerOrchestrator = new DockerContainerOrchestrator({
 });
 
 // 启动实例
-const instance = await dockerOrchestrator.startInstance('wokeflow-app', {
+const instance = await dockerOrchestrator.startInstance('frys-app', {
   index: 1
 });
 
@@ -225,7 +225,7 @@ import { DockerContainerOrchestrator } from './infrastructure/scaling/DockerCont
 
 // 创建编排器
 const orchestrator = new DockerContainerOrchestrator({
-  imageName: 'wokeflow-app:latest',
+  imageName: 'frys-app:latest',
   basePort: 3000
 });
 
@@ -235,7 +235,7 @@ const memoryPolicy = new MemoryScalingPolicy();
 
 // 创建自动扩容管理器
 const autoScaler = new AutoScalingManager({
-  serviceName: 'wokeflow-app',
+  serviceName: 'frys-app',
   minInstances: 2,
   maxInstances: 10,
   policies: [cpuPolicy, memoryPolicy],

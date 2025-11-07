@@ -45,7 +45,7 @@ frys 的业务服务层提供了企业级应用的核心业务逻辑实现。通
 ### 快速开始
 
 ```javascript
-import { container } from 'wokeflow';
+import { container } from 'frys';
 
 const userService = container.resolve('userService');
 
@@ -122,7 +122,7 @@ const roles = await userService.getUserRoles(userId);
 ### 快速开始
 
 ```javascript
-import { container } from 'wokeflow';
+import { container } from 'frys';
 
 const workflowEngine = container.resolve('workflowEngine');
 
@@ -293,7 +293,7 @@ class WorkflowEngine {
 ### 服务注册
 
 ```javascript
-import { container } from 'wokeflow';
+import { container } from 'frys';
 
 // 注册业务服务
 container.register('userService', UserService);

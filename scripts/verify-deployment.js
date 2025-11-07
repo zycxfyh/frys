@@ -75,7 +75,7 @@ class DeploymentVerifier {
         .map(line => line.trim());
 
       const expectedServices = [
-        'wokeflow-blue', 'wokeflow-green',
+        'frys-blue', 'frys-green',
         'nginx', 'redis', 'postgres',
         'prometheus', 'grafana'
       ];
@@ -99,7 +99,7 @@ class DeploymentVerifier {
   }
 
   async checkContainerHealth() {
-    const services = ['wokeflow-blue', 'wokeflow-green'];
+    const services = ['frys-blue', 'frys-green'];
 
     for (const service of services) {
       try {
@@ -128,7 +128,7 @@ class DeploymentVerifier {
 
   async checkDatabaseConnectivity() {
     try {
-      execSync(`docker-compose -f docker-compose.${this.env}.yml exec -T postgres pg_isready -U wokeflow -d wokeflow_prod`, {
+      execSync(`docker-compose -f docker-compose.${this.env}.yml exec -T postgres pg_isready -U frys -d frys_prod`, {
         stdio: 'pipe'
       });
       this.addCheck('数据库连接', 'passed');

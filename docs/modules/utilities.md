@@ -57,7 +57,7 @@ frys 的工具层提供了丰富的实用函数和基础服务，支持应用开
 ### 快速开始
 
 ```javascript
-import { ConfigManager } from 'wokeflow/utils';
+import { ConfigManager } from 'frys/utils';
 
 // 创建配置管理器
 const configManager = new ConfigManager({
@@ -144,7 +144,7 @@ const remoteSource = {
   method: 'GET',
   headers: {
     'Authorization': 'Bearer ' + process.env.CONFIG_TOKEN,
-    'X-Service-Name': 'wokeflow'
+    'X-Service-Name': 'frys'
   },
   timeout: 5000,
   retry: {
@@ -348,7 +348,7 @@ configManager.on('reloadError', ({ source, error }) => {
 ### 快速开始
 
 ```javascript
-import { Logger, ConsoleTransport, FileTransport } from 'wokeflow/utils';
+import { Logger, ConsoleTransport, FileTransport } from 'frys/utils';
 
 // 创建日志器
 const logger = new Logger({
@@ -565,7 +565,7 @@ class MonitoredLogger extends Logger {
 ### 快速开始
 
 ```javascript
-import { CacheManager, MemoryCache, RedisCache } from 'wokeflow/utils';
+import { CacheManager, MemoryCache, RedisCache } from 'frys/utils';
 
 // 创建多层缓存管理器
 const cacheManager = new CacheManager({
@@ -581,7 +581,7 @@ const cacheManager = new CacheManager({
       host: 'localhost',
       port: 6379,
       ttl: 3600,         // 1小时
-      prefix: 'wokeflow:'
+      prefix: 'frys:'
     })
   ],
   serialization: 'json'
@@ -865,7 +865,7 @@ class SmartPreloader {
 ### 快速开始
 
 ```javascript
-import { Validator, createSchema } from 'wokeflow/utils';
+import { Validator, createSchema } from 'frys/utils';
 
 // 创建验证器
 const validator = new Validator();
@@ -1187,7 +1187,7 @@ class CachedValidator extends Validator {
 ### 日期时间处理
 
 ```javascript
-import { DateTime, Duration, Interval } from 'wokeflow/utils';
+import { DateTime, Duration, Interval } from 'frys/utils';
 
 // 创建日期时间
 const now = DateTime.now();
@@ -1228,7 +1228,7 @@ console.log(DateTime.toNow(now.plus({ hours: 2 })));   // 2小时后
 ### 字符串操作
 
 ```javascript
-import { StringUtils } from 'wokeflow/utils';
+import { StringUtils } from 'frys/utils';
 
 // 字符串转换
 StringUtils.camelCase('hello_world');        // helloWorld
@@ -1264,7 +1264,7 @@ StringUtils.random(12, 'alphanumeric');                 // A9b2K8mL3pQ7
 ### 集合操作
 
 ```javascript
-import { CollectionUtils } from 'wokeflow/utils';
+import { CollectionUtils } from 'frys/utils';
 
 // 数组操作
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -1321,7 +1321,7 @@ copy.b.c = 3; // 不影响 original
 ### 异步工具
 
 ```javascript
-import { AsyncUtils } from 'wokeflow/utils';
+import { AsyncUtils } from 'frys/utils';
 
 // 延迟执行
 await AsyncUtils.delay(1000); // 延迟1秒
@@ -1504,7 +1504,7 @@ class UtilitiesMonitor {
 ### 性能基准测试
 
 ```javascript
-import { Benchmark } from 'wokeflow/utils';
+import { Benchmark } from 'frys/utils';
 
 const benchmark = new Benchmark();
 

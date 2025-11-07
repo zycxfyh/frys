@@ -89,7 +89,7 @@ CACHE_MAX_SIZE=1000
 # 安全配置
 RATE_LIMIT_WINDOW=900000
 RATE_LIMIT_MAX=100
-CORS_ORIGIN=${CORS_ORIGIN:-https://staging.wokeflow.com}
+CORS_ORIGIN=${CORS_ORIGIN:-https://staging.frys.com}
 
 # 备份配置
 BACKUP_ENABLED=true
@@ -159,13 +159,13 @@ http {
     limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
     limit_req_zone $binary_remote_addr zone=auth:10m rate=5r/s;
 
-    upstream wokeflow_backend {
-        server wokeflow:3000;
+    upstream frys_backend {
+        server frys:3000;
     }
 
     server {
         listen 80;
-        server_name staging.wokeflow.com;
+        server_name staging.frys.com;
 
         # 安全头
         add_header X-Frame-Options DENY;
@@ -177,7 +177,7 @@ http {
         location /api/ {
             limit_req zone=api burst=20 nodelay;
 
-            proxy_pass http://wokeflow_backend;
+            proxy_pass http://frys_backend;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection 'upgrade';
@@ -197,7 +197,7 @@ http {
         location /api/auth/ {
             limit_req zone=auth burst=10 nodelay;
 
-            proxy_pass http://wokeflow_backend;
+            proxy_pass http://frys_backend;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection 'upgrade';
@@ -209,20 +209,20 @@ http {
 
         # 健康检查
         location /health {
-            proxy_pass http://wokeflow_backend/health;
+            proxy_pass http://frys_backend/health;
             access_log off;
         }
 
         # 静态文件缓存
         location /static/ {
-            proxy_pass http://wokeflow_backend;
+            proxy_pass http://frys_backend;
             expires 1y;
             add_header Cache-Control "public, immutable";
         }
 
         # 默认路由
         location / {
-            proxy_pass http://wokeflow_backend;
+            proxy_pass http://frys_backend;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection 'upgrade';
@@ -260,9 +260,9 @@ rule_files:
   # - "second_rules.yml"
 
 scrape_configs:
-  - job_name: 'wokeflow'
+  - job_name: 'frys'
     static_configs:
-      - targets: ['wokeflow:3000']
+      - targets: ['frys:3000']
     scrape_interval: 5s
     metrics_path: '/metrics'
 

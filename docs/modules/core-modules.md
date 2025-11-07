@@ -36,7 +36,7 @@ frys 的核心功能模块采用了"站在巨人肩膀上"的设计理念，通�
 ### 快速开始
 
 ```javascript
-import { httpClient } from 'wokeflow';
+import { httpClient } from 'frys';
 
 // 基础请求
 const response = await httpClient.get('/api/users');
@@ -122,7 +122,7 @@ const config = {
 ### 快速开始
 
 ```javascript
-import { createStore } from 'wokeflow';
+import { createStore } from 'frys';
 
 // 创建用户状态存储
 const useUserStore = createStore((set, get) => ({
@@ -176,7 +176,7 @@ function UserProfile() {
 ### 中间件使用
 
 ```javascript
-import { createStore, persist, devtools } from 'wokeflow';
+import { createStore, persist, devtools } from 'frys';
 
 // 持久化中间件 - 状态保存到 localStorage
 const usePersistentStore = createStore(
@@ -240,7 +240,7 @@ const { user, settings } = useStore(
 ### 快速开始
 
 ```javascript
-import { createQueue, createWorker } from 'wokeflow';
+import { createQueue, createWorker } from 'frys';
 
 // 创建队列
 const emailQueue = createQueue('email');
@@ -336,7 +336,7 @@ await emailQueue.resume();
 ### 快速开始
 
 ```javascript
-import { eventEmitter } from 'wokeflow';
+import { eventEmitter } from 'frys';
 
 // 监听事件
 eventEmitter.on('user.created', (user) => {
@@ -405,7 +405,7 @@ const listenerCount = eventEmitter.listenerCount('user.created');
 ### 快速开始
 
 ```javascript
-import { auth } from 'wokeflow';
+import { auth } from 'frys';
 
 // 初始化认证模块
 await auth.initialize();
@@ -495,7 +495,7 @@ auth.cleanupExpiredTokens();
 ### 快速开始
 
 ```javascript
-import { dateUtil } from 'wokeflow';
+import { dateUtil } from 'frys';
 
 // 创建日期对象
 const now = dateUtil.create();
@@ -563,7 +563,7 @@ const parsed = dateUtil.parse('2024-01-01 12:00:00', 'YYYY-MM-DD HH:mm:ss');
 ### 快速开始
 
 ```javascript
-import { utils } from 'wokeflow';
+import { utils } from 'frys';
 
 // 数组操作
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -666,7 +666,7 @@ const result2 = utils.uniq(
 ### 依赖注入配置
 
 ```javascript
-import { container } from 'wokeflow';
+import { container } from 'frys';
 
 // 注册核心模块
 container.register('http', httpClient);
@@ -958,7 +958,7 @@ setInterval(() => {
 
 ## 📚 相关链接
 
-- [项目主页](https://github.com/your-org/wokeflow)
+- [项目主页](https://github.com/zycxfyh/frys)
 - [API 文档](api-documentation.md)
 - [部署指南](deployment-guide.md)
 - [测试策略](testing-architecture.md)

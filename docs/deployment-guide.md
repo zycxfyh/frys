@@ -27,8 +27,8 @@
 
 1. **克隆项目**
 ```bash
-git clone https://github.com/wokeflow/wokeflow.git
-cd wokeflow
+git clone https://github.com/frys/frys.git
+cd frys
 ```
 
 2. **启动服务**
@@ -58,9 +58,9 @@ cp .env.example .env
 ```bash
 # 使用 Docker 启动 PostgreSQL
 docker run -d \
-  --name wokeflow-postgres \
-  -e POSTGRES_DB=wokeflow \
-  -e POSTGRES_USER=wokeflow \
+  --name frys-postgres \
+  -e POSTGRES_DB=frys \
+  -e POSTGRES_USER=frys \
   -e POSTGRES_PASSWORD=password \
   -p 5432:5432 \
   postgres:13
@@ -94,7 +94,7 @@ PORT=3000
 HOST=0.0.0.0
 
 # 数据库配置
-DATABASE_URL=postgresql://user:password@localhost:5432/wokeflow
+DATABASE_URL=postgresql://user:password@localhost:5432/frys
 DB_POOL_MIN=2
 DB_POOL_MAX=10
 DB_POOL_IDLE_TIMEOUT=30000
@@ -127,7 +127,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
-FROM_EMAIL=noreply@wokeflow.com
+FROM_EMAIL=noreply@frys.com
 
 # 监控配置
 PROMETHEUS_ENABLED=true
@@ -149,9 +149,9 @@ STORAGE_REGION=us-east-1
 
 1. **创建数据库**
 ```sql
-CREATE DATABASE wokeflow;
-CREATE USER wokeflow WITH ENCRYPTED PASSWORD 'password';
-GRANT ALL PRIVILEGES ON DATABASE wokeflow TO wokeflow;
+CREATE DATABASE frys;
+CREATE USER frys WITH ENCRYPTED PASSWORD 'password';
+GRANT ALL PRIVILEGES ON DATABASE frys TO frys;
 ```
 
 2. **运行迁移**
@@ -185,11 +185,11 @@ COPY . .
 
 # 创建非root用户
 RUN addgroup -g 1001 -S nodejs
-RUN adduser -S wokeflow -u 1001
+RUN adduser -S frys -u 1001
 
 # 设置权限
-RUN chown -R wokeflow:nodejs /app
-USER wokeflow
+RUN chown -R frys:nodejs /app
+USER frys
 
 EXPOSE 3000
 
@@ -212,7 +212,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://wokeflow:password@db:5432/wokeflow
+      - DATABASE_URL=postgresql://frys:password@db:5432/frys
       - REDIS_URL=redis://cache:6379
       - RABBITMQ_URL=amqp://guest:guest@mq:5672
     depends_on:
@@ -226,8 +226,8 @@ services:
   db:
     image: postgres:13-alpine
     environment:
-      - POSTGRES_DB=wokeflow
-      - POSTGRES_USER=wokeflow
+      - POSTGRES_DB=frys
+      - POSTGRES_USER=frys
       - POSTGRES_PASSWORD=password
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -288,9 +288,9 @@ volumes:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: wokeflow
+  name: frys
   labels:
-    name: wokeflow
+    name: frys
 ```
 
 ### 配置管理
@@ -299,8 +299,8 @@ metadata:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: wokeflow-config
-  namespace: wokeflow
+  name: frys-config
+  namespace: frys
 data:
   NODE_ENV: "production"
   LOG_LEVEL: "info"
@@ -311,8 +311,8 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: wokeflow-secrets
-  namespace: wokeflow
+  name: frys-secrets
+  namespace: frys
 type: Opaque
 data:
   JWT_SECRET: <base64-encoded-secret>
@@ -326,28 +326,28 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wokeflow-app
-  namespace: wokeflow
+  name: frys-app
+  namespace: frys
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: wokeflow
+      app: frys
   template:
     metadata:
       labels:
-        app: wokeflow
+        app: frys
     spec:
       containers:
-      - name: wokeflow
-        image: your-registry/wokeflow:latest
+      - name: frys
+        image: your-registry/frys:latest
         ports:
         - containerPort: 3000
         envFrom:
         - configMapRef:
-            name: wokeflow-config
+            name: frys-config
         - secretRef:
-            name: wokeflow-secrets
+            name: frys-secrets
         livenessProbe:
           httpGet:
             path: /health
@@ -375,11 +375,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: wokeflow-service
-  namespace: wokeflow
+  name: frys-service
+  namespace: frys
 spec:
   selector:
-    app: wokeflow
+    app: frys
   ports:
   - port: 80
     targetPort: 3000
@@ -392,8 +392,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: wokeflow-ingress
-  namespace: wokeflow
+  name: frys-ingress
+  namespace: frys
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -401,7 +401,7 @@ spec:
   tls:
   - hosts:
     - api.yourdomain.com
-    secretName: wokeflow-tls
+    secretName: frys-tls
   rules:
   - host: api.yourdomain.com
     http:
@@ -410,7 +410,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: wokeflow-service
+            name: frys-service
             port:
               number: 80
 ```
@@ -421,8 +421,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: wokeflow-storage
-  namespace: wokeflow
+  name: frys-storage
+  namespace: frys
 spec:
   accessModes:
     - ReadWriteOnce
@@ -438,7 +438,7 @@ spec:
 **ecs-task-definition.json**
 ```json
 {
-  "family": "wokeflow",
+  "family": "frys",
   "taskRoleArn": "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
   "executionRoleArn": "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
   "networkMode": "awsvpc",
@@ -447,8 +447,8 @@ spec:
   "memory": "512",
   "containerDefinitions": [
     {
-      "name": "wokeflow",
-      "image": "123456789012.dkr.ecr.us-east-1.amazonaws.com/wokeflow:latest",
+      "name": "frys",
+      "image": "123456789012.dkr.ecr.us-east-1.amazonaws.com/frys:latest",
       "essential": true,
       "portMappings": [
         {
@@ -462,13 +462,13 @@ spec:
         {"name": "PORT", "value": "3000"}
       ],
       "secrets": [
-        {"name": "DATABASE_URL", "valueFrom": "arn:aws:secretsmanager:us-east-1:123456789012:secret:wokeflow/db"},
-        {"name": "JWT_SECRET", "valueFrom": "arn:aws:secretsmanager:us-east-1:123456789012:secret:wokeflow/jwt"}
+        {"name": "DATABASE_URL", "valueFrom": "arn:aws:secretsmanager:us-east-1:123456789012:secret:frys/db"},
+        {"name": "JWT_SECRET", "valueFrom": "arn:aws:secretsmanager:us-east-1:123456789012:secret:frys/jwt"}
       ],
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/wokeflow",
+          "awslogs-group": "/ecs/frys",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
@@ -484,12 +484,12 @@ spec:
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: wokeflow
+  name: frys
 spec:
   template:
     spec:
       containers:
-      - image: gcr.io/your-project/wokeflow:latest
+      - image: gcr.io/your-project/frys:latest
         ports:
         - containerPort: 3000
         env:
@@ -512,9 +512,9 @@ spec:
   "properties": {
     "containers": [
       {
-        "name": "wokeflow",
+        "name": "frys",
         "properties": {
-          "image": "yourregistry.azurecr.io/wokeflow:latest",
+          "image": "yourregistry.azurecr.io/frys:latest",
           "ports": [
             {
               "port": 3000
@@ -586,7 +586,7 @@ server {
 ```haproxy
 frontend http_front
     bind *:80
-    bind *:443 ssl crt /etc/ssl/certs/wokeflow.pem
+    bind *:443 ssl crt /etc/ssl/certs/frys.pem
     redirect scheme https if !{ ssl_fc }
 
     # 速率限制
@@ -594,9 +594,9 @@ frontend http_front
     http-request track-sc0 src
     http-request deny deny_status 429 if { sc_http_req_rate(0) gt 100 }
 
-    default_backend wokeflow_backend
+    default_backend frys_backend
 
-backend wokeflow_backend
+backend frys_backend
     balance roundrobin
     option httpchk GET /health
     http-check expect status 200
@@ -624,7 +624,7 @@ alerting:
           - alertmanager:9093
 
 scrape_configs:
-  - job_name: 'wokeflow'
+  - job_name: 'frys'
     static_configs:
       - targets: ['localhost:3000']
     metrics_path: '/metrics'
@@ -638,7 +638,7 @@ scrape_configs:
 **告警规则**
 ```yaml
 groups:
-  - name: wokeflow
+  - name: frys
     rules:
       - alert: HighErrorRate
         expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
@@ -667,11 +667,11 @@ groups:
 # 每日备份脚本
 #!/bin/bash
 DATE=$(date +%Y%m%d_%H%M%S)
-pg_dump -h localhost -U wokeflow wokeflow > backup_$DATE.sql
+pg_dump -h localhost -U frys frys > backup_$DATE.sql
 
 # 压缩并上传到云存储
 gzip backup_$DATE.sql
-aws s3 cp backup_$DATE.sql.gz s3://wokeflow-backups/
+aws s3 cp backup_$DATE.sql.gz s3://frys-backups/
 
 # 删除7天前的备份
 find /backups -name "backup_*.sql.gz" -mtime +7 -delete
@@ -701,7 +701,7 @@ docker-compose down
 2. **恢复数据库**
 ```bash
 gunzip backup_20231107.sql.gz
-psql -h localhost -U wokeflow wokeflow < backup_20231107.sql
+psql -h localhost -U frys frys < backup_20231107.sql
 ```
 
 3. **恢复配置**
@@ -843,15 +843,15 @@ const result = await pool.query(
 ### 日志管理
 
 ```bash
-# 日志轮转配置 /etc/logrotate.d/wokeflow
-/var/log/wokeflow/*.log {
+# 日志轮转配置 /etc/logrotate.d/frys
+/var/log/frys/*.log {
     daily
     missingok
     rotate 52
     compress
     delaycompress
     notifempty
-    create 644 wokeflow wokeflow
+    create 644 frys frys
     postrotate
         pm2 reloadLogs
     endscript
@@ -871,7 +871,7 @@ npm audit fix
 2. **数据库维护**
 ```sql
 -- 每周重建索引
-REINDEX DATABASE wokeflow;
+REINDEX DATABASE frys;
 
 -- 清理过期数据
 DELETE FROM audit_logs WHERE created_at < NOW() - INTERVAL '90 days';
@@ -898,13 +898,13 @@ lsof -i :3000
 env | grep NODE_ENV
 
 # 检查日志
-tail -f logs/wokeflow.log
+tail -f logs/frys.log
 ```
 
 2. **数据库连接失败**
 ```bash
 # 测试数据库连接
-psql -h localhost -U wokeflow wokeflow -c "SELECT 1"
+psql -h localhost -U frys frys -c "SELECT 1"
 
 # 检查连接池配置
 grep DB_ .env
@@ -946,7 +946,7 @@ docker-compose up -d --scale app=1
 pm2 reload app
 
 # 或使用 Kubernetes 滚动更新
-kubectl set image deployment/wokeflow wokeflow=new-image:tag
+kubectl set image deployment/frys frys=new-image:tag
 ```
 
 ## 总结

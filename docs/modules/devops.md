@@ -67,17 +67,17 @@ RUN apk add --no-cache dumb-init
 
 # 创建非root用户
 RUN addgroup -g 1001 -S nodejs
-RUN adduser -S wokeflow -u 1001
+RUN adduser -S frys -u 1001
 
 # 复制生产依赖
-COPY --from=deps --chown=wokeflow:nodejs /app/node_modules ./node_modules
+COPY --from=deps --chown=frys:nodejs /app/node_modules ./node_modules
 
 # 复制构建产物
-COPY --from=builder --chown=wokeflow:nodejs /app/dist ./dist
-COPY --from=builder --chown=wokeflow:nodejs /app/package*.json ./
+COPY --from=builder --chown=frys:nodejs /app/dist ./dist
+COPY --from=builder --chown=frys:nodejs /app/package*.json ./
 
 # 设置用户
-USER wokeflow
+USER frys
 
 # 暴露端口
 EXPOSE 3000
@@ -179,7 +179,7 @@ coverage
 set -e
 
 # 构建参数
-IMAGE_NAME="wokeflow"
+IMAGE_NAME="frys"
 TAG="${1:-latest}"
 BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 GIT_COMMIT=$(git rev-parse --short HEAD)
@@ -196,7 +196,7 @@ docker buildx build \
   --label "org.opencontainers.image.created=${BUILD_DATE}" \
   --label "org.opencontainers.image.version=${VERSION}" \
   --label "org.opencontainers.image.revision=${GIT_COMMIT}" \
-  --label "org.opencontainers.image.source=https://github.com/your-org/wokeflow" \
+  --label "org.opencontainers.image.source=https://github.com/your-org/frys" \
   -t "${IMAGE_NAME}:${TAG}" \
   -t "${IMAGE_NAME}:${GIT_COMMIT}" \
   --push \
@@ -227,20 +227,20 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-      - DEBUG=wokeflow:*
+      - DEBUG=frys:*
     depends_on:
       - postgres
       - redis
       - rabbitmq
     networks:
-      - wokeflow-dev
+      - frys-dev
     restart: unless-stopped
 
   postgres:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_DB=wokeflow_dev
-      - POSTGRES_USER=wokeflow
+      - POSTGRES_DB=frys_dev
+      - POSTGRES_USER=frys
       - POSTGRES_PASSWORD=dev_password
     ports:
       - "5432:5432"
@@ -248,9 +248,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - wokeflow-dev
+      - frys-dev
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wokeflow"]
+      test: ["CMD-SHELL", "pg_isready -U frys"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -262,7 +262,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - wokeflow-dev
+      - frys-dev
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -276,12 +276,12 @@ services:
       - "5672:5672"   # AMQP端口
       - "15672:15672" # 管理界面
     environment:
-      - RABBITMQ_DEFAULT_USER=wokeflow
+      - RABBITMQ_DEFAULT_USER=frys
       - RABBITMQ_DEFAULT_PASS=dev_password
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
-      - wokeflow-dev
+      - frys-dev
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -294,7 +294,7 @@ volumes:
   rabbitmq_data:
 
 networks:
-  wokeflow-dev:
+  frys-dev:
     driver: bridge
 ```
 
@@ -312,7 +312,7 @@ services:
       target: production
     environment:
       - NODE_ENV=test
-      - DATABASE_URL=postgresql://test:test@localhost:5432/wokeflow_test
+      - DATABASE_URL=postgresql://test:test@localhost:5432/frys_test
       - REDIS_URL=redis://localhost:6379/1
       - RABBITMQ_URL=amqp://test:test@localhost:5672
     depends_on:
@@ -323,19 +323,19 @@ services:
       rabbitmq:
         condition: service_healthy
     networks:
-      - wokeflow-test
+      - frys-test
     command: npm run test:integration
 
   postgres:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_DB=wokeflow_test
+      - POSTGRES_DB=frys_test
       - POSTGRES_USER=test
       - POSTGRES_PASSWORD=test
     tmpfs:
       - /var/lib/postgresql/data
     networks:
-      - wokeflow-test
+      - frys-test
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U test"]
       interval: 5s
@@ -345,7 +345,7 @@ services:
   redis:
     image: redis:7-alpine
     networks:
-      - wokeflow-test
+      - frys-test
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -360,7 +360,7 @@ services:
     tmpfs:
       - /var/lib/rabbitmq
     networks:
-      - wokeflow-test
+      - frys-test
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 5s
@@ -368,7 +368,7 @@ services:
       retries: 3
 
 networks:
-  wokeflow-test:
+  frys-test:
     driver: bridge
 ```
 
@@ -380,7 +380,7 @@ version: '3.8'
 
 services:
   app:
-    image: wokeflow:latest
+    image: frys:latest
     ports:
       - "3000:3000"
     environment:
@@ -397,7 +397,7 @@ services:
       rabbitmq:
         condition: service_healthy
     networks:
-      - wokeflow-prod
+      - frys-prod
     restart: unless-stopped
     deploy:
       resources:
@@ -423,7 +423,7 @@ services:
       - postgres_prod_data:/var/lib/postgresql/data
       - ./backups:/backups
     networks:
-      - wokeflow-prod
+      - frys-prod
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 30s
@@ -440,7 +440,7 @@ services:
     volumes:
       - redis_prod_data:/data
     networks:
-      - wokeflow-prod
+      - frys-prod
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -461,7 +461,7 @@ services:
     volumes:
       - rabbitmq_prod_data:/var/lib/rabbitmq
     networks:
-      - wokeflow-prod
+      - frys-prod
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -480,7 +480,7 @@ services:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     networks:
-      - wokeflow-prod
+      - frys-prod
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -497,7 +497,7 @@ services:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
     networks:
-      - wokeflow-prod
+      - frys-prod
     depends_on:
       - prometheus
 
@@ -509,7 +509,7 @@ volumes:
   grafana_data:
 
 networks:
-  wokeflow-prod:
+  frys-prod:
     driver: bridge
 ```
 
@@ -568,10 +568,10 @@ esac
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wokeflow-app
-  namespace: wokeflow
+  name: frys-app
+  namespace: frys
   labels:
-    app: wokeflow
+    app: frys
     component: app
 spec:
   replicas: 3
@@ -582,17 +582,17 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: wokeflow
+      app: frys
       component: app
   template:
     metadata:
       labels:
-        app: wokeflow
+        app: frys
         component: app
     spec:
       containers:
-      - name: wokeflow
-        image: wokeflow:latest
+      - name: frys
+        image: frys:latest
         ports:
         - containerPort: 3000
           name: http
@@ -602,17 +602,17 @@ spec:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: wokeflow-secrets
+              name: frys-secrets
               key: database-url
         - name: REDIS_URL
           valueFrom:
             secretKeyRef:
-              name: wokeflow-secrets
+              name: frys-secrets
               key: redis-url
         - name: SENTRY_DSN
           valueFrom:
             secretKeyRef:
-              name: wokeflow-secrets
+              name: frys-secrets
               key: sentry-dsn
         resources:
           limits:
@@ -659,7 +659,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - wokeflow
+                  - frys
               topologyKey: kubernetes.io/hostname
 ```
 
@@ -670,10 +670,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: wokeflow-service
-  namespace: wokeflow
+  name: frys-service
+  namespace: frys
   labels:
-    app: wokeflow
+    app: frys
 spec:
   type: ClusterIP
   ports:
@@ -682,7 +682,7 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: wokeflow
+    app: frys
     component: app
 
 ---
@@ -690,8 +690,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: wokeflow-ingress
-  namespace: wokeflow
+  name: frys-ingress
+  namespace: frys
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
@@ -702,17 +702,17 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - api.wokeflow.example.com
-    secretName: wokeflow-tls
+    - api.frys.example.com
+    secretName: frys-tls
   rules:
-  - host: api.wokeflow.example.com
+  - host: api.frys.example.com
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: wokeflow-service
+            name: frys-service
             port:
               number: 80
 ```
@@ -725,7 +725,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres
-  namespace: wokeflow
+  namespace: frys
 spec:
   serviceName: postgres
   replicas: 1
@@ -747,17 +747,17 @@ spec:
         - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:
-              name: wokeflow-secrets
+              name: frys-secrets
               key: postgres-db
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: wokeflow-secrets
+              name: frys-secrets
               key: postgres-user
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: wokeflow-secrets
+              name: frys-secrets
               key: postgres-password
         volumeMounts:
         - name: postgres-storage
@@ -801,7 +801,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: wokeflow
+  namespace: frys
 spec:
   selector:
     app: postgres
@@ -819,7 +819,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis
-  namespace: wokeflow
+  namespace: frys
 spec:
   replicas: 1
   selector:
@@ -867,7 +867,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rabbitmq
-  namespace: wokeflow
+  namespace: frys
 spec:
   replicas: 1
   selector:
@@ -890,12 +890,12 @@ spec:
         - name: RABBITMQ_DEFAULT_USER
           valueFrom:
             secretKeyRef:
-              name: wokeflow-secrets
+              name: frys-secrets
               key: rabbitmq-user
         - name: RABBITMQ_DEFAULT_PASS
           valueFrom:
             secretKeyRef:
-              name: wokeflow-secrets
+              name: frys-secrets
               key: rabbitmq-password
         volumeMounts:
         - name: rabbitmq-data
@@ -930,22 +930,22 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: wokeflow-config
-  namespace: wokeflow
+  name: frys-config
+  namespace: frys
 data:
   NODE_ENV: "production"
   PORT: "3000"
   LOG_LEVEL: "info"
   JWT_SECRET: "change-me-in-production"
-  CORS_ORIGIN: "https://app.wokeflow.example.com"
+  CORS_ORIGIN: "https://app.frys.example.com"
 
 ---
 # k8s/secrets.yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: wokeflow-secrets
-  namespace: wokeflow
+  name: frys-secrets
+  namespace: frys
 type: Opaque
 data:
   # Base64 encoded values
@@ -966,13 +966,13 @@ data:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: wokeflow-hpa
-  namespace: wokeflow
+  name: frys-hpa
+  namespace: frys
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: wokeflow-app
+    name: frys-app
   minReplicas: 3
   maxReplicas: 10
   metrics:
@@ -1019,27 +1019,27 @@ spec:
 
 set -e
 
-NAMESPACE=${NAMESPACE:-wokeflow}
+NAMESPACE=${NAMESPACE:-frys}
 ENVIRONMENT=${ENVIRONMENT:-production}
 TAG=${TAG:-latest}
 
 echo "Deploying frys ${TAG} to ${ENVIRONMENT} environment"
 
 # 更新镜像标签
-kubectl set image deployment/wokeflow-app wokeflow=wokeflow:${TAG} -n ${NAMESPACE}
+kubectl set image deployment/frys-app frys=frys:${TAG} -n ${NAMESPACE}
 
 # 等待部署完成
-kubectl rollout status deployment/wokeflow-app -n ${NAMESPACE} --timeout=300s
+kubectl rollout status deployment/frys-app -n ${NAMESPACE} --timeout=300s
 
 # 检查应用健康状态
 echo "Checking application health..."
 sleep 30
 
-HEALTH_CHECK=$(kubectl exec -n ${NAMESPACE} deployment/wokeflow-app -- curl -f http://localhost:3000/health || echo "failed")
+HEALTH_CHECK=$(kubectl exec -n ${NAMESPACE} deployment/frys-app -- curl -f http://localhost:3000/health || echo "failed")
 
 if [ "$HEALTH_CHECK" = "failed" ]; then
   echo "Health check failed, rolling back..."
-  kubectl rollout undo deployment/wokeflow-app -n ${NAMESPACE}
+  kubectl rollout undo deployment/frys-app -n ${NAMESPACE}
   exit 1
 fi
 
@@ -1048,7 +1048,7 @@ echo "Deployment completed successfully!"
 # 可选：运行集成测试
 if [ "$RUN_TESTS" = "true" ]; then
   echo "Running integration tests..."
-  kubectl run test-runner --image=wokeflow:${TAG} --rm --restart=Never --env="NODE_ENV=test" -- npm run test:integration
+  kubectl run test-runner --image=frys:${TAG} --rm --restart=Never --env="NODE_ENV=test" -- npm run test:integration
 fi
 ```
 
@@ -1203,9 +1203,9 @@ jobs:
 
     - name: Deploy to development
       run: |
-        sed -i 's|image: wokeflow:latest|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop-${{ github.sha }}|g' k8s/app-deployment.yaml
-        kubectl apply -f k8s/ -n wokeflow-dev
-        kubectl rollout status deployment/wokeflow-app -n wokeflow-dev --timeout=300s
+        sed -i 's|image: frys:latest|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop-${{ github.sha }}|g' k8s/app-deployment.yaml
+        kubectl apply -f k8s/ -n frys-dev
+        kubectl rollout status deployment/frys-app -n frys-dev --timeout=300s
 
   deploy-prod:
     runs-on: ubuntu-latest
@@ -1225,13 +1225,13 @@ jobs:
 
     - name: Deploy to production
       run: |
-        sed -i 's|image: wokeflow:latest|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ github.sha }}|g' k8s/app-deployment.yaml
-        kubectl apply -f k8s/ -n wokeflow-prod
-        kubectl rollout status deployment/wokeflow-app -n wokeflow-prod --timeout=600s
+        sed -i 's|image: frys:latest|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ github.sha }}|g' k8s/app-deployment.yaml
+        kubectl apply -f k8s/ -n frys-prod
+        kubectl rollout status deployment/frys-app -n frys-prod --timeout=600s
 
     - name: Run smoke tests
       run: |
-        kubectl run smoke-test --image=curlimages/curl --rm --restart=Never -- curl -f http://wokeflow-service/health
+        kubectl run smoke-test --image=curlimages/curl --rm --restart=Never -- curl -f http://frys-service/health
 
   notify:
     runs-on: ubuntu-latest
@@ -1328,7 +1328,7 @@ jobs:
 
 ```yaml
 # sonar-project.properties
-sonar.projectKey=wokeflow
+sonar.projectKey=frys
 sonar.projectName=frys
 sonar.projectVersion=1.0.0
 
@@ -1372,9 +1372,9 @@ alerting:
           - alertmanager:9093
 
 scrape_configs:
-  - job_name: 'wokeflow-app'
+  - job_name: 'frys-app'
     static_configs:
-      - targets: ['wokeflow-service:80']
+      - targets: ['frys-service:80']
     metrics_path: '/metrics'
     scrape_interval: 15s
     scrape_timeout: 10s
@@ -1426,11 +1426,11 @@ scrape_configs:
 ```yaml
 # monitoring/alert_rules.yml
 groups:
-  - name: wokeflow
+  - name: frys
     rules:
       # 应用健康检查
       - alert: frysDown
-        expr: up{job="wokeflow-app"} == 0
+        expr: up{job="frys-app"} == 0
         for: 5m
         labels:
           severity: critical
@@ -1440,7 +1440,7 @@ groups:
 
       # 响应时间监控
       - alert: HighResponseTime
-        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="wokeflow-app"}[5m])) > 2
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="frys-app"}[5m])) > 2
         for: 5m
         labels:
           severity: warning
@@ -1450,7 +1450,7 @@ groups:
 
       # 错误率监控
       - alert: HighErrorRate
-        expr: rate(http_requests_total{status=~"5..", job="wokeflow-app"}[5m]) / rate(http_requests_total{job="wokeflow-app"}[5m]) > 0.05
+        expr: rate(http_requests_total{status=~"5..", job="frys-app"}[5m]) / rate(http_requests_total{job="frys-app"}[5m]) > 0.05
         for: 5m
         labels:
           severity: warning
@@ -1460,7 +1460,7 @@ groups:
 
       # CPU 使用率
       - alert: HighCPUUsage
-        expr: rate(container_cpu_usage_seconds_total{pod=~"wokeflow-.*"}[5m]) > 0.8
+        expr: rate(container_cpu_usage_seconds_total{pod=~"frys-.*"}[5m]) > 0.8
         for: 10m
         labels:
           severity: warning
@@ -1470,7 +1470,7 @@ groups:
 
       # 内存使用率
       - alert: HighMemoryUsage
-        expr: container_memory_usage_bytes{pod=~"wokeflow-.*"} / container_spec_memory_limit_bytes > 0.9
+        expr: container_memory_usage_bytes{pod=~"frys-.*"} / container_spec_memory_limit_bytes > 0.9
         for: 5m
         labels:
           severity: warning
@@ -1480,7 +1480,7 @@ groups:
 
       # 数据库连接池
       - alert: DatabaseConnectionPoolExhausted
-        expr: pg_stat_activity_count{datname="wokeflow"} > 80
+        expr: pg_stat_activity_count{datname="frys"} > 80
         for: 5m
         labels:
           severity: critical
@@ -1490,7 +1490,7 @@ groups:
 
       # 队列积压
       - alert: QueueBacklog
-        expr: rabbitmq_queue_messages{queue="wokeflow_tasks"} > 1000
+        expr: rabbitmq_queue_messages{queue="frys_tasks"} > 1000
         for: 5m
         labels:
           severity: warning
@@ -1505,7 +1505,7 @@ groups:
 {
   "dashboard": {
     "title": "frys Overview",
-    "tags": ["wokeflow", "overview"],
+    "tags": ["frys", "overview"],
     "timezone": "browser",
     "panels": [
       {
@@ -1513,7 +1513,7 @@ groups:
         "type": "stat",
         "targets": [
           {
-            "expr": "up{job=\"wokeflow-app\"}",
+            "expr": "up{job=\"frys-app\"}",
             "legendFormat": "frys Status"
           }
         ],
@@ -1542,7 +1542,7 @@ groups:
         "type": "graph",
         "targets": [
           {
-            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"wokeflow-app\"}[5m]))",
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"frys-app\"}[5m]))",
             "legendFormat": "95th percentile"
           }
         ]
@@ -1552,7 +1552,7 @@ groups:
         "type": "graph",
         "targets": [
           {
-            "expr": "rate(http_requests_total{job=\"wokeflow-app\"}[5m])",
+            "expr": "rate(http_requests_total{job=\"frys-app\"}[5m])",
             "legendFormat": "Requests/sec"
           }
         ]
@@ -1562,7 +1562,7 @@ groups:
         "type": "graph",
         "targets": [
           {
-            "expr": "rate(http_requests_total{status=~\"5..\", job=\"wokeflow-app\"}[5m]) / rate(http_requests_total{job=\"wokeflow-app\"}[5m]) * 100",
+            "expr": "rate(http_requests_total{status=~\"5..\", job=\"frys-app\"}[5m]) / rate(http_requests_total{job=\"frys-app\"}[5m]) * 100",
             "legendFormat": "Error Rate %"
           }
         ]
@@ -1572,7 +1572,7 @@ groups:
         "type": "graph",
         "targets": [
           {
-            "expr": "pg_stat_activity_count{datname=\"wokeflow\"}",
+            "expr": "pg_stat_activity_count{datname=\"frys\"}",
             "legendFormat": "Active Connections"
           }
         ]
@@ -1582,7 +1582,7 @@ groups:
         "type": "graph",
         "targets": [
           {
-            "expr": "rabbitmq_queue_messages{queue=\"wokeflow_tasks\"}",
+            "expr": "rabbitmq_queue_messages{queue=\"frys_tasks\"}",
             "legendFormat": "Pending Messages"
           }
         ]
@@ -1598,8 +1598,8 @@ groups:
 # monitoring/alertmanager.yml
 global:
   smtp_smarthost: 'smtp.example.com:587'
-  smtp_from: 'alerts@wokeflow.example.com'
-  smtp_auth_username: 'alerts@wokeflow.example.com'
+  smtp_from: 'alerts@frys.example.com'
+  smtp_auth_username: 'alerts@frys.example.com'
   smtp_auth_password: 'your-smtp-password'
 
 route:
@@ -1617,7 +1617,7 @@ route:
 receivers:
   - name: 'email'
     email_configs:
-      - to: 'team@wokeflow.example.com'
+      - to: 'team@frys.example.com'
         subject: 'frys Alert: {{ .GroupLabels.alertname }}'
         body: |
           {{ range .Alerts }}
@@ -1628,7 +1628,7 @@ receivers:
 
   - name: 'critical'
     email_configs:
-      - to: 'oncall@wokeflow.example.com'
+      - to: 'oncall@frys.example.com'
         subject: 'CRITICAL: frys Alert: {{ .GroupLabels.alertname }}'
     slack_configs:
       - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
@@ -1672,7 +1672,7 @@ docker run --rm \
   --exit-code 1 \
   --no-progress \
   --format table \
-  wokeflow:latest
+  frys:latest
 
 # 依赖安全审计
 npm audit --audit-level high
@@ -1695,8 +1695,8 @@ echo "Security scans completed successfully"
 
 ```hcl
 # infrastructure/security.tf - Terraform 配置
-resource "aws_security_group" "wokeflow" {
-  name_prefix = "wokeflow-"
+resource "aws_security_group" "frys" {
+  name_prefix = "frys-"
   description = "Security group for frys application"
 
   ingress {
@@ -1731,14 +1731,14 @@ resource "aws_security_group" "wokeflow" {
   }
 
   tags = {
-    Name        = "wokeflow-sg"
+    Name        = "frys-sg"
     Environment = var.environment
   }
 }
 
 # WAF 配置
-resource "aws_wafv2_web_acl" "wokeflow" {
-  name        = "wokeflow-waf"
+resource "aws_wafv2_web_acl" "frys" {
+  name        = "frys-waf"
   description = "WAF for frys application"
   scope       = "REGIONAL"
 
@@ -1792,7 +1792,7 @@ resource "aws_wafv2_web_acl" "wokeflow" {
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name                = "wokeflow-waf"
+    metric_name                = "frys-waf"
     sampled_requests_enabled   = true
   }
 }
@@ -1867,15 +1867,15 @@ fi
 echo "Deploying to inactive environment: $INACTIVE"
 
 # 部署到非活跃环境
-kubectl set image deployment/wokeflow-$INACTIVE wokeflow=wokeflow:$NEW_VERSION -n $ENVIRONMENT
+kubectl set image deployment/frys-$INACTIVE frys=frys:$NEW_VERSION -n $ENVIRONMENT
 
 # 等待部署完成
-kubectl rollout status deployment/wokeflow-$INACTIVE -n $ENVIRONMENT --timeout=300s
+kubectl rollout status deployment/frys-$INACTIVE -n $ENVIRONMENT --timeout=300s
 
 # 运行冒烟测试
 echo "Running smoke tests on $INACTIVE environment..."
 kubectl run smoke-test-$INACTIVE --image=curlimages/curl --rm --restart=Never \
-  -- curl -f http://wokeflow-$INACTIVE-service/health -n $ENVIRONMENT
+  -- curl -f http://frys-$INACTIVE-service/health -n $ENVIRONMENT
 
 if [ $? -ne 0 ]; then
   echo "Smoke tests failed, aborting deployment"
@@ -1892,7 +1892,7 @@ echo "Traffic switched to $INACTIVE environment"
 sleep 60
 
 # 如果一切正常，缩放旧环境
-kubectl scale deployment wokeflow-$CURRENT_ACTIVE --replicas=0 -n $ENVIRONMENT
+kubectl scale deployment frys-$CURRENT_ACTIVE --replicas=0 -n $ENVIRONMENT
 
 echo "Blue-green deployment completed successfully"
 ```
@@ -1911,20 +1911,20 @@ ROLLBACK_VERSION=${2}
 if [ -z "$ROLLBACK_VERSION" ]; then
   echo "Usage: $0 [environment] [version]"
   echo "Finding previous version..."
-  ROLLBACK_VERSION=$(kubectl get deployment wokeflow-app -n $ENVIRONMENT -o jsonpath='{.spec.template.spec.containers[0].image}' | cut -d: -f2)
+  ROLLBACK_VERSION=$(kubectl get deployment frys-app -n $ENVIRONMENT -o jsonpath='{.spec.template.spec.containers[0].image}' | cut -d: -f2)
 fi
 
 echo "Rolling back to version: $ROLLBACK_VERSION"
 
 # 更新镜像
-kubectl set image deployment/wokeflow-app wokeflow=wokeflow:$ROLLBACK_VERSION -n $ENVIRONMENT
+kubectl set image deployment/frys-app frys=frys:$ROLLBACK_VERSION -n $ENVIRONMENT
 
 # 等待回滚完成
-kubectl rollout status deployment/wokeflow-app -n $ENVIRONMENT --timeout=300s
+kubectl rollout status deployment/frys-app -n $ENVIRONMENT --timeout=300s
 
 # 验证回滚
 kubectl run rollback-test --image=curlimages/curl --rm --restart=Never \
-  -- curl -f http://wokeflow-service/health -n $ENVIRONMENT
+  -- curl -f http://frys-service/health -n $ENVIRONMENT
 
 if [ $? -eq 0 ]; then
   echo "Rollback completed successfully"
@@ -1944,7 +1944,7 @@ set -e
 
 BACKUP_DIR="/opt/backups"
 DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_NAME="wokeflow_backup_$DATE"
+BACKUP_NAME="frys_backup_$DATE"
 
 echo "Creating backup: $BACKUP_NAME"
 
@@ -1953,17 +1953,17 @@ mkdir -p $BACKUP_DIR/$BACKUP_NAME
 
 # 数据库备份
 echo "Backing up PostgreSQL..."
-kubectl exec -n wokeflow deployment/postgres -- pg_dump -U wokeflow wokeflow > $BACKUP_DIR/$BACKUP_NAME/postgres.sql
+kubectl exec -n frys deployment/postgres -- pg_dump -U frys frys > $BACKUP_DIR/$BACKUP_NAME/postgres.sql
 
 # Redis 备份
 echo "Backing up Redis..."
-kubectl exec -n wokeflow deployment/redis -- redis-cli save
-kubectl cp wokeflow/redis-pod:/data/dump.rdb $BACKUP_DIR/$BACKUP_NAME/redis.rdb
+kubectl exec -n frys deployment/redis -- redis-cli save
+kubectl cp frys/redis-pod:/data/dump.rdb $BACKUP_DIR/$BACKUP_NAME/redis.rdb
 
 # 配置文件备份
 echo "Backing up configurations..."
-kubectl get configmap -n wokeflow -o yaml > $BACKUP_DIR/$BACKUP_NAME/configmaps.yaml
-kubectl get secret -n wokeflow -o yaml > $BACKUP_DIR/$BACKUP_NAME/secrets.yaml
+kubectl get configmap -n frys -o yaml > $BACKUP_DIR/$BACKUP_NAME/configmaps.yaml
+kubectl get secret -n frys -o yaml > $BACKUP_DIR/$BACKUP_NAME/secrets.yaml
 
 # 压缩备份
 cd $BACKUP_DIR
@@ -1971,12 +1971,12 @@ tar -czf ${BACKUP_NAME}.tar.gz $BACKUP_NAME
 rm -rf $BACKUP_NAME
 
 # 上传到远程存储
-aws s3 cp ${BACKUP_NAME}.tar.gz s3://wokeflow-backups/
+aws s3 cp ${BACKUP_NAME}.tar.gz s3://frys-backups/
 
 echo "Backup completed: $BACKUP_NAME"
 
 # 清理旧备份（保留7天）
-find $BACKUP_DIR -name "wokeflow_backup_*.tar.gz" -mtime +7 -delete
+find $BACKUP_DIR -name "frys_backup_*.tar.gz" -mtime +7 -delete
 ```
 
 ```bash
@@ -1990,14 +1990,14 @@ BACKUP_FILE=${1}
 if [ -z "$BACKUP_FILE" ]; then
   echo "Usage: $0 <backup-file>"
   echo "Available backups:"
-  aws s3 ls s3://wokeflow-backups/
+  aws s3 ls s3://frys-backups/
   exit 1
 fi
 
 echo "Restoring from backup: $BACKUP_FILE"
 
 # 下载备份
-aws s3 cp s3://wokeflow-backups/$BACKUP_FILE /tmp/
+aws s3 cp s3://frys-backups/$BACKUP_FILE /tmp/
 
 # 解压备份
 cd /tmp
@@ -2006,12 +2006,12 @@ BACKUP_DIR=$(basename $BACKUP_FILE .tar.gz)
 
 # 恢复数据库
 echo "Restoring PostgreSQL..."
-kubectl exec -n wokeflow deployment/postgres -- psql -U wokeflow -d wokeflow -f /tmp/$BACKUP_DIR/postgres.sql
+kubectl exec -n frys deployment/postgres -- psql -U frys -d frys -f /tmp/$BACKUP_DIR/postgres.sql
 
 # 恢复 Redis
 echo "Restoring Redis..."
-kubectl cp /tmp/$BACKUP_DIR/redis.rdb wokeflow/redis-pod:/data/dump.rdb
-kubectl exec -n wokeflow deployment/redis -- redis-cli shutdown save
+kubectl cp /tmp/$BACKUP_DIR/redis.rdb frys/redis-pod:/data/dump.rdb
+kubectl exec -n frys deployment/redis -- redis-cli shutdown save
 
 # 清理临时文件
 rm -rf /tmp/$BACKUP_DIR $BACKUP_FILE
@@ -2077,13 +2077,13 @@ spec:
     spec:
       containers:
       - name: migration
-        image: wokeflow:latest
+        image: frys:latest
         command: ["npm", "run", "migration:up"]
         env:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: wokeflow-secrets
+              name: frys-secrets
               key: database-url
       restartPolicy: Never
 ```

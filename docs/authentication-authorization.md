@@ -296,8 +296,8 @@ PUT /auth/password
 ```javascript
 const authService = new AuthenticationService({
   jwtSecret: process.env.JWT_SECRET,
-  jwtIssuer: 'wokeflow',
-  jwtAudience: 'wokeflow-client',
+  jwtIssuer: 'frys',
+  jwtAudience: 'frys-client',
   accessTokenExpiry: '15m',
   refreshTokenExpiry: '7d',
   maxLoginAttempts: 5,

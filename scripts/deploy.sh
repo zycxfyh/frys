@@ -75,7 +75,7 @@ create_backup() {
 
     # PostgreSQL 备份
     if docker-compose -f "$DOCKER_COMPOSE_FILE" ps postgres | grep -q "Up"; then
-        docker-compose -f "$DOCKER_COMPOSE_FILE" exec -T postgres pg_dumpall -U wokeflow > "$BACKUP_DIR/postgres_backup.sql"
+        docker-compose -f "$DOCKER_COMPOSE_FILE" exec -T postgres pg_dumpall -U frys > "$BACKUP_DIR/postgres_backup.sql"
         success "PostgreSQL 备份完成"
     fi
 
@@ -88,9 +88,9 @@ create_backup() {
 
 # 获取当前活跃环境
 get_active_environment() {
-    if docker-compose -f "$DOCKER_COMPOSE_FILE" ps wokeflow-blue | grep -q "Up"; then
+    if docker-compose -f "$DOCKER_COMPOSE_FILE" ps frys-blue | grep -q "Up"; then
         echo "blue"
-    elif docker-compose -f "$DOCKER_COMPOSE_FILE" ps wokeflow-green | grep -q "Up"; then
+    elif docker-compose -f "$DOCKER_COMPOSE_FILE" ps frys-green | grep -q "Up"; then
         echo "green"
     else
         echo "none"
@@ -110,14 +110,14 @@ get_inactive_environment() {
 # 部署到指定环境
 deploy_to_environment() {
     local env=$1
-    local service="wokeflow-$env"
+    local service="frys-$env"
 
     info "开始部署到 $env 环境..."
 
     # 停止非活跃环境
     local inactive_env=$(get_inactive_environment "$env")
     info "停止非活跃环境: $inactive_env"
-    docker-compose -f "$DOCKER_COMPOSE_FILE" stop "wokeflow-$inactive_env" || true
+    docker-compose -f "$DOCKER_COMPOSE_FILE" stop "frys-$inactive_env" || true
 
     # 启动目标环境
     info "启动 $env 环境..."
@@ -197,7 +197,7 @@ switch_traffic() {
 
     # 停止旧环境
     info "停止旧环境: $old_env"
-    docker-compose -f "$DOCKER_COMPOSE_FILE" stop "wokeflow-$old_env" || true
+    docker-compose -f "$DOCKER_COMPOSE_FILE" stop "frys-$old_env" || true
 }
 
 # 回滚函数
@@ -211,7 +211,7 @@ rollback() {
     switch_traffic "$rollback_env"
 
     # 停止失败的环境
-    docker-compose -f "$DOCKER_COMPOSE_FILE" stop "wokeflow-$failed_env" || true
+    docker-compose -f "$DOCKER_COMPOSE_FILE" stop "frys-$failed_env" || true
 
     warning "回滚完成，请检查日志了解失败原因"
 }

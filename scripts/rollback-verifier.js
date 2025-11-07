@@ -579,9 +579,9 @@ class RollbackVerifier {
         encoding: 'utf8'
       });
 
-      if (result.includes('wokeflow-blue') && !result.includes('wokeflow-green')) {
+      if (result.includes('frys-blue') && !result.includes('frys-green')) {
         return 'blue';
-      } else if (result.includes('wokeflow-green') && !result.includes('wokeflow-blue')) {
+      } else if (result.includes('frys-green') && !result.includes('frys-blue')) {
         return 'green';
       }
 

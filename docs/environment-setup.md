@@ -33,12 +33,12 @@ HOST=localhost       # 服务器主机
 
 #### PostgreSQL (推荐用于生产环境)
 ```bash
-DATABASE_URL=postgresql://username:password@localhost:5432/wokeflow
+DATABASE_URL=postgresql://username:password@localhost:5432/frys
 ```
 
 #### SQLite (适合开发和测试环境)
 ```bash
-SQLITE_DATABASE_PATH=./data/wokeflow.db
+SQLITE_DATABASE_PATH=./data/frys.db
 ```
 
 ### Redis配置 (Bull.js消息队列必需)
@@ -72,7 +72,7 @@ SENTRY_PROFILES_SAMPLE_RATE=0.1  # 10%的请求会被性能分析
 
 ```bash
 LOG_LEVEL=info        # error | warn | info | debug
-LOG_FILE=./logs/wokeflow.log
+LOG_FILE=./logs/frys.log
 ```
 
 ### 外部服务配置
@@ -89,7 +89,7 @@ EXTERNAL_API_BASE_URL=https://api.example.com
 ```bash
 NODE_ENV=development
 LOG_LEVEL=debug
-DEBUG=wokeflow:*
+DEBUG=frys:*
 SENTRY_ENVIRONMENT=development
 ```
 
@@ -97,7 +97,7 @@ SENTRY_ENVIRONMENT=development
 
 ```bash
 NODE_ENV=test
-TEST_DATABASE_URL=postgresql://test:test@localhost:5433/wokeflow_test
+TEST_DATABASE_URL=postgresql://test:test@localhost:5433/frys_test
 SKIP_TEST_CONTAINERS=false
 ```
 
@@ -177,7 +177,7 @@ NODE_ENV=staging npm start
 
 ```bash
 # 使用环境变量而不是文件
--e DATABASE_URL=postgresql://db:5432/wokeflow
+-e DATABASE_URL=postgresql://db:5432/frys
 -e REDIS_URL=redis://redis:6379
 -e JWT_SECRET=your-secret
 ```
@@ -195,9 +195,9 @@ AWS_SECRET_ACCESS_KEY=your-secret-key
 ```yaml
 version: '3.8'
 services:
-  wokeflow:
+  frys:
     environment:
-      - DATABASE_URL=postgresql://db:5432/wokeflow
+      - DATABASE_URL=postgresql://db:5432/frys
       - REDIS_URL=redis://redis:6379
 ```
 

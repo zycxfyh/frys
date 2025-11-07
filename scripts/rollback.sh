@@ -44,9 +44,9 @@ info() {
 
 # 获取当前活跃环境
 get_active_environment() {
-    if docker-compose -f "$DOCKER_COMPOSE_FILE" ps wokeflow-blue 2>/dev/null | grep -q "Up"; then
+    if docker-compose -f "$DOCKER_COMPOSE_FILE" ps frys-blue 2>/dev/null | grep -q "Up"; then
         echo "blue"
-    elif docker-compose -f "$DOCKER_COMPOSE_FILE" ps wokeflow-green 2>/dev/null | grep -q "Up"; then
+    elif docker-compose -f "$DOCKER_COMPOSE_FILE" ps frys-green 2>/dev/null | grep -q "Up"; then
         echo "green"
     else
         echo "none"
@@ -66,7 +66,7 @@ get_inactive_environment() {
 # 检查环境是否健康
 check_environment_health() {
     local env=$1
-    local service="wokeflow-$env"
+    local service="frys-$env"
 
     info "检查 $env 环境健康状态..."
 
@@ -89,7 +89,7 @@ check_environment_health() {
 # 启动备用环境
 start_backup_environment() {
     local backup_env=$1
-    local service="wokeflow-$backup_env"
+    local service="frys-$backup_env"
 
     info "启动备用环境: $backup_env"
 
@@ -138,7 +138,7 @@ switch_to_backup() {
 # 停止故障环境
 stop_failed_environment() {
     local failed_env=$1
-    local service="wokeflow-$failed_env"
+    local service="frys-$failed_env"
 
     info "停止故障环境: $failed_env"
 
@@ -187,7 +187,7 @@ restore_from_backup() {
 
     info "从备份恢复数据库: $backup_file"
 
-    if docker-compose -f "$DOCKER_COMPOSE_FILE" exec -T postgres psql -U wokeflow -d wokeflow_prod < "$backup_file" 2>/dev/null; then
+    if docker-compose -f "$DOCKER_COMPOSE_FILE" exec -T postgres psql -U frys -d frys_prod < "$backup_file" 2>/dev/null; then
         success "数据库恢复成功"
     else
         error "数据库恢复失败"
@@ -251,7 +251,7 @@ main() {
     info "将回滚到备用环境: $backup_env"
 
     # 检查备用环境是否有可用的镜像
-    if ! docker images | grep -q "wokeflow.*${backup_env}"; then
+    if ! docker images | grep -q "frys.*${backup_env}"; then
         warning "备用环境没有可用的镜像，尝试启动现有容器"
 
         # 检查备用环境容器是否存在
@@ -316,10 +316,10 @@ main() {
         echo ""
         info "故障排除建议:"
         echo "1. 检查 Docker 容器状态: docker-compose -f $DOCKER_COMPOSE_FILE ps"
-        echo "2. 查看容器日志: docker-compose -f $DOCKER_COMPOSE_FILE logs wokeflow-$backup_env"
+        echo "2. 查看容器日志: docker-compose -f $DOCKER_COMPOSE_FILE logs frys-$backup_env"
         echo "3. 检查系统资源: docker system df"
         echo "4. 验证配置文件: cat $DOCKER_COMPOSE_FILE"
-        echo "5. 手动启动备用环境: docker-compose -f $DOCKER_COMPOSE_FILE up -d wokeflow-$backup_env"
+        echo "5. 手动启动备用环境: docker-compose -f $DOCKER_COMPOSE_FILE up -d frys-$backup_env"
 
         exit 1
     fi

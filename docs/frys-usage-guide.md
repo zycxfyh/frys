@@ -58,8 +58,8 @@ frys/
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/your-org/wokeflow.git
-cd wokeflow
+git clone https://github.com/zycxfyh/frys.git
+cd frys
 
 # 2. 安装依赖
 npm install
@@ -467,7 +467,7 @@ npm run staging:down
 
 ```bash
 # 1. 构建生产镜像
-docker build -t wokeflow:latest .
+docker build -t frys:latest .
 
 # 2. 部署到生产环境
 npm run deploy
@@ -531,7 +531,7 @@ console.log(`操作耗时: ${result.formatted}`);
 ```yaml
 # monitoring/prometheus/alert_rules.yml
 groups:
-  - name: wokeflow_alerts
+  - name: frys_alerts
     rules:
       - alert: HighErrorRate
         expr: rate(http_requests_total{status="5xx"}[5m]) > 0.1

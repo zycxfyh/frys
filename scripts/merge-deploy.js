@@ -87,7 +87,7 @@ class MergeDeploy {
     // 模拟生产镜像构建
     await this.executeStep(
       '生产镜像构建',
-      `echo "构建生产Docker镜像..." && sleep 5 && echo "✅ 生产镜像构建完成: wokeflow:latest-$(date +%Y%m%d-%H%M%S)"`,
+      `echo "构建生产Docker镜像..." && sleep 5 && echo "✅ 生产镜像构建完成: frys:latest-$(date +%Y%m%d-%H%M%S)"`,
       { timeout: 60000 }
     );
   }
@@ -154,7 +154,7 @@ class MergeDeploy {
 
     if (this.success) {
       console.log('🎉 合并与部署成功完成！应用已上线到生产环境。');
-      console.log(`🌐 生产环境地址: ${process.env.PRODUCTION_URL || 'https://app.wokeflow.com'}`);
+      console.log(`🌐 生产环境地址: ${process.env.PRODUCTION_URL || 'https://app.frys.com'}`);
       console.log(`📊 监控面板: ${process.env.MONITORING_URL || 'https://monitoring.example.com'}`);
     } else {
       console.log('❌ 合并与部署过程中出现问题。');

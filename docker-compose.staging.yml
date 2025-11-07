@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # frys 应用服务
-  wokeflow:
+  frys:
     build:
       context: .
       dockerfile: Dockerfile
@@ -79,7 +79,7 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - nginx_logs:/var/log/nginx
     depends_on:
-      - wokeflow
+      - frys
     networks:
       - frys-staging
     restart: unless-stopped

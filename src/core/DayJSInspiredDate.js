@@ -16,6 +16,10 @@ class DayJSInspiredDate extends BaseModule {
 
   constructor() {
     super('date');
+    // 初始化测试期望的属性
+    this.formats = new Map();
+    this.locales = new Map();
+    this.plugins = new Map();
   }
 
   async onInitialize() {

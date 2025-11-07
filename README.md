@@ -313,6 +313,15 @@ npm run format
 
 本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
+## ⚠️ 免责声明
+
+**重要提醒**: 本项目为学习和研究目的开发的开源项目，不应用于生产环境。
+
+- 本软件仅供学习、研究和开发测试使用
+- 任何商业使用产生的风险由使用者自行承担
+- 作者不对使用本软件产生的任何直接或间接损失承担责任
+- 建议在充分测试和评估后再考虑用于生产环境
+
 ## 🙏 致谢
 
 感谢所有为 frys 做出贡献的开发者！
@@ -331,7 +340,8 @@ npm run format
 - **项目主页**: [https://github.com/zycxfyh/frys](https://github.com/zycxfyh/frys)
 - **问题反馈**: [Issues](https://github.com/zycxfyh/frys/issues)
 - **讨论交流**: [Discussions](https://github.com/zycxfyh/frys/discussions)
-- **邮箱**: frys@example.com
+- **邮箱**: 1666384464@qq.com
+- **电话**: 17855398215
 
 ---
 

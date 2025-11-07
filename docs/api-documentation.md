@@ -696,11 +696,11 @@ ws.send(JSON.stringify({
 ### JavaScript/TypeScript SDK
 
 ```bash
-npm install @wokeflow/sdk
+npm install @frys/sdk
 ```
 
 ```javascript
-import { frysClient } from '@wokeflow/sdk';
+import { frysClient } from '@frys/sdk';
 
 const client = new frysClient({
   baseURL: 'http://localhost:3000',
@@ -715,16 +715,16 @@ const user = await client.users.get('user-id');
 ### 命令行工具
 
 ```bash
-npm install -g @wokeflow/cli
+npm install -g @frys/cli
 
 # 登录
-wokeflow login
+frys login
 
 # 查看工作流
-wokeflow workflows list
+frys workflows list
 
 # 启动工作流
-wokeflow workflows start template-id --param key=value
+frys workflows start template-id --param key=value
 ```
 
 ## 版本控制和兼容性
@@ -755,10 +755,10 @@ API弃用时会：
 
 ### 获取帮助
 
-- 📖 [完整文档](https://docs.wokeflow.com)
-- 💬 [社区论坛](https://community.wokeflow.com)
-- 🐛 [问题跟踪](https://github.com/wokeflow/wokeflow/issues)
-- 📧 [技术支持](mailto:support@wokeflow.com)
+- 📖 [完整文档](https://docs.frys.com)
+- 💬 [社区论坛](https://community.frys.com)
+- 🐛 [问题跟踪](https://github.com/zycxfyh/frys/issues)
+- 📧 [技术支持](mailto:support@frys.com)
 
 ### 反馈建议
 

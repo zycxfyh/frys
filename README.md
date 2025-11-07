@@ -55,7 +55,7 @@ frys 采用了"站在巨人肩膀上"的设计理念，通过集成业界领先�
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-org/wokeflow.git
+git clone https://github.com/zycxfyh/frys.git
 cd wokeflow
 
 # 安装依赖
@@ -328,9 +328,9 @@ npm run format
 
 ## 📞 联系方式
 
-- **项目主页**: [https://github.com/your-org/wokeflow](https://github.com/your-org/wokeflow)
-- **问题反馈**: [Issues](https://github.com/your-org/wokeflow/issues)
-- **讨论交流**: [Discussions](https://github.com/your-org/wokeflow/discussions)
+- **项目主页**: [https://github.com/zycxfyh/frys](https://github.com/zycxfyh/frys)
+- **问题反馈**: [Issues](https://github.com/zycxfyh/frys/issues)
+- **讨论交流**: [Discussions](https://github.com/zycxfyh/frys/discussions)
 - **邮箱**: wokeflow@example.com
 
 ---
@@ -339,6 +339,6 @@ npm run format
 
 **用 ❤️ 构建，由开源社区驱动**
 
-[⭐ Star](https://github.com/your-org/wokeflow) | [🍴 Fork](https://github.com/your-org/wokeflow/fork) | [📖 文档](docs/) | [🐛 报告问题](https://github.com/your-org/wokeflow/issues)
+[⭐ Star](https://github.com/zycxfyh/frys) | [🍴 Fork](https://github.com/zycxfyh/frys/fork) | [📖 文档](docs/) | [🐛 报告问题](https://github.com/zycxfyh/frys/issues)
 
 </div>

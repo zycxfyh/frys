@@ -106,7 +106,7 @@
 **构建产物**:
 
 - 输出目录: `dist/`
-- 主文件: `wokeflow-lightweight.js`
+- 主文件: `frys-lightweight.js`
 - 模块数量: 31个
 - 包大小: 129.73 KB
 

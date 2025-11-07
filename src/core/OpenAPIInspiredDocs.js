@@ -54,7 +54,7 @@ class OpenAPIInspiredDocs {
     const spec = {
       openapi: '3.0.0',
       info: {
-        title: 'WokeFlow API',
+        title: 'frys API',
         version: '1.0.0',
       },
       servers: this.servers,

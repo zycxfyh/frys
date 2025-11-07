@@ -26,7 +26,7 @@ route:
       receiver: 'wokeflow-production'
       continue: true
 
-    # WokeFlow 应用告警
+    # frys 应用告警
     - match:
         service: wokeflow
       receiver: 'wokeflow-app-team'
@@ -48,7 +48,7 @@ receivers:
   - name: 'wokeflow-alerts'
     email_configs:
       - to: 'alerts@wokeflow.com'
-        subject: 'WokeFlow 告警: {{ .GroupLabels.alertname }}'
+        subject: 'frys 告警: {{ .GroupLabels.alertname }}'
         body: |
           {{ range .Alerts }}
           告警: {{ .Annotations.summary }}
@@ -59,7 +59,7 @@ receivers:
     slack_configs:
       - api_url: '${SLACK_WEBHOOK_URL}'
         channel: '#alerts'
-        title: 'WokeFlow 告警'
+        title: 'frys 告警'
         text: |
           {{ range .Alerts }}
           *{{ .Annotations.summary }}*
@@ -79,13 +79,13 @@ receivers:
         color: 'danger'
     pagerduty_configs:
       - service_key: '${PAGERDUTY_SERVICE_KEY}'
-        description: 'WokeFlow 严重告警: {{ .GroupLabels.alertname }}'
+        description: 'frys 严重告警: {{ .GroupLabels.alertname }}'
 
   # 生产环境告警
   - name: 'wokeflow-production'
     email_configs:
       - to: 'prod-alerts@wokeflow.com'
-        subject: '[PROD] WokeFlow 告警: {{ .GroupLabels.alertname }}'
+        subject: '[PROD] frys 告警: {{ .GroupLabels.alertname }}'
     slack_configs:
       - api_url: '${SLACK_WEBHOOK_URL}'
         channel: '#production'
@@ -95,7 +95,7 @@ receivers:
   - name: 'wokeflow-app-team'
     email_configs:
       - to: 'app-team@wokeflow.com'
-        subject: '[APP] WokeFlow 告警: {{ .GroupLabels.alertname }}'
+        subject: '[APP] frys 告警: {{ .GroupLabels.alertname }}'
     slack_configs:
       - api_url: '${SLACK_WEBHOOK_URL}'
         channel: '#app-alerts'
@@ -105,7 +105,7 @@ receivers:
   - name: 'wokeflow-infra-team'
     email_configs:
       - to: 'infra-team@wokeflow.com'
-        subject: '[INFRA] WokeFlow 告警: {{ .GroupLabels.alertname }}'
+        subject: '[INFRA] frys 告警: {{ .GroupLabels.alertname }}'
     slack_configs:
       - api_url: '${SLACK_WEBHOOK_URL}'
         channel: '#infra-alerts'
@@ -132,9 +132,9 @@ inhibit_rules:
 
   # 如果应用宕机，抑制相关的性能告警
   - source_match:
-      alertname: 'WokeFlowInstanceDown'
+      alertname: 'frysInstanceDown'
     target_match_re:
-      alertname: 'WokeFlowHigh.*'
+      alertname: 'frysHigh.*'
     equal: ['instance']
 
   # 如果数据库宕机，抑制应用相关的数据库错误告警

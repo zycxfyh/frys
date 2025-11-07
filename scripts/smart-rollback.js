@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow 智能回退协调器
+ * frys 智能回退协调器
  * 集成智能回退管理系统，提供命令行接口
  */
 
@@ -353,7 +353,7 @@ class SmartRollbackCoordinator {
    */
   showHelp() {
     console.log(`
-WokeFlow 智能回退协调器
+frys 智能回退协调器
 
 用法: node scripts/smart-rollback.js [命令] [选项]
 

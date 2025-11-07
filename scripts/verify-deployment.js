@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow 部署验证脚本
+ * frys 部署验证脚本
  * 全面验证生产环境部署状态
  */
 
@@ -321,7 +321,7 @@ class DeploymentVerifier {
 
   printSummary() {
     console.log('\n' + '='.repeat(80));
-    console.log('🔍 WokeFlow 部署验证报告');
+    console.log('🔍 frys 部署验证报告');
     console.log('='.repeat(80));
 
     console.log(`\n📊 验证概览:`);

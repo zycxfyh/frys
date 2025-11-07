@@ -1,5 +1,5 @@
 /**
- * WokeFlow 依赖注入容器配置
+ * frys 依赖注入容器配置
  * 使用 Awilix 替代自建的 LightweightContainer
  */
 

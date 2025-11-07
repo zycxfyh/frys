@@ -1,5 +1,5 @@
 /**
- * WokeFlow - Docker健康检查器
+ * frys - Docker健康检查器
  * 专门为Docker容器环境优化的健康检查实现
  */
 

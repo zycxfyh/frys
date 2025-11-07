@@ -1,8 +1,8 @@
-# WokeFlow API 文档
+# frys API 文档
 
 ## 概述
 
-WokeFlow 是一个企业级轻量化工作流管理系统。本文档描述了系统的所有API接口，包括用户管理、工作流管理、监控和健康检查等功能。
+frys 是一个企业级轻量化工作流管理系统。本文档描述了系统的所有API接口，包括用户管理、工作流管理、监控和健康检查等功能。
 
 ## 基础信息
 
@@ -700,9 +700,9 @@ npm install @wokeflow/sdk
 ```
 
 ```javascript
-import { WokeFlowClient } from '@wokeflow/sdk';
+import { frysClient } from '@wokeflow/sdk';
 
-const client = new WokeFlowClient({
+const client = new frysClient({
   baseURL: 'http://localhost:3000',
   token: 'your-jwt-token'
 });

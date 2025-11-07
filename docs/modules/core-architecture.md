@@ -1,8 +1,8 @@
-# WokeFlow 核心架构
+# frys 核心架构
 
 ## 📖 概述
 
-WokeFlow 的核心架构基于"站在巨人肩膀上"的理念，集成业界领先的开源解决方案，构建高性能、可扩展的企业级应用框架。
+frys 的核心架构基于"站在巨人肩膀上"的理念，集成业界领先的开源解决方案，构建高性能、可扩展的企业级应用框架。
 
 ### 🎯 架构设计原则
 
@@ -123,7 +123,7 @@ container.register({
 const config = {
   app: {
     port: 3000,
-    name: 'WokeFlow'
+    name: 'frys'
   },
   database: {
     url: 'postgresql://localhost:5432/wokeflow'

@@ -5,7 +5,7 @@
 
 import { BaseModule } from './BaseModule.js';
 import { ReactiveState } from './FunctionalUtils.js';
-import { WokeFlowError } from './error-handler.js';
+import { frysError } from './error-handler.js';
 import { logger } from '../utils/logger.js';
 
 class ZustandInspiredState extends BaseModule {
@@ -46,7 +46,7 @@ class ZustandInspiredState extends BaseModule {
 
   create(createFn, options = {}) {
     if (this.stores.size >= this.config.maxStores) {
-      throw WokeFlowError.system('已达到最大状态存储数量限制', 'store_limit');
+      throw frysError.system('已达到最大状态存储数量限制', 'store_limit');
     }
 
     const storeId = `store_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -59,14 +59,14 @@ class ZustandInspiredState extends BaseModule {
     const setState = (updater, actionName = 'unknown') => {
       const store = this.stores.get(storeId);
       if (!store) {
-        throw WokeFlowError.system(
+        throw frysError.system(
           `状态存储不存在: ${storeId}`,
           'store_not_found',
         );
       }
 
       if (updater === null || updater === undefined) {
-        throw WokeFlowError.validation('状态更新器不能为空', 'updater');
+        throw frysError.validation('状态更新器不能为空', 'updater');
       }
 
       const prevState = store.state;
@@ -130,7 +130,7 @@ class ZustandInspiredState extends BaseModule {
       getState,
       subscribe: (listener) => {
         if (typeof listener !== 'function') {
-          throw WokeFlowError.validation('订阅者必须是函数', 'subscriber');
+          throw frysError.validation('订阅者必须是函数', 'subscriber');
         }
 
         if (!this.subscribers.has(storeId)) {
@@ -272,7 +272,7 @@ class ZustandInspiredState extends BaseModule {
   resetStore(storeId) {
     const store = this.stores.get(storeId);
     if (!store) {
-      throw WokeFlowError.system(
+      throw frysError.system(
         `状态存储不存在: ${storeId}`,
         'store_not_found',
       );

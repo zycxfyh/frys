@@ -1,8 +1,8 @@
-# WokeFlow 项目概述
+# frys 项目概述
 
 ## 📖 项目简介
 
-WokeFlow 是一个企业级的轻量化工作流管理系统，采用"站在巨人肩膀上"的理念，集成业界领先的开源解决方案，构建高性能、可扩展、安全可靠的后端应用框架。
+frys 是一个企业级的轻量化工作流管理系统，采用"站在巨人肩膀上"的理念，集成业界领先的开源解决方案，构建高性能、可扩展、安全可靠的后端应用框架。
 
 ### 🎯 核心价值
 
@@ -43,7 +43,7 @@ WokeFlow 是一个企业级的轻量化工作流管理系统，采用"站在巨�
 #### 架构分层
 
 ```
-WokeFlow 架构分层
+frys 架构分层
 ├── 🎯 应用层 (Application Layer)
 │   ├── 业务服务 (Business Services)
 │   ├── API 控制器 (API Controllers)
@@ -1269,7 +1269,7 @@ class NotificationService {
 
 ## 📚 相关链接
 
-- [WokeFlow 核心架构](core-architecture.md) - 详细的架构设计文档
+- [frys 核心架构](core-architecture.md) - 详细的架构设计文档
 - [核心模块文档](core-modules.md) - 核心功能模块说明
 - [业务服务文档](business-services.md) - 业务逻辑实现指南
 - [测试架构文档](testing-architecture.md) - 完整的测试策略

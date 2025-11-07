@@ -4,7 +4,7 @@
  */
 
 import { BaseModule } from './BaseModule.js';
-import { WokeFlowError } from './error-handler.js';
+import { frysError } from './error-handler.js';
 import { pipe, curry, memoize, compose } from './FunctionalUtils.js';
 import { logger } from '../utils/logger.js';
 
@@ -50,7 +50,7 @@ class LodashInspiredUtils extends BaseModule {
 
   uniq(array) {
     if (!Array.isArray(array)) {
-      throw WokeFlowError.validation('Input must be an array', 'array');
+      throw frysError.validation('Input must be an array', 'array');
     }
 
     const startTime = Date.now();
@@ -115,7 +115,7 @@ class LodashInspiredUtils extends BaseModule {
 
   groupBy(array, iteratee) {
     if (!Array.isArray(array)) {
-      throw WokeFlowError.validation('Input must be an array', 'array');
+      throw frysError.validation('Input must be an array', 'array');
     }
 
     const startTime = Date.now();
@@ -339,13 +339,13 @@ class LodashInspiredUtils extends BaseModule {
       this._recordOperation('cloneDeep', inputSize, 0, Date.now() - startTime);
 
       if (error.message.includes('Converting circular structure to JSON')) {
-        throw WokeFlowError.validation(
+        throw frysError.validation(
           'Object is not serializable',
           'circular_reference',
         );
       }
 
-      throw WokeFlowError.system('深度克隆失败', 'clone_error');
+      throw frysError.system('深度克隆失败', 'clone_error');
     }
   }
 

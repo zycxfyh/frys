@@ -1,8 +1,8 @@
-# WokeFlow DevOps 指南
+# frys DevOps 指南
 
 ## 📖 概述
 
-WokeFlow 采用现代化 DevOps 实践，构建完整的容器化部署、监控和自动化运维体系。从代码提交到生产部署的全流程自动化，确保系统的高可用性、可观测性和快速迭代能力。
+frys 采用现代化 DevOps 实践，构建完整的容器化部署、监控和自动化运维体系。从代码提交到生产部署的全流程自动化，确保系统的高可用性、可观测性和快速迭代能力。
 
 ### 🎯 DevOps 目标
 
@@ -185,7 +185,7 @@ BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 GIT_COMMIT=$(git rev-parse --short HEAD)
 VERSION=$(node -p "require('./package.json').version")
 
-echo "Building WokeFlow v${VERSION} (${GIT_COMMIT})"
+echo "Building frys v${VERSION} (${GIT_COMMIT})"
 
 # 多架构构建
 docker buildx build \
@@ -1023,7 +1023,7 @@ NAMESPACE=${NAMESPACE:-wokeflow}
 ENVIRONMENT=${ENVIRONMENT:-production}
 TAG=${TAG:-latest}
 
-echo "Deploying WokeFlow ${TAG} to ${ENVIRONMENT} environment"
+echo "Deploying frys ${TAG} to ${ENVIRONMENT} environment"
 
 # 更新镜像标签
 kubectl set image deployment/wokeflow-app wokeflow=wokeflow:${TAG} -n ${NAMESPACE}
@@ -1242,7 +1242,7 @@ jobs:
       uses: 8398a7/action-slack@v3
       with:
         status: ${{ job.status }}
-        text: "WokeFlow deployment completed"
+        text: "frys deployment completed"
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       if: always()
@@ -1329,7 +1329,7 @@ jobs:
 ```yaml
 # sonar-project.properties
 sonar.projectKey=wokeflow
-sonar.projectName=WokeFlow
+sonar.projectName=frys
 sonar.projectVersion=1.0.0
 
 sonar.sources=src
@@ -1429,14 +1429,14 @@ groups:
   - name: wokeflow
     rules:
       # 应用健康检查
-      - alert: WokeFlowDown
+      - alert: frysDown
         expr: up{job="wokeflow-app"} == 0
         for: 5m
         labels:
           severity: critical
         annotations:
-          summary: "WokeFlow application is down"
-          description: "WokeFlow has been down for more than 5 minutes."
+          summary: "frys application is down"
+          description: "frys has been down for more than 5 minutes."
 
       # 响应时间监控
       - alert: HighResponseTime
@@ -1504,7 +1504,7 @@ groups:
 ```json
 {
   "dashboard": {
-    "title": "WokeFlow Overview",
+    "title": "frys Overview",
     "tags": ["wokeflow", "overview"],
     "timezone": "browser",
     "panels": [
@@ -1514,7 +1514,7 @@ groups:
         "targets": [
           {
             "expr": "up{job=\"wokeflow-app\"}",
-            "legendFormat": "WokeFlow Status"
+            "legendFormat": "frys Status"
           }
         ],
         "fieldConfig": {
@@ -1618,7 +1618,7 @@ receivers:
   - name: 'email'
     email_configs:
       - to: 'team@wokeflow.example.com'
-        subject: 'WokeFlow Alert: {{ .GroupLabels.alertname }}'
+        subject: 'frys Alert: {{ .GroupLabels.alertname }}'
         body: |
           {{ range .Alerts }}
           Alert: {{ .Annotations.summary }}
@@ -1629,7 +1629,7 @@ receivers:
   - name: 'critical'
     email_configs:
       - to: 'oncall@wokeflow.example.com'
-        subject: 'CRITICAL: WokeFlow Alert: {{ .GroupLabels.alertname }}'
+        subject: 'CRITICAL: frys Alert: {{ .GroupLabels.alertname }}'
     slack_configs:
       - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
         channel: '#alerts'
@@ -1697,7 +1697,7 @@ echo "Security scans completed successfully"
 # infrastructure/security.tf - Terraform 配置
 resource "aws_security_group" "wokeflow" {
   name_prefix = "wokeflow-"
-  description = "Security group for WokeFlow application"
+  description = "Security group for frys application"
 
   ingress {
     description = "HTTPS"
@@ -1739,7 +1739,7 @@ resource "aws_security_group" "wokeflow" {
 # WAF 配置
 resource "aws_wafv2_web_acl" "wokeflow" {
   name        = "wokeflow-waf"
-  description = "WAF for WokeFlow application"
+  description = "WAF for frys application"
   scope       = "REGIONAL"
 
   default_action {

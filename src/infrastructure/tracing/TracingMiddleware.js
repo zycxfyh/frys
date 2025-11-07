@@ -1,5 +1,5 @@
 /**
- * WokeFlow - 追踪HTTP中间件
+ * frys - 追踪HTTP中间件
  * 自动为HTTP请求创建跨度和注入追踪上下文
  */
 

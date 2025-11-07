@@ -1,5 +1,5 @@
 /**
- * WokeFlow 事件系统配置
+ * frys 事件系统配置
  * 使用 EventEmitter3 替代自建的 EventStream
  */
 

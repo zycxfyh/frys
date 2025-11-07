@@ -1,9 +1,9 @@
 /**
- * WokeFlow 统一错误处理工具
+ * frys 统一错误处理工具
  * 为所有模块提供一致的错误处理和日志记录机制
  */
 
-import WokeFlowError from './WokeFlowError.js';
+import frysError from './frysError.js';
 
 class ErrorHandler {
   constructor(options = {}) {
@@ -24,15 +24,15 @@ class ErrorHandler {
   handle(error, context = {}) {
     const {
       module = 'Unknown',
-      code = WokeFlowError.CODES.OPERATION_FAILED,
+      code = frysError.CODES.OPERATION_FAILED,
       message,
       rethrow = this.options.throwErrors,
     } = context;
 
     const wokeFlowError =
-      error instanceof WokeFlowError
+      error instanceof frysError
         ? error
-        : new WokeFlowError(code, message || error.message, module, error);
+        : new frysError(code, message || error.message, module, error);
 
     if (this.options.collectStats) {
       this.recordError(wokeFlowError);

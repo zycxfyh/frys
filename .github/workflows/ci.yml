@@ -1,4 +1,4 @@
-name: WokeFlow CI/CD
+name: frys CI/CD
 
 on:
   push:

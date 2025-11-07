@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow 工业级质量检查系统 - 智能快速失败机制
+ * frys 工业级质量检查系统 - 智能快速失败机制
  * 并发执行质量检查，支持优先级调度、缓存和详细报告
  */
 
@@ -510,7 +510,7 @@ class IndustrialQualityChecker {
 
   printSummary(report) {
     console.log('\n' + '='.repeat(80));
-    this.log('📊 WokeFlow 工业级质量检查报告', 'info');
+    this.log('📊 frys 工业级质量检查报告', 'info');
     console.log('='.repeat(80));
 
     console.log(`⏱️  总耗时: ${(report.performanceStats.totalDuration / 1000).toFixed(2)}秒`);
@@ -588,7 +588,7 @@ function parseArgs() {
         break;
       case '--help':
         console.log(`
-WokeFlow 工业级质量检查系统
+frys 工业级质量检查系统
 
 用法: node scripts/quality-check.js [选项]
 

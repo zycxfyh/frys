@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow 回归测试矩阵
+ * frys 回归测试矩阵
  * 在Staging环境中执行全面回归测试
  */
 
@@ -217,7 +217,7 @@ class RegressionMatrix {
 
   generateReport() {
     console.log('\n' + '='.repeat(80));
-    console.log('📊 WokeFlow Staging 回归测试矩阵报告');
+    console.log('📊 frys Staging 回归测试矩阵报告');
     console.log('='.repeat(80));
 
     console.log(`\n🎯 测试概览:`);

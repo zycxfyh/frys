@@ -1,10 +1,10 @@
 /**
- * WokeFlow 轻量级核心 - 插件管理系统
+ * frys 轻量级核心 - 插件管理系统
  * 提供动态插件加载、生命周期管理和扩展机制
  */
 
 import { logger } from '../utils/logger.js';
-import { WokeFlowError, ErrorType } from './error-handler.js';
+import { frysError, ErrorType } from './error-handler.js';
 
 /**
  * 插件接口
@@ -83,12 +83,12 @@ export class PluginManager {
   async register(plugin, options = {}) {
     try {
       if (!(plugin instanceof PluginInterface)) {
-        throw WokeFlowError.system('插件必须继承 PluginInterface', 'plugin');
+        throw frysError.system('插件必须继承 PluginInterface', 'plugin');
       }
 
       const name = plugin.name;
       if (this._plugins.has(name)) {
-        throw WokeFlowError.system(`插件已存在: ${name}`, 'plugin');
+        throw frysError.system(`插件已存在: ${name}`, 'plugin');
       }
 
       // 检查依赖
@@ -126,7 +126,7 @@ export class PluginManager {
   async start(name) {
     const plugin = this._plugins.get(name);
     if (!plugin) {
-      throw WokeFlowError.system(`插件不存在: ${name}`, 'plugin');
+      throw frysError.system(`插件不存在: ${name}`, 'plugin');
     }
 
     if (plugin.status === 'started') {
@@ -399,12 +399,12 @@ export class PluginManager {
   async _checkDependencies(plugin) {
     for (const dep of plugin.dependencies) {
       if (!this._plugins.has(dep)) {
-        throw WokeFlowError.system(`缺少依赖插件: ${dep}`, 'plugin');
+        throw frysError.system(`缺少依赖插件: ${dep}`, 'plugin');
       }
 
       const depPlugin = this._plugins.get(dep);
       if (depPlugin.status !== 'installed' && depPlugin.status !== 'started') {
-        throw WokeFlowError.system(`依赖插件未就绪: ${dep}`, 'plugin');
+        throw frysError.system(`依赖插件未就绪: ${dep}`, 'plugin');
       }
     }
   }

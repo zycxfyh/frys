@@ -1,4 +1,4 @@
-# WokeFlow 生产级Docker镜像
+# frys 生产级Docker镜像
 FROM node:20-alpine
 
 # 设置工作目录

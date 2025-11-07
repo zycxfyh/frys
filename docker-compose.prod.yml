@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # WokeFlow 应用服务 - 蓝绿部署
+  # frys 应用服务 - 蓝绿部署
   wokeflow-blue:
     build:
       context: .

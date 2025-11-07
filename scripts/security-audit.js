@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow 工业级安全审计系统
+ * frys 工业级安全审计系统
  * 全面的安全扫描和漏洞检测
  */
 
@@ -834,7 +834,7 @@ async function runSecurityAudit() {
 
     // 输出摘要报告
     console.log('\n' + '='.repeat(80));
-    console.log('🔒 WokeFlow 工业级安全审计报告');
+    console.log('🔒 frys 工业级安全审计报告');
     console.log('='.repeat(80));
 
     const summary = auditor.results.summary;
@@ -872,7 +872,7 @@ async function runSecurityAudit() {
 
 // 如果直接运行此脚本
 if (process.argv[1].endsWith('security-audit.js')) {
-  console.log('🔒 启动WokeFlow工业级安全审计系统...');
+  console.log('🔒 启动frys工业级安全审计系统...');
   runSecurityAudit().catch(error => {
     console.error('❌ 安全审计执行失败:', error);
     process.exit(1);

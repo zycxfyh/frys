@@ -1,4 +1,4 @@
-# WokeFlow CI/CD 流水线完成报告
+# frys CI/CD 流水线完成报告
 
 ## 🎯 流水线执行状态总览
 
@@ -270,7 +270,7 @@ npm run deploy:staging
 
 ## 🎉 流水线执行总结
 
-**WokeFlow轻量化重构CI/CD流水线圆满完成！**
+**frys轻量化重构CI/CD流水线圆满完成！**
 
 ### 🎯 **核心成就**
 
@@ -295,4 +295,4 @@ npm run deploy:staging
 
 ---
 
-**🎊 WokeFlow CI/CD流水线执行成功，为企业级应用现代化改造树立了标杆！** 🚀
+**🎊 frys CI/CD流水线执行成功，为企业级应用现代化改造树立了标杆！** 🚀

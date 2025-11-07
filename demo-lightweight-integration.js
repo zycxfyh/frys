@@ -1,5 +1,5 @@
 /**
- * WokeFlow 轻量化集成演示
+ * frys 轻量化集成演示
  * 精简后的25个核心开源项目理念融合
  */
 
@@ -46,7 +46,7 @@ import ConsulInspiredDiscovery from './src/core/ConsulInspiredDiscovery.js';
 import D3InspiredVisualization from './src/core/D3InspiredVisualization.js';
 
 async function lightweightIntegrationDemo() {
-  console.log('🚀 WokeFlow 轻量化集成演示 - 25个核心开源项目理念融合\n');
+  console.log('🚀 frys 轻量化集成演示 - 25个核心开源项目理念融合\n');
 
   console.log('本次演示精简集成了以下核心项目理念：');
   console.log('📦 核心基础设施 (4个): NATS, Axios, Day.js, UUID');
@@ -339,7 +339,7 @@ async function lightweightIntegrationDemo() {
 
 // 运行演示
 lightweightIntegrationDemo().then(() => {
-  console.log('\n✨ WokeFlow - 轻量而强大的现代化工作流系统！');
+  console.log('\n✨ frys - 轻量而强大的现代化工作流系统！');
   console.log('\n🎊 轻量化改造完成！从79个项目精简到25个核心项目！');
   process.exit(0);
 }).catch(error => {

@@ -1,4 +1,4 @@
-# WokeFlow 使用指南
+# frys 使用指南
 
 ## 📚 目录
 
@@ -16,7 +16,7 @@
 
 ## 🚀 项目概述
 
-WokeFlow 是一个基于 Node.js 的现代化工作流系统，融合了 25+ 个开源项目的理念，提供了完整的工业级开发解决方案。
+frys 是一个基于 Node.js 的现代化工作流系统，融合了 25+ 个开源项目的理念，提供了完整的工业级开发解决方案。
 
 ### ✨ 核心特性
 
@@ -28,7 +28,7 @@ WokeFlow 是一个基于 Node.js 的现代化工作流系统，融合了 25+ 个
 ### 🏗️ 架构组成
 
 ```
-WokeFlow/
+frys/
 ├── src/core/           # 核心模块
 │   ├── AxiosInspiredHTTP.js     # HTTP 客户端
 │   ├── NATSInspiredMessaging.js # 消息队列
@@ -505,7 +505,7 @@ npm run rollback
 
 ### 监控指标
 
-WokeFlow 提供了全面的监控指标：
+frys 提供了全面的监控指标：
 
 ```javascript
 // 自定义性能监控
@@ -898,17 +898,17 @@ class UserService extends BaseService {
 
 ## 🎯 总结
 
-WokeFlow 为现代 Node.js 应用提供了完整的开发解决方案。通过遵循本指南，你可以：
+frys 为现代 Node.js 应用提供了完整的开发解决方案。通过遵循本指南，你可以：
 
 1. **快速上手**: 5分钟内运行第一个示例
 2. **高效开发**: 使用模块化架构和最佳实践
 3. **质量保证**: 通过完整的测试套件确保代码质量
 4. **生产就绪**: 使用 DevOps 工具链进行部署和监控
 
-**🚀 开始你的 WokeFlow 之旅吧！**
+**🚀 开始你的 frys 之旅吧！**
 
 ---
 
 _最后更新: 2025年11月5日_  
 _版本: 1.0.0_  
-_作者: WokeFlow Team_
+_作者: frys Team_

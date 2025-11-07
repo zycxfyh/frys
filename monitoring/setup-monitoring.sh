@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# WokeFlow 监控环境设置脚本
+# frys 监控环境设置脚本
 # 自动配置 Prometheus、Grafana 和 AlertManager
 
 set -euo pipefail
@@ -115,7 +115,7 @@ generate_env_file() {
     local env_file="$PROJECT_ROOT/.env.monitoring"
 
     cat > "$env_file" << EOF
-# WokeFlow 监控环境变量
+# frys 监控环境变量
 # 请根据实际情况修改这些值
 
 # SMTP 配置 (用于告警邮件)
@@ -171,7 +171,7 @@ EOF
 apiVersion: 1
 
 providers:
-  - name: 'WokeFlow Dashboards'
+  - name: 'frys Dashboards'
     type: file
     disableDeletion: false
     updateIntervalSeconds: 10
@@ -191,7 +191,7 @@ create_basic_dashboards() {
     cat > "$MONITORING_DIR/grafana/dashboards/slo-status.json" << 'EOF'
 {
   "dashboard": {
-    "title": "WokeFlow SLO 状态",
+    "title": "frys SLO 状态",
     "tags": ["wokeflow", "slo"],
     "timezone": "browser",
     "panels": [
@@ -346,7 +346,7 @@ EOF
 # 显示使用说明
 show_usage() {
     echo ""
-    echo "🎯 WokeFlow 监控环境设置完成！"
+    echo "🎯 frys 监控环境设置完成！"
     echo ""
     echo "📋 下一步操作:"
     echo ""
@@ -377,7 +377,7 @@ show_usage() {
 
 # 主函数
 main() {
-    info "🚀 开始设置 WokeFlow 监控环境"
+    info "🚀 开始设置 frys 监控环境"
 
     check_dependencies
     validate_configs
@@ -387,7 +387,7 @@ main() {
     create_basic_dashboards
     create_monitoring_compose
 
-    success "✅ WokeFlow 监控环境设置完成！"
+    success "✅ frys 监控环境设置完成！"
     show_usage
 }
 
@@ -399,7 +399,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --help)
-            echo "WokeFlow 监控环境设置脚本"
+            echo "frys 监控环境设置脚本"
             echo ""
             echo "用法: $0 [选项]"
             echo ""

@@ -1,4 +1,4 @@
-name: WokeFlow Staging Deployment
+name: frys Staging Deployment
 
 on:
   push:
@@ -282,7 +282,7 @@ jobs:
         run: |
           echo "发送部署通知..."
           # 这里可以集成Slack、Teams或其他通知服务
-          echo "🚀 WokeFlow Staging环境部署成功！"
+          echo "🚀 frys Staging环境部署成功！"
 
       - name: Create deployment summary
         run: |

@@ -1,5 +1,5 @@
 /**
- * WokeFlow 插件系统配置
+ * frys 插件系统配置
  * 使用 fastify-plugin 替代自建的 PluginManager
  */
 

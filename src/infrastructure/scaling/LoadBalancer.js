@@ -1,5 +1,5 @@
 /**
- * WokeFlow - 负载均衡器
+ * frys - 负载均衡器
  * 管理和分发请求到多个服务实例
  */
 
@@ -293,7 +293,7 @@ export class LoadBalancer {
         method: 'GET',
         signal: controller.signal,
         headers: {
-          'User-Agent': 'WokeFlow-LoadBalancer/1.0',
+          'User-Agent': 'frys-LoadBalancer/1.0',
         },
       });
 

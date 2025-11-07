@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow Staging 环境设置脚本
+ * frys Staging 环境设置脚本
  * 自动配置staging环境
  */
 
@@ -53,7 +53,7 @@ class StagingSetup {
       return;
     }
 
-    const envContent = `# WokeFlow Staging 环境配置
+    const envContent = `# frys Staging 环境配置
 # 此文件包含staging环境的敏感配置，请妥善保管
 
 # 应用配置
@@ -344,7 +344,7 @@ README.md
 
   async run() {
     try {
-      this.log('🚀 开始设置WokeFlow Staging环境', 'info');
+      this.log('🚀 开始设置frys Staging环境', 'info');
 
       // 创建必要目录
       this.createDirectory(this.dataDir);

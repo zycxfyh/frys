@@ -239,7 +239,7 @@ class TestRunner {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WokeFlow 工业化测试报告</title>
+    <title>frys 工业化测试报告</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .header { background: #f0f0f0; padding: 20px; border-radius: 5px; }
@@ -255,7 +255,7 @@ class TestRunner {
 </head>
 <body>
     <div class="header">
-        <h1>WokeFlow 工业化测试报告</h1>
+        <h1>frys 工业化测试报告</h1>
         <p>执行时间: ${this.results.startTime.toISOString()}</p>
         <p>总耗时: ${this.results.summary.totalDuration}ms</p>
     </div>

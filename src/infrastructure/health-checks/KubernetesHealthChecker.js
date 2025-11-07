@@ -1,5 +1,5 @@
 /**
- * WokeFlow - Kubernetes健康检查器
+ * frys - Kubernetes健康检查器
  * 专门为Kubernetes环境优化的健康检查实现
  */
 

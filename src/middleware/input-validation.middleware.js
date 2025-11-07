@@ -1,5 +1,5 @@
 /**
- * WokeFlow 输入验证中间件
+ * frys 输入验证中间件
  * 提供全面的输入验证和安全防护
  */
 
@@ -12,7 +12,7 @@ import {
   isValidUrl,
   isValidUUID,
 } from '../utils/type-guards.js';
-import { WokeFlowError } from '../core/WokeFlowError.js';
+import { frysError } from '../core/frysError.js';
 
 class InputValidationMiddleware {
   constructor(options = {}) {
@@ -542,7 +542,7 @@ class InputValidationMiddleware {
    * 发送验证错误响应
    */
   sendValidationError(res, errors, statusCode = 400) {
-    const error = new WokeFlowError(
+    const error = new frysError(
       'VALIDATION_ERROR',
       'Input validation failed',
       { errors, statusCode },

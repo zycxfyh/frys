@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow PR 检查脚本 (优化版)
+ * frys PR 检查脚本 (优化版)
  * 使用统一CI/CD流水线，避免重复检查
  */
 
@@ -16,7 +16,7 @@ class PROptimizedChecker {
       ...options
     };
 
-    this.log('🚀 开始 WokeFlow PR 优化检查', 'info');
+    this.log('🚀 开始 frys PR 优化检查', 'info');
     this.log(`PR: ${this.options.pr}, 分支: ${this.options.branch} → ${this.options.baseBranch}`, 'info');
   }
 
@@ -138,7 +138,7 @@ class PROptimizedChecker {
    */
   printPRSummary(report) {
     console.log('\n' + '='.repeat(80));
-    this.log('🎯 WokeFlow PR 检查报告 (优化版)', 'info');
+    this.log('🎯 frys PR 检查报告 (优化版)', 'info');
     console.log('='.repeat(80));
 
     console.log(`📋 PR信息: #${report.pr.number || 'N/A'}`);
@@ -236,7 +236,7 @@ function parseArgs() {
         break;
       case '--help':
         console.log(`
-WokeFlow PR 检查脚本 (优化版)
+frys PR 检查脚本 (优化版)
 
 用法: node scripts/pr-check.js [选项]
 

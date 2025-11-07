@@ -1,5 +1,5 @@
 /**
- * WokeFlow 性能基准测试
+ * frys 性能基准测试
  * 测试核心模块的性能表现
  */
 
@@ -24,7 +24,7 @@ class PerformanceBenchmark {
    * 运行所有基准测试
    */
   async runAllBenchmarks() {
-    console.log('🚀 WokeFlow 性能基准测试开始\n');
+    console.log('🚀 frys 性能基准测试开始\n');
 
     await this.benchmarkModule('NATS Messaging', async () => {
       const nats = new NATS();

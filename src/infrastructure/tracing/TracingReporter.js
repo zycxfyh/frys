@@ -1,5 +1,5 @@
 /**
- * WokeFlow - 追踪数据上报器
+ * frys - 追踪数据上报器
  * 负责将追踪数据上报到外部系统
  */
 
@@ -231,7 +231,7 @@ export class TracingReporter {
 
   /**
    * 转换为Jaeger格式
-   * @param {Array} spans - WokeFlow跨度
+   * @param {Array} spans - frys跨度
    */
   _convertToJaegerFormat(spans) {
     // Jaeger格式转换（简化实现）
@@ -264,7 +264,7 @@ export class TracingReporter {
 
   /**
    * 转换为Zipkin格式
-   * @param {Array} spans - WokeFlow跨度
+   * @param {Array} spans - frys跨度
    */
   _convertToZipkinFormat(spans) {
     // Zipkin格式转换（简化实现）

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow 开源项目集成演示
+ * frys 开源项目集成演示
  * 展示基于优秀开源项目的现代化架构
  */
 
@@ -168,14 +168,14 @@ async function runDemoLogic() {
     console.log('🏗️ 核心开源项目:');
     console.log('  Awilix, Fastify, Bull.js, EventEmitter3, Sentry');
 
-    console.log('✅ WokeFlow 开源项目集成演示完成');
+    console.log('✅ frys 开源项目集成演示完成');
 }
 
 // 设置全局超时机制 (15秒)
 const GLOBAL_TIMEOUT = 15000;
 
 async function runDemo() {
-  console.log('🚀 WokeFlow 开源项目集成演示');
+  console.log('🚀 frys 开源项目集成演示');
 
   // 创建全局超时Promise
   const globalTimeout = new Promise((_, reject) => {

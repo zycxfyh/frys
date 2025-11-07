@@ -4,7 +4,7 @@
  */
 
 import { BaseModule } from './BaseModule.js';
-import { WokeFlowError } from './error-handler.js';
+import { frysError } from './error-handler.js';
 import { logger } from '../utils/logger.js';
 
 class JWTInspiredAuth extends BaseModule {
@@ -86,7 +86,7 @@ class JWTInspiredAuth extends BaseModule {
 
     // 检查令牌数量限制
     if (this.tokenCount >= this.config.maxTokens) {
-      throw WokeFlowError.system('已达到最大令牌数量限制', 'token_limit');
+      throw frysError.system('已达到最大令牌数量限制', 'token_limit');
     }
 
     const secret = this.secrets.get(keyId);
@@ -130,7 +130,7 @@ class JWTInspiredAuth extends BaseModule {
   verifyToken(tokenString, keyId = 'default') {
     try {
       if (!tokenString) {
-        throw WokeFlowError.validation(
+        throw frysError.validation(
           'Token string cannot be empty',
           'tokenString',
         );
@@ -138,12 +138,12 @@ class JWTInspiredAuth extends BaseModule {
 
       const parts = tokenString.split('.');
       if (parts.length !== 3) {
-        throw WokeFlowError.validation('Invalid token format', 'tokenFormat');
+        throw frysError.validation('Invalid token format', 'tokenFormat');
       }
 
       const secret = this.secrets.get(keyId);
       if (!secret) {
-        throw WokeFlowError.authentication(`未知的密钥ID: ${keyId}`);
+        throw frysError.authentication(`未知的密钥ID: ${keyId}`);
       }
 
       // 验证签名
@@ -153,13 +153,13 @@ class JWTInspiredAuth extends BaseModule {
       const actualSignature = parts[2];
 
       if (actualSignature !== expectedSignature) {
-        throw WokeFlowError.authentication('无效的令牌签名');
+        throw frysError.authentication('无效的令牌签名');
       }
 
       const now = Math.floor(Date.now() / 1000);
 
       if (payload.exp && payload.exp < now) {
-        throw WokeFlowError.authentication('Token expired');
+        throw frysError.authentication('Token expired');
       }
 
       // 检查令牌是否存在于已生成的令牌中（防止伪造）
@@ -168,7 +168,7 @@ class JWTInspiredAuth extends BaseModule {
       );
 
       if (!tokenExists) {
-        throw WokeFlowError.authentication('令牌不存在或已被篡改');
+        throw frysError.authentication('令牌不存在或已被篡改');
       }
 
       logger.debug('JWT验证成功', { userId: payload.userId });

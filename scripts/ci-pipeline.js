@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow 统一CI/CD流水线
+ * frys 统一CI/CD流水线
  * 消除冗余，智能调度，高效执行
  */
 
@@ -68,7 +68,7 @@ class UnifiedCIPipeline {
       mkdirSync(this.cacheDir, { recursive: true });
     }
 
-    this.log(`🚀 初始化 WokeFlow 统一CI/CD流水线`, 'info');
+    this.log(`🚀 初始化 frys 统一CI/CD流水线`, 'info');
     this.log(`环境: ${this.options.env}, 分支: ${this.options.branch}, 并发数: ${this.options.maxConcurrency}`, 'info');
   }
 
@@ -581,7 +581,7 @@ class UnifiedCIPipeline {
    */
   printSummary(report) {
     console.log('\n' + '='.repeat(100));
-    this.log('📊 WokeFlow 统一CI/CD流水线执行报告', 'info');
+    this.log('📊 frys 统一CI/CD流水线执行报告', 'info');
     console.log('='.repeat(100));
 
     console.log(`⏱️  总耗时: ${(report.performance.totalDuration / 1000).toFixed(2)}秒`);
@@ -687,7 +687,7 @@ function parseArgs() {
         break;
       case '--help':
         console.log(`
-WokeFlow 统一CI/CD流水线
+frys 统一CI/CD流水线
 
 用法: node scripts/ci-pipeline.js [选项]
 

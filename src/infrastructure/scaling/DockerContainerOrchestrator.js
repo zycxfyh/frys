@@ -1,5 +1,5 @@
 /**
- * WokeFlow - Docker容器编排器
+ * frys - Docker容器编排器
  * 基于Docker API管理容器实例
  */
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# WokeFlow 回滚脚本
+# frys 回滚脚本
 # 自动回滚到上一版本
 
 set -euo pipefail
@@ -225,7 +225,7 @@ send_alert() {
 main() {
     local start_time=$(date +%s)
 
-    info "🔄 开始 WokeFlow 自动回滚"
+    info "🔄 开始 frys 自动回滚"
     info "环境: $DEPLOY_ENV"
     info "超时时间: ${ROLLBACK_TIMEOUT}秒"
 
@@ -341,7 +341,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --help)
-            echo "WokeFlow 自动回滚脚本"
+            echo "frys 自动回滚脚本"
             echo ""
             echo "用法: $0 [选项]"
             echo ""

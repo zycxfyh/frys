@@ -1,4 +1,4 @@
-# WokeFlow API一致性规范
+# frys API一致性规范
 
 ## 🎯 API设计原则
 
@@ -88,16 +88,16 @@ class ModuleName {
       // 操作逻辑
     } catch (error) {
       console.error(`Operation failed: ${error.message}`);
-      throw new WokeFlowError(`Operation failed: ${error.message}`, error);
+      throw new frysError(`Operation failed: ${error.message}`, error);
     }
   }
 }
 
 // 自定义错误类
-class WokeFlowError extends Error {
+class frysError extends Error {
   constructor(message, originalError = null) {
     super(message);
-    this.name = 'WokeFlowError';
+    this.name = 'frysError';
     this.originalError = originalError;
   }
 }
@@ -234,7 +234,7 @@ class ModuleName {
 ### Phase 2: 错误处理统一 (下周完成)
 
 1. **创建统一错误类**
-   - WokeFlowError基类
+   - frysError基类
    - 模块特定错误类
 
 2. **标准化错误处理**
@@ -294,7 +294,7 @@ updateChart(chartId, newData);
 
 ```javascript
 // 统一错误处理模式
-class WokeFlowError extends Error {
+class frysError extends Error {
   constructor(code, message, module, originalError = null) {
     super(message);
     this.code = code;
@@ -304,7 +304,7 @@ class WokeFlowError extends Error {
 }
 
 // 使用示例
-throw new WokeFlowError(
+throw new frysError(
   'VALIDATION_ERROR',
   'Invalid input',
   'UserModule',

@@ -5,7 +5,7 @@
 
 import axios from 'axios';
 import { BaseModule } from './BaseModule.js';
-import { WokeFlowError } from './error-handler.js';
+import { frysError } from './error-handler.js';
 import { logger } from '../utils/logger.js';
 
 class AxiosInspiredHTTP extends BaseModule {
@@ -43,7 +43,7 @@ class AxiosInspiredHTTP extends BaseModule {
           status: error.response?.status,
           message: error.message
         });
-        throw new WokeFlowError(
+        throw new frysError(
           `HTTP请求失败: ${error.message}`,
           'NETWORK_ERROR',
           error.response?.status || 500,

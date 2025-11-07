@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow Production - 主入口文件
+ * frys Production - 主入口文件
  * 企业级工作流管理系统 (基于开源项目重构)
  */
 
@@ -29,9 +29,9 @@ registerValue('errorHandler', errorHandler);
 registerValue('pluginManager', pluginManager);
 
 /**
- * WokeFlow Production - 基于开源项目的应用类
+ * frys Production - 基于开源项目的应用类
  */
-class WokeFlowProduction {
+class frysProduction {
   constructor() {
     this.container = container;
     this.eventSystem = eventSystem;
@@ -42,7 +42,7 @@ class WokeFlowProduction {
 
   async initialize() {
     try {
-      logger.info('🚀 初始化 WokeFlow Production 系统 (开源项目重构)');
+      logger.info('🚀 初始化 frys Production 系统 (开源项目重构)');
 
       // 1. 初始化错误处理器
       await errorHandler.initialize();
@@ -73,7 +73,7 @@ class WokeFlowProduction {
       }
 
       this.initialized = true;
-      logger.info('✅ WokeFlow Production 系统初始化完成 (开源项目重构)');
+      logger.info('✅ frys Production 系统初始化完成 (开源项目重构)');
     } catch (error) {
       await errorHandler.handle(error, { context: 'system_initialization' });
       throw error;
@@ -232,7 +232,7 @@ class WokeFlowProduction {
     }
 
     try {
-      logger.info('🎯 WokeFlow Production 系统启动 (开源项目重构)');
+      logger.info('🎯 frys Production 系统启动 (开源项目重构)');
 
       // 启动Web服务器
       this.server = await startServer(config.port, config.host);
@@ -474,10 +474,10 @@ class WokeFlowProduction {
 }
 
 // 创建全局实例
-const app = new WokeFlowProduction();
+const app = new frysProduction();
 
 // 导出供外部使用
-export { app, WokeFlowProduction };
+export { app, frysProduction };
 
 // 如果直接运行此文件
 if (import.meta.url === `file://${process.argv[1]}`) {

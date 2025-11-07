@@ -1,5 +1,5 @@
 /**
- * WokeFlow 构建脚本
+ * frys 构建脚本
  * 基于Rollup理念的轻量打包工具
  */
 
@@ -143,7 +143,7 @@ class LightweightBundler {
     console.log('🔗 创建轻量bundle...');
 
     let bundleContent = `/**
- * WokeFlow 轻量版本
+ * frys 轻量版本
  * 自动生成于 ${new Date().toISOString()}
  * 包含 ${this.coreModules.length} 个核心模块
  */
@@ -181,7 +181,7 @@ export default {
    */
   topologicalSort() {
     // 简单按文件名排序，确保基础模块在前
-    const priorityModules = ['WokeFlowError', 'ErrorHandler'];
+    const priorityModules = ['frysError', 'ErrorHandler'];
     const otherModules = this.coreModules.filter(m => !priorityModules.includes(m.name));
 
     return [
@@ -280,7 +280,7 @@ ${content.split('\n').map(line => line ? '  ' + line : line).join('\n')}
    * 构建过程
    */
   async build() {
-    console.log('🏗️  WokeFlow 轻量构建开始\n');
+    console.log('🏗️  frys 轻量构建开始\n');
 
     try {
       // 确保输出目录存在

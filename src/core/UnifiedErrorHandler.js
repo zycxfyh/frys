@@ -1,5 +1,5 @@
 /**
- * WokeFlow 轻量级核心 - 统一错误处理
+ * frys 轻量级核心 - 统一错误处理
  * 提供集中化的错误处理、日志记录和恢复机制
  */
 
@@ -33,7 +33,7 @@ export const ErrorSeverity = {
 /**
  * 统一错误类
  */
-export class WokeFlowError extends Error {
+export class frysError extends Error {
   constructor(
     message,
     type = ErrorType.UNKNOWN,
@@ -41,7 +41,7 @@ export class WokeFlowError extends Error {
     context = {},
   ) {
     super(message);
-    this.name = 'WokeFlowError';
+    this.name = 'frysError';
     this.type = type;
     this.severity = severity;
     this.context = context;
@@ -50,7 +50,7 @@ export class WokeFlowError extends Error {
 
     // 保持正确的堆栈跟踪
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, WokeFlowError);
+      Error.captureStackTrace(this, frysError);
     }
   }
 
@@ -58,7 +58,7 @@ export class WokeFlowError extends Error {
    * 创建验证错误
    */
   static validation(message, field, value) {
-    return new WokeFlowError(message, ErrorType.VALIDATION, ErrorSeverity.LOW, {
+    return new frysError(message, ErrorType.VALIDATION, ErrorSeverity.LOW, {
       field,
       value,
     });
@@ -68,7 +68,7 @@ export class WokeFlowError extends Error {
    * 创建认证错误
    */
   static authentication(message, username) {
-    return new WokeFlowError(
+    return new frysError(
       message,
       ErrorType.AUTHENTICATION,
       ErrorSeverity.MEDIUM,
@@ -80,7 +80,7 @@ export class WokeFlowError extends Error {
    * 创建授权错误
    */
   static authorization(message, userId, resource) {
-    return new WokeFlowError(
+    return new frysError(
       message,
       ErrorType.AUTHORIZATION,
       ErrorSeverity.HIGH,
@@ -92,7 +92,7 @@ export class WokeFlowError extends Error {
    * 创建网络错误
    */
   static network(message, url, statusCode) {
-    return new WokeFlowError(message, ErrorType.NETWORK, ErrorSeverity.MEDIUM, {
+    return new frysError(message, ErrorType.NETWORK, ErrorSeverity.MEDIUM, {
       url,
       statusCode,
     });
@@ -102,7 +102,7 @@ export class WokeFlowError extends Error {
    * 创建数据库错误
    */
   static database(message, operation, table) {
-    return new WokeFlowError(message, ErrorType.DATABASE, ErrorSeverity.HIGH, {
+    return new frysError(message, ErrorType.DATABASE, ErrorSeverity.HIGH, {
       operation,
       table,
     });
@@ -112,7 +112,7 @@ export class WokeFlowError extends Error {
    * 创建系统错误
    */
   static system(message, component) {
-    return new WokeFlowError(
+    return new frysError(
       message,
       ErrorType.SYSTEM,
       ErrorSeverity.CRITICAL,
@@ -263,7 +263,7 @@ export class UnifiedErrorHandler {
    * 标准化错误
    */
   _normalizeError(error) {
-    if (error instanceof WokeFlowError) {
+    if (error instanceof frysError) {
       return error;
     }
 
@@ -299,7 +299,7 @@ export class UnifiedErrorHandler {
       severity = ErrorSeverity.HIGH;
     }
 
-    return new WokeFlowError(error.message || '未知错误', type, severity, {
+    return new frysError(error.message || '未知错误', type, severity, {
       originalError: error,
     });
   }
@@ -472,7 +472,7 @@ export function Timeout(ms = 30000) {
         originalMethod.apply(this, args),
         new Promise((_, reject) =>
           setTimeout(
-            () => reject(WokeFlowError.system(`操作超时: ${ms}ms`, 'timeout')),
+            () => reject(frysError.system(`操作超时: ${ms}ms`, 'timeout')),
             ms,
           ),
         ),
@@ -755,7 +755,7 @@ export function WithDeadLetterQueue(queueName) {
         );
 
         // 重新抛出错误，但包含死信队列信息
-        const enhancedError = new WokeFlowError(
+        const enhancedError = new frysError(
           `操作失败，已添加到死信队列: ${error.message}`,
           error.type || ErrorType.SYSTEM,
           error.severity || ErrorSeverity.HIGH,

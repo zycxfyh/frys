@@ -1,8 +1,8 @@
-# WokeFlow 系统架构图
+# frys 系统架构图
 
 ## 概述
 
-本文档提供了WokeFlow系统的完整架构视图，包括系统组件、数据流、部署架构和扩展策略。
+本文档提供了frys系统的完整架构视图，包括系统组件、数据流、部署架构和扩展策略。
 
 ## 系统总体架构
 
@@ -16,7 +16,7 @@ graph TB
     end
 
     subgraph "API网关层 (API Gateway)"
-        GATEWAY[WokeFlow API Gateway]
+        GATEWAY[frys API Gateway]
         AUTH[认证服务]
         RATE[速率限制]
         CACHE[缓存层]
@@ -109,7 +109,7 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph "WokeFlow 微服务集群"
+    subgraph "frys 微服务集群"
         API_GATEWAY[API Gateway<br/>路由 & 认证]
 
         USER_SVC[用户服务<br/>User Service<br/>Port: 3001]
@@ -226,7 +226,7 @@ sequenceDiagram
 ```mermaid
 graph TB
     subgraph "单机部署"
-        APP[WokeFlow 应用<br/>Node.js + Express]
+        APP[frys 应用<br/>Node.js + Express]
         DB[(PostgreSQL)]
         CACHE[(Redis)]
         MQ[(RabbitMQ)]
@@ -481,9 +481,9 @@ graph LR
     end
 
     subgraph "应用服务器集群"
-        APP1[WokeFlow App 1]
-        APP2[WokeFlow App 2]
-        APP3[WokeFlow App 3]
+        APP1[frys App 1]
+        APP2[frys App 2]
+        APP3[frys App 3]
     end
 
     subgraph "共享存储"
@@ -641,7 +641,7 @@ graph TB
 
 ## 总结
 
-WokeFlow采用了分层的六边形架构设计，具有以下特点：
+frys采用了分层的六边形架构设计，具有以下特点：
 
 ### 架构优势
 - **清晰分层**: 严格的关注点分离

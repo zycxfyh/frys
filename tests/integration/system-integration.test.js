@@ -1,6 +1,6 @@
 /**
  * 系统集成测试
- * 验证整个WokeFlow系统的集成功能
+ * 验证整个frys系统的集成功能
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';

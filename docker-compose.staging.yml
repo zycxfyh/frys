@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # WokeFlow 应用服务
+  # frys 应用服务
   wokeflow:
     build:
       context: .

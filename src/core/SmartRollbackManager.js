@@ -1,5 +1,5 @@
 /**
- * WokeFlow 智能回退管理系统
+ * frys 智能回退管理系统
  * 基于监控指标的自动化回退决策和执行
  */
 
@@ -139,7 +139,7 @@ class SmartRollbackManager {
       if (this.options.healthCheckUrl) {
         const response = await fetch(this.options.healthCheckUrl, {
           timeout: 5000,
-          headers: { 'User-Agent': 'WokeFlow-HealthCheck' },
+          headers: { 'User-Agent': 'frys-HealthCheck' },
         });
 
         const responseTime = Date.now() - startTime;

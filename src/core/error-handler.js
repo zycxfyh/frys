@@ -1,5 +1,5 @@
 /**
- * WokeFlow 错误处理配置
+ * frys 错误处理配置
  * 使用 Sentry 替代自建的 UnifiedErrorHandler
  */
 
@@ -322,19 +322,19 @@ export const ErrorType = {
 };
 
 /**
- * WokeFlow 错误类 - 保持向后兼容性
+ * frys 错误类 - 保持向后兼容性
  */
-export class WokeFlowError extends Error {
+export class frysError extends Error {
   constructor(message, type = 'UNKNOWN_ERROR', code = 500, context = {}) {
     super(message);
-    this.name = 'WokeFlowError';
+    this.name = 'frysError';
     this.type = type;
     this.code = code;
     this.context = context;
     this.timestamp = Date.now();
 
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, WokeFlowError);
+      Error.captureStackTrace(this, frysError);
     }
   }
 

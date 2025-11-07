@@ -1,5 +1,5 @@
 /**
- * WokeFlow 测试环境设置
+ * frys 测试环境设置
  * 全局测试配置和辅助函数
  */
 
@@ -7,12 +7,12 @@ import { beforeAll, afterAll, beforeEach } from 'vitest';
 
 // 设置全局测试超时
 beforeAll(() => {
-  console.log('🚀 WokeFlow 测试环境初始化...\n');
+  console.log('🚀 frys 测试环境初始化...\n');
 });
 
 // 清理测试环境
 afterAll(() => {
-  console.log('\n✨ WokeFlow 测试环境清理完成');
+  console.log('\n✨ frys 测试环境清理完成');
 });
 
 // 每个测试前的设置

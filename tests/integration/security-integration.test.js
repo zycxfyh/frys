@@ -320,7 +320,7 @@ describe('安全集成测试', () => {
         headers: {
           'Authorization': `Bearer ${secureStore.state.sessionTokens.get('user1')}`,
           'X-API-Key': 'sensitive-api-key',
-          'X-User-Agent': 'WokeFlow/1.0'
+          'X-User-Agent': 'frys/1.0'
         }
       });
 

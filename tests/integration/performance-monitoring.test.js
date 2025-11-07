@@ -195,7 +195,7 @@ describe('性能监控集成测试', () => {
       const prometheusOutput = monitoringMiddleware.metrics.getPrometheusMetrics();
 
       expect(typeof prometheusOutput).toBe('string');
-      expect(prometheusOutput).toContain('# WokeFlow Application Metrics');
+      expect(prometheusOutput).toContain('# frys Application Metrics');
       expect(prometheusOutput).toContain('# TYPE');
       expect(prometheusOutput).toContain('# HELP');
     });

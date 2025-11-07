@@ -1,5 +1,5 @@
 /**
- * WokeFlow Production - 结构化日志系统
+ * frys Production - 结构化日志系统
  * 支持JSON格式、分布式追踪、性能监控
  */
 

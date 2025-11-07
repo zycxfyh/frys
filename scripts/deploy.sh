@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# WokeFlow 蓝绿部署脚本
+# frys 蓝绿部署脚本
 # 实现安全、高可用的部署策略
 
 set -euo pipefail
@@ -218,7 +218,7 @@ rollback() {
 
 # 主部署函数
 main() {
-    info "🚀 开始 WokeFlow 蓝绿部署"
+    info "🚀 开始 frys 蓝绿部署"
     info "环境: $DEPLOY_ENV"
     info "Docker Compose 文件: $DOCKER_COMPOSE_FILE"
 
@@ -278,7 +278,7 @@ send_notification() {
     # 这里可以集成 Slack、Teams 或其他通知服务
     # 示例:
     # curl -X POST -H 'Content-type: application/json' \
-    #   --data '{"text":"WokeFlow 部署'"$status"' - 环境: '"$env"'"}' \
+    #   --data '{"text":"frys 部署'"$status"' - 环境: '"$env"'"}' \
     #   $WEBHOOK_URL
 }
 
@@ -290,7 +290,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --help)
-            echo "WokeFlow 蓝绿部署脚本"
+            echo "frys 蓝绿部署脚本"
             echo ""
             echo "用法: $0 [选项]"
             echo ""

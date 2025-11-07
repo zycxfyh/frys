@@ -1,5 +1,5 @@
 /**
- * WokeFlow Production - 配置文件
+ * frys Production - 配置文件
  */
 
 import { readFileSync } from 'fs';
@@ -60,7 +60,7 @@ const _envVars = loadEnvConfig();
 export const config = {
   // 应用配置
   app: {
-    name: 'WokeFlow Production',
+    name: 'frys Production',
     version: '1.0.0',
     port: safeParseInt(getEnvVar('PORT', '3000'), 3000),
     env: safeString(getEnvVar('NODE_ENV', 'development'), 'development'),

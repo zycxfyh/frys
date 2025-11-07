@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow 回退验证器
+ * frys 回退验证器
  * 验证回退操作的完整性和正确性
  */
 
@@ -693,7 +693,7 @@ class RollbackVerifier {
     const report = this.generateReport();
 
     console.log('\n' + '='.repeat(80));
-    logger.info('🔍 WokeFlow 回退验证报告', 'info');
+    logger.info('🔍 frys 回退验证报告', 'info');
     console.log('='.repeat(80));
 
     console.log(`⏱️  验证耗时: ${(report.duration / 1000).toFixed(2)}秒`);
@@ -754,7 +754,7 @@ function parseArgs() {
         break;
       case '--help':
         console.log(`
-WokeFlow 回退验证器
+frys 回退验证器
 
 用法: node scripts/rollback-verifier.js [选项]
 

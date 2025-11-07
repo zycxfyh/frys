@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow 监控与回滚机制验证脚本
+ * frys 监控与回滚机制验证脚本
  * 验证生产环境的监控系统和回滚机制
  */
 
@@ -241,7 +241,7 @@ class MonitoringRollback {
 
   generateReport() {
     console.log('\n' + '='.repeat(80));
-    console.log('📊 WokeFlow 监控与回滚机制验证报告');
+    console.log('📊 frys 监控与回滚机制验证报告');
     console.log('='.repeat(80));
 
     console.log(`\n🔍 监控检查结果:`);

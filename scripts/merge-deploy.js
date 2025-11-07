@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WokeFlow 合并与部署模拟脚本
+ * frys 合并与部署模拟脚本
  * 模拟生产环境的代码合并和部署流程
  */
 
@@ -130,7 +130,7 @@ class MergeDeploy {
 
   generateReport() {
     console.log('\n' + '='.repeat(80));
-    console.log('🚀 WokeFlow 合并与部署报告');
+    console.log('🚀 frys 合并与部署报告');
     console.log('='.repeat(80));
 
     console.log(`\n📋 部署步骤结果:`);

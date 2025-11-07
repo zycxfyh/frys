@@ -3,63 +3,63 @@ groups:
   - name: wokeflow_application_alerts
     rules:
       # 应用实例宕机
-      - alert: WokeFlowInstanceDown
+      - alert: frysInstanceDown
         expr: up{job=~"wokeflow-(blue|green)"} == 0
         for: 1m
         labels:
           severity: critical
           service: wokeflow
         annotations:
-          summary: "WokeFlow 实例宕机"
-          description: "WokeFlow {{ $labels.instance }} 实例已宕机 1 分钟"
+          summary: "frys 实例宕机"
+          description: "frys {{ $labels.instance }} 实例已宕机 1 分钟"
           runbook_url: "https://docs.wokeflow.com/runbooks/instance-down"
 
       # 应用响应时间过高
-      - alert: WokeFlowHighResponseTime
+      - alert: frysHighResponseTime
         expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=~"wokeflow-(blue|green)"}[5m])) > 2
         for: 5m
         labels:
           severity: warning
           service: wokeflow
         annotations:
-          summary: "WokeFlow 响应时间过高"
-          description: "WokeFlow {{ $labels.instance }} 95% 响应时间超过 2 秒"
+          summary: "frys 响应时间过高"
+          description: "frys {{ $labels.instance }} 95% 响应时间超过 2 秒"
           runbook_url: "https://docs.wokeflow.com/runbooks/high-response-time"
 
       # 应用错误率过高
-      - alert: WokeFlowHighErrorRate
+      - alert: frysHighErrorRate
         expr: rate(http_requests_total{status=~"5..", job=~"wokeflow-(blue|green)"}[5m]) / rate(http_requests_total{job=~"wokeflow-(blue|green)"}[5m]) > 0.05
         for: 5m
         labels:
           severity: critical
           service: wokeflow
         annotations:
-          summary: "WokeFlow 错误率过高"
-          description: "WokeFlow {{ $labels.instance }} 错误率超过 5%"
+          summary: "frys 错误率过高"
+          description: "frys {{ $labels.instance }} 错误率超过 5%"
           runbook_url: "https://docs.wokeflow.com/runbooks/high-error-rate"
 
       # 内存使用过高
-      - alert: WokeFlowHighMemoryUsage
+      - alert: frysHighMemoryUsage
         expr: process_resident_memory_bytes{job=~"wokeflow-(blue|green)"} / process_virtual_memory_max_bytes > 0.9
         for: 10m
         labels:
           severity: warning
           service: wokeflow
         annotations:
-          summary: "WokeFlow 内存使用过高"
-          description: "WokeFlow {{ $labels.instance }} 内存使用超过 90%"
+          summary: "frys 内存使用过高"
+          description: "frys {{ $labels.instance }} 内存使用超过 90%"
           runbook_url: "https://docs.wokeflow.com/runbooks/high-memory"
 
       # CPU 使用过高
-      - alert: WokeFlowHighCPUUsage
+      - alert: frysHighCPUUsage
         expr: rate(process_cpu_user_seconds_total{job=~"wokeflow-(blue|green)"}[5m]) > 0.8
         for: 10m
         labels:
           severity: warning
           service: wokeflow
         annotations:
-          summary: "WokeFlow CPU 使用过高"
-          description: "WokeFlow {{ $labels.instance }} CPU 使用率超过 80%"
+          summary: "frys CPU 使用过高"
+          description: "frys {{ $labels.instance }} CPU 使用率超过 80%"
           runbook_url: "https://docs.wokeflow.com/runbooks/high-cpu"
 
   # 基础设施告警
@@ -164,7 +164,7 @@ groups:
           service: wokeflow
         annotations:
           summary: "API 调用量异常偏低"
-          description: "WokeFlow API 10分钟内调用次数少于 1 次"
+          description: "frys API 10分钟内调用次数少于 1 次"
           runbook_url: "https://docs.wokeflow.com/runbooks/low-api-calls"
 
       # 工作流执行失败率过高

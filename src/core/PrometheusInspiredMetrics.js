@@ -653,7 +653,7 @@ class PrometheusInspiredMetrics {
    * 获取 Prometheus 格式的指标输出
    */
   getPrometheusMetrics() {
-    let output = '# WokeFlow Application Metrics\n';
+    let output = '# frys Application Metrics\n';
 
     for (const [name, metric] of this.metrics) {
       output += `\n# HELP ${name} ${metric.help}\n`;

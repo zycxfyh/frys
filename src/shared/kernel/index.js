@@ -1,5 +1,5 @@
 /**
- * WokeFlow 架构核心 (Hexagonal Architecture)
+ * frys 架构核心 (Hexagonal Architecture)
  * 提供应用架构的基础设施
  */
 

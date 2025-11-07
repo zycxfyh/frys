@@ -1,8 +1,8 @@
-# WokeFlow 服务水平目标 (SLO) 定义
+# frys 服务水平目标 (SLO) 定义
 
 ## 概述
 
-服务水平目标 (Service Level Objectives) 定义了 WokeFlow 系统的可靠性、可性能和可用性目标。本文档详细说明了各项 SLO 的定义、测量方法和目标值。
+服务水平目标 (Service Level Objectives) 定义了 frys 系统的可靠性、可性能和可用性目标。本文档详细说明了各项 SLO 的定义、测量方法和目标值。
 
 ## SLO 框架
 
@@ -10,7 +10,7 @@
 
 #### 定义
 
-API 可用性指 WokeFlow API 服务正常运行的时间比例。
+API 可用性指 frys API 服务正常运行的时间比例。
 
 #### 测量方法
 

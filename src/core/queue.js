@@ -1,5 +1,5 @@
 /**
- * WokeFlow 消息队列配置
+ * frys 消息队列配置
  * 使用 Bull.js + Redis 替代自建的 NATS-inspired 消息队列
  */
 

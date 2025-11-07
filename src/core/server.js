@@ -1,5 +1,5 @@
 /**
- * WokeFlow Web服务器配置
+ * frys Web服务器配置
  * 使用 Fastify 替代自建的 HTTP 处理逻辑
  */
 
@@ -246,7 +246,7 @@ export async function startServer(port = config.port || 3000, host = '0.0.0.0') 
 
   try {
     await app.listen({ port, host });
-    logger.info(`🚀 WokeFlow 服务器已启动 http://${host}:${port}`);
+    logger.info(`🚀 frys 服务器已启动 http://${host}:${port}`);
 
     return app;
   } catch (error) {
@@ -261,7 +261,7 @@ export async function startServer(port = config.port || 3000, host = '0.0.0.0') 
 export async function stopServer(app) {
   if (app) {
     await app.close();
-    logger.info('🛑 WokeFlow 服务器已停止');
+    logger.info('🛑 frys 服务器已停止');
   }
 }
 

@@ -1,0 +1,17 @@
+pre-commit:
+  commands:
+    lint:
+      run: pnpm run lint
+    format:
+      run: pnpm run format:check
+    test:
+      run: pnpm run test:unit
+  glob: "*.{js,json,md}"
+
+pre-push:
+  commands:
+    quality:
+      run: pnpm run quality
+    test:
+      run: pnpm run test:ci
+  glob: "*.{js,json,md}"

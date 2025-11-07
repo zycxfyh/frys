@@ -1,0 +1,192 @@
+groups:
+  # 应用层告警
+  - name: wokeflow_application_alerts
+    rules:
+      # 应用实例宕机
+      - alert: WokeFlowInstanceDown
+        expr: up{job=~"wokeflow-(blue|green)"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: wokeflow
+        annotations:
+          summary: "WokeFlow 实例宕机"
+          description: "WokeFlow {{ $labels.instance }} 实例已宕机 1 分钟"
+          runbook_url: "https://docs.wokeflow.com/runbooks/instance-down"
+
+      # 应用响应时间过高
+      - alert: WokeFlowHighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=~"wokeflow-(blue|green)"}[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: wokeflow
+        annotations:
+          summary: "WokeFlow 响应时间过高"
+          description: "WokeFlow {{ $labels.instance }} 95% 响应时间超过 2 秒"
+          runbook_url: "https://docs.wokeflow.com/runbooks/high-response-time"
+
+      # 应用错误率过高
+      - alert: WokeFlowHighErrorRate
+        expr: rate(http_requests_total{status=~"5..", job=~"wokeflow-(blue|green)"}[5m]) / rate(http_requests_total{job=~"wokeflow-(blue|green)"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          service: wokeflow
+        annotations:
+          summary: "WokeFlow 错误率过高"
+          description: "WokeFlow {{ $labels.instance }} 错误率超过 5%"
+          runbook_url: "https://docs.wokeflow.com/runbooks/high-error-rate"
+
+      # 内存使用过高
+      - alert: WokeFlowHighMemoryUsage
+        expr: process_resident_memory_bytes{job=~"wokeflow-(blue|green)"} / process_virtual_memory_max_bytes > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          service: wokeflow
+        annotations:
+          summary: "WokeFlow 内存使用过高"
+          description: "WokeFlow {{ $labels.instance }} 内存使用超过 90%"
+          runbook_url: "https://docs.wokeflow.com/runbooks/high-memory"
+
+      # CPU 使用过高
+      - alert: WokeFlowHighCPUUsage
+        expr: rate(process_cpu_user_seconds_total{job=~"wokeflow-(blue|green)"}[5m]) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          service: wokeflow
+        annotations:
+          summary: "WokeFlow CPU 使用过高"
+          description: "WokeFlow {{ $labels.instance }} CPU 使用率超过 80%"
+          runbook_url: "https://docs.wokeflow.com/runbooks/high-cpu"
+
+  # 基础设施告警
+  - name: infrastructure_alerts
+    rules:
+      # 数据库连接失败
+      - alert: DatabaseDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "数据库连接失败"
+          description: "PostgreSQL 数据库无法连接"
+          runbook_url: "https://docs.wokeflow.com/runbooks/database-down"
+
+      # Redis 连接失败
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: cache
+        annotations:
+          summary: "Redis 连接失败"
+          description: "Redis 缓存服务无法连接"
+          runbook_url: "https://docs.wokeflow.com/runbooks/redis-down"
+
+      # Nginx 连接失败
+      - alert: NginxDown
+        expr: nginx_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: proxy
+        annotations:
+          summary: "Nginx 代理失败"
+          description: "Nginx 反向代理服务宕机"
+          runbook_url: "https://docs.wokeflow.com/runbooks/nginx-down"
+
+      # 系统磁盘空间不足
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "磁盘空间不足"
+          description: "{{ $labels.mountpoint }} 分区可用空间小于 10%"
+          runbook_url: "https://docs.wokeflow.com/runbooks/disk-space-low"
+
+      # 系统内存不足
+      - alert: SystemMemoryLow
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "系统内存不足"
+          description: "系统可用内存小于 10%"
+          runbook_url: "https://docs.wokeflow.com/runbooks/memory-low"
+
+  # 监控系统告警
+  - name: monitoring_alerts
+    rules:
+      # Prometheus 配置重载失败
+      - alert: PrometheusConfigReloadFailed
+        expr: prometheus_config_last_reload_successful != 1
+        for: 1m
+        labels:
+          severity: warning
+          service: monitoring
+        annotations:
+          summary: "Prometheus 配置重载失败"
+          description: "Prometheus 配置文件重载失败"
+          runbook_url: "https://docs.wokeflow.com/runbooks/prometheus-config"
+
+      # AlertManager 不可用
+      - alert: AlertmanagerDown
+        expr: up{job="alertmanager"} == 0
+        for: 1m
+        labels:
+          severity: warning
+          service: monitoring
+        annotations:
+          summary: "AlertManager 不可用"
+          description: "告警管理器服务宕机"
+          runbook_url: "https://docs.wokeflow.com/runbooks/alertmanager-down"
+
+  # 业务指标告警
+  - name: business_alerts
+    rules:
+      # API 调用量异常
+      - alert: LowAPICalls
+        expr: rate(http_requests_total{job=~"wokeflow-(blue|green)"}[10m]) < 1
+        for: 10m
+        labels:
+          severity: info
+          service: wokeflow
+        annotations:
+          summary: "API 调用量异常偏低"
+          description: "WokeFlow API 10分钟内调用次数少于 1 次"
+          runbook_url: "https://docs.wokeflow.com/runbooks/low-api-calls"
+
+      # 工作流执行失败率过高
+      - alert: HighWorkflowFailureRate
+        expr: rate(workflow_executions_total{status="failed"}[5m]) / rate(workflow_executions_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: wokeflow
+        annotations:
+          summary: "工作流失败率过高"
+          description: "工作流执行失败率超过 10%"
+          runbook_url: "https://docs.wokeflow.com/runbooks/workflow-failures"
+
+      # 用户认证失败率过高
+      - alert: HighAuthFailureRate
+        expr: rate(auth_attempts_total{status="failed"}[5m]) / rate(auth_attempts_total[5m]) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          service: wokeflow
+        annotations:
+          summary: "认证失败率过高"
+          description: "用户认证失败率超过 20%"
+          runbook_url: "https://docs.wokeflow.com/runbooks/auth-failures"

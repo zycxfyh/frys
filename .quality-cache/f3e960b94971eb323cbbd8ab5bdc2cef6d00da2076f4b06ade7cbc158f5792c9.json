@@ -1,0 +1,25 @@
+{
+  "timestamp": 1762431304514,
+  "check": "prettier",
+  "result": {
+    "check": {
+      "id": "prettier",
+      "name": "Prettier 代码格式检查",
+      "command": "npm",
+      "args": [
+        "run",
+        "format:check"
+      ],
+      "cwd": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug",
+      "priority": 2,
+      "timeout": 30000,
+      "category": "formatting"
+    },
+    "status": "passed",
+    "code": 0,
+    "stdout": "\n> wokeflow-production@1.0.0 format:check\n> prettier --check \"src/**/*.{js,json}\" \"package.json\" \"vitest.config.js\" \"docs/*.md\"\n\nChecking formatting...\nAll matched files use Prettier code style!\n",
+    "stderr": "",
+    "duration": 11995,
+    "cached": false
+  }
+}

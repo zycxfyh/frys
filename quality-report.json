@@ -1,0 +1,118 @@
+{
+  "timestamp": "2025-11-07T07:33:47.340Z",
+  "config": {
+    "failFast": true,
+    "cacheEnabled": true,
+    "reportFormat": "json",
+    "cacheDir": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\.quality-cache",
+    "timeout": 300000,
+    "simplified": true
+  },
+  "stats": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "error": 0,
+    "skipped": 0,
+    "cached": 3
+  },
+  "categoryStats": {
+    "linting": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "formatting": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "security": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "performanceStats": {
+    "totalDuration": 7,
+    "averageDuration": 2.3333333333333335,
+    "slowestCheck": {
+      "check": {
+        "id": "eslint",
+        "name": "ESLint 代码规范检查",
+        "command": "npm",
+        "args": [
+          "run",
+          "lint"
+        ],
+        "cwd": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug",
+        "priority": 1,
+        "timeout": 60000,
+        "category": "linting"
+      },
+      "status": "passed",
+      "code": 0,
+      "stdout": "\n> wokeflow-production@1.0.0 lint\n> eslint src/core/ --ext .js\n\n\nC:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\core\\AxiosInspiredHTTP.js\n    8:10  warning  'pipe' is defined but never used. Allowed unused vars must match /^_/u                    no-unused-vars\n   54:21  warning  'instance' is assigned a value but never used. Allowed unused vars must match /^_/u       no-unused-vars\n  455:11  warning  'instanceStats' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars\n\nC:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\core\\PluginManager.js\n    7:25  warning  'ErrorType' is defined but never used. Allowed unused vars must match /^_/u         no-unused-vars\n   23:17  warning  'context' is defined but never used. Allowed unused args must match /^_/u           no-unused-vars\n   30:15  warning  'context' is defined but never used. Allowed unused args must match /^_/u           no-unused-vars\n   37:14  warning  'context' is defined but never used. Allowed unused args must match /^_/u           no-unused-vars\n   44:19  warning  'context' is defined but never used. Allowed unused args must match /^_/u           no-unused-vars\n  273:23  warning  'plugin' is assigned a value but never used. Allowed unused vars must match /^_/u   no-unused-vars\n  432:17  warning  'point' is assigned a value but never used. Allowed unused vars must match /^_/u    no-unused-vars\n  476:29  warning  'options' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars\n\nC:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\core\\UnifiedErrorHandler.js\n  380:25  warning  'context' is defined but never used. Allowed unused args must match /^_/u         no-unused-vars\n  450:39  warning  'delay' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars\n\nC:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\core\\ZustandInspiredState.js\n   33:17  warning  'storeId' is assigned a value but never used. Allowed unused vars must match /^_/u     no-unused-vars\n  239:11  warning  'storeStats' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars\n\n✖ 15 problems (0 errors, 15 warnings)\n\n",
+      "stderr": "",
+      "duration": 2,
+      "cached": true
+    },
+    "fastestCheck": {
+      "check": {
+        "id": "prettier",
+        "name": "Prettier 代码格式检查",
+        "command": "npm",
+        "args": [
+          "run",
+          "format:check"
+        ],
+        "cwd": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug",
+        "priority": 2,
+        "timeout": 30000,
+        "category": "formatting"
+      },
+      "status": "passed",
+      "code": 0,
+      "stdout": "\n> wokeflow-production@1.0.0 format:check\n> prettier --check \"src/**/*.{js,json}\" \"package.json\" \"vitest.config.js\" \"docs/*.md\"\n\nChecking formatting...\nAll matched files use Prettier code style!\n",
+      "stderr": "",
+      "duration": 0,
+      "cached": true
+    }
+  },
+  "results": [
+    {
+      "id": "eslint",
+      "name": "ESLint 代码规范检查",
+      "category": "linting",
+      "priority": 1,
+      "status": "passed",
+      "duration": 2,
+      "cached": true
+    },
+    {
+      "id": "prettier",
+      "name": "Prettier 代码格式检查",
+      "category": "formatting",
+      "priority": 2,
+      "status": "passed",
+      "duration": 0,
+      "cached": true
+    },
+    {
+      "id": "industrial-security-audit",
+      "name": "工业级安全审计 (简化版)",
+      "category": "security",
+      "priority": 3,
+      "status": "passed",
+      "duration": 1,
+      "cached": true
+    }
+  ],
+  "systemInfo": {
+    "platform": "win32",
+    "arch": "x64",
+    "cpus": 32,
+    "totalMemory": 16412348416,
+    "freeMemory": 2445332480
+  }
+}

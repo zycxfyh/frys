@@ -1,0 +1,445 @@
+{
+  "timestamp": "2025-11-07T07:14:55.873Z",
+  "summary": {
+    "totalVulnerabilities": 0,
+    "critical": 0,
+    "high": 0,
+    "moderate": 0,
+    "low": 0,
+    "info": 0,
+    "scannedFiles": 150,
+    "executionTime": 0
+  },
+  "vulnerabilities": [],
+  "securityIssues": [],
+  "configurationIssues": [
+    {
+      "type": "docker_exposed_db_port",
+      "severity": "high",
+      "message": "暴露了数据库端口到宿主机，可能存在安全风险",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\docker-compose.staging.yml"
+    },
+    {
+      "type": "nginx_unsafe_methods",
+      "severity": "low",
+      "message": "未限制允许的HTTP方法",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\nginx\\nginx.conf"
+    }
+  ],
+  "codeAnalysisIssues": [
+    {
+      "type": "hardcoded_secret",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 297,
+      "message": "发现硬编码的password: ***",
+      "code": "password='***'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 299,
+      "message": "发现硬编码的secret: ***",
+      "code": "secret='***'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 298,
+      "message": "发现硬编码的token: ***",
+      "code": "token='***'..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 150,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`SET statement_timeout = ${options.timeout}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 206,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`SET statement_timeout = ${options.timeout}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 467,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`DEALLOCATE ${name}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\infrastructure\\database\\DatabaseOptimizer.js",
+      "line": 159,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`DROP INDEX CONCURRENTLY IF EXISTS ${indexName}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\infrastructure\\database\\DatabaseOptimizer.js",
+      "line": 176,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`ANALYZE ${tableName}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\src\\infrastructure\\database\\DatabaseOptimizer.js",
+      "line": 192,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`REINDEX TABLE ${concurrentlyClause} ${tableName}`)..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\auth\\authentication.test.js",
+      "line": 92,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\auth\\authentication.test.js",
+      "line": 132,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\auth\\authentication.test.js",
+      "line": 141,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\auth\\authentication.test.js",
+      "line": 151,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\auth\\authentication.test.js",
+      "line": 192,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\auth\\authentication.test.js",
+      "line": 298,
+      "message": "[测试文件] 发现硬编码的password: corr*******word",
+      "code": "Password = 'correctpassword'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\auth\\authentication.test.js",
+      "line": 299,
+      "message": "[测试文件] 发现硬编码的password: wron*****word",
+      "code": "Password = 'wrongpassword'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\auth\\authentication.test.js",
+      "line": 422,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\auth\\authentication.test.js",
+      "line": 454,
+      "message": "[测试文件] 发现硬编码的secret: cust*****cret",
+      "code": "Secret: 'custom-secret'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\cache-system.test.js",
+      "line": 119,
+      "message": "[测试文件] 发现硬编码的token: sess*****oken",
+      "code": "token: 'session_token'..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\database-optimization.test.js",
+      "line": 305,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`SELECT ${i}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\database-optimization.test.js",
+      "line": 379,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`SELECT ${i} as id`)..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\input-validation.test.js",
+      "line": 207,
+      "message": "[测试文件] 发现硬编码的password: ***",
+      "code": "password: '123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\input-validation.test.js",
+      "line": 241,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\input-validation.test.js",
+      "line": 223,
+      "message": "[测试文件] 发现硬编码的bearer token: ********",
+      "code": "Bearer token123..."
+    },
+    {
+      "type": "function_constructor",
+      "severity": "medium",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\performance-monitoring.test.js",
+      "line": 103,
+      "message": "[测试文件] 使用Function构造函数，可能存在代码注入风险",
+      "code": "Function('test_data')"
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\security-integration.test.js",
+      "line": 174,
+      "message": "[测试文件] 发现硬编码的password: wron*****word",
+      "code": "password: 'wrongpassword'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\security-integration.test.js",
+      "line": 200,
+      "message": "[测试文件] 发现硬编码的password: ***",
+      "code": "password: '123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\security-integration.test.js",
+      "line": 207,
+      "message": "[测试文件] 发现硬编码的password: weak****word",
+      "code": "password: 'weakpassword'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\security-integration.test.js",
+      "line": 214,
+      "message": "[测试文件] 发现硬编码的password: Stro******123!",
+      "code": "password: 'StrongPass123!'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\security-integration.test.js",
+      "line": 357,
+      "message": "[测试文件] 发现硬编码的password: shou*********************onse",
+      "code": "password: 'should-not-appear-in-response'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\security-integration.test.js",
+      "line": 402,
+      "message": "[测试文件] 发现硬编码的password: Admi*****123!",
+      "code": "password: 'AdminPass123!'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\security-integration.test.js",
+      "line": 410,
+      "message": "[测试文件] 发现硬编码的password: User****456!",
+      "code": "password: 'UserPass456!'..."
+    },
+    {
+      "type": "function_constructor",
+      "severity": "medium",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\integration\\tracing\\distributed-tracing.test.js",
+      "line": 119,
+      "message": "[测试文件] 使用Function构造函数，可能存在代码注入风险",
+      "code": "Function('test')"
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 121,
+      "message": "[测试文件] 发现硬编码的password: ****",
+      "code": "password: 'root'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 123,
+      "message": "[测试文件] 发现硬编码的password: *****",
+      "code": "password: 'guest'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 125,
+      "message": "[测试文件] 发现硬编码的password: ****",
+      "code": "password: 'user'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 292,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 349,
+      "message": "[测试文件] 发现硬编码的password: ****",
+      "code": "password: 'root'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 351,
+      "message": "[测试文件] 发现硬编码的password: *****",
+      "code": "password: 'guest'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 353,
+      "message": "[测试文件] 发现硬编码的password: ****",
+      "code": "password: 'user'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 374,
+      "message": "[测试文件] 发现硬编码的password: *****",
+      "code": "password: 'wrong'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 375,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 391,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 434,
+      "message": "[测试文件] 发现硬编码的password: *",
+      "code": "password: '0'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 466,
+      "message": "[测试文件] 发现硬编码的password: ********",
+      "code": "password: \"anything\"..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 481,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: \"password123\"..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\auth-bypass.test.js",
+      "line": 522,
+      "message": "[测试文件] 发现硬编码的password: *****",
+      "code": "password: 'wrong'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\csrf-attack.test.js",
+      "line": 224,
+      "message": "[测试文件] 发现硬编码的token: expi************c123",
+      "code": "Token: 'expired-token-abc123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\csrf-attack.test.js",
+      "line": 242,
+      "message": "[测试文件] 发现硬编码的token: stol***********f456",
+      "code": "Token: 'stolen-token-def456'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\wokeflow\\wokeflow-debug\\tests\\red-team\\csrf-attack.test.js",
+      "line": 323,
+      "message": "[测试文件] 发现硬编码的token: vali*************************************************************************1234",
+      "code": "Token: 'valid-csrf-token-1234567890123456789012345..."
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "medium",
+      "category": "configuration",
+      "message": "配置文件存在安全问题，建议审查配置",
+      "action": "检查配置文件审计结果"
+    },
+    {
+      "priority": "low",
+      "category": "general",
+      "message": "安全审计通过，建议定期运行安全扫描",
+      "action": "设置CI/CD中的定期安全审计"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+   * 构造函数
+   * 初始化ConsulInspiredServiceDiscovery管理器
+   * 构造函数
+   * 初始化服务发现管理器
+class ConsulInspiredServiceDiscovery {
+  /**
+   * 构造函数
+   * 初始化服务发现管理器
+   */
+  constructor() {
+    this.services = new Map(); // 服务注册表
+    this.healthChecks = new Map(); // 健康检查
+    this.configs = new Map(); // 配置存储
+    this.nodes = new Map(); // 节点信息
+  }
+

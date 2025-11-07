@@ -1,0 +1,145 @@
+global:
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'alerts@wokeflow.com'
+  smtp_auth_username: '${SMTP_USERNAME}'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+route:
+  group_by: ['alertname', 'service', 'severity']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'wokeflow-alerts'
+  routes:
+    # 严重告警 - 立即通知
+    - match:
+        severity: critical
+      receiver: 'wokeflow-critical'
+      continue: true
+
+    # 生产环境告警
+    - match:
+        environment: production
+      receiver: 'wokeflow-production'
+      continue: true
+
+    # WokeFlow 应用告警
+    - match:
+        service: wokeflow
+      receiver: 'wokeflow-app-team'
+      continue: true
+
+    # 基础设施告警
+    - match:
+        service: infrastructure
+      receiver: 'wokeflow-infra-team'
+      continue: true
+
+    # SLO 违反告警
+    - match:
+        slo: api_availability
+      receiver: 'wokeflow-slo-alerts'
+
+receivers:
+  # 默认告警接收者
+  - name: 'wokeflow-alerts'
+    email_configs:
+      - to: 'alerts@wokeflow.com'
+        subject: 'WokeFlow 告警: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          告警: {{ .Annotations.summary }}
+          描述: {{ .Annotations.description }}
+          严重程度: {{ .Labels.severity }}
+          时间: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#alerts'
+        title: 'WokeFlow 告警'
+        text: |
+          {{ range .Alerts }}
+          *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          严重程度: {{ .Labels.severity }}
+          {{ end }}
+
+  # 严重告警 - 立即响应
+  - name: 'wokeflow-critical'
+    email_configs:
+      - to: 'oncall@wokeflow.com'
+        subject: '🚨 严重告警: {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#critical-alerts'
+        title: '🚨 严重告警'
+        color: 'danger'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+        description: 'WokeFlow 严重告警: {{ .GroupLabels.alertname }}'
+
+  # 生产环境告警
+  - name: 'wokeflow-production'
+    email_configs:
+      - to: 'prod-alerts@wokeflow.com'
+        subject: '[PROD] WokeFlow 告警: {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#production'
+        title: '[PROD] 告警'
+
+  # 应用团队告警
+  - name: 'wokeflow-app-team'
+    email_configs:
+      - to: 'app-team@wokeflow.com'
+        subject: '[APP] WokeFlow 告警: {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#app-alerts'
+        title: '[APP] 告警'
+
+  # 基础设施团队告警
+  - name: 'wokeflow-infra-team'
+    email_configs:
+      - to: 'infra-team@wokeflow.com'
+        subject: '[INFRA] WokeFlow 告警: {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#infra-alerts'
+        title: '[INFRA] 告警'
+
+  # SLO 告警
+  - name: 'wokeflow-slo-alerts'
+    email_configs:
+      - to: 'slo@wokeflow.com'
+        subject: '[SLO] 违反: {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#slo-alerts'
+        title: '[SLO] 违反'
+        color: 'warning'
+
+inhibit_rules:
+  # 如果存在严重告警，抑制警告级别的告警
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service']
+
+  # 如果应用宕机，抑制相关的性能告警
+  - source_match:
+      alertname: 'WokeFlowInstanceDown'
+    target_match_re:
+      alertname: 'WokeFlowHigh.*'
+    equal: ['instance']
+
+  # 如果数据库宕机，抑制应用相关的数据库错误告警
+  - source_match:
+      alertname: 'DatabaseDown'
+    target_match_re:
+      alertname: '.*Database.*'
+    equal: ['service']

@@ -1,0 +1,135 @@
+{
+  "name": "wokeflow-production",
+  "version": "1.0.0",
+  "description": "WokeFlow Production - 企业级工作流管理系统",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:unit": "vitest run tests/unit/",
+    "test:integration": "vitest run tests/integration/",
+    "test:performance": "vitest run tests/performance/",
+    "test:security": "vitest run tests/integration/security-integration.test.js",
+    "test:red-team": "vitest run tests/red-team/",
+    "test:regression": "vitest run tests/regression/",
+    "test:e2e": "vitest run tests/integration/end-to-end-workflow.test.js",
+    "test:smoke": "vitest run tests/unit/ --reporter=verbose",
+    "test:industrial": "node scripts/test-runner.js all",
+    "test:industrial:smoke": "node scripts/test-runner.js smoke",
+    "test:industrial:critical": "node scripts/test-runner.js critical",
+    "test:ci": "npm run test:unit && npm run test:integration && npm run test:performance && npm run test:security",
+    "test:containers": "SKIP_TEST_CONTAINERS=false pnpm run test:integration",
+    "test:no-containers": "SKIP_TEST_CONTAINERS=true pnpm run test:integration",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:performance && npm run test:security && npm run test:e2e",
+    "benchmark": "node scripts/benchmark.js",
+    "lint": "eslint src/core/ --ext .js",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.{js,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{js,json}\" \"package.json\" \"vitest.config.js\" \"docs/*.md\"",
+    "build": "node scripts/build.js",
+    "build:prod": "cross-env NODE_ENV=production npm run build",
+    "clean": "rm -rf node_modules package-lock.json dist coverage test-results && npm install",
+    "quality": "node scripts/quality-check.js --simplified",
+    "quality:ci": "cross-env QUALITY_MAX_CONCURRENCY=2 QUALITY_FAIL_FAST=true QUALITY_CACHE_ENABLED=true node scripts/quality-check.js --simplified",
+    "quality:full": "cross-env QUALITY_MAX_CONCURRENCY=1 QUALITY_FAIL_FAST=false QUALITY_CACHE_ENABLED=false node scripts/quality-check.js",
+    "quality:quick": "node scripts/quality-check.js --quick",
+    "security:audit": "node scripts/security-audit.js",
+    "security:audit:ci": "cross-env SECURITY_AUDIT_FAIL_ON_VULN=true SECURITY_AUDIT_CODE_ANALYSIS=true SECURITY_AUDIT_CONFIG_AUDIT=true node scripts/security-audit.js",
+    "ci": "node scripts/ci-pipeline.js --env production",
+    "ci:staging": "node scripts/ci-pipeline.js --env staging",
+    "ci:development": "node scripts/ci-pipeline.js --env development",
+    "ci:pr": "node scripts/ci-pipeline.js --pr $PR_NUMBER --env development",
+    "pr:check": "node scripts/pr-check.js",
+    "pipeline:dev": "node scripts/ci-pipeline.js --env development --no-cache",
+    "pipeline:staging": "node scripts/ci-pipeline.js --env staging",
+    "pipeline:prod": "node scripts/ci-pipeline.js --env production",
+    "pipeline:dry-run": "node scripts/ci-pipeline.js --dry-run",
+    "staging:setup": "node scripts/setup-staging.js",
+    "staging:up": "docker-compose -f docker-compose.staging.yml up -d",
+    "staging:down": "docker-compose -f docker-compose.staging.yml down",
+    "staging:logs": "docker-compose -f docker-compose.staging.yml logs -f",
+    "staging:test": "node scripts/regression-matrix.js",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:staging": "DEPLOY_ENV=staging ./scripts/deploy.sh",
+    "rollback": "./scripts/rollback.sh",
+    "rollback:staging": "DEPLOY_ENV=staging ./scripts/rollback.sh",
+    "rollback:smart": "node scripts/smart-rollback.js",
+    "rollback:monitor": "node scripts/smart-rollback.js monitor",
+    "rollback:manual": "node scripts/smart-rollback.js rollback",
+    "rollback:emergency": "node scripts/smart-rollback.js emergency",
+    "rollback:verify": "node scripts/rollback-verifier.js",
+    "verify:deployment": "node scripts/verify-deployment.js",
+    "verify:staging": "DEPLOY_ENV=staging node scripts/verify-deployment.js",
+    "verify:rollback": "node scripts/rollback-verifier.js"
+  },
+  "keywords": [
+    "workflow",
+    "lightweight",
+    "modular",
+    "devops"
+  ],
+  "author": "WokeFlow Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "awilix": "^8.0.1",
+    "axios": "^1.4.0",
+    "bull": "^4.10.4",
+    "eventemitter3": "^5.0.1",
+    "fastify": "^4.21.0",
+    "fastify-plugin": "^4.5.1",
+    "ioredis": "^5.3.2",
+    "lodash": "^4.17.21",
+    "uuid": "^9.0.0",
+    "zustand": "^4.4.1"
+  },
+  "devDependencies": {
+    "@sentry/node": "^7.74.1",
+    "@sentry/profiling-node": "^1.2.6",
+    "@testcontainers/postgresql": "^11.8.0",
+    "@testcontainers/redis": "^11.8.0",
+    "@vitest/coverage-istanbul": "^4.0.7",
+    "cross-env": "^10.1.0",
+    "eslint": "^8.44.0",
+    "lefthook": "^2.0.2",
+    "prettier": "^3.0.0",
+    "testcontainers": "^11.8.0",
+    "vitest": "^4.0.7"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "es2021": true,
+      "browser": true
+    },
+    "extends": [
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 12,
+      "sourceType": "module"
+    },
+    "rules": {
+      "no-unused-vars": [
+        "warn",
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_"
+        }
+      ],
+      "no-console": "off"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "printWidth": 80,
+    "tabWidth": 2
+  }
+}

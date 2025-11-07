@@ -29,6 +29,7 @@ class LightweightBundler {
       'container',
       'events',
       'error-handler',
+      'UnifiedErrorHandler',
       'plugin-system',
       'queue',
       'server',
@@ -181,7 +182,7 @@ export default {
    */
   topologicalSort() {
     // 简单按文件名排序，确保基础模块在前
-    const priorityModules = ['frysError', 'ErrorHandler'];
+    const priorityModules = ['error-handler', 'UnifiedErrorHandler'];
     const otherModules = this.coreModules.filter(m => !priorityModules.includes(m.name));
 
     return [
@@ -259,7 +260,7 @@ ${content.split('\n').map(line => line ? '  ' + line : line).join('\n')}
       name: originalPkg.name + '-dist',
       version: originalPkg.version,
       description: originalPkg.description + ' (轻量bundle版本)',
-      main: 'wokeflow-lightweight.js',
+      main: 'frys-lightweight.js',
       type: 'module',
       scripts: {
         start: 'node demo-open-source-integration.js'
@@ -293,12 +294,12 @@ ${content.split('\n').map(line => line ? '  ' + line : line).join('\n')}
       this.generateDistPackageJson();
 
       // 写入bundle文件
-      const bundlePath = join(__dirname, '..', this.outputDir, 'wokeflow-lightweight.js');
+      const bundlePath = join(__dirname, '..', this.outputDir, 'frys-lightweight.js');
       writeFileSync(bundlePath, bundle);
 
       console.log('\n✅ 构建完成！');
       console.log(`📦 输出目录: ${this.outputDir}/`);
-      console.log(`📄 主文件: wokeflow-lightweight.js`);
+      console.log(`📄 主文件: frys-lightweight.js`);
       console.log(`📊 模块数: ${this.coreModules.length}`);
       console.log(`📏 文件大小: ${this.formatBytes(bundle.length)}\n`);
 

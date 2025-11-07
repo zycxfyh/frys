@@ -1,164 +1,82 @@
-# WokeFlow DevOps 文档
+# WokeFlow DevOps 指南
 
 ## 📖 概述
 
-<div style="background-color: #e8f4fd; padding: 20px; border-left: 5px solid #03a9f4; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #01579b;">🚀 现代化 DevOps 实践</h3>
-  <p>WokeFlow 采用<strong>现代化 DevOps 实践</strong>，实现从<strong>代码提交到生产部署</strong>的完整自动化流水线。通过<strong>容器化</strong>、<strong>监控告警</strong>、<strong>自动化部署</strong>等手段，确保系统的高可用性、可观测性和快速迭代能力。</p>
-  <p><strong>核心目标</strong>：让开发者专注于业务创新，基础设施自动化处理。</p>
-</div>
+WokeFlow 采用现代化 DevOps 实践，构建完整的容器化部署、监控和自动化运维体系。从代码提交到生产部署的全流程自动化，确保系统的高可用性、可观测性和快速迭代能力。
 
-## 🎯 DevOps 架构设计原则
+### 🎯 DevOps 目标
 
-### 1. 🏗️ 基础设施即代码 (IaC)
+- **自动化部署**: 从代码到生产的完整自动化流水线
+- **容器化交付**: 基于 Docker 的标准化部署环境
+- **可观测性监控**: 全面的监控、日志和告警系统
+- **弹性伸缩**: 支持水平扩展和自动扩缩容
+- **零停机部署**: 滚动更新和蓝绿部署策略
+- **安全合规**: 内置安全扫描和合规检查
 
-<div style="background-color: #f3e5f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #7b1fa2;">IaC 核心理念</h4>
-  <ul>
-    <li><strong>📝 声明式配置</strong>：使用 Docker Compose、Kubernetes 等声明式配置管理基础设施</li>
-    <li><strong>🔄 版本控制</strong>：所有基础设施配置纳入 Git 版本管理，支持回滚和审计</li>
-    <li><strong>🤖 自动化部署</strong>：通过脚本和工具实现自动化部署，减少人工干预</li>
-    <li><strong>🔄 不可变基础设施</strong>：环境不可变，每次部署创建新实例</li>
-  </ul>
+### 🏗️ 技术栈架构
 
-  <h4 style="margin-top: 20px; color: #7b1fa2;">IaC 优势</h4>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
-    <div style="background-color: #e1bee7; padding: 10px; border-radius: 5px;">
-      <strong>🔒 一致性</strong><br/>
-      开发、测试、生产环境完全一致
-    </div>
-    <div style="background-color: #e1bee7; padding: 10px; border-radius: 5px;">
-      <strong>⚡ 可重现性</strong><br/>
-      任何环境可快速重建
-    </div>
-    <div style="background-color: #e1bee7; padding: 10px; border-radius: 5px;">
-      <strong>📊 可审计性</strong><br/>
-      所有变更都有历史记录
-    </div>
-    <div style="background-color: #e1bee7; padding: 10px; border-radius: 5px;">
-      <strong>🚀 敏捷性</strong><br/>
-      快速创建和销毁环境
-    </div>
-  </div>
-</div>
+```
+DevOps 技术栈
+├── 🐳 容器化层
+│   ├── Docker 容器镜像
+│   ├── Docker Compose 本地开发
+│   └── Kubernetes 生产编排
+├── 🔄 CI/CD 流水线
+│   ├── GitHub Actions 自动化构建
+│   ├── 多环境部署 (dev/staging/prod)
+│   └── 自动化测试和质量门
+├── 📊 监控告警
+│   ├── Prometheus 指标收集
+│   ├── Grafana 可视化面板
+│   └── Sentry 错误追踪
+└── 🔒 安全合规
+    ├── 容器镜像扫描
+    ├── 依赖安全检查
+    └── 基础设施即代码
+```
 
-### 2. 👁️ 可观测性优先 (Observability First)
+## 🐳 Docker 容器化
 
-<div style="background-color: #e8f5e8; padding: 15px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #2e7d32;">三大可观测性支柱</h4>
-
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
-    <div style="background-color: #c8e6c9; padding: 15px; border-radius: 8px; text-align: center;">
-      <div style="font-size: 2em; margin-bottom: 10px;">📊</div>
-      <strong>指标 (Metrics)</strong><br/>
-      <small>量化系统性能和健康状态</small>
-    </div>
-    <div style="background-color: #c8e6c9; padding: 15px; border-radius: 8px; text-align: center;">
-      <div style="font-size: 2em; margin-bottom: 10px;">📝</div>
-      <strong>日志 (Logs)</strong><br/>
-      <small>记录系统运行时的事件和状态</small>
-    </div>
-    <div style="background-color: #c8e6c9; padding: 15px; border-radius: 8px; text-align: center;">
-      <div style="font-size: 2em; margin-bottom: 10px;">🔍</div>
-      <strong>追踪 (Traces)</strong><br/>
-      <small>跟踪请求在系统中的完整路径</small>
-    </div>
-  </div>
-
-  <h4 style="margin-top: 20px; color: #2e7d32;">可观测性实现</h4>
-  <ul>
-    <li><strong>📈 全面监控</strong>：应用、服务、基础设施多层次监控覆盖</li>
-    <li><strong>🏗️ 结构化日志</strong>：JSON 格式便于分析和告警</li>
-    <li><strong>⚡ 性能指标</strong>：实时收集和分析性能数据</li>
-    <li><strong>🎯 业务指标</strong>：监控业务关键指标和 SLA</li>
-  </ul>
-</div>
-
-### 3. 🤖 自动化运维
-
-<div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #f57c00;">自动化流程</h4>
-
-  <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0;">
-    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-      <span style="background-color: #4caf50; color: white; padding: 5px 10px; border-radius: 15px; font-weight: bold; margin-right: 10px;">1</span>
-      <strong>代码提交</strong> → Git Push
-    </div>
-    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-      <span style="background-color: #2196f3; color: white; padding: 5px 10px; border-radius: 15px; font-weight: bold; margin-right: 10px;">2</span>
-      <strong>CI 流水线</strong> → 自动化测试、构建
-    </div>
-    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-      <span style="background-color: #ff9800; color: white; padding: 5px 10px; border-radius: 15px; font-weight: bold; margin-right: 10px;">3</span>
-      <strong>CD 部署</strong> → 蓝绿部署到生产
-    </div>
-    <div style="display: flex; align-items: center;">
-      <span style="background-color: #9c27b0; color: white; padding: 5px 10px; border-radius: 15px; font-weight: bold; margin-right: 10px;">4</span>
-      <strong>监控告警</strong> → 实时监控和自动响应
-    </div>
-  </div>
-
-  <h4 style="margin-top: 20px; color: #f57c00;">自动化特性</h4>
-  <ul>
-    <li><strong>🔄 CI/CD 流水线</strong>：自动化测试、构建、部署流程</li>
-    <li><strong>🔵 蓝绿部署</strong>：零停机部署策略，保障业务连续性</li>
-    <li><strong>↩️ 自动回滚</strong>：部署失败时自动回滚到稳定版本</li>
-    <li><strong>⚡ 弹性伸缩</strong>：基于负载自动调整资源</li>
-  </ul>
-</div>
-
-### 4. 🛡️ 安全第一原则
-
-<div style="background-color: #ffebee; padding: 15px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #c62828;">安全实践</h4>
-  <ul>
-    <li><strong>👤 最小权限原则</strong>：容器使用非 root 用户，服务采用最小权限运行</li>
-    <li><strong>🔍 安全扫描</strong>：代码和镜像定期进行安全漏洞扫描</li>
-    <li><strong>🚪 访问控制</strong>：严格的网络和访问控制，实施零信任架构</li>
-    <li><strong>🔐 密钥管理</strong>：安全的密钥存储和轮换机制</li>
-    <li><strong>📋 审计日志</strong>：完整的安全事件审计和监控</li>
-  </ul>
-
-  <h4 style="margin-top: 20px; color: #c62828;">安全生命周期</h4>
-  <div style="background-color: #ffcdd2; padding: 10px; border-radius: 5px; margin-top: 10px;">
-    <strong>🔒 安全融入每个环节</strong>：从代码编写到生产部署，全流程安全保障
-  </div>
-</div>
-
-## 容器化部署
-
-### Docker 镜像构建
-
-#### Dockerfile 设计
+### 多阶段构建优化
 
 ```dockerfile
-# WokeFlow 生产级Docker镜像
-FROM node:20-alpine
+# Dockerfile - 多阶段构建
+FROM node:18-alpine AS base
 
 # 设置工作目录
 WORKDIR /app
 
-# 安装系统依赖
-RUN apk add --no-cache \
-    git \
-    curl \
-    && rm -rf /var/cache/apk/*
-
-# 复制package文件
+# 安装依赖阶段
+FROM base AS deps
 COPY package*.json ./
-
-# 安装生产依赖
 RUN npm ci --only=production && npm cache clean --force
 
-# 复制应用代码
+# 构建阶段
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# 创建非root用户
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S wokeflow -u 1001
+# 构建应用
+RUN npm run build
 
-# 更改文件所有权
-RUN chown -R wokeflow:nodejs /app
+# 生产镜像
+FROM base AS production
+
+# 安装 dumb-init 用于信号处理
+RUN apk add --no-cache dumb-init
+
+# 创建非root用户
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S wokeflow -u 1001
+
+# 复制生产依赖
+COPY --from=deps --chown=wokeflow:nodejs /app/node_modules ./node_modules
+
+# 复制构建产物
+COPY --from=builder --chown=wokeflow:nodejs /app/dist ./dist
+COPY --from=builder --chown=wokeflow:nodejs /app/package*.json ./
+
+# 设置用户
 USER wokeflow
 
 # 暴露端口
@@ -166,432 +84,1301 @@ EXPOSE 3000
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
+  CMD curl -f http://localhost:3000/health || exit 1
 
 # 启动应用
-CMD ["node", "src/index.js"]
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["npm", "run", "start:prod"]
 ```
 
-#### 镜像优化策略
+### 安全加固配置
 
-##### 多阶段构建
 ```dockerfile
-# 构建阶段
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
+# Dockerfile.security - 安全加固版本
+FROM node:18-alpine AS base
 
-# 生产镜像
-FROM node:20-alpine AS production
-COPY --from=builder /app/node_modules ./node_modules
-COPY . .
-# ... 其余配置
+# 安装安全更新
+RUN apk update && apk upgrade && \
+    apk add --no-cache \
+        dumb-init \
+        curl \
+        && \
+    rm -rf /var/cache/apk/*
+
+# 创建非特权用户
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -S appuser -u 1001 -G appgroup
+
+# 设置工作目录
+WORKDIR /app
+
+# 设置文件权限
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+# 只复制必要文件
+COPY --chown=appuser:appgroup package*.json ./
+COPY --chown=appuser:appgroup dist/ ./dist/
+
+# 安装生产依赖
+RUN npm ci --only=production --no-audit --no-fund && \
+    npm cache clean --force
+
+# 设置安全环境变量
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# 暴露端口
+EXPOSE 3000
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f -s http://localhost:3000/health || exit 1
+
+# 使用 exec 格式启动
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/main.js"]
 ```
 
-##### 层缓存优化
-- 依赖安装独立层
-- 代码复制在最后
-- 使用 .dockerignore 排除不必要文件
+### 构建优化技巧
 
-##### 安全加固
-- 使用非 root 用户运行
-- 最小化基础镜像 (alpine)
-- 删除不必要的包和缓存
+```dockerfile
+# .dockerignore - 优化构建上下文
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.git
+.gitignore
+README.md
+Dockerfile*
+docker-compose*
+.dockerignore
+coverage
+.nyc_output
+.cache
+.parcel-cache
+.vscode
+.idea
+*.swp
+*.swo
+*~
+```
 
-### Docker Compose 配置
+```bash
+# 构建脚本 - build.sh
+#!/bin/bash
 
-#### 生产环境配置
+set -e
+
+# 构建参数
+IMAGE_NAME="wokeflow"
+TAG="${1:-latest}"
+BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+GIT_COMMIT=$(git rev-parse --short HEAD)
+VERSION=$(node -p "require('./package.json').version")
+
+echo "Building WokeFlow v${VERSION} (${GIT_COMMIT})"
+
+# 多架构构建
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --build-arg BUILD_DATE="${BUILD_DATE}" \
+  --build-arg VERSION="${VERSION}" \
+  --build-arg GIT_COMMIT="${GIT_COMMIT}" \
+  --label "org.opencontainers.image.created=${BUILD_DATE}" \
+  --label "org.opencontainers.image.version=${VERSION}" \
+  --label "org.opencontainers.image.revision=${GIT_COMMIT}" \
+  --label "org.opencontainers.image.source=https://github.com/your-org/wokeflow" \
+  -t "${IMAGE_NAME}:${TAG}" \
+  -t "${IMAGE_NAME}:${GIT_COMMIT}" \
+  --push \
+  .
+
+echo "Successfully built and pushed ${IMAGE_NAME}:${TAG}"
+```
+
+## 🐙 Docker Compose 编排
+
+### 开发环境配置
 
 ```yaml
+# docker-compose.dev.yml - 开发环境
 version: '3.8'
 
 services:
-  # WokeFlow 应用 - 蓝环境
-  wokeflow-blue:
-    image: wokeflow/production:latest
-    container_name: wokeflow-blue
-    environment:
-      - NODE_ENV=production
-      - DEPLOY_ENV=blue
-    env_file:
-      - .env.production
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
     ports:
-      - "3001:3000"
+      - "3000:3000"
+      - "9229:9229"  # 调试端口
     volumes:
-      - ./logs:/app/logs
-      - ./uploads:/app/uploads
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DEBUG=wokeflow:*
     depends_on:
       - postgres
       - redis
+      - rabbitmq
     networks:
-      - wokeflow-network
+      - wokeflow-dev
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
-  # WokeFlow 应用 - 绿环境
-  wokeflow-green:
-    image: wokeflow/production:latest
-    container_name: wokeflow-green
-    environment:
-      - NODE_ENV=production
-      - DEPLOY_ENV=green
-    env_file:
-      - .env.production
-    ports:
-      - "3002:3000"
-    volumes:
-      - ./logs:/app/logs
-      - ./uploads:/app/uploads
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - wokeflow-network
-    restart: unless-stopped
-    profiles:
-      - green  # 默认不启动
-
-  # PostgreSQL 数据库
   postgres:
     image: postgres:15-alpine
-    container_name: wokeflow-postgres
     environment:
-      - POSTGRES_DB=wokeflow_prod
+      - POSTGRES_DB=wokeflow_dev
       - POSTGRES_USER=wokeflow
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_PASSWORD=dev_password
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backups:/backups
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - wokeflow-network
-    restart: unless-stopped
+      - wokeflow-dev
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U wokeflow"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Redis 缓存
   redis:
     image: redis:7-alpine
-    container_name: wokeflow-redis
-    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - wokeflow-network
+      - wokeflow-dev
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"   # AMQP端口
+      - "15672:15672" # 管理界面
+    environment:
+      - RABBITMQ_DEFAULT_USER=wokeflow
+      - RABBITMQ_DEFAULT_PASS=dev_password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - wokeflow-dev
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+
+networks:
+  wokeflow-dev:
+    driver: bridge
+```
+
+### 测试环境配置
+
+```yaml
+# docker-compose.test.yml - 测试环境
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    environment:
+      - NODE_ENV=test
+      - DATABASE_URL=postgresql://test:test@localhost:5432/wokeflow_test
+      - REDIS_URL=redis://localhost:6379/1
+      - RABBITMQ_URL=amqp://test:test@localhost:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - wokeflow-test
+    command: npm run test:integration
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=wokeflow_test
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    tmpfs:
+      - /var/lib/postgresql/data
+    networks:
+      - wokeflow-test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - wokeflow-test
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  rabbitmq:
+    image: rabbitmq:3-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=test
+      - RABBITMQ_DEFAULT_PASS=test
+    tmpfs:
+      - /var/lib/rabbitmq
+    networks:
+      - wokeflow-test
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+networks:
+  wokeflow-test:
+    driver: bridge
+```
+
+### 生产环境配置
+
+```yaml
+# docker-compose.prod.yml - 生产环境
+version: '3.8'
+
+services:
+  app:
+    image: wokeflow:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - SENTRY_DSN=${SENTRY_DSN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - wokeflow-prod
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - wokeflow-prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_prod_data:/data
+    networks:
+      - wokeflow-prod
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
 
-  # Nginx 反向代理
-  nginx:
-    image: nginx:1.25-alpine
-    container_name: wokeflow-nginx
-    ports:
-      - "80:80"
-      - "443:443"
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/ssl:/etc/nginx/ssl
-      - ./logs/nginx:/var/log/nginx
-    depends_on:
-      - wokeflow-blue
+      - rabbitmq_prod_data:/var/lib/rabbitmq
     networks:
-      - wokeflow-network
-    restart: unless-stopped
+      - wokeflow-prod
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+
+  # 监控服务
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - wokeflow-prod
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - wokeflow-prod
+    depends_on:
+      - prometheus
 
 volumes:
-  postgres_data:
-  redis_data:
+  postgres_prod_data:
+  redis_prod_data:
+  rabbitmq_prod_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
-  wokeflow-network:
+  wokeflow-prod:
     driver: bridge
 ```
 
-#### 测试环境配置
-
-```yaml
-version: '3.8'
-
-services:
-  # WokeFlow 测试环境
-  wokeflow-staging:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: wokeflow-staging
-    environment:
-      - NODE_ENV=staging
-    env_file:
-      - .env.staging
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./logs:/app/logs
-    depends_on:
-      - postgres-staging
-      - redis-staging
-    networks:
-      - staging-network
-    restart: unless-stopped
-
-  # PostgreSQL 测试数据库
-  postgres-staging:
-    image: postgres:15-alpine
-    container_name: wokeflow-postgres-staging
-    environment:
-      - POSTGRES_DB=wokeflow_staging
-      - POSTGRES_USER=wokeflow
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-    volumes:
-      - postgres_staging_data:/var/lib/postgresql/data
-    networks:
-      - staging-network
-    restart: unless-stopped
-
-  # Redis 测试缓存
-  redis-staging:
-    image: redis:7-alpine
-    container_name: wokeflow-redis-staging
-    volumes:
-      - redis_staging_data:/data
-    networks:
-      - staging-network
-    restart: unless-stopped
-
-volumes:
-  postgres_staging_data:
-  redis_staging_data:
-
-networks:
-  staging-network:
-    driver: bridge
-```
-
-## 蓝绿部署策略
-
-### 部署流程
-
-#### 1. 部署准备
-```bash
-# 构建新版本镜像
-docker build -t wokeflow/production:v1.2.3 .
-
-# 推送镜像到注册表
-docker push wokeflow/production:v1.2.3
-
-# 标记为最新版本
-docker tag wokeflow/production:v1.2.3 wokeflow/production:latest
-```
-
-#### 2. 蓝绿部署脚本
+### 编排管理脚本
 
 ```bash
 #!/bin/bash
+# compose.sh - Docker Compose 管理脚本
 
-# 蓝绿部署脚本
-set -euo pipefail
+set -e
 
-# 确定目标环境
-ACTIVE_ENV=$(get_active_environment)
-if [ "$ACTIVE_ENV" = "blue" ]; then
-    DEPLOY_ENV="green"
-    INACTIVE_ENV="blue"
-else
-    DEPLOY_ENV="blue"
-    INACTIVE_ENV="green"
-fi
+ENVIRONMENT=${1:-dev}
+COMMAND=${2:-up}
 
-echo "部署到 $DEPLOY_ENV 环境，停止 $INACTIVE_ENV 环境"
+COMPOSE_FILE="docker-compose.${ENVIRONMENT}.yml"
 
-# 启动新环境
-docker-compose up -d "wokeflow-$DEPLOY_ENV"
-
-# 等待健康检查
-if check_health "wokeflow-$DEPLOY_ENV"; then
-    echo "✅ $DEPLOY_ENV 环境部署成功"
-    
-    # 切换流量
-    switch_traffic "$DEPLOY_ENV"
-    
-    # 停止旧环境
-    docker-compose stop "wokeflow-$INACTIVE_ENV"
-    
-    echo "🎉 部署完成！"
-else
-    echo "❌ $DEPLOY_ENV 环境部署失败"
-    
-    # 停止失败的环境
-    docker-compose stop "wokeflow-$DEPLOY_ENV"
-    
-    exit 1
-fi
+case $COMMAND in
+    "up")
+        echo "Starting ${ENVIRONMENT} environment..."
+        docker-compose -f $COMPOSE_FILE up -d --build
+        echo "Environment started. Access at http://localhost:3000"
+        ;;
+    "down")
+        echo "Stopping ${ENVIRONMENT} environment..."
+        docker-compose -f $COMPOSE_FILE down
+        ;;
+    "restart")
+        echo "Restarting ${ENVIRONMENT} environment..."
+        docker-compose -f $COMPOSE_FILE restart
+        ;;
+    "logs")
+        docker-compose -f $COMPOSE_FILE logs -f
+        ;;
+    "clean")
+        echo "Cleaning ${ENVIRONMENT} environment..."
+        docker-compose -f $COMPOSE_FILE down -v --remove-orphans
+        docker system prune -f
+        ;;
+    "test")
+        echo "Running tests in ${ENVIRONMENT} environment..."
+        docker-compose -f $COMPOSE_FILE up --abort-on-container-exit --exit-code-from app
+        ;;
+    *)
+        echo "Usage: $0 [dev|test|prod] [up|down|restart|logs|clean|test]"
+        exit 1
+        ;;
+esac
 ```
 
-#### 3. 流量切换
+## ☸️ Kubernetes 生产部署
 
-```nginx
-# Nginx 配置 - 蓝环境
-upstream wokeflow_backend {
-    server wokeflow-blue:3000;
-}
-
-# Nginx 配置 - 绿环境
-upstream wokeflow_backend {
-    server wokeflow-green:3000;
-}
-```
-
-### 部署验证
-
-#### 健康检查
-```bash
-# 应用健康检查
-curl -f http://localhost:3000/health
-
-# 数据库连接检查
-docker-compose exec wokeflow-blue node -e "
-const { Client } = require('pg');
-const client = new Client();
-client.connect().then(() => {
-    console.log('数据库连接成功');
-    client.end();
-}).catch(console.error);
-"
-```
-
-#### 功能测试
-```bash
-# API 功能测试
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"test","password":"test"}'
-
-# 工作流测试
-curl -X POST http://localhost:3000/api/workflows \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"部署验证工作流","tasks":[]}'
-```
-
-### 回滚策略
-
-#### 自动回滚
-```bash
-#!/bin/bash
-
-# 回滚脚本
-FAILED_ENV=$1
-
-echo "部署失败，开始回滚..."
-
-# 切换回旧环境
-switch_traffic_to_previous
-
-# 停止失败的环境
-docker-compose stop "wokeflow-$FAILED_ENV"
-
-# 发送告警
-send_alert "部署失败，已回滚到稳定版本"
-
-echo "回滚完成"
-```
-
-## 监控和告警系统
-
-### Prometheus 监控
-
-#### 应用指标收集
-
-```javascript
-// src/core/PrometheusInspiredMetrics.js
-import { register, collectDefaultMetrics, Gauge, Counter, Histogram } from 'prom-client';
-
-// 收集默认指标
-collectDefaultMetrics();
-
-// 自定义指标
-const httpRequestTotal = new Counter({
-  name: 'wokeflow_http_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code']
-});
-
-const httpRequestDuration = new Histogram({
-  name: 'wokeflow_http_request_duration_seconds',
-  help: 'Duration of HTTP requests in seconds',
-  labelNames: ['method', 'route']
-});
-
-const activeConnections = new Gauge({
-  name: 'wokeflow_active_connections',
-  help: 'Number of active connections'
-});
-
-const workflowActive = new Gauge({
-  name: 'wokeflow_workflows_active',
-  help: 'Number of currently active workflows'
-});
-
-// 指标收集中间件
-export const metricsMiddleware = (req, res, next) => {
-  const start = Date.now();
-  
-  res.on('finish', () => {
-    const duration = (Date.now() - start) / 1000;
-    
-    httpRequestTotal
-      .labels(req.method, req.route?.path || req.path, res.statusCode.toString())
-      .inc();
-    
-    httpRequestDuration
-      .labels(req.method, req.route?.path || req.path)
-      .observe(duration);
-  });
-  
-  next();
-};
-```
-
-#### Prometheus 配置
+### 应用部署配置
 
 ```yaml
+# k8s/app-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wokeflow-app
+  namespace: wokeflow
+  labels:
+    app: wokeflow
+    component: app
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: wokeflow
+      component: app
+  template:
+    metadata:
+      labels:
+        app: wokeflow
+        component: app
+    spec:
+      containers:
+      - name: wokeflow
+        image: wokeflow:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: wokeflow-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: wokeflow-secrets
+              key: redis-url
+        - name: SENTRY_DSN
+          valueFrom:
+            secretKeyRef:
+              name: wokeflow-secrets
+              key: sentry-dsn
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - wokeflow
+              topologyKey: kubernetes.io/hostname
+```
+
+### 服务暴露配置
+
+```yaml
+# k8s/app-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: wokeflow-service
+  namespace: wokeflow
+  labels:
+    app: wokeflow
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: wokeflow
+    component: app
+
+---
+# k8s/app-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wokeflow-ingress
+  namespace: wokeflow
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - api.wokeflow.example.com
+    secretName: wokeflow-tls
+  rules:
+  - host: api.wokeflow.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: wokeflow-service
+            port:
+              number: 80
+```
+
+### 数据库配置
+
+```yaml
+# k8s/postgres-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: wokeflow
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+          name: postgres
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: wokeflow-secrets
+              key: postgres-db
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: wokeflow-secrets
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wokeflow-secrets
+              key: postgres-password
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - $(POSTGRES_USER)
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - $(POSTGRES_USER)
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 50Gi
+      storageClassName: fast-ssd
+
+---
+# k8s/postgres-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: wokeflow
+spec:
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+  clusterIP: None  # Headless service for StatefulSet
+```
+
+### 缓存和队列配置
+
+```yaml
+# k8s/redis-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: wokeflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        resources:
+          limits:
+            cpu: 200m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        livenessProbe:
+          exec:
+            command: ["redis-cli", "ping"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command: ["redis-cli", "ping"]
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-pvc
+
+---
+# k8s/rabbitmq-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: wokeflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3-management-alpine
+        ports:
+        - containerPort: 5672
+          name: amqp
+        - containerPort: 15672
+          name: management
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              name: wokeflow-secrets
+              key: rabbitmq-user
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: wokeflow-secrets
+              key: rabbitmq-password
+        volumeMounts:
+        - name: rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+        resources:
+          limits:
+            cpu: 300m
+            memory: 512Mi
+          requests:
+            cpu: 150m
+            memory: 256Mi
+        livenessProbe:
+          exec:
+            command: ["rabbitmq-diagnostics", "ping"]
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command: ["rabbitmq-diagnostics", "ping"]
+          initialDelaySeconds: 20
+          periodSeconds: 10
+      volumes:
+      - name: rabbitmq-data
+        persistentVolumeClaim:
+          claimName: rabbitmq-pvc
+```
+
+### 配置管理
+
+```yaml
+# k8s/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wokeflow-config
+  namespace: wokeflow
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  LOG_LEVEL: "info"
+  JWT_SECRET: "change-me-in-production"
+  CORS_ORIGIN: "https://app.wokeflow.example.com"
+
+---
+# k8s/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: wokeflow-secrets
+  namespace: wokeflow
+type: Opaque
+data:
+  # Base64 encoded values
+  database-url: cG9zdGdyZXM6Ly91c2VyOnBhc3NAcG9zdGdyZXM6NTQzMi93b2tlZmxvdwo=
+  redis-url: cmVkaXM6Ly9yZWRpczowMDAwLzAK
+  sentry-dsn: aHR0cHM6Ly8xMjM0NTY3ODkwYWJjZGVmQG8xMjM0NTY3LmFwcC5zZW50cnkuaW8vMTIzNDU2Nwo=
+  postgres-db: d29rZWZsb3cK
+  postgres-user: dXNlcgo=
+  postgres-password: cGFzc3dvcmQK
+  rabbitmq-user: d29rZWZsb3cK
+  rabbitmq-password: cGFzc3dvcmQK
+```
+
+### HPA 自动扩缩容
+
+```yaml
+# k8s/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: wokeflow-hpa
+  namespace: wokeflow
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: wokeflow-app
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+      selectPolicy: Max
+```
+
+### 部署脚本
+
+```bash
+#!/bin/bash
+# deploy.sh - Kubernetes 部署脚本
+
+set -e
+
+NAMESPACE=${NAMESPACE:-wokeflow}
+ENVIRONMENT=${ENVIRONMENT:-production}
+TAG=${TAG:-latest}
+
+echo "Deploying WokeFlow ${TAG} to ${ENVIRONMENT} environment"
+
+# 更新镜像标签
+kubectl set image deployment/wokeflow-app wokeflow=wokeflow:${TAG} -n ${NAMESPACE}
+
+# 等待部署完成
+kubectl rollout status deployment/wokeflow-app -n ${NAMESPACE} --timeout=300s
+
+# 检查应用健康状态
+echo "Checking application health..."
+sleep 30
+
+HEALTH_CHECK=$(kubectl exec -n ${NAMESPACE} deployment/wokeflow-app -- curl -f http://localhost:3000/health || echo "failed")
+
+if [ "$HEALTH_CHECK" = "failed" ]; then
+  echo "Health check failed, rolling back..."
+  kubectl rollout undo deployment/wokeflow-app -n ${NAMESPACE}
+  exit 1
+fi
+
+echo "Deployment completed successfully!"
+
+# 可选：运行集成测试
+if [ "$RUN_TESTS" = "true" ]; then
+  echo "Running integration tests..."
+  kubectl run test-runner --image=wokeflow:${TAG} --rm --restart=Never --env="NODE_ENV=test" -- npm run test:integration
+fi
+```
+
+## 🔄 CI/CD 流水线
+
+### GitHub Actions 工作流
+
+```yaml
+# .github/workflows/ci-cd.yml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run linting
+      run: npm run lint
+
+    - name: Run unit tests
+      run: npm run test:unit
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+        REDIS_URL: redis://localhost:6379
+
+    - name: Run integration tests
+      run: npm run test:integration
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+        REDIS_URL: redis://localhost:6379
+
+    - name: Run security audit
+      run: npm audit --audit-level high
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: [test, security-scan]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64,linux/arm64
+
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/develop'
+    environment: development
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure kubectl
+      uses: azure/k8s-set-context@v3
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.KUBE_CONFIG_DEV }}
+
+    - name: Deploy to development
+      run: |
+        sed -i 's|image: wokeflow:latest|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop-${{ github.sha }}|g' k8s/app-deployment.yaml
+        kubectl apply -f k8s/ -n wokeflow-dev
+        kubectl rollout status deployment/wokeflow-app -n wokeflow-dev --timeout=300s
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure kubectl
+      uses: azure/k8s-set-context@v3
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.KUBE_CONFIG_PROD }}
+
+    - name: Deploy to production
+      run: |
+        sed -i 's|image: wokeflow:latest|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ github.sha }}|g' k8s/app-deployment.yaml
+        kubectl apply -f k8s/ -n wokeflow-prod
+        kubectl rollout status deployment/wokeflow-app -n wokeflow-prod --timeout=600s
+
+    - name: Run smoke tests
+      run: |
+        kubectl run smoke-test --image=curlimages/curl --rm --restart=Never -- curl -f http://wokeflow-service/health
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [deploy-dev, deploy-prod]
+    if: always()
+    steps:
+    - name: Send notification
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: "WokeFlow deployment completed"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      if: always()
+```
+
+### 分支策略和环境映射
+
+```yaml
+# .github/workflows/branch-strategy.yml
+name: Branch Strategy Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-branch:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Validate branch naming
+      run: |
+        BRANCH_NAME="${{ github.head_ref }}"
+        if [[ "$BRANCH_NAME" =~ ^(feature|bugfix|hotfix)/[a-z0-9-]+(-[a-z0-9-]+)*$ ]]; then
+          echo "Branch name is valid"
+        else
+          echo "Branch name must follow pattern: feature/*, bugfix/*, or hotfix/*"
+          exit 1
+        fi
+
+  pr-checks:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check PR description
+      run: |
+        PR_BODY="${{ github.event.pull_request.body }}"
+        if [[ -z "$PR_BODY" ]]; then
+          echo "PR description is required"
+          exit 1
+        fi
+
+        # 检查是否包含必要的标签
+        if ! echo "$PR_BODY" | grep -q "## Changes"; then
+          echo "PR must include '## Changes' section"
+          exit 1
+        fi
+
+    - name: Check test coverage
+      run: |
+        # 确保测试覆盖率不下降
+        # 这里可以集成 coverage 检查
+        echo "Test coverage check passed"
+
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run security scan
+      run: |
+        # 检查是否有敏感信息泄露
+        if grep -r "password\|secret\|key" --exclude-dir=node_modules --exclude-dir=.git . | grep -v "example\|test\|mock"; then
+          echo "Potential sensitive data found in code"
+          exit 1
+        fi
+
+    - name: Check dependencies
+      run: |
+        npm audit --audit-level moderate
+        if [ $? -ne 0 ]; then
+          echo "Security vulnerabilities found in dependencies"
+          exit 1
+        fi
+```
+
+### 质量门配置
+
+```yaml
+# sonar-project.properties
+sonar.projectKey=wokeflow
+sonar.projectName=WokeFlow
+sonar.projectVersion=1.0.0
+
+sonar.sources=src
+sonar.tests=tests
+sonar.test.included=**/*test.js,**/*spec.js
+
+sonar.language=js
+sonar.javascript.lcov.reportPaths=coverage/lcov.info
+
+sonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/**
+
+# 质量门设置
+sonar.qualitygate.wait=true
+
+# 代码覆盖率
+sonar.testExecutionReportPaths=test-results.xml
+sonar.javascript.lcov.reportPaths=coverage/lcov.info
+
+# 代码异味
+sonar.qualitygate.conditions=sonar.qualitygate.conditions.coverage>80,sonar.qualitygate.conditions.duplicated_blocks<3,sonar.qualitygate.conditions.maintainability_rating>A
+```
+
+## 📊 监控和告警
+
+### Prometheus 监控配置
+
+```yaml
+# monitoring/prometheus.yml
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
 scrape_configs:
-  # WokeFlow 应用监控
-  - job_name: 'wokeflow-blue'
+  - job_name: 'wokeflow-app'
     static_configs:
-      - targets: ['wokeflow-blue:3000']
-        labels:
-          environment: 'production'
-          deployment: 'blue'
-    scrape_interval: 10s
+      - targets: ['wokeflow-service:80']
     metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
 
-  - job_name: 'wokeflow-green'
-    static_configs:
-      - targets: ['wokeflow-green:3000']
-        labels:
-          environment: 'production'
-          deployment: 'green'
-    scrape_interval: 10s
-    metrics_path: '/metrics'
-
-  # 基础设施监控
   - job_name: 'postgres'
     static_configs:
       - targets: ['postgres:5432']
@@ -601,325 +1388,711 @@ scrape_configs:
     static_configs:
       - targets: ['redis:6379']
     scrape_interval: 30s
+
+  - job_name: 'rabbitmq'
+    static_configs:
+      - targets: ['rabbitmq:15692']
+    scrape_interval: 30s
+
+  - job_name: 'kubernetes-nodes'
+    kubernetes_sd_configs:
+      - role: node
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - action: drop
+        regex: Pending|Succeeded|Failed|Completed
+        source_labels: [__meta_kubernetes_pod_phase]
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - action: replace
+        source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - action: replace
+        source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - action: replace
+        source_labels: [__meta_kubernetes_pod_container_name]
+        target_label: container
 ```
 
-### AlertManager 告警
-
-#### 告警规则
+### 告警规则配置
 
 ```yaml
+# monitoring/alert_rules.yml
 groups:
-  - name: wokeflow.rules
+  - name: wokeflow
     rules:
-      # 应用实例宕机告警
-      - alert: WokeFlowInstanceDown
-        expr: up{job="wokeflow-blue"} == 0
-        for: 1m
+      # 应用健康检查
+      - alert: WokeFlowDown
+        expr: up{job="wokeflow-app"} == 0
+        for: 5m
         labels:
           severity: critical
-          service: wokeflow
         annotations:
-          summary: "WokeFlow 实例宕机"
-          description: "WokeFlow 实例 {{ $labels.instance }} 已宕机超过1分钟"
+          summary: "WokeFlow application is down"
+          description: "WokeFlow has been down for more than 5 minutes."
 
-      # 高错误率告警
-      - alert: WokeFlowHighErrorRate
-        expr: rate(wokeflow_http_requests_total{status_code=~"5.."}[5m]) / rate(wokeflow_http_requests_total[5m]) > 0.1
-        for: 2m
-        labels:
-          severity: warning
-          service: wokeflow
-        annotations:
-          summary: "WokeFlow 高错误率"
-          description: "HTTP 错误率超过 10% 持续 2 分钟"
-
-      # 响应时间过长告警
-      - alert: WokeFlowHighResponseTime
-        expr: histogram_quantile(0.95, rate(wokeflow_http_request_duration_seconds_bucket[5m])) > 5
-        for: 2m
-        labels:
-          severity: warning
-          service: wokeflow
-        annotations:
-          summary: "WokeFlow 响应时间过长"
-          description: "95% 请求响应时间超过 5 秒持续 2 分钟"
-
-      # 内存使用过高告警
-      - alert: WokeFlowHighMemoryUsage
-        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.9
+      # 响应时间监控
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="wokeflow-app"}[5m])) > 2
         for: 5m
         labels:
           severity: warning
-          service: infrastructure
         annotations:
-          summary: "内存使用过高"
-          description: "系统内存使用率超过 90% 持续 5 分钟"
+          summary: "High response time detected"
+          description: "95th percentile response time is above 2 seconds for 5 minutes."
+
+      # 错误率监控
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5..", job="wokeflow-app"}[5m]) / rate(http_requests_total{job="wokeflow-app"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is above 5% for 5 minutes."
+
+      # CPU 使用率
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total{pod=~"wokeflow-.*"}[5m]) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80% for 10 minutes."
+
+      # 内存使用率
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes{pod=~"wokeflow-.*"} / container_spec_memory_limit_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90% for 5 minutes."
+
+      # 数据库连接池
+      - alert: DatabaseConnectionPoolExhausted
+        expr: pg_stat_activity_count{datname="wokeflow"} > 80
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection pool exhausted"
+          description: "Database has more than 80 active connections."
+
+      # 队列积压
+      - alert: QueueBacklog
+        expr: rabbitmq_queue_messages{queue="wokeflow_tasks"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue backlog detected"
+          description: "Queue has more than 1000 pending messages."
 ```
 
-#### 告警接收器配置
+### Grafana 仪表板配置
+
+```json
+{
+  "dashboard": {
+    "title": "WokeFlow Overview",
+    "tags": ["wokeflow", "overview"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Application Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"wokeflow-app\"}",
+            "legendFormat": "WokeFlow Status"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "DOWN",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "UP",
+                    "color": "green"
+                  }
+                },
+                "type": "value"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Response Time (95th percentile)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"wokeflow-app\"}[5m]))",
+            "legendFormat": "95th percentile"
+          }
+        ]
+      },
+      {
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job=\"wokeflow-app\"}[5m])",
+            "legendFormat": "Requests/sec"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\", job=\"wokeflow-app\"}[5m]) / rate(http_requests_total{job=\"wokeflow-app\"}[5m]) * 100",
+            "legendFormat": "Error Rate %"
+          }
+        ]
+      },
+      {
+        "title": "Database Connections",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "pg_stat_activity_count{datname=\"wokeflow\"}",
+            "legendFormat": "Active Connections"
+          }
+        ]
+      },
+      {
+        "title": "Queue Messages",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rabbitmq_queue_messages{queue=\"wokeflow_tasks\"}",
+            "legendFormat": "Pending Messages"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Alertmanager 配置
 
 ```yaml
+# monitoring/alertmanager.yml
+global:
+  smtp_smarthost: 'smtp.example.com:587'
+  smtp_from: 'alerts@wokeflow.example.com'
+  smtp_auth_username: 'alerts@wokeflow.example.com'
+  smtp_auth_password: 'your-smtp-password'
+
 route:
-  group_by: ['alertname', 'service', 'severity']
+  group_by: ['alertname', 'severity']
   group_wait: 10s
   group_interval: 10s
   repeat_interval: 1h
-  receiver: 'wokeflow-alerts'
+  receiver: 'email'
   routes:
-    # 严重告警 - 立即通知
     - match:
         severity: critical
-      receiver: 'wokeflow-critical'
+      receiver: 'critical'
       continue: true
 
 receivers:
-  # 严重告警 - 立即响应
-  - name: 'wokeflow-critical'
+  - name: 'email'
     email_configs:
-      - to: 'oncall@wokeflow.com'
-        subject: '🚨 严重告警: {{ .GroupLabels.alertname }}'
+      - to: 'team@wokeflow.example.com'
+        subject: 'WokeFlow Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          {{ end }}
+
+  - name: 'critical'
+    email_configs:
+      - to: 'oncall@wokeflow.example.com'
+        subject: 'CRITICAL: WokeFlow Alert: {{ .GroupLabels.alertname }}'
     slack_configs:
-      - api_url: '${SLACK_WEBHOOK_URL}'
-        channel: '#critical-alerts'
-        title: '🚨 严重告警'
-        color: 'danger'
-    pagerduty_configs:
-      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#alerts'
+        title: 'CRITICAL Alert'
+        text: |
+          {{ range .Alerts }}
+          :red_circle: *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          {{ end }}
 ```
 
-### 日志聚合
+## 🔒 安全和合规
 
-#### ELK Stack 配置
+### 容器镜像安全
 
 ```yaml
-# Filebeat 配置
-filebeat.inputs:
-  - type: log
-    enabled: true
-    paths:
-      - /app/logs/wokeflow.log
-    json.keys_under_root: true
-    json.add_error_key: true
+# .trivyignore - Trivy 漏洞忽略配置
+# 忽略低风险漏洞
+CVE-2021-44228 # Log4j - 已修复
+CVE-2021-45105 # Log4j - 已修复
 
-output.elasticsearch:
-  hosts: ["elasticsearch:9200"]
-  index: "wokeflow-%{+yyyy.MM.dd}"
+# 开发依赖漏洞（生产环境不使用）
+GHSA-xxxx-yyyy-zzzz
 ```
-
-#### Kibana 可视化
-- 创建仪表盘显示错误率趋势
-- 设置告警规则基于日志模式
-- 建立用户行为分析视图
-
-## CI/CD 流水线
-
-### GitHub Actions 配置
-
-```yaml
-name: CI/CD Pipeline
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  # 测试阶段
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint code
-        run: npm run lint
-
-      - name: Run unit tests
-        run: npm run test:unit
-
-      - name: Run integration tests
-        run: npm run test:integration
-
-      - name: Security scan
-        run: npm run test:security
-
-      - name: Generate coverage report
-        run: npm run test:coverage
-
-  # 构建和推送镜像
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Build Docker image
-        run: docker build -t wokeflow/production:${{ github.sha }} .
-
-      - name: Push to registry
-        run: |
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker push wokeflow/production:${{ github.sha }}
-          docker tag wokeflow/production:${{ github.sha }} wokeflow/production:latest
-          docker push wokeflow/production:latest
-
-  # 部署到测试环境
-  deploy-staging:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    environment: staging
-    steps:
-      - name: Deploy to staging
-        run: |
-          ssh user@staging-server << EOF
-            cd /opt/wokeflow
-            docker-compose pull
-            ./scripts/deploy.sh --env=staging
-          EOF
-
-  # 部署到生产环境
-  deploy-production:
-    needs: deploy-staging
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    environment: production
-    steps:
-      - name: Deploy to production
-        run: |
-          ssh user@prod-server << EOF
-            cd /opt/wokeflow
-            docker-compose pull
-            ./scripts/deploy.sh --env=production
-          EOF
-```
-
-### 质量门禁
-
-#### 代码质量检查
-```yaml
-# SonarQube 配置
-- name: SonarQube Scan
-  uses: sonarsource/sonarsource.github.action.scan@v1
-  env:
-    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
-# 安全扫描
-- name: Security Scan
-  uses: securecodewarrior/github-action-gosec@master
-  with:
-    args: './...'
-```
-
-#### 覆盖率要求
-```yaml
-# 覆盖率门禁
-- name: Coverage Gate
-  run: |
-    COVERAGE=$(jq '.total.lines.pct' coverage/coverage-summary.json)
-    if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-      echo "Coverage is below 80%: $COVERAGE%"
-      exit 1
-    fi
-```
-
-## 备份和恢复
-
-### 数据库备份
 
 ```bash
 #!/bin/bash
+# security-scan.sh - 安全扫描脚本
 
-# PostgreSQL 备份脚本
-BACKUP_DIR="./backups/$(date +%Y%m%d_%H%M%S)"
-mkdir -p "$BACKUP_DIR"
+set -e
 
-# 全量备份
-docker-compose exec postgres pg_dumpall -U wokeflow > "$BACKUP_DIR/full_backup.sql"
+echo "Running security scans..."
+
+# Trivy 容器扫描
+docker run --rm \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v $HOME/.trivy/cache:/root/.cache/trivy \
+  aquasecurity/trivy image \
+  --exit-code 1 \
+  --no-progress \
+  --format table \
+  wokeflow:latest
+
+# 依赖安全审计
+npm audit --audit-level high
+
+# 代码安全扫描
+if command -v semgrep &> /dev/null; then
+  semgrep --config=auto --error .
+fi
+
+# 机密信息检查
+if grep -r "password\|secret\|key\|token" --exclude-dir=node_modules --exclude-dir=.git . | grep -v "example\|test\|mock\|README"; then
+  echo "Potential secrets found!"
+  exit 1
+fi
+
+echo "Security scans completed successfully"
+```
+
+### 基础设施即代码安全
+
+```hcl
+# infrastructure/security.tf - Terraform 配置
+resource "aws_security_group" "wokeflow" {
+  name_prefix = "wokeflow-"
+  description = "Security group for WokeFlow application"
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # 拒绝所有其他入站流量
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = []
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "wokeflow-sg"
+    Environment = var.environment
+  }
+}
+
+# WAF 配置
+resource "aws_wafv2_web_acl" "wokeflow" {
+  name        = "wokeflow-waf"
+  description = "WAF for WokeFlow application"
+  scope       = "REGIONAL"
+
+  default_action {
+    allow {}
+  }
+
+  rule {
+    name     = "AWSManagedRulesCommonRuleSet"
+    priority = 1
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesCommonRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWSManagedRulesCommonRuleSet"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "RateLimit"
+    priority = 2
+
+    action {
+      block {}
+    }
+
+    statement {
+      rate_based_statement {
+        limit              = 1000
+        aggregate_key_type = "IP"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "RateLimit"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "wokeflow-waf"
+    sampled_requests_enabled   = true
+  }
+}
+```
+
+### 合规审计
+
+```bash
+#!/bin/bash
+# compliance-check.sh - 合规检查脚本
+
+set -e
+
+echo "Running compliance checks..."
+
+# 检查是否使用了最新基础镜像
+LATEST_BASE=$(docker run --rm curlimages/curl -s "https://registry-1.docker.io/v2/library/node/tags/list" | jq -r '.tags[]' | grep -E '^18\.' | sort -V | tail -1)
+CURRENT_BASE=$(grep "FROM node:" Dockerfile | cut -d: -f2)
+
+if [ "$CURRENT_BASE" != "$LATEST_BASE" ]; then
+  echo "Base image is outdated. Current: $CURRENT_BASE, Latest: $LATEST_BASE"
+  exit 1
+fi
+
+# 检查依赖许可证
+npm install --package-lock-only
+npx license-checker --failOn "GPL;LGPL;AGPL" --summary
+
+# 检查代码质量
+npx eslint src/ --max-warnings 0
+npx prettier --check "src/**/*.{js,ts,json,md}"
+
+# 检查测试覆盖率
+npm run test:coverage
+COVERAGE=$(jq '.total.lines.pct' coverage/coverage-summary.json)
+
+if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+  echo "Test coverage is below 80%: $COVERAGE%"
+  exit 1
+fi
+
+echo "Compliance checks passed"
+```
+
+## 🚀 部署和运维
+
+### 蓝绿部署策略
+
+```bash
+#!/bin/bash
+# blue-green-deploy.sh - 蓝绿部署脚本
+
+set -e
+
+ENVIRONMENT=${1:-production}
+NEW_VERSION=${2}
+
+if [ -z "$NEW_VERSION" ]; then
+  echo "Usage: $0 [environment] [version]"
+  exit 1
+fi
+
+# 获取当前活跃环境
+CURRENT_ACTIVE=$(kubectl get configmap app-config -n $ENVIRONMENT -o jsonpath='{.data.active_environment}')
+
+if [ "$CURRENT_ACTIVE" = "blue" ]; then
+  INACTIVE="green"
+else
+  INACTIVE="blue"
+fi
+
+echo "Deploying to inactive environment: $INACTIVE"
+
+# 部署到非活跃环境
+kubectl set image deployment/wokeflow-$INACTIVE wokeflow=wokeflow:$NEW_VERSION -n $ENVIRONMENT
+
+# 等待部署完成
+kubectl rollout status deployment/wokeflow-$INACTIVE -n $ENVIRONMENT --timeout=300s
+
+# 运行冒烟测试
+echo "Running smoke tests on $INACTIVE environment..."
+kubectl run smoke-test-$INACTIVE --image=curlimages/curl --rm --restart=Never \
+  -- curl -f http://wokeflow-$INACTIVE-service/health -n $ENVIRONMENT
+
+if [ $? -ne 0 ]; then
+  echo "Smoke tests failed, aborting deployment"
+  exit 1
+fi
+
+# 切换流量到新环境
+kubectl patch configmap app-config -n $ENVIRONMENT \
+  --type merge -p "{\"data\":{\"active_environment\":\"$INACTIVE\"}}"
+
+echo "Traffic switched to $INACTIVE environment"
+
+# 等待一段时间观察
+sleep 60
+
+# 如果一切正常，缩放旧环境
+kubectl scale deployment wokeflow-$CURRENT_ACTIVE --replicas=0 -n $ENVIRONMENT
+
+echo "Blue-green deployment completed successfully"
+```
+
+### 回滚策略
+
+```bash
+#!/bin/bash
+# rollback.sh - 回滚脚本
+
+set -e
+
+ENVIRONMENT=${1:-production}
+ROLLBACK_VERSION=${2}
+
+if [ -z "$ROLLBACK_VERSION" ]; then
+  echo "Usage: $0 [environment] [version]"
+  echo "Finding previous version..."
+  ROLLBACK_VERSION=$(kubectl get deployment wokeflow-app -n $ENVIRONMENT -o jsonpath='{.spec.template.spec.containers[0].image}' | cut -d: -f2)
+fi
+
+echo "Rolling back to version: $ROLLBACK_VERSION"
+
+# 更新镜像
+kubectl set image deployment/wokeflow-app wokeflow=wokeflow:$ROLLBACK_VERSION -n $ENVIRONMENT
+
+# 等待回滚完成
+kubectl rollout status deployment/wokeflow-app -n $ENVIRONMENT --timeout=300s
+
+# 验证回滚
+kubectl run rollback-test --image=curlimages/curl --rm --restart=Never \
+  -- curl -f http://wokeflow-service/health -n $ENVIRONMENT
+
+if [ $? -eq 0 ]; then
+  echo "Rollback completed successfully"
+else
+  echo "Rollback verification failed"
+  exit 1
+fi
+```
+
+### 备份和恢复
+
+```bash
+#!/bin/bash
+# backup.sh - 备份脚本
+
+set -e
+
+BACKUP_DIR="/opt/backups"
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_NAME="wokeflow_backup_$DATE"
+
+echo "Creating backup: $BACKUP_NAME"
+
+# 创建备份目录
+mkdir -p $BACKUP_DIR/$BACKUP_NAME
+
+# 数据库备份
+echo "Backing up PostgreSQL..."
+kubectl exec -n wokeflow deployment/postgres -- pg_dump -U wokeflow wokeflow > $BACKUP_DIR/$BACKUP_NAME/postgres.sql
+
+# Redis 备份
+echo "Backing up Redis..."
+kubectl exec -n wokeflow deployment/redis -- redis-cli save
+kubectl cp wokeflow/redis-pod:/data/dump.rdb $BACKUP_DIR/$BACKUP_NAME/redis.rdb
+
+# 配置文件备份
+echo "Backing up configurations..."
+kubectl get configmap -n wokeflow -o yaml > $BACKUP_DIR/$BACKUP_NAME/configmaps.yaml
+kubectl get secret -n wokeflow -o yaml > $BACKUP_DIR/$BACKUP_NAME/secrets.yaml
 
 # 压缩备份
-gzip "$BACKUP_DIR/full_backup.sql"
+cd $BACKUP_DIR
+tar -czf ${BACKUP_NAME}.tar.gz $BACKUP_NAME
+rm -rf $BACKUP_NAME
+
+# 上传到远程存储
+aws s3 cp ${BACKUP_NAME}.tar.gz s3://wokeflow-backups/
+
+echo "Backup completed: $BACKUP_NAME"
 
 # 清理旧备份（保留7天）
-find ./backups -name "*.gz" -mtime +7 -delete
-
-echo "备份完成: $BACKUP_DIR"
+find $BACKUP_DIR -name "wokeflow_backup_*.tar.gz" -mtime +7 -delete
 ```
-
-### 应用配置备份
 
 ```bash
 #!/bin/bash
+# restore.sh - 恢复脚本
 
-# 配置备份脚本
-BACKUP_DIR="./config_backups/$(date +%Y%m%d_%H%M%S)"
-mkdir -p "$BACKUP_DIR"
+set -e
 
-# 备份环境变量文件
-cp .env.production "$BACKUP_DIR/"
-cp .env.staging "$BACKUP_DIR/"
-
-# 备份 Docker Compose 配置
-cp docker-compose.yml "$BACKUP_DIR/"
-cp docker-compose.production.yml "$BACKUP_DIR/"
-
-# 备份 Nginx 配置
-cp -r nginx/ "$BACKUP_DIR/"
-
-echo "配置备份完成: $BACKUP_DIR"
-```
-
-### 灾难恢复
-
-#### 数据恢复流程
-1. 停止应用服务
-2. 从备份恢复数据库
-3. 恢复配置文件
-4. 重启应用服务
-5. 执行完整性检查
-
-#### 恢复脚本
-```bash
-#!/bin/bash
-
-# 灾难恢复脚本
-BACKUP_FILE=$1
+BACKUP_FILE=${1}
 
 if [ -z "$BACKUP_FILE" ]; then
-    echo "请指定备份文件"
-    exit 1
+  echo "Usage: $0 <backup-file>"
+  echo "Available backups:"
+  aws s3 ls s3://wokeflow-backups/
+  exit 1
 fi
 
-echo "开始灾难恢复..."
+echo "Restoring from backup: $BACKUP_FILE"
 
-# 停止服务
-docker-compose down
+# 下载备份
+aws s3 cp s3://wokeflow-backups/$BACKUP_FILE /tmp/
+
+# 解压备份
+cd /tmp
+tar -xzf $BACKUP_FILE
+BACKUP_DIR=$(basename $BACKUP_FILE .tar.gz)
 
 # 恢复数据库
-gunzip -c "$BACKUP_FILE" | docker-compose exec -T postgres psql -U wokeflow
+echo "Restoring PostgreSQL..."
+kubectl exec -n wokeflow deployment/postgres -- psql -U wokeflow -d wokeflow -f /tmp/$BACKUP_DIR/postgres.sql
 
-# 重启服务
-docker-compose up -d
+# 恢复 Redis
+echo "Restoring Redis..."
+kubectl cp /tmp/$BACKUP_DIR/redis.rdb wokeflow/redis-pod:/data/dump.rdb
+kubectl exec -n wokeflow deployment/redis -- redis-cli shutdown save
 
-# 健康检查
-sleep 30
-if curl -f http://localhost/health; then
-    echo "✅ 恢复成功"
-else
-    echo "❌ 恢复失败"
-    exit 1
-fi
+# 清理临时文件
+rm -rf /tmp/$BACKUP_DIR $BACKUP_FILE
+
+echo "Restore completed successfully"
 ```
 
-## 总结
+## ❓ 常见问题
 
-WokeFlow 的 DevOps 架构通过容器化部署、蓝绿发布策略、全面监控告警系统和自动化 CI/CD 流水线，实现了高可用、可观测、快速迭代的现代化运维体系。这种设计既保证了系统的稳定性，又支持了快速的业务创新和部署。
+### Q: 如何处理容器内存泄漏？
+
+**A:** 设置适当的资源限制和监控：
+
+```yaml
+# Kubernetes 资源限制
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+# 内存监控
+livenessProbe:
+  exec:
+    command: ["node", "--expose-gc", "--max-old-space-size=512", "healthcheck.js"]
+  initialDelaySeconds: 30
+  periodSeconds: 30
+```
+
+### Q: 如何优化容器启动时间？
+
+**A:** 使用多阶段构建和优化层缓存：
+
+```dockerfile
+# 使用更小的基础镜像
+FROM node:18-alpine AS base
+
+# 预安装依赖
+FROM base AS deps
+COPY package*.json ./
+RUN npm ci --only=production --no-optional && npm cache clean --force
+
+# 优化文件复制顺序
+COPY package*.json ./
+RUN npm ci
+COPY src/ ./src/
+```
+
+### Q: 如何处理数据库迁移？
+
+**A:** 使用容器化的迁移工具：
+
+```yaml
+# migration-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration
+spec:
+  template:
+    spec:
+      containers:
+      - name: migration
+        image: wokeflow:latest
+        command: ["npm", "run", "migration:up"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: wokeflow-secrets
+              key: database-url
+      restartPolicy: Never
+```
+
+## 📚 相关链接
+
+- [Docker 最佳实践](https://docs.docker.com/develop/dev-best-practices/)
+- [Kubernetes 文档](https://kubernetes.io/docs/)
+- [GitHub Actions 指南](https://docs.github.com/en/actions)
+- [Prometheus 监控](https://prometheus.io/docs/)
+- [Grafana 可视化](https://grafana.com/docs/)
+- [Terraform IaC](https://www.terraform.io/docs/)

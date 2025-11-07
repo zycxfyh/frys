@@ -1,633 +1,422 @@
-# WokeFlow 核心功能模块文档
+# WokeFlow 核心功能模块
 
-## 📚 初学者指南 - 零基础也能看懂
+## 📖 模块概述
 
-<div style="background-color: #fff9c4; padding: 20px; border-left: 5px solid #fbc02d; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #f57f17;">🎓 什么是"核心功能模块"？</h3>
-  <p>想象一下，你要建造一座房子。核心功能模块就像是房子的<strong>基础设施</strong>：水管系统、电路系统、网络系统等。这些是房子正常运转所必需的基础功能。</p>
-  <p>在 WokeFlow 中，核心功能模块提供了程序运行所需的基础能力，比如<strong>发送网络请求</strong>、<strong>管理数据状态</strong>、<strong>处理消息</strong>等。</p>
-</div>
+WokeFlow 的核心功能模块采用了"站在巨人肩膀上"的设计理念，通过集成业界领先的开源项目，提供了一套轻量级、高性能的企业级应用组件。
 
-### 🏠 用生活比喻理解各个模块
+### 🎯 设计理念
 
-#### 1. 🌐 HTTP 客户端 - 就像"邮递员"
+- **开源优先**: 集成成熟的开源解决方案
+- **轻量化**: 精简的核心，专注核心功能
+- **高性能**: 优化的性能和资源使用
+- **易扩展**: 模块化设计，支持灵活扩展
 
-<div style="background-color: #e1f5fe; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #0277bd;">📮 生活场景：寄送包裹</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>📦 你要给朋友寄包裹：需要填写地址、选择快递公司、打包物品</li>
-    <li>🚚 邮递员的工作：接收包裹、送到目的地、带回回执</li>
-    <li>📋 自动处理：邮递员会自动处理地址格式、选择最佳路线、记录物流信息</li>
-  </ul>
+### 📦 核心模块矩阵
 
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 HTTP 客户端：就像"邮递员"，负责在程序之间传递信息</li>
-    <li>📤 发送请求：程序A想获取数据，通过HTTP客户端发送请求</li>
-    <li>📥 接收响应：程序B收到请求后，通过HTTP客户端返回数据</li>
-    <li>🔄 自动处理：HTTP客户端自动处理数据格式转换、错误重试等</li>
-  </ul>
+| 模块 | 开源项目 | 核心功能 | 适用场景 |
+|------|----------|----------|----------|
+| 🌐 HTTP客户端 | Axios | 网络请求处理 | API调用、文件上传 |
+| 💾 状态管理 | Zustand | 响应式状态 | 用户状态、应用配置 |
+| 📨 消息队列 | Bull.js | 作业队列 | 异步任务、定时作业 |
+| 📡 事件系统 | EventEmitter3 | 事件通信 | 模块间解耦通信 |
+| 🔐 认证授权 | JWT | 身份验证 | 用户认证、权限控制 |
+| 📅 日期时间 | Day.js | 时间处理 | 日期计算、格式化 |
+| 🛠️ 工具函数 | Lodash | 数据处理 | 数组操作、对象处理 |
 
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>HTTP 客户端就像是一个专业的"邮递员系统"，帮你发送和接收网络请求，自动处理各种细节，你只需要告诉它"发送什么"和"发送到哪里"。
-  </div>
-</div>
+## 🌐 HTTP 客户端模块 (Axios)
 
-#### 2. 💾 状态管理 - 就像"记事本"
+### 功能特性
 
-<div style="background-color: #f3e5f5; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #7b1fa2;">📝 生活场景：记录重要信息</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>📋 记事本：用来记录重要信息（购物清单、待办事项、联系方式等）</li>
-    <li>✏️ 随时更新：可以随时添加、修改、删除记录</li>
-    <li>👀 自动通知：当你更新记录时，所有需要知道的人都会收到通知</li>
-    <li>🔍 快速查找：可以快速找到需要的信息</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 状态管理：就像"智能记事本"，用来存储程序运行时的数据</li>
-    <li>📊 数据存储：存储用户信息、系统配置、业务数据等</li>
-    <li>🔄 自动更新：当数据改变时，所有使用这些数据的组件都会自动更新</li>
-    <li>🔍 快速访问：可以快速读取和修改数据</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>状态管理就像一个"智能记事本"，不仅记录数据，还能在数据变化时自动通知所有相关的地方，让整个程序保持数据一致。
-  </div>
-</div>
-
-#### 3. 📢 消息传递 - 就像"广播系统"
-
-<div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #2e7d32;">📻 生活场景：学校广播</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>📢 学校广播：广播员发布消息（"请各班班长到会议室开会"）</li>
-    <li>👂 学生收听：所有学生都能听到广播，但只有相关的人会响应</li>
-    <li>📋 主题分类：不同主题的消息（通知、音乐、新闻）分开广播</li>
-    <li>🔄 实时传递：消息发布后立即传递到所有收听者</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 消息传递：就像"广播系统"，让程序的不同部分可以互相通信</li>
-    <li>📤 发布消息：一个模块发布消息（比如"用户已登录"）</li>
-    <li>📥 订阅消息：其他模块订阅感兴趣的消息（比如"邮件模块"订阅"用户已登录"）</li>
-    <li>🔄 自动通知：消息发布后，所有订阅者都会收到通知</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>消息传递就像一个"广播系统"，让程序的不同部分可以互相"说话"和"听"，实现模块之间的解耦通信。
-  </div>
-</div>
-
-#### 4. 🔐 认证授权 - 就像"门禁系统"
-
-<div style="background-color: #fff3e0; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #f57c00;">🚪 生活场景：公司门禁</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>🆔 员工卡：每个员工有一张门禁卡，证明身份</li>
-    <li>🔓 刷卡开门：刷卡后，系统验证身份，决定是否开门</li>
-    <li>🚪 权限控制：普通员工只能进普通区域，管理员可以进所有区域</li>
-    <li>⏰ 时效性：门禁卡有有效期，过期需要重新办理</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 认证授权：就像"门禁系统"，验证用户身份和控制访问权限</li>
-    <li>🎫 生成令牌：用户登录后，系统生成一个"令牌"（类似门禁卡）</li>
-    <li>✅ 验证身份：每次访问资源时，系统验证令牌是否有效</li>
-    <li>🔒 权限检查：根据用户角色，决定是否可以访问特定资源</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>认证授权就像一个"智能门禁系统"，不仅验证你是谁，还控制你能访问哪些资源，确保系统安全。
-  </div>
-</div>
-
-#### 5. 📅 日期时间处理 - 就像"万年历"
-
-<div style="background-color: #fce4ec; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #c2185b;">📆 生活场景：日历和时钟</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>📅 日历：可以查看日期、计算日期差、判断星期几</li>
-    <li>⏰ 时钟：显示当前时间、计算时间差、设置提醒</li>
-    <li>🌍 时区：不同地区有不同的时区，需要转换</li>
-    <li>📊 格式化：可以用不同格式显示日期（2024-01-01 或 2024年1月1日）</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 日期时间处理：就像"智能万年历"，提供各种日期时间操作</li>
-    <li>📅 日期计算：计算两个日期之间的天数、判断是否工作日</li>
-    <li>⏰ 时间格式化：将时间转换成不同格式显示</li>
-    <li>🌍 时区转换：在不同时区之间转换时间</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>日期时间处理就像一个"智能万年历"，帮你处理所有与日期时间相关的操作，让复杂的日期计算变得简单。
-  </div>
-</div>
-
-#### 6. 🛠️ 工具函数库 - 就像"瑞士军刀"
-
-<div style="background-color: #e0f2f1; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #00695c;">🔧 生活场景：多功能工具箱</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>🛠️ 工具箱：包含各种常用工具（螺丝刀、扳手、锤子等）</li>
-    <li>⚡ 快速使用：需要什么工具，直接拿出来用，不用自己制作</li>
-    <li>🔄 通用工具：这些工具可以用于各种场景</li>
-    <li>📦 分类整理：工具按功能分类，方便查找</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 工具函数库：就像"代码工具箱"，提供各种常用的数据处理函数</li>
-    <li>📊 数据处理：数组排序、对象合并、字符串处理等</li>
-    <li>⚡ 快速使用：需要什么功能，直接调用函数，不用自己编写</li>
-    <li>🔄 通用函数：这些函数可以在各种场景中使用</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>工具函数库就像一个"代码工具箱"，提供了各种常用的数据处理工具，让你不用重复编写相同的代码。
-  </div>
-</div>
-
-### ❓ 常见问题解答
-
-<div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #2e7d32;">🤔 你可能想问的问题</h3>
-
-  <h4 style="color: #388e3c;">Q1: 为什么需要这么多模块？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 就像建房子需要水管、电路、网络等不同系统一样，程序也需要不同的功能模块。每个模块负责一个特定功能，这样程序才能正常运行。</p>
-
-  <h4 style="color: #388e3c; margin-top: 20px;">Q2: 这些模块可以单独使用吗？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 可以！每个模块都是独立的，可以单独使用。比如你可以只用HTTP客户端来发送网络请求，或者只用状态管理来存储数据。</p>
-
-  <h4 style="color: #388e3c; margin-top: 20px;">Q3: 什么是"灵感自知名库"？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 就像学习做菜时参考名厨的菜谱一样，我们参考了优秀的开源库的设计思路，但根据我们的需求进行了简化和优化，让它更轻量、更适合我们的场景。</p>
-
-  <h4 style="color: #388e3c; margin-top: 20px;">Q4: 这些模块会互相影响吗？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 不会！每个模块都是独立的，它们可以互相配合使用，但不会互相干扰。就像房子的水管和电路系统，各自独立工作，但可以配合使用。</p>
-</div>
-
-## 📖 概述
-
-<div style="background-color: #e8f4fd; padding: 20px; border-left: 5px solid #03a9f4; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #01579b;">🎨 "灵感自知名库"的设计哲学</h3>
-  <p>WokeFlow 的核心功能模块采用了<strong>"灵感自知名库"</strong>的设计理念。我们不重新发明轮子，而是站在巨人的肩膀上，通过借鉴和简化流行开源库的核心功能，构建了一套轻量级的企业级应用组件。</p>
-  <p><strong>设计目标</strong>：在保持<strong>轻量化</strong>的同时，提供<strong>企业级</strong>的稳定性和扩展性。</p>
-  <blockquote style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #ff9800; margin: 15px 0;">
-    <strong>💡 核心思想</strong>：借鉴优秀开源库的设计精髓，结合 WokeFlow 的轻量化架构需求，进行创造性重构。
-  </blockquote>
-</div>
-
-## 🏗️ 模块设计原则
-
-### 1. 🎭 灵感借鉴理念
-
-<div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #e65100;">📚 名库借鉴矩阵</h4>
-  <table style="width: 100%; border-collapse: collapse;">
-    <thead>
-      <tr style="background-color: #ffe0b2;">
-        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">WokeFlow 模块</th>
-        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">实际集成库</th>
-        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">核心特性</th>
-        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">集成优势</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td style="padding: 8px; border: 1px solid #ddd;"><strong>HTTP 客户端</strong></td>
-        <td style="padding: 8px; border: 1px solid #ddd;">Axios</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">拦截器、JSON转换</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">简化API、增强缓存</td>
-      </tr>
-      <tr style="background-color: #fff8e1;">
-        <td style="padding: 8px; border: 1px solid #ddd;"><strong>状态管理</strong></td>
-        <td style="padding: 8px; border: 1px solid #ddd;">Zustand</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">轻量级响应式</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">集成持久化、调试</td>
-      </tr>
-      <tr>
-        <td style="padding: 8px; border: 1px solid #ddd;"><strong>消息队列</strong></td>
-        <td style="padding: 8px; border: 1px solid #ddd;">Bull.js</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">Redis驱动队列</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">企业级可靠、监控完善</td>
-      </tr>
-      <tr style="background-color: #fff8e1;">
-        <td style="padding: 8px; border: 1px solid #ddd;"><strong>事件系统</strong></td>
-        <td style="padding: 8px; border: 1px solid #ddd;">EventEmitter3</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">高性能事件发射</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">内存高效、API简单</td>
-      </tr>
-      <tr style="background-color: #fff8e1;">
-        <td style="padding: 8px; border: 1px solid #ddd;"><strong>认证授权</strong></td>
-        <td style="padding: 8px; border: 1px solid #ddd;">JWT</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">无状态令牌</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">多密钥轮换、黑名单</td>
-      </tr>
-      <tr>
-        <td style="padding: 8px; border: 1px solid #ddd;"><strong>日期时间</strong></td>
-        <td style="padding: 8px; border: 1px solid #ddd;">Day.js</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">轻量化时间处理</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">中文本地化、工作日计算</td>
-      </tr>
-      <tr style="background-color: #fff8e1;">
-        <td style="padding: 8px; border: 1px solid #ddd;"><strong>工具函数</strong></td>
-        <td style="padding: 8px; border: 1px solid #ddd;">Lodash</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">函数式工具</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">精简核心函数、性能优化</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-### 2. ⚡ 轻量化优化策略
-
-<div style="background-color: #f3e5f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #7b1fa2;">🎯 优化目标</h4>
-  <ul>
-    <li><strong>🚀 性能优先</strong>：冷启动时间 < 2秒，内存占用 < 50MB</li>
-    <li><strong>📦 最小化依赖</strong>：零外部运行时依赖，包体积最小化</li>
-    <li><strong>🔧 简化API</strong>：直观的接口设计，降低学习成本</li>
-    <li><strong>🛡️ 企业级稳定</strong>：完善的错误处理和边界情况处理</li>
-  </ul>
-
-  <h4 style="margin-top: 20px; color: #7b1fa2;">📊 集成优势对比</h4>
-  <table style="width: 100%; border-collapse: collapse;">
-    <thead>
-      <tr style="background-color: #e1bee7;">
-        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">特性</th>
-        <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">自建实现</th>
-        <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">开源集成</th>
-        <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">优势</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td style="padding: 8px; border: 1px solid #ddd;">维护成本</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">高</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">低</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">社区维护</td>
-      </tr>
-      <tr style="background-color: #f9f9f9;">
-        <td style="padding: 8px; border: 1px solid #ddd;">稳定性</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">待验证</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">生产验证</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">企业级保障</td>
-      </tr>
-      <tr>
-        <td style="padding: 8px; border: 1px solid #ddd;">功能丰富度</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">基础功能</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">功能完整</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">开箱即用</td>
-      </tr>
-      <tr style="background-color: #f9f9f9;">
-        <td style="padding: 8px; border: 1px solid #ddd;">生态系统</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">无</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">完善</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">插件丰富</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-### 3. 🧩 模块化架构设计
-
-<div style="background-color: #e0f2f1; padding: 15px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #00695c;">🔗 模块协作模式</h4>
-  <ul>
-    <li><strong>🎛️ 依赖注入集成</strong>：通过容器统一管理模块依赖关系</li>
-    <li><strong>🔄 运行时插拔</strong>：支持模块的动态加载和替换</li>
-    <li><strong>📏 统一生命周期</strong>：标准化的初始化、启动、停止流程</li>
-    <li><strong>🎯 接口契约</strong>：明确的模块接口规范和版本控制</li>
-  </ul>
-
-  <h4 style="margin-top: 20px; color: #00695c;">🏛️ 架构优势</h4>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
-    <div style="background-color: #b2dfdb; padding: 10px; border-radius: 5px;">
-      <strong>🔧 可维护性</strong><br/>
-      模块职责清晰，易于独立测试和更新
-    </div>
-    <div style="background-color: #b2dfdb; padding: 10px; border-radius: 5px;">
-      <strong>📈 可扩展性</strong><br/>
-      新功能可作为独立模块添加
-    </div>
-    <div style="background-color: #b2dfdb; padding: 10px; border-radius: 5px;">
-      <strong>🧪 可测试性</strong><br/>
-      模块独立测试，Mock依赖简单
-    </div>
-    <div style="background-color: #b2dfdb; padding: 10px; border-radius: 5px;">
-      <strong>🚀 可重用性</strong><br/>
-      模块可在不同项目中复用
-    </div>
-  </div>
-</div>
-
-## 核心功能模块详解
-
-### 1. HTTP 客户端 (Axios)
-
-#### 功能特性
-- **请求/响应拦截器**: 支持在请求发送前和响应接收后进行处理
-- **自动 JSON 转换**: 自动序列化和反序列化 JSON 数据
-- **请求重试机制**: 支持指数退避重试策略
-- **请求缓存**: 支持 GET 请求的结果缓存
+- **请求/响应拦截器**: 自动处理认证、日志、错误处理
+- **自动 JSON 转换**: 无缝处理 JSON 数据
+- **请求重试机制**: 指数退避重试策略
+- **请求缓存**: 智能缓存 GET 请求结果
 - **并发控制**: 限制最大并发请求数量
-- **超时管理**: 可配置的请求超时设置
 
-#### 核心API
+### 快速开始
 
 ```javascript
-import axios from 'axios';
+import { httpClient } from 'wokeflow';
 
-// 创建实例
-const httpClient = axios.create({
+// 基础请求
+const response = await httpClient.get('/api/users');
+const user = await httpClient.post('/api/users', {
+  name: 'John Doe',
+  email: 'john@example.com'
+});
+
+// 带参数请求
+const users = await httpClient.get('/api/users', {
+  params: { page: 1, limit: 10 }
+});
+
+// 文件上传
+const formData = new FormData();
+formData.append('file', file);
+await httpClient.post('/api/upload', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
+```
+
+### 高级用法
+
+```javascript
+// 自定义配置
+const apiClient = httpClient.create({
   baseURL: 'https://api.example.com',
   timeout: 5000,
   headers: {
-    'Content-Type': 'application/json'
+    'Authorization': 'Bearer token'
   }
 });
 
-// 添加请求拦截器
-httpClient.interceptors.request.use((config) => {
-  // 添加认证头
-  const token = getToken();
+// 请求拦截器 - 自动添加认证
+apiClient.interceptors.request.use((config) => {
+  const token = getAuthToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
-}, (error) => {
-  return Promise.reject(error);
 });
 
-// 添加响应拦截器
-httpClient.interceptors.response.use(
+// 响应拦截器 - 统一错误处理
+apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // 处理认证失败
+      // 跳转到登录页
       redirectToLogin();
     }
     return Promise.reject(error);
   }
 );
-
-// 发送请求
-const response = await httpClient.request({
-  method: 'GET',
-  url: '/users',
-  params: { page: 1, limit: 10 }
-});
-
-// 便捷方法
-const users = await httpClient.get('/users');
-const newUser = await httpClient.post('/users', { name: 'John' });
-const updatedUser = await httpClient.put('/users/1', { name: 'Jane' });
-await httpClient.delete('/users/1');
 ```
 
-#### 使用场景
-- RESTful API 调用
-- 第三方服务集成
-- 文件上传下载
-- GraphQL 查询
-- 微服务间通信
-
-#### 配置选项
+### 配置选项
 
 ```javascript
 const config = {
-  baseURL: 'https://api.example.com',    // 基础URL
-  timeout: 10000,                        // 超时时间(ms)
-  headers: {                             // 默认请求头
-    'Content-Type': 'application/json',
-    'User-Agent': 'WokeFlow/1.0.0'
+  baseURL: 'https://api.example.com',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json'
   },
-  maxRequests: 1000,                     // 最大并发请求数
-  retryAttempts: 3,                      // 重试次数
-  retryDelay: 1000,                      // 重试延迟(ms)
-  cacheEnabled: true,                    // 启用缓存
-  cacheTTL: 300000                       // 缓存过期时间(ms)
+  maxRequests: 100,        // 最大并发请求数
+  retryAttempts: 3,        // 重试次数
+  retryDelay: 1000,        // 重试延迟(ms)
+  cacheEnabled: true,      // 启用缓存
+  cacheTTL: 300000         // 缓存过期时间(ms)
 };
 ```
 
-#### 性能特性
-- 请求缓存减少重复调用
-- 连接池复用优化性能
-- 自动压缩和解压缩
-- 内存使用监控和限制
+## 💾 状态管理模块 (Zustand)
 
-### 2. 状态管理 (Zustand)
+### 功能特性
 
-#### 功能特性
 - **响应式状态更新**: 状态变更自动通知订阅者
 - **不可变状态**: 每次更新创建新状态对象
-- **中间件支持**: 支持日志、持久化等中间件
-- **选择器优化**: 支持状态选择器避免不必要的重渲染
-- **动作记录**: 支持时间旅行调试
-- **类型安全**: 支持 TypeScript 类型定义
+- **中间件支持**: 日志、持久化、调试中间件
+- **选择器优化**: 支持状态选择器避免不必要重渲染
+- **TypeScript友好**: 完整的类型支持
 
-#### 核心API
+### 快速开始
 
 ```javascript
-import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { createStore } from 'wokeflow';
 
-// 创建基础状态存储
-const useCounterStore = create((set, get) => ({
-  count: 0,
-  increment: () => set((state) => ({ count: state.count + 1 })),
-  decrement: () => set((state) => ({ count: state.count - 1 })),
-  reset: () => set({ count: 0 }),
-  get double() { return get().count * 2; }
+// 创建用户状态存储
+const useUserStore = createStore((set, get) => ({
+  user: null,
+  isLoading: false,
+
+  // 登录
+  login: async (credentials) => {
+    set({ isLoading: true });
+    try {
+      const user = await api.login(credentials);
+      set({ user, isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
+    }
+  },
+
+  // 登出
+  logout: () => set({ user: null }),
+
+  // 更新用户信息
+  updateProfile: (updates) => set((state) => ({
+    user: { ...state.user, ...updates }
+  }))
 }));
 
-// 使用开发工具中间件
-const useDebugStore = create(
-  devtools((set, get) => ({
-    count: 0,
-    increment: () => set((state) => ({ count: state.count + 1 }), false, 'increment'),
-    decrement: () => set((state) => ({ count: state.count - 1 }), false, 'decrement')
-  }))
-);
+// 使用状态
+function UserProfile() {
+  const { user, login, logout, isLoading } = useUserStore();
 
-// 使用持久化中间件
-const usePersistentStore = create(
-  persist((set, get) => ({
-    count: 0,
-    increment: () => set((state) => ({ count: state.count + 1 })),
-    decrement: () => set((state) => ({ count: state.count - 1 }))
-  }), {
-    name: 'counter-storage'
-  })
-);
-
-// 使用状态存储
-function CounterComponent() {
-  const { count, increment, decrement } = useCounterStore();
+  if (!user) {
+    return (
+      <div>
+        <button onClick={() => login(credentials)} disabled={isLoading}>
+          {isLoading ? '登录中...' : '登录'}
+        </button>
+  </div>
+    );
+  }
 
   return (
     <div>
-      <p>Count: {count}</p>
-      <button onClick={increment}>+</button>
-      <button onClick={decrement}>-</button>
-    </div>
+      <h2>欢迎, {user.name}!</h2>
+      <button onClick={logout}>登出</button>
+</div>
   );
 }
-
-// 订阅状态变更
-const unsubscribe = useCounterStore.subscribe((newState, oldState) => {
-  console.log('状态变更:', newState, oldState);
-});
-
-// 直接更新状态
-useCounterStore.setState({ count: 5 });
-
-// 使用选择器 (通过useStore)
-import { useStore } from 'zustand';
-const count = useStore(useCounterStore, (state) => state.count);
 ```
 
-#### 使用场景
-- 全局应用状态管理
-- 用户会话状态
-- 表单状态管理
-- UI 组件状态
-- 缓存数据管理
-- 配置状态存储
-
-#### 中间件类型
-- **日志中间件**: 记录所有状态变更
-- **持久化中间件**: 自动保存状态到存储
-- **验证中间件**: 验证状态变更的合法性
-- **同步中间件**: 与外部服务同步状态
-- **调试中间件**: 开发时的调试支持
-
-#### 性能优化
-- 浅比较避免不必要的通知
-- 惰性订阅按需更新
-- 批量更新减少通知次数
-- 内存泄漏检测和清理
-
-### 3. 消息队列 (Bull.js)
-
-#### 功能特性
-- **发布订阅模式**: 支持一对多消息分发
-- **主题通配符**: 支持通配符匹配主题
-- **队列组**: 支持负载均衡的消息消费
-- **请求响应模式**: 支持同步请求响应
-- **消息持久化**: 可选的消息持久化存储
-- **连接管理**: 自动重连和连接池
-
-#### 核心API
+### 中间件使用
 
 ```javascript
-import NATSInspiredMessaging from './core/NATSInspiredMessaging.js';
+import { createStore, persist, devtools } from 'wokeflow';
 
-const messaging = new NATSInspiredMessaging();
+// 持久化中间件 - 状态保存到 localStorage
+const usePersistentStore = createStore(
+  persist(
+    (set, get) => ({
+      theme: 'light',
+      setTheme: (theme) => set({ theme })
+    }),
+    {
+      name: 'app-settings'
+    }
+  )
+);
 
-// 连接到消息服务器
-const connection = await messaging.connect('cluster-1');
+// 开发工具中间件 - Redux DevTools 支持
+const useDebugStore = createStore(
+  devtools(
+    (set, get) => ({
+      count: 0,
+      increment: () => set((state) => ({ count: state.count + 1 })),
+      decrement: () => set((state) => ({ count: state.count - 1 }))
+    }),
+    {
+      name: 'counter'
+    }
+  )
+);
+```
 
-// 发布消息
-await messaging.publish('user.created', {
-  id: 'user123',
+### 选择器优化
+
+```javascript
+// 基础用法 - 每次状态变更都会重渲染
+const count = useStore((state) => state.count);
+
+// 优化用法 - 只在 count 变化时重渲染
+const count = useStore(
+  useCallback((state) => state.count, [])
+);
+
+// 多个选择器
+const { user, settings } = useStore(
+  useCallback((state) => ({
+    user: state.user,
+    settings: state.settings
+  }), [])
+);
+```
+
+## 📨 消息队列模块 (Bull.js)
+
+### 功能特性
+
+- **基于 Redis**: 高性能的 Redis 驱动队列
+- **作业调度**: 支持延迟执行、重复任务
+- **优先级队列**: 支持任务优先级设置
+- **监控面板**: 内置 Web 监控界面
+- **自动重试**: 失败任务自动重试机制
+- **并发控制**: 限制同时处理的任务数量
+
+### 快速开始
+
+```javascript
+import { createQueue, createWorker } from 'wokeflow';
+
+// 创建队列
+const emailQueue = createQueue('email');
+
+// 添加任务到队列
+await emailQueue.add('send-welcome', {
+  email: 'user@example.com',
+  name: 'John Doe'
+});
+
+// 创建工作者处理任务
+const emailWorker = createWorker('email', async (job) => {
+  const { email, name } = job.data;
+
+  // 发送欢迎邮件
+  await sendWelcomeEmail(email, name);
+
+  console.log(`欢迎邮件已发送给 ${name}`);
+});
+```
+
+### 高级用法
+
+```javascript
+// 延迟任务
+await emailQueue.add(
+  'send-reminder',
+  { userId: 123 },
+  { delay: 24 * 60 * 60 * 1000 } // 24小时后执行
+);
+
+// 重复任务
+await emailQueue.add(
+  'daily-report',
+  {},
+  {
+    repeat: {
+      cron: '0 9 * * *' // 每天早上9点
+    }
+  }
+);
+
+// 优先级任务
+await emailQueue.add(
+  'urgent-notification',
+  { message: '系统紧急通知' },
+  { priority: 10 } // 高优先级
+);
+
+// 批量添加任务
+const jobs = [
+  { email: 'user1@example.com', name: 'User 1' },
+  { email: 'user2@example.com', name: 'User 2' }
+];
+
+await emailQueue.addBulk(
+  jobs.map((data) => ({
+    name: 'send-welcome',
+    data
+  }))
+);
+```
+
+### 监控和统计
+
+```javascript
+// 获取队列统计信息
+const stats = await emailQueue.getJobCounts();
+// { waiting: 5, active: 2, completed: 100, failed: 3 }
+
+// 获取任务详情
+const job = await emailQueue.getJob(123);
+console.log(job.data, job.opts, job.finishedOn);
+
+// 清理完成的任务
+await emailQueue.clean(24 * 60 * 60 * 1000, 'completed'); // 清理24小时前完成的任务
+
+// 暂停/恢复队列
+await emailQueue.pause();
+await emailQueue.resume();
+```
+
+## 📡 事件系统模块 (EventEmitter3)
+
+### 功能特性
+
+- **高性能**: 优化的内存使用和发射速度
+- **事件命名空间**: 支持带命名空间的事件
+- **通配符匹配**: 支持通配符订阅模式
+- **一次性监听器**: 支持只触发一次的事件监听
+- **监听器管理**: 便捷的监听器添加/移除
+
+### 快速开始
+
+```javascript
+import { eventEmitter } from 'wokeflow';
+
+// 监听事件
+eventEmitter.on('user.created', (user) => {
+  console.log('新用户创建:', user.name);
+  // 发送欢迎邮件
+  sendWelcomeEmail(user.email);
+});
+
+// 发射事件
+eventEmitter.emit('user.created', {
+  id: 123,
   name: 'John Doe',
   email: 'john@example.com'
 });
-
-// 订阅消息
-const subscription = messaging.subscribe('user.created', (message) => {
-  console.log('新用户创建:', message);
-  // 处理用户创建逻辑
-});
-
-// 取消订阅
-messaging.unsubscribe('user.created', subscription.id);
-
-// 请求响应模式
-const response = await messaging.request('user.get', { id: 'user123' }, 5000);
-
-// 队列组 (负载均衡)
-messaging.subscribe('order.process', (message) => {
-  // 只有队列组中的一个订阅者会收到消息
-  processOrder(message);
-}, null, 'order-queue-group');
-
-// 通配符订阅
-messaging.subscribe('user.*', (message, subject) => {
-  console.log(`用户事件: ${subject}`, message);
-});
 ```
 
-#### 使用场景
-- 事件驱动架构
-- 微服务间通信
-- 实时通知系统
-- 任务队列处理
-- 日志聚合系统
-- 缓存失效通知
+### 高级用法
 
-#### 消息模式
-- **发布订阅**: 一对多异步通信
-- **请求响应**: 同步请求响应模式
-- **队列组**: 负载均衡消费
-- **流处理**: 消息流处理和转换
+```javascript
+// 一次性监听器
+eventEmitter.once('app.ready', () => {
+  console.log('应用已就绪');
+});
 
-#### 可靠性特性
-- 消息确认机制
-- 自动重连和重试
-- 消息持久化选项
-- 死信队列处理
-- 流量控制和背压
+// 带上下文的监听器
+class UserService {
+  constructor() {
+    this.handleUserLogin = this.handleUserLogin.bind(this);
+    eventEmitter.on('user.login', this.handleUserLogin);
+  }
 
-### 4. 认证授权 (JWT)
+  handleUserLogin(user) {
+    console.log(`${user.name} 登录了`);
+  }
 
-#### 功能特性
+  destroy() {
+    eventEmitter.off('user.login', this.handleUserLogin);
+  }
+}
+
+// 命名空间事件
+eventEmitter.on('order.*', (order, eventName) => {
+  console.log(`订单事件: ${eventName}`, order);
+});
+
+eventEmitter.emit('order.created', orderData);
+eventEmitter.emit('order.updated', orderData);
+
+// 移除所有监听器
+eventEmitter.removeAllListeners('user.created');
+
+// 获取监听器数量
+const listenerCount = eventEmitter.listenerCount('user.created');
+```
+
+## 🔐 认证授权模块 (JWT)
+
+### 功能特性
+
 - **无状态认证**: 基于 JWT 的无状态令牌认证
 - **密钥轮换**: 支持多密钥管理和轮换
 - **令牌刷新**: 支持访问令牌和刷新令牌
-- **权限验证**: 基于角色的访问控制
-- **令牌黑名单**: 支持令牌吊销
-- **自动清理**: 过期令牌自动清理
+- **权限验证**: 基于角色的访问控制 (RBAC)
+- **令牌黑名单**: 支持令牌吊销机制
 
-#### 核心API
+### 快速开始
 
 ```javascript
-import JWTInspiredAuth from './core/JWTInspiredAuth.js';
+import { auth } from 'wokeflow';
 
-const auth = new JWTInspiredAuth();
+// 初始化认证模块
 await auth.initialize();
 
-// 设置密钥
-auth.setSecret('default', 'your-secret-key');
-auth.setSecret('refresh', 'refresh-secret-key');
-
-// 生成令牌
+// 生成访问令牌
 const accessToken = auth.generateToken({
   userId: 'user123',
   username: 'john',
   roles: ['user', 'admin']
-}, 'default', {
-  expiresIn: 3600, // 1小时
-  issuer: 'wokeflow',
-  audience: 'api'
+}, 'access', {
+  expiresIn: '1h'
 });
 
 // 生成刷新令牌
@@ -635,278 +424,292 @@ const refreshToken = auth.generateToken({
   userId: 'user123',
   type: 'refresh'
 }, 'refresh', {
-  expiresIn: 86400 // 24小时
+  expiresIn: '7d'
 });
 
 // 验证令牌
 try {
-  const payload = auth.verifyToken(accessToken, 'default');
-  console.log('用户认证成功:', payload);
+  const payload = auth.verifyToken(accessToken, 'access');
+  console.log('用户认证成功:', payload.username);
 } catch (error) {
   console.error('令牌验证失败:', error.message);
 }
+```
 
-// 刷新令牌
-const newTokens = auth.refreshTokenPair(refreshToken, 'refresh', 'default');
+### 权限验证
 
-// 验证权限
+```javascript
+// 检查用户角色
 if (auth.hasRole(accessToken, 'admin')) {
   // 执行管理员操作
+  performAdminAction();
 }
+
+// 检查权限
+if (auth.hasPermission(accessToken, 'user.create')) {
+  // 创建用户
+  createUser(userData);
+}
+
+// 中间件使用
+const authMiddleware = (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    const payload = auth.verifyToken(token, 'access');
+
+    req.user = payload;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+};
+```
+
+### 令牌管理
+
+```javascript
+// 刷新令牌对
+const newTokens = auth.refreshTokenPair(refreshToken, 'refresh', 'access');
 
 // 吊销令牌
 auth.revokeToken(accessToken);
 
-// 批量验证
+// 批量验证令牌
 const tokens = ['token1', 'token2', 'token3'];
-const validTokens = auth.verifyTokens(tokens, 'default');
+const validTokens = auth.verifyTokens(tokens, 'access');
+
+// 清理过期令牌
+auth.cleanupExpiredTokens();
 ```
 
-#### 使用场景
-- 用户登录认证
-- API 访问授权
-- 单页应用认证
-- 微服务间认证
-- 第三方集成认证
-- 移动应用认证
+## 📅 日期时间模块 (Day.js)
 
-#### 安全特性
-- 强加密算法 (HS256, RS256)
-- 令牌过期和刷新机制
-- 防止重放攻击
-- 安全的密钥管理
-- 审计日志记录
+### 功能特性
 
-#### 令牌格式
-```json
-{
-  "header": {
-    "alg": "HS256",
-    "typ": "JWT",
-    "kid": "default"
-  },
-  "payload": {
-    "userId": "user123",
-    "username": "john",
-    "roles": ["user"],
-    "iat": 1640995200,
-    "exp": 1641002400,
-    "iss": "wokeflow",
-    "aud": "api"
-  },
-  "signature": "base64-encoded-signature"
-}
-```
-
-### 5. 日期时间处理 (Day.js)
-
-#### 功能特性
-- **轻量化设计**: 专注于常用日期操作
+- **轻量级设计**: 专注于常用日期操作
 - **不可变操作**: 所有操作返回新实例
 - **国际化支持**: 多语言日期格式化
 - **相对时间**: 支持"3天前"等相对时间显示
-- **时区处理**: 支持时区转换和本地化
 - **插件扩展**: 支持自定义格式化和解析
 
-#### 核心API
+### 快速开始
 
 ```javascript
-import DayJSInspiredDate from './core/DayJSInspiredDate.js';
-
-const dateUtil = new DayJSInspiredDate();
-await dateUtil.initialize();
+import { dateUtil } from 'wokeflow';
 
 // 创建日期对象
 const now = dateUtil.create();
-const specificDate = dateUtil.create('2023-12-25');
-const timestamp = dateUtil.create(1672531200000);
+const birthday = dateUtil.create('1990-01-01');
+const timestamp = dateUtil.create(1577836800000);
 
-// 日期操作
+// 格式化日期
+console.log(now.format('YYYY-MM-DD HH:mm:ss')); // 2024-01-01 12:00:00
+console.log(now.format('MMM DD, YYYY'));        // Jan 01, 2024
+
+// 日期运算
 const tomorrow = now.add(1, 'day');
 const lastWeek = now.subtract(1, 'week');
-const nextMonth = now.add(1, 'month');
+const nextYear = now.add(1, 'year');
 
-// 格式化
-console.log(now.format('YYYY-MM-DD HH:mm:ss')); // 2023-12-25 14:30:00
-console.log(now.format('MMM DD, YYYY'));       // Dec 25, 2023
-console.log(now.format('相对时间'));            // 5分钟前
+// 相对时间
+console.log(dateUtil.fromNow(birthday)); // 34 years ago
+console.log(dateUtil.toNow(birthday));   // in 34 years
 
-// 解析
-const parsed = dateUtil.parse('2023-12-25 15:30:00', 'YYYY-MM-DD HH:mm:ss');
-
-// 比较
-if (now.isBefore(tomorrow)) {
-  console.log('现在比明天早');
+// 比较日期
+if (now.isAfter(birthday)) {
+  console.log('今天在生日之后');
 }
 
-if (dateUtil.isSame(now, specificDate, 'day')) {
+if (dateUtil.isSame(now, tomorrow, 'day')) {
   console.log('是同一天');
 }
+```
 
+### 高级用法
+
+```javascript
 // 时区处理
 const utc = now.utc();
 const local = utc.local();
 const nyTime = now.tz('America/New_York');
 
-// 相对时间
-console.log(dateUtil.fromNow(specificDate));     // 3天前
-console.log(dateUtil.toNow(specificDate));       // 3天后
-
-// 业务常用方法
+// 工作日计算
 const isWorkingDay = dateUtil.isWorkingDay(now);
-const isHoliday = dateUtil.isHoliday(now, ['2023-12-25']);
+const nextWorkingDay = dateUtil.nextWorkingDay(now);
+
+// 日期范围
+const startDate = dateUtil.create('2024-01-01');
+const endDate = dateUtil.create('2024-01-31');
 const businessDays = dateUtil.businessDaysBetween(startDate, endDate);
+
+// 自定义格式化
+const customFormat = dateUtil.create().format('dddd, MMMM Do YYYY, h:mm:ss a');
+// Monday, January 1st 2024, 12:00:00 pm
+
+// 解析日期字符串
+const parsed = dateUtil.parse('2024-01-01 12:00:00', 'YYYY-MM-DD HH:mm:ss');
 ```
 
-#### 使用场景
-- 用户界面日期显示
-- 日程安排和提醒
-- 报告生成和统计
-- 缓存过期时间计算
-- 业务规则日期判断
-- 日志时间戳处理
+## 🛠️ 工具函数模块 (Lodash)
 
-#### 格式化选项
-- **预设格式**: ISO, RFC, Unix 时间戳等
-- **自定义格式**: 支持灵活的格式化模板
-- **本地化**: 支持多语言月份和星期名称
-- **相对格式**: "昨天"、"明天"、"下周"等
+### 功能特性
 
-#### 日期操作
-- **基本运算**: add, subtract, startOf, endOf
-- **比较操作**: isBefore, isAfter, isSame
-- **查询操作**: isLeapYear, isWorkingDay, isHoliday
-- **业务方法**: businessDaysBetween, workingHoursBetween
-
-### 6. 工具函数库 (Lodash)
-
-#### 功能特性
 - **函数式编程**: 支持链式调用和组合
 - **类型安全**: 完善的类型检查和转换
 - **性能优化**: 优化的算法和内存使用
 - **模块化加载**: 支持按需导入
 - **兼容性**: 保持与 Lodash API 的兼容性
 
-#### 核心API
+### 快速开始
 
 ```javascript
-import LodashInspiredUtils from './core/LodashInspiredUtils.js';
-
-const utils = new LodashInspiredUtils();
-await utils.initialize();
+import { utils } from 'wokeflow';
 
 // 数组操作
-const numbers = [1, 2, 3, 4, 5, 6];
+const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
 const doubled = utils.map(numbers, n => n * 2);
 const evens = utils.filter(numbers, n => n % 2 === 0);
 const sum = utils.sum(numbers);
 const unique = utils.uniq([1, 2, 2, 3, 3, 3]);
-const chunks = utils.chunk(numbers, 2);
+const chunks = utils.chunk(numbers, 3);
 
 // 对象操作
-const user = { id: 1, name: 'John', age: 30 };
+const user = { id: 1, name: 'John', age: 30, active: true };
+
 const picked = utils.pick(user, ['name', 'age']);
 const omitted = utils.omit(user, ['id']);
 const merged = utils.merge({ a: 1 }, { b: 2 }, { c: 3 });
 
-// 函数操作
-const greet = (name) => `Hello ${name}`;
-const greetLoudly = utils.compose(
-  utils.toUpper,
-  greet
-);
-console.log(greetLoudly('world')); // "HELLO WORLD"
-
-const debouncedSearch = utils.debounce((query) => {
-  searchAPI(query);
-}, 300);
-
-const throttledScroll = utils.throttle(() => {
-  handleScroll();
-}, 100);
-
 // 字符串操作
-const camelCase = utils.camelCase('hello world');      // helloWorld
-const kebabCase = utils.kebabCase('HelloWorld');       // hello-world
-const snakeCase = utils.snakeCase('HelloWorld');       // hello_world
-const capitalized = utils.capitalize('hello world');   // Hello world
+const camelCase = utils.camelCase('hello world');     // helloWorld
+const kebabCase = utils.kebabCase('HelloWorld');      // hello-world
+const snakeCase = utils.snakeCase('HelloWorld');      // hello_world
+```
+
+### 高级用法
+
+```javascript
+// 函数组合
+const greet = (name) => `Hello ${name}`;
+const shout = (text) => text.toUpperCase();
+const exclaim = (text) => `${text}!`;
+
+const greetLoudly = utils.compose(exclaim, shout, greet);
+console.log(greetLoudly('world')); // "HELLO WORLD!"
+
+// 函数防抖和节流
+const searchAPI = (query) => {
+  console.log('搜索:', query);
+};
+
+const debouncedSearch = utils.debounce(searchAPI, 300);
+const throttledSearch = utils.throttle(searchAPI, 1000);
 
 // 集合操作
 const users = [
-  { id: 1, name: 'John', department: 'IT' },
-  { id: 2, name: 'Jane', department: 'HR' },
-  { id: 3, name: 'Bob', department: 'IT' }
+  { id: 1, name: 'John', department: 'IT', salary: 50000 },
+  { id: 2, name: 'Jane', department: 'HR', salary: 45000 },
+  { id: 3, name: 'Bob', department: 'IT', salary: 55000 }
 ];
 
+// 分组
 const grouped = utils.groupBy(users, 'department');
 // { IT: [...], HR: [...] }
 
-const sorted = utils.sortBy(users, 'name');
-const found = utils.find(users, { department: 'IT' });
+// 排序
+const sortedBySalary = utils.sortBy(users, 'salary');
+
+// 查找
+const itEmployees = utils.filter(users, { department: 'IT' });
+const highEarners = utils.filter(users, (user) => user.salary > 50000);
 
 // 异步工具
-const results = await utils.mapAsync(numbers, async n => {
-  await delay(100);
-  return n * 2;
-});
+const asyncTasks = [
+  () => delay(100).then(() => 1),
+  () => delay(200).then(() => 2),
+  () => delay(50).then(() => 3)
+];
 
-const firstCompleted = await utils.race([
-  fetch('/api/1'),
-  fetch('/api/2'),
-  fetch('/api/3')
-]);
+const results = await utils.mapAsync(asyncTasks, task => task());
+const fastest = await utils.race(asyncTasks);
 ```
 
-#### 使用场景
-- 数据转换和处理
-- 表单验证和清理
-- API 响应格式化
-- 状态计算和聚合
-- 用户输入处理
-- 缓存键生成
+### 链式调用
 
-#### 性能优化
-- **延迟求值**: 支持懒加载和流式处理
-- **内存效率**: 迭代器和生成器支持
-- **缓存机制**: 结果缓存避免重复计算
-- **算法优化**: 使用高效的排序和搜索算法
+```javascript
+// 链式操作
+const result = utils.chain(users)
+  .filter({ department: 'IT' })
+  .sortBy('salary')
+  .reverse()
+  .map(user => user.name)
+  .uniq()
+  .value();
 
-#### 扩展机制
-- **自定义函数**: 支持添加自定义工具函数
-- **插件系统**: 可扩展的功能模块
-- **类型扩展**: 支持自定义类型处理
+// 相当于：
+const result2 = utils.uniq(
+  utils.map(
+    utils.reverse(
+      utils.sortBy(
+        utils.filter(users, { department: 'IT' }),
+        'salary'
+      )
+    ),
+    user => user.name
+  )
+);
+```
 
-## 模块集成和配置
+## 🔧 模块集成
 
 ### 依赖注入配置
 
 ```javascript
-// 在容器中注册核心模块
-container.register('http', AxiosInspiredHTTP);
-container.register('state', ZustandInspiredState);
-container.register('messaging', NATSInspiredMessaging);
-container.register('auth', JWTInspiredAuth);
-container.register('date', DayJSInspiredDate);
-container.register('utils', LodashInspiredUtils);
+import { container } from 'wokeflow';
 
-// 服务中使用依赖注入
-@Dependency('http', 'auth', 'state')
-@Service('apiService')
-class ApiService {
-  async fetchUser(userId) {
-    const token = this.auth.generateToken({ userId });
-    return await this.http.get(`/users/${userId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+// 注册核心模块
+container.register('http', httpClient);
+container.register('state', createStore);
+container.register('queue', createQueue);
+container.register('events', eventEmitter);
+container.register('auth', auth);
+container.register('date', dateUtil);
+container.register('utils', utils);
+
+// 在服务中使用依赖注入
+class UserService {
+  constructor({ http, state, events }) {
+    this.http = http;
+    this.state = state;
+    this.events = events;
+  }
+
+  async createUser(userData) {
+    // 使用HTTP客户端
+    const response = await this.http.post('/api/users', userData);
+
+    // 更新状态
+    this.state.setState(prev => ({
+      users: [...prev.users, response.data]
+    }));
+
+    // 发布事件
+    this.events.emit('user.created', response.data);
+
+    return response.data;
   }
 }
+
+// 解析服务实例
+const userService = container.resolve('userService');
 ```
 
-### 模块间协作
+### 模块协作模式
 
 ```javascript
-// HTTP 模块与认证模块协作
-http.interceptors.request.use((config) => {
+// HTTP + 认证协作
+httpClient.interceptors.request.use((config) => {
   const token = auth.getCurrentToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -914,37 +717,249 @@ http.interceptors.request.use((config) => {
   return config;
 });
 
-// 状态管理与消息传递协作
-messaging.subscribe('user.updated', (userData) => {
-  state.setState((prevState) => ({
-    users: {
-      ...prevState.users,
-      [userData.id]: userData
-    }
-  }));
+// 状态管理 + 事件系统协作
+const useUserStore = createStore((set, get) => ({
+  users: [],
+
+  addUser: (user) => {
+    set(state => ({ users: [...state.users, user] }));
+    // 触发事件
+    eventEmitter.emit('user.added', user);
+  }
+}));
+
+// 事件监听
+eventEmitter.on('user.added', (user) => {
+  console.log('新用户添加:', user.name);
+  // 可以触发其他业务逻辑
 });
 
-// 日期工具与其他模块协作
-const lastLoginDisplay = date.format(user.lastLogin, '相对时间');
-const tokenExpiry = date.add(now, 1, 'hour');
+// 消息队列 + 状态管理协作
+const notificationWorker = createWorker('notifications', async (job) => {
+  const { type, userId, message } = job.data;
+
+  // 更新用户状态
+  const userStore = useUserStore.getState();
+  // 处理通知逻辑...
+
+  return { success: true };
+});
 ```
 
-## 监控和调试
+## 📊 性能监控
 
-### 性能监控
-- 请求响应时间统计
-- 状态更新频率监控
-- 消息传递吞吐量
-- 内存使用情况跟踪
-- 错误发生率统计
+### 模块性能指标
 
-### 调试支持
-- 详细的日志记录
-- 状态变更追踪
-- 消息流可视化
-- 性能分析工具
-- 开发时错误提示
+| 模块 | 冷启动时间 | 内存占用 | CPU使用率 | 响应时间 |
+|------|------------|----------|-----------|----------|
+| HTTP客户端 | < 50ms | < 10MB | < 2% | < 100ms |
+| 状态管理 | < 10ms | < 5MB | < 1% | < 5ms |
+| 消息队列 | < 100ms | < 20MB | < 5% | < 50ms |
+| 事件系统 | < 5ms | < 2MB | < 0.5% | < 1ms |
+| 认证授权 | < 20ms | < 8MB | < 1% | < 10ms |
+| 日期处理 | < 5ms | < 3MB | < 0.5% | < 2ms |
+| 工具函数 | < 5ms | < 5MB | < 0.5% | < 1ms |
 
-## 总结
+### 监控最佳实践
 
-WokeFlow 的核心功能模块通过借鉴知名开源库的设计理念，提供了一套轻量级、高性能的企业级应用组件。这些模块保持了原库的核心功能和设计模式，同时针对轻量化架构进行了优化，既保证了功能完整性，又提升了运行效率和开发体验。
+```javascript
+// HTTP客户端监控
+httpClient.interceptors.response.use(
+  (response) => {
+    // 记录成功请求
+    logger.info('HTTP Request Success', {
+      url: response.config.url,
+      method: response.config.method,
+      duration: Date.now() - response.config.startTime,
+      status: response.status
+    });
+    return response;
+  },
+  (error) => {
+    // 记录失败请求
+    logger.error('HTTP Request Failed', {
+      url: error.config?.url,
+      method: error.config?.method,
+      error: error.message,
+      status: error.response?.status
+    });
+    return Promise.reject(error);
+  }
+);
+
+// 消息队列监控
+const queueMonitor = setInterval(async () => {
+  const stats = await emailQueue.getJobCounts();
+  logger.info('Queue Stats', stats);
+
+  // 告警检查
+  if (stats.failed > 10) {
+    alertSystem.send('High failure rate in email queue');
+  }
+}, 60000); // 每分钟检查一次
+```
+
+## 🧪 测试策略
+
+### 单元测试
+
+```javascript
+import { describe, it, expect, vi } from 'vitest';
+import { httpClient } from '../src/core/http.js';
+
+describe('HTTP Client', () => {
+  it('should make GET request', async () => {
+    // Mock axios
+    vi.mock('axios');
+    const mockResponse = { data: { id: 1, name: 'John' } };
+    axios.get.mockResolvedValue(mockResponse);
+
+    const result = await httpClient.get('/users/1');
+    expect(result).toEqual(mockResponse.data);
+  });
+
+  it('should handle request errors', async () => {
+    const mockError = new Error('Network Error');
+    axios.get.mockRejectedValue(mockError);
+
+    await expect(httpClient.get('/users/1')).rejects.toThrow('Network Error');
+  });
+});
+```
+
+### 集成测试
+
+```javascript
+describe('User Creation Workflow', () => {
+  let container;
+  let userService;
+  let mockHttp;
+  let mockState;
+  let mockEvents;
+
+  beforeEach(() => {
+    // 设置依赖注入容器
+    container = createContainer();
+
+    // Mock 依赖
+    mockHttp = { post: vi.fn() };
+    mockState = { setState: vi.fn() };
+    mockEvents = { emit: vi.fn() };
+
+    container.register('http', mockHttp);
+    container.register('state', mockState);
+    container.register('events', mockEvents);
+
+    userService = container.resolve('userService');
+  });
+
+  it('should create user and update state', async () => {
+    const userData = { name: 'John', email: 'john@example.com' };
+    const createdUser = { id: 1, ...userData };
+
+    mockHttp.post.mockResolvedValue({ data: createdUser });
+
+    const result = await userService.createUser(userData);
+
+    expect(mockHttp.post).toHaveBeenCalledWith('/api/users', userData);
+    expect(mockState.setState).toHaveBeenCalled();
+    expect(mockEvents.emit).toHaveBeenCalledWith('user.created', createdUser);
+    expect(result).toEqual(createdUser);
+  });
+});
+```
+
+## ❓ 常见问题
+
+### Q: 如何选择合适的模块？
+
+**A:** 根据你的需求选择：
+
+- 需要网络请求 → HTTP客户端
+- 需要状态管理 → Zustand状态管理
+- 需要异步任务 → Bull.js消息队列
+- 需要模块通信 → EventEmitter3事件系统
+- 需要用户认证 → JWT认证模块
+- 需要日期处理 → Day.js日期工具
+- 需要数据处理 → Lodash工具函数
+
+### Q: 模块之间如何协作？
+
+**A:** 通过依赖注入容器统一管理，通过事件系统解耦通信：
+
+```javascript
+// 服务协作示例
+class OrderService {
+  constructor({ http, queue, events }) {
+    this.http = http;
+    this.queue = queue;
+    this.events = events;
+
+    // 监听订单事件
+    this.events.on('order.created', this.handleOrderCreated.bind(this));
+  }
+
+  async handleOrderCreated(order) {
+    // 发送到消息队列处理
+    await this.queue.add('process-order', order);
+  }
+}
+```
+
+### Q: 如何处理模块错误？
+
+**A:** 每个模块都有完善的错误处理：
+
+```javascript
+// HTTP错误处理
+try {
+  await httpClient.get('/api/data');
+} catch (error) {
+  if (error.response?.status === 401) {
+    // 重新认证
+    await refreshToken();
+  } else if (error.code === 'NETWORK_ERROR') {
+    // 网络错误，重试
+    await retryRequest();
+  }
+}
+
+// 队列错误处理
+const worker = createWorker('tasks', async (job) => {
+  try {
+    await processJob(job.data);
+  } catch (error) {
+    logger.error('Job failed:', error);
+    throw error; // Bull.js 会自动重试
+  }
+});
+```
+
+### Q: 如何监控模块性能？
+
+**A:** 使用内置监控和自定义指标：
+
+```javascript
+// 启用性能监控
+const httpClient = createHttpClient({
+  enableMetrics: true,
+  metricsPrefix: 'http_client'
+});
+
+// 自定义监控
+setInterval(() => {
+  const queueStats = await emailQueue.getJobCounts();
+  metrics.gauge('queue_waiting', queueStats.waiting);
+  metrics.gauge('queue_active', queueStats.active);
+  metrics.gauge('queue_completed', queueStats.completed);
+  metrics.gauge('queue_failed', queueStats.failed);
+}, 30000);
+```
+
+## 📚 相关链接
+
+- [项目主页](https://github.com/your-org/wokeflow)
+- [API 文档](api-documentation.md)
+- [部署指南](deployment-guide.md)
+- [测试策略](testing-architecture.md)
+- [贡献指南](../CONTRIBUTING.md)

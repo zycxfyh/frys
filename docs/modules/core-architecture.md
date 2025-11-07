@@ -1,1080 +1,1517 @@
-# WokeFlow 核心架构模块文档
-
-## 📚 初学者指南 - 零基础也能看懂
-
-<div style="background-color: #fff9c4; padding: 20px; border-left: 5px solid #fbc02d; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #f57f17;">🎓 完全没有编程基础？没关系！</h3>
-  <p>如果你对编程一无所知，不用担心！我们会用<strong>生活中的例子</strong>来解释这些概念，就像解释如何组装一台电脑或如何组织一个团队一样简单。</p>
-</div>
-
-### 🏠 用生活比喻理解核心概念
-
-#### 1. 💉 Awilix 依赖注入容器 - 就像一个"智能工具箱"
-
-<div style="background-color: #e1f5fe; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #0277bd;">🔧 生活场景：修理汽车</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>🔨 传统方式：修理工需要自己到处找工具（扳手、螺丝刀、锤子），每个工具可能散落在不同地方</li>
-    <li>📦 智能工具箱：所有工具都整齐地放在一个工具箱里，修理工需要什么工具，工具箱会自动递给他</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 传统方式：程序需要自己创建和寻找各种组件（数据库、日志、配置等），代码会变得混乱</li>
-    <li>📦 依赖注入容器：所有的组件都存放在一个"容器"里，程序需要什么，容器会自动提供</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>依赖注入容器就像是一个"万能管家"，你需要什么服务，告诉它一声，它就会自动帮你准备好并送到你手上。
-  </div>
-</div>
-
-#### 2. 🔌 fastify-plugin 系统 - 就像手机的"应用商店"
-
-<div style="background-color: #f3e5f5; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #7b1fa2;">📱 生活场景：智能手机</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>📱 手机本身：基础功能（打电话、发短信）</li>
-    <li>📲 应用商店：可以安装各种应用（微信、支付宝、游戏等）</li>
-    <li>🔄 应用管理：可以随时安装、卸载、更新应用，不需要换手机</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 WokeFlow 核心：基础功能（工作流管理）</li>
-    <li>🔌 插件系统：可以安装各种功能插件（邮件通知、数据分析等）</li>
-    <li>🔄 插件管理：可以随时添加、移除、更新功能，不需要修改核心代码</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>插件系统让程序像手机一样，可以灵活地添加新功能，而不需要重新"制造手机"。
-  </div>
-</div>
-
-#### 3. 🛡️ Sentry 错误监控 - 就像"智能急救系统"
-
-<div style="background-color: #ffebee; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #c62828;">🚑 生活场景：医院急诊科</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>🏥 分诊台：根据病情严重程度分类（轻伤、重伤、危重）</li>
-    <li>👨‍⚕️ 专科医生：不同类型的疾病由相应的专家处理</li>
-    <li>📋 病历记录：所有治疗过程都有详细记录，便于分析和改进</li>
-    <li>🔄 自动恢复：轻微问题可以自动处理，严重问题才需要人工干预</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>📊 错误分类：根据错误类型（网络错误、数据错误、系统错误）进行分类</li>
-    <li>🔧 专门处理：不同类型的错误使用不同的处理策略</li>
-    <li>📝 错误日志：所有错误都记录下来，帮助找到问题原因</li>
-    <li>🔄 自动恢复：简单错误可以自动重试，复杂错误才需要人工处理</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>错误处理系统就像医院的急诊科，能够智能地识别问题严重程度，自动处理小问题，并对大问题进行专业处理。
-  </div>
-</div>
-
-### ❓ 常见问题解答
-
-<div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #2e7d32;">🤔 你可能想问的问题</h3>
-
-  <h4 style="color: #388e3c;">Q1: 什么是"依赖注入"？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 简单说，就是"需要什么，系统就给你什么"。比如你做菜需要调料，不用自己去市场买，告诉"厨房管家"，它就会自动把调料送到你面前。</p>
-
-  <h4 style="color: #388e3c; margin-top: 20px;">Q2: 为什么需要"容器"？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 就像图书馆需要书架来整理书籍一样，容器帮助我们整理和管理所有的程序组件，让它们不会混乱，需要时能快速找到。</p>
-
-  <h4 style="color: #388e3c; margin-top: 20px;">Q3: "插件"是什么？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 插件就像给手机安装的APP。核心程序提供基本功能，插件可以添加新功能，比如"邮件通知插件"、"数据分析插件"等。</p>
-
-  <h4 style="color: #388e3c; margin-top: 20px;">Q4: 为什么要"统一错误处理"？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 就像医院有统一的急诊流程一样，统一的错误处理让所有问题都能按照标准流程处理，不会因为不同的人处理方式不同而导致混乱。</p>
-</div>
+# WokeFlow 核心架构
 
 ## 📖 概述
 
-<div style="background-color: #f0f8ff; padding: 20px; border-left: 5px solid #2196F3; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #1976D2;">🏗️ 什么是 WokeFlow 核心架构？</h3>
-  <p>WokeFlow 的核心架构就像一个<strong>智能的建筑系统</strong>，通过<strong>三个核心开源组件</strong>构建了一个高度模块化、可扩展的企业级应用框架：</p>
-  <ol>
-    <li><strong>Awilix 依赖注入容器</strong> - 就像"智能工具箱"，自动管理所有组件</li>
-    <li><strong>fastify-plugin 系统</strong> - 就像"应用商店"，可以灵活添加新功能</li>
-    <li><strong>Sentry 错误监控</strong> - 就像"智能急救系统"，自动处理各种问题</li>
-  </ol>
-  <p><strong>核心价值</strong>：在保持轻量级（快速、省资源）的同时，提供企业级的架构能力和扩展性。</p>
-</div>
+WokeFlow 的核心架构基于"站在巨人肩膀上"的理念，集成业界领先的开源解决方案，构建高性能、可扩展的企业级应用框架。
 
-## 🎯 架构设计原则
+### 🎯 架构设计原则
 
-### 1. 🪶 轻量化设计原则
+- **开源优先**: 集成成熟的开源组件而非重新发明
+- **模块化设计**: 高内聚、低耦合的架构模式
+- **依赖注入**: 解耦组件间的依赖关系
+- **插件化扩展**: 支持运行时动态功能扩展
+- **可观测性**: 内置监控、日志和错误追踪
 
-<div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0;">
-  <h4 style="margin-top: 0; color: #333;">核心理念</h4>
-  <ul>
-    <li><strong>最小化依赖</strong>：保持核心功能精简，避免过度依赖大型框架</li>
-    <li><strong>按需加载</strong>：支持模块的动态加载，避免不必要的内存开销</li>
-    <li><strong>模块化架构</strong>：清晰的模块边界，便于维护和扩展</li>
-  </ul>
-  <h4 style="margin-top: 20px; color: #333;">实际效果</h4>
-  <ul>
-    <li>✅ 冷启动时间 < 2秒</li>
-    <li>✅ 内存占用 < 50MB (基础配置)</li>
-    <li>✅ 零外部运行时依赖</li>
-  </ul>
-</div>
+### 🏗️ 核心组件架构
 
-### 2. 🔗 Awilix 依赖注入模式
-
-<div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; margin: 10px 0;">
-  <h4 style="margin-top: 0; color: #f57c00;">设计优势</h4>
-  <ul>
-    <li><strong>松耦合设计</strong>：组件间依赖关系解耦，提高代码可测试性</li>
-    <li><strong>集中式管理</strong>：所有服务实例统一管理，便于配置和监控</li>
-    <li><strong>灵活注入</strong>：支持构造函数、属性、工厂函数等多种注入方式</li>
-  </ul>
-  <h4 style="margin-top: 20px; color: #f57c00;">使用场景</h4>
-  <ul>
-    <li>🔹 服务组件依赖管理</li>
-    <li>🔹 单元测试 Mock 注入</li>
-    <li>🔹 运行时服务替换</li>
-  </ul>
-</div>
-
-### 3. 🔌 fastify-plugin 架构
-
-<div style="background-color: #e8f5e8; padding: 15px; border-radius: 8px; margin: 10px 0;">
-  <h4 style="margin-top: 0; color: #2e7d32;">扩展机制</h4>
-  <ul>
-    <li><strong>运行时加载</strong>：支持插件的动态加载和卸载，无需重启应用</li>
-    <li><strong>钩子系统</strong>：提供丰富的扩展点，支持业务流程干预</li>
-    <li><strong>中间件机制</strong>：允许插件注入中间件，实现功能增强</li>
-  </ul>
-  <h4 style="margin-top: 20px; color: #2e7d32;">实际应用</h4>
-  <ul>
-    <li>🔹 业务功能模块化</li>
-    <li>🔹 第三方集成扩展</li>
-    <li>🔹 A/B 测试功能</li>
-  </ul>
-</div>
-
-### 4. 🛡️ Sentry 错误监控
-
-<div style="background-color: #ffebee; padding: 15px; border-radius: 8px; margin: 10px 0;">
-  <h4 style="margin-top: 0; color: #c62828;">可靠性保障</h4>
-  <ul>
-    <li><strong>集中化处理</strong>：所有错误通过统一入口处理，保证一致性</li>
-    <li><strong>分层分类</strong>：按类型和严重程度分层处理，提高针对性</li>
-    <li><strong>自动恢复</strong>：内置重试机制和恢复策略，增强系统韧性</li>
-  </ul>
-  <h4 style="margin-top: 20px; color: #c62828;">容错能力</h4>
-  <ul>
-    <li>🔹 自动故障恢复</li>
-    <li>🔹 优雅降级处理</li>
-    <li>🔹 错误监控和告警</li>
-  </ul>
-</div>
-
-## 核心模块详解
-
-### 1. 💉 Awilix 依赖注入容器
-
-<div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #1565c0;">Awilix 容器架构图</h3>
-  <pre style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; font-family: monospace;">
-  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-  │   服务注册器    │    │   依赖解析器    │    │   生命周期管理器 │
-  │  (Registry)    │◄──►│  (Resolver)    │◄──►│ (Lifecycle Mgr) │
-  └─────────────────┘    └─────────────────┘    └─────────────────┘
-           ▲                       ▲                       ▲
-           │                       │                       │
-  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-  │   单例缓存      │    │   工厂函数      │    │   初始化钩子    │
-  │  (Singletons)  │    │  (Factories)   │    │   (Hooks)      │
-  └─────────────────┘    └─────────────────┘    └─────────────────┘
-  </pre>
-</div>
-
-#### ✨ 功能特性详解
-
-| 特性 | 描述 | 优势 |
-|------|------|------|
-| **🔧 服务注册** | 支持单例、瞬时、工厂函数等多种注册方式 | 灵活的服务生命周期管理 |
-| **🔍 依赖解析** | 自动解析构造函数和属性依赖 | 减少手动依赖管理代码 |
-| **⏰ 生命周期管理** | 支持服务的初始化、清理和状态监控 | 确保资源正确释放 |
-| **🏷️ 装饰器支持** | 提供 `@Service`、`@Dependency` 等装饰器 | 简化服务注册语法 |
-
-#### 🎯 核心API详解
-
-##### 基础使用模式
-
-```javascript
-import { createContainer, asClass, asValue, asFunction } from 'awilix';
-
-// 1. 创建容器实例
-const container = createContainer();
-
-// 2. 注册基础服务
-container.register({
-  logger: asValue(new Logger()),
-  config: asClass(Config).singleton(),
-  database: asFunction(() => new Database()).singleton()
-});
-
-// 3. 解析服务
-const logger = container.resolve('logger');
-const config = container.resolve('config');
-
-// 4. 批量解析
-const services = container.resolveAll(['logger', 'config', 'database']);
+```
+核心架构层
+├── 💉 依赖注入容器 (Awilix)
+│   ├── 服务注册和解析
+│   ├── 生命周期管理
+│   ├── 自动依赖注入
+│   ├── 作用域管理
+│   └── 类型安全支持
+├── 🔌 插件管理系统 (fastify-plugin)
+│   ├── 插件封装和隔离
+│   ├── 装饰器模式支持
+│   ├── 钩子机制集成
+│   ├── 插件依赖管理
+│   └── 运行时扩展
+└── 🐛 错误监控系统 (Sentry)
+    ├── 实时错误捕获
+    ├── 性能监控和追踪
+    ├── 分布式追踪支持
+    ├── 用户反馈收集
+    └── 版本管理和部署追踪
 ```
 
-##### 装饰器模式 (推荐)
+## 💉 依赖注入容器 (Awilix)
+
+### 功能特性
+
+- **服务注册**: 支持多种注册方式（类、函数、值）
+- **自动解析**: 基于构造函数参数的自动依赖解析
+- **生命周期管理**: 单例、作用域、瞬时等生命周期
+- **模块化支持**: 支持按模块加载和卸载服务
+- **TypeScript友好**: 完整的类型推断和检查
+- **运行时替换**: 支持测试时的服务替换
+
+### 快速开始
 
 ```javascript
-import { createContainer, asClass } from 'awilix';
+import { createContainer, asClass, asFunction, asValue } from 'awilix';
 
-// 定义服务类
-class UserService {
-  constructor({ http, auth, state, logger }) {
-    this.http = http;
-    this.auth = auth;
-    this.state = state;
+// 创建容器
+const container = createContainer();
+
+// 注册服务 - 类方式
+container.register({
+  userService: asClass(UserService).scoped(),
+  emailService: asClass(EmailService).singleton(),
+  config: asValue({
+    smtp: { host: 'smtp.example.com' },
+    jwt: { secret: 'your-secret' }
+  }),
+  logger: asFunction(() => createLogger()).singleton()
+});
+
+// 解析服务
+const userService = container.resolve('userService');
+```
+
+### 服务注册方式
+
+#### 类注册 (asClass)
+
+```javascript
+class DatabaseService {
+  constructor({ config, logger }) {
+    this.config = config;
     this.logger = logger;
   }
 
-  async createUser(userData) {
-    // 自动注入的依赖已可用
-    const token = this.auth.generateToken({ userId: userData.id });
-    this.logger.info('Creating user', { userId: userData.id });
-
-    return await this.http.post('/api/users', userData, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+  async connect() {
+    this.logger.info('Connecting to database...');
+    // 数据库连接逻辑
   }
 }
 
-// 在容器中注册
-const container = createContainer();
+// 注册为单例
 container.register({
-  userService: asClass(UserService).singleton().inject(() => ({
-    http: container.resolve('http'),
-    auth: container.resolve('auth'),
-    state: container.resolve('state'),
-    logger: container.resolve('logger')
-  }))
+  databaseService: asClass(DatabaseService).singleton()
 });
 
-const userService = container.resolve('userService'); // 自动创建并注入依赖
+// 注册为作用域实例
+container.register({
+  requestContext: asClass(RequestContext).scoped()
+});
 ```
 
-##### 高级配置选项
+#### 函数注册 (asFunction)
 
 ```javascript
-// 自定义服务配置
-container.register('cache', new RedisCache(), {
-  singleton: true,                    // 是否单例
-  factory: false,                     // 是否为工厂函数
-  init: async (service) => {          // 初始化钩子
-    await service.connect();
+// 工厂函数
+function createRedisClient({ config }) {
+  return new Redis({
+    host: config.redis.host,
+    port: config.redis.port,
+    password: config.redis.password
+  });
+}
+
+// 注册函数
+container.register({
+  redisClient: asFunction(createRedisClient).singleton()
+});
+```
+
+#### 值注册 (asValue)
+
+```javascript
+// 配置对象
+const config = {
+  app: {
+    port: 3000,
+    name: 'WokeFlow'
   },
-  destroy: async (service) => {       // 销毁钩子
-    await service.disconnect();
+  database: {
+    url: 'postgresql://localhost:5432/wokeflow'
   }
+};
+
+// 注册值
+container.register({
+  config: asValue(config)
 });
-
-// 条件注册（基于环境）
-if (process.env.NODE_ENV === 'production') {
-  container.register('email', new SMTPEmailService());
-} else {
-  container.register('email', new MockEmailService());
-}
 ```
 
-#### 🔍 使用场景深度解析
+### 生命周期管理
 
-##### 1. 🏢 企业级服务管理
+#### 单例模式 (singleton)
 
 ```javascript
-// 大型应用的服务注册
-const container = new LightweightContainer();
+class CacheService {
+  constructor() {
+    this.cache = new Map();
+  }
 
-// 基础设施层
-container.register('database', new PostgreSQLConnection());
-container.register('cache', new RedisCache());
-container.register('messageQueue', new RabbitMQClient());
+  set(key, value) {
+    this.cache.set(key, value);
+  }
 
-// 业务服务层
-container.register('userRepository', new UserRepository());
-container.register('orderRepository', new OrderRepository());
-
-// 应用服务层
-@Dependency('userRepository', 'orderRepository', 'cache')
-@Service('userService')
-class UserService {
-  // 自动注入所有依赖
+  get(key) {
+    return this.cache.get(key);
+  }
 }
 
-@Dependency('userService', 'messageQueue')
-@Service('orderService')
-class OrderService {
-  // 依赖链自动解析
-}
+// 单例注册 - 整个应用共享同一个实例
+container.register({
+  cacheService: asClass(CacheService).singleton()
+});
 ```
 
-##### 2. 🧪 测试环境Mock注入
+#### 作用域模式 (scoped)
 
 ```javascript
-// 测试时的依赖替换
+class RequestContext {
+  constructor({ userId, requestId }) {
+    this.userId = userId;
+    this.requestId = requestId;
+    this.startTime = Date.now();
+  }
+}
+
+// 作用域注册 - 每个请求一个实例
+container.register({
+  requestContext: asClass(RequestContext).scoped()
+});
+```
+
+#### 瞬时模式 (transient)
+
+```javascript
+class ValidationService {
+  validate(data, rules) {
+    // 验证逻辑
+    return { isValid: true, errors: [] };
+  }
+}
+
+// 瞬时注册 - 每次解析都创建新实例
+container.register({
+  validationService: asClass(ValidationService).transient()
+});
+```
+
+### 自动依赖注入
+
+```javascript
+class UserController {
+  constructor({ userService, authService, logger }) {
+    this.userService = userService;
+    this.authService = authService;
+    this.logger = logger;
+  }
+
+  async createUser(req, res) {
+    try {
+      const userData = req.body;
+      const user = await this.userService.createUser(userData);
+
+      this.logger.info('User created', { userId: user.id });
+
+      res.status(201).json(user);
+    } catch (error) {
+      this.logger.error('Failed to create user', { error: error.message });
+      res.status(500).json({ error: error.message });
+    }
+  }
+}
+
+// 注册控制器 - 依赖会自动注入
+container.register({
+  userController: asClass(UserController).scoped()
+});
+```
+
+### 高级用法
+
+#### 模块化注册
+
+```javascript
+// userModule.js
+export function registerUserModule(container) {
+  container.register({
+    userRepository: asClass(UserRepository).singleton(),
+    userService: asClass(UserService).scoped(),
+    userController: asClass(UserController).scoped()
+  });
+}
+
+// workflowModule.js
+export function registerWorkflowModule(container) {
+  container.register({
+    workflowRepository: asClass(WorkflowRepository).singleton(),
+    workflowEngine: asClass(WorkflowEngine).scoped(),
+    workflowController: asClass(WorkflowController).scoped()
+  });
+}
+
+// 主应用
+import { registerUserModule } from './modules/user';
+import { registerWorkflowModule } from './modules/workflow';
+
+const container = createContainer();
+
+registerUserModule(container);
+registerWorkflowModule(container);
+```
+
+#### 测试时的服务替换
+
+```javascript
 describe('UserService', () => {
   let container;
   let userService;
+  let mockRepository;
 
   beforeEach(() => {
-    container = new LightweightContainer();
+    container = createContainer();
 
-    // 注入Mock服务
-    container.register('http', new MockHttpClient());
-    container.register('auth', new MockAuthService());
-    container.register('state', new MockStateManager());
+    // 注册模拟服务
+    mockRepository = {
+      create: vi.fn(),
+      findById: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn()
+    };
 
-    // 解析被测服务
+    container.register({
+      userRepository: asValue(mockRepository),
+      logger: asValue({ info: vi.fn(), error: vi.fn() }),
+      userService: asClass(UserService).scoped()
+    });
+
     userService = container.resolve('userService');
   });
 
   it('should create user successfully', async () => {
-    const result = await userService.createUser({
-      username: 'testuser',
-      email: 'test@example.com'
-    });
+    const userData = { name: 'John', email: 'john@example.com' };
+    const expectedUser = { id: 1, ...userData };
 
-    expect(result.success).toBe(true);
+    mockRepository.create.mockResolvedValue(expectedUser);
+
+    const result = await userService.createUser(userData);
+
+    expect(result).toEqual(expectedUser);
+    expect(mockRepository.create).toHaveBeenCalledWith(userData);
   });
 });
 ```
 
-##### 3. 🔄 运行时服务替换
+### 性能优化
+
+#### 懒加载
 
 ```javascript
-// 动态服务替换示例
-class ServiceSwitcher {
+// 使用代理进行懒加载
+container.register({
+  heavyService: asFunction(() => {
+    // 只有在第一次访问时才创建实例
+    return new HeavyService();
+  }).singleton().proxy()
+});
+```
+
+#### 服务缓存
+
+```javascript
+class ServiceCache {
   constructor(container) {
     this.container = container;
+    this.cache = new Map();
   }
 
-  async switchToBackupDatabase() {
-    // 替换主数据库为备份数据库
-    this.container.register('database', new BackupDatabaseConnection());
-
-    // 重新初始化依赖该服务的组件
-    await this.container.reinitializeDependencies('database');
+  get(serviceName) {
+    if (!this.cache.has(serviceName)) {
+      this.cache.set(serviceName, this.container.resolve(serviceName));
+    }
+    return this.cache.get(serviceName);
   }
 
-  async switchToPrimaryDatabase() {
-    // 切换回主数据库
-    this.container.register('database', new PrimaryDatabaseConnection());
-    await this.container.reinitializeDependencies('database');
+  clear() {
+    this.cache.clear();
   }
 }
 ```
 
-#### 📊 设计优势对比
+## 🔌 插件管理系统 (fastify-plugin)
 
-| 特性 | LightweightContainer | Spring IoC | 手动管理 |
-|------|---------------------|------------|----------|
-| **学习曲线** | 🟢 简单 | 🔴 复杂 | 🟡 中等 |
-| **性能开销** | 🟢 极低 | 🟡 中等 | 🟢 零开销 |
-| **类型安全** | 🟢 装饰器保证 | 🟡 配置依赖 | 🔴 无保证 |
-| **测试友好** | 🟢 易于Mock | 🟡 需要配置 | 🟡 手动替换 |
-| **运行时灵活性** | 🟢 动态替换 | 🔴 需要重启 | 🟢 手动替换 |
+### 功能特性
 
-#### ⚡ 性能优化
+- **插件封装**: 支持插件的封装和复用
+- **依赖管理**: 自动处理插件间的依赖关系
+- **装饰器支持**: 扩展Fastify实例的功能
+- **钩子机制**: 支持请求生命周期的钩子
+- **错误隔离**: 插件错误不会影响其他插件
 
-##### 1. 单例缓存机制
+### 快速开始
 
 ```javascript
-// 单例服务只创建一次，后续调用直接返回缓存实例
-container.register('database', new Database(), { singleton: true });
+import fastify from 'fastify';
+import fastifyPlugin from 'fastify-plugin';
 
-// 第一次调用：创建实例
-const db1 = container.resolve('database'); // 新建 Database 实例
+// 创建插件
+const authPlugin = fastifyPlugin(async (fastify, options) => {
+  // 添加认证装饰器
+  fastify.decorate('authenticate', async (request, reply) => {
+    const token = request.headers.authorization?.replace('Bearer ', '');
 
-// 第二次调用：返回缓存实例
-const db2 = container.resolve('database'); // 返回同一个实例
+    if (!token) {
+      throw new Error('No token provided');
+    }
 
-console.log(db1 === db2); // true
+    try {
+      const payload = fastify.jwt.verify(token);
+      request.user = payload;
+    } catch (error) {
+      throw new Error('Invalid token');
+    }
+  });
+
+  // 添加钩子
+  fastify.addHook('preHandler', async (request, reply) => {
+    if (request.routeOptions.config?.auth) {
+      await fastify.authenticate(request, reply);
+    }
+  });
+});
+
+// 使用插件
+const app = fastify();
+
+await app.register(authPlugin, {
+  secret: 'your-secret-key'
+});
+
+// 注册需要认证的路由
+app.get('/protected', {
+  config: { auth: true }
+}, async (request, reply) => {
+  return { user: request.user };
+});
 ```
 
-##### 2. 延迟初始化
+### 插件开发模式
+
+#### 基础插件结构
 
 ```javascript
-// 服务在第一次被解析时才创建，提高启动速度
-container.register('heavyService', () => new HeavyService());
+// myPlugin.js
+import fp from 'fastify-plugin';
 
-console.time('应用启动');
-// ... 其他服务注册
-console.timeEnd('应用启动'); // 不包含 HeavyService 创建时间
+async function myPlugin(fastify, options) {
+  // 插件初始化逻辑
 
-// 第一次使用时才创建
-const heavyService = container.resolve('heavyService'); // 此时才创建
+  // 添加装饰器
+  fastify.decorate('myUtility', function(param) {
+    return `Processed: ${param}`;
+  });
+
+  // 添加钩子
+  fastify.addHook('onRequest', async (request, reply) => {
+    fastify.log.info(`Request: ${request.method} ${request.url}`);
+  });
+
+  // 添加路由
+  fastify.get('/health', async (request, reply) => {
+    return { status: 'ok', timestamp: new Date() };
+  });
+
+  // 清理逻辑
+  fastify.addHook('onClose', async (instance) => {
+    fastify.log.info('Plugin is shutting down');
+    // 清理资源
+  });
+}
+
+// 导出插件
+export default fp(myPlugin, {
+  name: 'my-plugin',
+  version: '1.0.0',
+  dependencies: ['fastify-jwt'], // 插件依赖
+  decorators: ['jwt'], // 需要的前置装饰器
+  hooks: ['onRequest', 'preHandler'] // 使用的钩子
+});
 ```
 
-##### 3. 依赖图优化
+#### 插件配置选项
 
 ```javascript
-// 容器会分析依赖关系，只初始化必要的服务
-@Dependency('database')  // 只依赖 database
-@Service('userRepo')
-class UserRepository {}
+// 插件配置接口
+interface PluginOptions {
+  enabled?: boolean;
+  priority?: number;
+  config?: Record<string, any>;
+}
 
-@Dependency('cache')     // 只依赖 cache
-@Service('cacheRepo')
-class CacheRepository {}
+// 带配置的插件
+async function configurablePlugin(fastify, options) {
+  const config = {
+    enabled: true,
+    priority: 0,
+    ...options
+  };
 
-// 解析 userRepo 时，只会初始化 database，不会初始化 cache
-const userRepo = container.resolve('userRepo');
+  if (!config.enabled) {
+    fastify.log.info('Plugin is disabled');
+    return;
+  }
+
+  // 根据配置初始化
+  fastify.decorate('pluginConfig', config);
+
+  // 使用配置
+  if (config.priority > 0) {
+    fastify.addHook('onRequest', { priority: config.priority }, async (request) => {
+      // 高优先级处理
+    });
+  }
+}
+
+export default fp(configurablePlugin, {
+  schema: {
+    type: 'object',
+    properties: {
+      enabled: { type: 'boolean', default: true },
+      priority: { type: 'number', default: 0 },
+      config: { type: 'object' }
+    }
+  }
+});
 ```
 
-### 2. 🔌 fastify-plugin 系统
+### 插件依赖管理
 
-<div style="background-color: #f3e5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #7b1fa2;">插件系统架构图</h3>
-  <pre style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; font-family: monospace;">
-  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-  │   插件注册器    │    │   生命周期管理器 │    │   钩子分发器   │
-  │ (Registrar)    │◄──►│(Lifecycle Mgr) │◄──►│ (Hook Dispatcher)|
-  └─────────────────┘    └─────────────────┘    └─────────────────┘
-           ▲                       ▲                       ▲
-           │                       │                       │
-  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-  │   依赖检查器    │    │   中间件链      │    │   扩展管理器    │
-  │(Dependency     │    │ (Middleware    │    │ (Extension Mgr) │
-  │ Checker)       │    │  Chain)        │    │                 │
-  └─────────────────┘    └─────────────────┘    └─────────────────┘
-  </pre>
-</div>
+#### 显式依赖声明
 
-#### 🎪 功能特性详解
+```javascript
+// authPlugin.js - 需要JWT支持
+import fp from 'fastify-plugin';
 
-| 特性 | 描述 | 实际价值 |
-|------|------|----------|
-| **🔄 插件生命周期** | 完整的安装、启动、停止、卸载流程 | 确保插件正确初始化和清理 |
-| **🔗 依赖管理** | 自动检查和解决插件依赖关系 | 防止插件冲突和缺失依赖 |
-| **🪝 钩子系统** | 提供事件驱动的扩展机制 | 允许插件干预业务流程 |
-| **🌊 中间件支持** | 允许插件注入中间件逻辑 | 无侵入式功能增强 |
-| **🔧 扩展点机制** | 支持插件对核心功能的扩展 | 灵活的系统定制能力 |
+async function authPlugin(fastify, options) {
+  // 使用JWT装饰器
+  fastify.decorate('verifyToken', (token) => {
+    return fastify.jwt.verify(token);
+  });
+}
 
-#### 🎯 插件生命周期详解
+export default fp(authPlugin, {
+  name: 'auth-plugin',
+  dependencies: ['fastify-jwt'], // 显式声明依赖
+  decorators: ['jwt'] // 需要的前置装饰器
+});
 
-<div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #ef6c00;">📋 插件生命周期状态图</h4>
-  <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px;">
-未注册 ──► 已注册 ──► 已安装 ──► 已启动 ──► 运行中
-    │         │         │         │         │
-    │         │         │         │         └─► 错误
-    │         │         │         └─► 已停止
-    │         │         └─► 安装失败
-    │         └─► 注册失败
-    └─► 已卸载
-  </pre>
-</div>
+// userPlugin.js - 使用认证插件
+import fp from 'fastify-plugin';
 
-#### 🎯 核心API详解
+async function userPlugin(fastify, options) {
+  fastify.get('/users', {
+    preHandler: fastify.auth([fastify.verifyToken])
+  }, async (request, reply) => {
+    // 处理用户请求
+    return { users: [] };
+  });
+}
 
-##### 插件定义和注册
+export default fp(userPlugin, {
+  name: 'user-plugin',
+  dependencies: ['auth-plugin'] // 依赖认证插件
+});
+```
+
+#### 条件依赖
+
+```javascript
+// conditionalPlugin.js
+import fp from 'fastify-plugin';
+
+async function conditionalPlugin(fastify, options) {
+  // 检查是否已安装可选依赖
+  if (fastify.hasDecorator('cache')) {
+    // 使用缓存功能
+    fastify.decorate('cachedResponse', async (key, fn) => {
+      let result = await fastify.cache.get(key);
+      if (!result) {
+        result = await fn();
+        await fastify.cache.set(key, result);
+      }
+      return result;
+    });
+  } else {
+    // 不使用缓存
+    fastify.decorate('cachedResponse', async (key, fn) => {
+      return await fn();
+    });
+  }
+}
+
+export default fp(conditionalPlugin, {
+  name: 'conditional-plugin',
+  dependencies: [], // 无强制依赖
+  decorators: { // 可选装饰器
+    cache: { optional: true }
+  }
+});
+```
+
+### 钩子机制
+
+#### 请求生命周期钩子
 
 ```javascript
 import fp from 'fastify-plugin';
 
-// 方法1: 使用 fastify-plugin 定义插件 (推荐)
-const authPlugin = fp(async function(fastify, opts) {
-  // 插件元数据
-  fastify.decorate('auth', {
-    capabilities: ['authentication', 'authorization'],
-    config: {
-      jwtSecret: opts.jwtSecret || process.env.JWT_SECRET,
-      tokenExpiry: opts.tokenExpiry || 3600
-    }
+async function lifecyclePlugin(fastify, options) {
+  // onRequest - 请求开始
+  fastify.addHook('onRequest', async (request, reply) => {
+    request.startTime = process.hrtime.bigint();
+    fastify.log.info(`Request started: ${request.method} ${request.url}`);
   });
 
-  // 注册装饰器
-  fastify.decorateRequest('user', null);
-
-  // 认证中间件
-  fastify.addHook('preHandler', async (request, reply) => {
-    const token = request.headers.authorization?.replace('Bearer ', '');
-    if (token) {
-      try {
-        request.user = await verifyToken(token, fastify.auth.config.jwtSecret);
-      } catch (error) {
-        return reply.code(401).send({ error: '无效的认证令牌' });
-      }
-    }
-  });
-
-  // 启动会话清理定时器
-  const sessionCleanupTimer = setInterval(async () => {
-    await cleanupExpiredSessions(fastify);
-  }, 60000); // 每分钟清理
-
-  // 插件清理钩子
-  fastify.addHook('onClose', async () => {
-    if (sessionCleanupTimer) {
-      clearInterval(sessionCleanupTimer);
-    }
-  });
-
-}, {
-  name: 'auth-plugin',
-  version: '2.0.0'
-});
-
-// 方法2: 注册插件到 Fastify 实例
-const fastify = require('fastify')();
-
-// 注册认证插件
-await fastify.register(authPlugin, {
-  jwtSecret: 'your-secret-key',
-  tokenExpiry: 3600
-});
-```
-
-##### 插件管理操作
-
-```javascript
-const fastify = require('fastify')();
-
-// 注册多个插件
-await fastify.register(require('./plugins/auth'), {
-  jwtSecret: 'your-secret-key'
-});
-
-await fastify.register(require('./plugins/cache'), {
-  ttl: 3600
-});
-
-// 检查插件是否已注册
-const hasAuth = fastify.hasDecorator('auth');
-console.log('认证插件已注册:', hasAuth);
-
-// 获取插件配置
-const authConfig = fastify.auth?.config;
-console.log('认证配置:', authConfig);
-
-// 动态添加插件 (运行时)
-await fastify.register(async function(fastify, opts) {
-  // 运行时插件逻辑
-  fastify.decorate('runtimePlugin', {
-    loaded: true,
-    timestamp: new Date()
-  });
-});
-
-// 检查装饰器
-const hasRuntimePlugin = fastify.hasDecorator('runtimePlugin');
-console.log('运行时插件已加载:', hasRuntimePlugin);
-```
-
-##### 🪝 Fastify 钩子系统详解
-
-```javascript
-const fastify = require('fastify')();
-
-// 注册应用级钩子
-fastify.addHook('onRequest', async (request, reply) => {
-  console.log('收到请求:', request.method, request.url);
-  request.startTime = Date.now();
-});
-
-fastify.addHook('preHandler', async (request, reply) => {
-  // 用户认证逻辑
-  const token = request.headers.authorization?.replace('Bearer ', '');
-  if (token) {
-    try {
-      request.user = await verifyToken(token);
-    } catch (error) {
-      return reply.code(401).send({ error: '无效的认证令牌' });
-    }
-  }
-});
-
-fastify.addHook('onSend', async (request, reply, payload) => {
-  // 记录响应时间
-  const duration = Date.now() - request.startTime;
-  console.log(`请求完成: ${request.method} ${request.url} - ${duration}ms`);
-
-  // 添加响应头
-  reply.header('X-Response-Time', `${duration}ms`);
-  return payload;
-});
-
-fastify.addHook('onError', async (request, reply, error) => {
-  // 错误处理逻辑
-  console.error('请求错误:', error);
-
-  // 发送错误通知
-  await sendErrorNotification(error, request);
-});
-
-// 注册路由级钩子
-fastify.route({
-  method: 'POST',
-  url: '/users',
-  preHandler: async (request, reply) => {
-    // 用户创建前的验证
-    const validation = validateUserData(request.body);
-    if (!validation.valid) {
-      return reply.code(400).send({ error: validation.errors });
-    }
-  },
-  handler: async (request, reply) => {
-    const user = await createUser(request.body);
-    return reply.send(user);
-  },
-  onSend: async (request, reply, payload) => {
-    // 用户创建成功后发送欢迎邮件
-    const userData = JSON.parse(payload);
-    await sendWelcomeEmail(userData.email, userData.username);
+  // preParsing - 解析前
+  fastify.addHook('preParsing', async (request, reply, payload) => {
+    // 可以修改请求体
     return payload;
-  }
-});
+  });
+
+  // preValidation - 验证前
+  fastify.addHook('preValidation', async (request, reply) => {
+    // 预处理验证逻辑
+  });
+
+  // preHandler - 处理前
+  fastify.addHook('preHandler', async (request, reply) => {
+    // 权限检查、日志记录等
+    await fastify.authenticate(request, reply);
+  });
+
+  // preSerialization - 序列化前
+  fastify.addHook('preSerialization', async (request, reply, payload) => {
+    // 修改响应数据
+    return { ...payload, timestamp: new Date() };
+  });
+
+  // onResponse - 响应后
+  fastify.addHook('onResponse', async (request, reply) => {
+    const duration = Number(process.hrtime.bigint() - request.startTime) / 1e6;
+    fastify.log.info(`Request completed in ${duration}ms`);
+  });
+
+  // onError - 错误处理
+  fastify.addHook('onError', async (request, reply, error) => {
+    fastify.log.error('Request error:', error);
+    // 可以发送错误报告
+  });
+
+  // onClose - 应用关闭
+  fastify.addHook('onClose', async (instance) => {
+    fastify.log.info('Application is shutting down');
+    // 清理资源
+  });
+}
+
+export default fp(lifecyclePlugin);
 ```
 
-##### 🌊 Fastify 装饰器和钩子系统详解
+#### 自定义钩子
 
 ```javascript
-const fastify = require('fastify')();
+import fp from 'fastify-plugin';
 
-// 使用装饰器添加共享功能
-fastify.decorate('authenticate', async function(request, reply) {
-  const token = request.headers.authorization?.replace('Bearer ', '');
-  if (!token) {
-    return reply.code(401).send({ error: '缺少认证令牌' });
-  }
+async function customHooksPlugin(fastify, options) {
+  // 添加自定义钩子
+  fastify.addHook('userCreated', async (user) => {
+    // 发送欢迎邮件
+    await fastify.email.sendWelcome(user.email, user.name);
 
-  try {
-    request.user = await verifyToken(token);
-  } catch (error) {
-    return reply.code(401).send({ error: '无效的认证令牌' });
-  }
-});
-
-fastify.decorate('sendWelcomeEmail', async function(email, username) {
-  // 发送欢迎邮件的逻辑
-  await this.mailer.send({
-    to: email,
-    subject: '欢迎加入 WokeFlow',
-    template: 'welcome',
-    data: { username }
+    // 记录用户创建事件
+    await fastify.analytics.track('user.created', {
+      userId: user.id,
+      timestamp: new Date()
+    });
   });
-});
 
-// 使用装饰器的方法
-fastify.post('/users', {
-  preHandler: fastify.authenticate, // 使用认证装饰器
-  handler: async function(request, reply) {
-    const user = await createUser(request.body);
+  // 在业务逻辑中触发钩子
+  fastify.decorate('createUser', async (userData) => {
+    const user = await fastify.userService.createUser(userData);
 
-    // 使用邮件装饰器
-    await this.sendWelcomeEmail(user.email, user.username);
+    // 触发自定义钩子
+    await fastify.hooks.callHook('userCreated', user);
 
     return user;
-  }
-});
+  });
+}
 
-// 请求级装饰器
-fastify.addHook('preHandler', async (request, reply) => {
-  // 为每个请求添加唯一ID
-  request.id = generateRequestId();
-});
+export default fp(customHooksPlugin);
+```
 
-// 插件级装饰器
-fastify.register(async function(fastify, opts) {
-  // 插件内装饰器
-  fastify.decorate('pluginMethod', function() {
-    return '插件方法';
+### 插件测试
+
+```javascript
+import { describe, it, expect } from 'vitest';
+import Fastify from 'fastify';
+import myPlugin from '../plugins/myPlugin.js';
+
+describe('My Plugin', () => {
+  let app;
+
+  beforeEach(async () => {
+    app = Fastify();
+    await app.register(myPlugin, {
+      option1: 'value1',
+      option2: 'value2'
+    });
   });
 
-  fastify.get('/plugin-route', function(request, reply) {
-    return { result: this.pluginMethod() };
+  afterEach(async () => {
+    await app.close();
+  });
+
+  it('should register routes', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/health'
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(JSON.parse(response.payload)).toHaveProperty('status', 'ok');
+  });
+
+  it('should add decorators', async () => {
+    expect(typeof app.myUtility).toBe('function');
+
+    const result = app.myUtility('test');
+    expect(result).toBe('Processed: test');
+  });
+
+  it('should handle plugin options', async () => {
+    // 测试插件配置
+    const response = await app.inject({
+      method: 'GET',
+      url: '/plugin-config'
+    });
+
+    const config = JSON.parse(response.payload);
+    expect(config.option1).toBe('value1');
+    expect(config.option2).toBe('value2');
   });
 });
 ```
 
-##### 🔧 扩展点机制
+## 🐛 错误监控系统 (Sentry)
 
-```javascript
-// 定义扩展接口
-class AuthExtensionInterface {
-  async authenticate(credentials) {
-    throw new Error('authenticate 方法必须被实现');
-  }
+### 功能特性
 
-  async authorize(user, resource, action) {
-    throw new Error('authorize 方法必须被实现');
-  }
-}
+- **自动错误捕获**: 捕获未处理的异常和Promise拒绝
+- **性能监控**: 跟踪应用性能和用户体验
+- **分布式追踪**: 支持微服务间的请求追踪
+- **版本管理**: 关联错误与代码版本
+- **用户反馈**: 收集用户错误报告
 
-// 注册扩展
-pluginManager.extend('auth.strategies', new JWTAuthStrategy(), 'jwt');
-pluginManager.extend('auth.strategies', new OAuth2Strategy(), 'oauth2');
-
-// 使用扩展
-const authStrategies = pluginManager.getExtensions('auth.strategies');
-
-// 批量调用扩展
-const authResults = await pluginManager.callExtensions('auth.strategies', 'authenticate', credentials);
-
-// 条件调用扩展
-for (const strategy of authStrategies) {
-  try {
-    const result = await strategy.authenticate(credentials);
-    if (result.success) {
-      return result.user;
-    }
-  } catch (error) {
-    console.warn(`认证策略 ${strategy.name} 失败:`, error);
-  }
-}
-```
-
-#### 🔍 使用场景深度解析
-
-##### 1. 🏢 企业级功能扩展
-
-```javascript
-// 多租户插件
-@Plugin({
-  name: 'multi-tenant',
-  dependencies: ['database', 'auth']
-})
-class MultiTenantPlugin extends PluginInterface {
-  async install(context) {
-    // 为每个租户创建独立的数据库schema
-    await context.database.createTenantSchema();
-  }
-
-  async start(context) {
-    // 添加租户中间件
-    context.app.use(this.tenantMiddleware.bind(this));
-  }
-
-  async tenantMiddleware(req, res, next) {
-    // 从请求头或域名解析租户ID
-    req.tenantId = this.resolveTenantId(req);
-    next();
-  }
-}
-
-// 审计日志插件
-@Plugin({
-  name: 'audit-log',
-  dependencies: ['database']
-})
-class AuditLogPlugin extends PluginInterface {
-  async start(context) {
-    // 监听所有业务事件
-    context.eventStream.on('*', async (event, data) => {
-      await this.logAuditEvent(event, data);
-    });
-  }
-
-  async logAuditEvent(event, data) {
-    await this.database.insert('audit_logs', {
-      event,
-      data: JSON.stringify(data),
-      timestamp: new Date(),
-      userId: data.userId || 'system'
-    });
-  }
-}
-```
-
-##### 2. 🔌 第三方集成插件
-
-```javascript
-// Slack通知插件
-@Plugin({
-  name: 'slack-integration',
-  dependencies: ['http']
-})
-class SlackPlugin extends PluginInterface {
-  async install(context) {
-    this.webhookUrl = context.config.slack.webhookUrl;
-  }
-
-  async start(context) {
-    // 监听重要事件
-    context.eventStream.on('user.created', (user) => {
-      this.sendNotification(`新用户注册: ${user.username}`);
-    });
-
-    context.eventStream.on('system.error', (error) => {
-      this.sendNotification(`系统错误: ${error.message}`, 'danger');
-    });
-  }
-
-  async sendNotification(message, color = 'good') {
-    await this.http.post(this.webhookUrl, {
-      text: message,
-      attachments: [{
-        color,
-        text: message,
-        ts: Date.now() / 1000
-      }]
-    });
-  }
-}
-
-// GitHub集成插件
-@Plugin({
-  name: 'github-integration',
-  dependencies: ['http', 'config']
-})
-class GitHubPlugin extends PluginInterface {
-  async start(context) {
-    // 自动创建GitHub issue
-    context.eventStream.on('bug.reported', async (bug) => {
-      await this.createGitHubIssue(bug);
-    });
-  }
-
-  async createGitHubIssue(bug) {
-    const response = await this.http.post(
-      `https://api.github.com/repos/${this.owner}/${this.repo}/issues`,
-      {
-        title: `Bug: ${bug.title}`,
-        body: bug.description,
-        labels: ['bug', 'auto-generated']
-      },
-      {
-        headers: {
-          'Authorization': `token ${this.githubToken}`,
-          'User-Agent': 'WokeFlow-Bug-Reporter'
-        }
-      }
-    );
-
-    return response.data;
-  }
-}
-```
-- A/B测试和功能开关
-
-#### 设计优势
-- **热插拔**: 支持运行时动态加载和卸载
-- **隔离性好**: 每个插件拥有独立上下文
-- **扩展灵活**: 多种扩展机制满足不同需求
-- **依赖安全**: 自动解决插件依赖冲突
-
-### 3. 🛡️ Sentry 错误监控系统
-
-#### 功能特性
-- **错误分类**: 按类型（验证、认证、网络等）和严重程度分层
-- **自动恢复**: 支持配置恢复策略
-- **重试机制**: 指数退避重试算法
-- **统计监控**: 错误发生频率和趋势分析
-- **装饰器支持**: 简化错误处理代码
-
-#### 错误类型定义
-
-```javascript
-export const ErrorType = {
-  VALIDATION: 'VALIDATION',      // 数据验证错误
-  AUTHENTICATION: 'AUTHENTICATION', // 认证错误
-  AUTHORIZATION: 'AUTHORIZATION',   // 授权错误
-  NETWORK: 'NETWORK',           // 网络错误
-  DATABASE: 'DATABASE',         // 数据库错误
-  CONFIGURATION: 'CONFIGURATION', // 配置错误
-  BUSINESS_LOGIC: 'BUSINESS_LOGIC', // 业务逻辑错误
-  SYSTEM: 'SYSTEM',             // 系统错误
-  UNKNOWN: 'UNKNOWN'            // 未知错误
-};
-
-export const ErrorSeverity = {
-  LOW: 'LOW',       // 低优先级
-  MEDIUM: 'MEDIUM', // 中等优先级
-  HIGH: 'HIGH',     // 高优先级
-  CRITICAL: 'CRITICAL' // 严重错误
-};
-```
-
-#### 核心API
+### 快速开始
 
 ```javascript
 import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 // 初始化 Sentry
 Sentry.init({
   dsn: 'your-dsn-here',
-  environment: 'development',
-  release: 'wokeflow@2.0.0',
+  environment: process.env.NODE_ENV || 'development',
+  release: process.env.RELEASE_VERSION,
   integrations: [
-    new Sentry.Integrations.Http({ tracing: true }),
-    new Sentry.Integrations.Console(),
-    new Sentry.Integrations.OnUncaughtException(),
-    new Sentry.Integrations.OnUnhandledRejection()
+    // HTTP调用集成
+    Sentry.httpIntegration(),
+    // 原生集成
+    Sentry.nativeNodeFetchIntegration(),
+    // 性能分析集成
+    nodeProfilingIntegration()
   ],
   // 性能监控
-  tracesSampleRate: 1.0,
-  // 错误采样率
-  sampleRate: 1.0
+  tracesSampleRate: 0.1, // 10% 的请求会被追踪
+  profilesSampleRate: 0.1, // 10% 的性能分析
+  // 错误采样
+  sampleRate: 1.0, // 100% 的错误会被上报
+  // 调试模式
+  debug: process.env.NODE_ENV === 'development'
 });
 
-// 手动错误报告
-try {
-  await riskyOperation();
-} catch (error) {
-  Sentry.captureException(error, {
-    tags: { operation: 'risky-operation' },
-    extra: { context: 'manual-error-handling' }
+// 在应用入口处捕获未处理的错误
+process.on('unhandledRejection', (reason, promise) => {
+  Sentry.captureException(reason, {
+    tags: { type: 'unhandledRejection' },
+    extra: { promise }
   });
-}
-
-// 使用 Sentry 作用域
-Sentry.withScope((scope) => {
-  scope.setTag('operation', 'api-call');
-  scope.setUser({ id: 'user123', username: 'john' });
-
-  try {
-    await callExternalApi();
-  } catch (error) {
-    Sentry.captureException(error);
-  }
 });
 
-// 性能监控
+process.on('uncaughtException', (error) => {
+  Sentry.captureException(error, {
+    tags: { type: 'uncaughtException' }
+  });
+  process.exit(1);
+});
+```
+
+### 错误捕获
+
+#### 手动错误报告
+
+```javascript
+import * as Sentry from '@sentry/node';
+
+class UserService {
+  async createUser(userData) {
+    try {
+      // 业务逻辑
+      const user = await this.userRepository.create(userData);
+
+      // 记录成功操作
+      Sentry.addBreadcrumb({
+        category: 'user',
+        message: 'User created successfully',
+        level: 'info',
+        data: { userId: user.id }
+      });
+
+      return user;
+    } catch (error) {
+      // 捕获业务错误
+      Sentry.captureException(error, {
+        tags: {
+          service: 'userService',
+          operation: 'createUser'
+        },
+        extra: {
+          userData: JSON.stringify(userData),
+          errorCode: error.code
+        },
+        user: {
+          id: userData.email,
+          email: userData.email
+        }
+      });
+
+      throw error;
+    }
+  }
+}
+```
+
+#### 上下文信息
+
+```javascript
+import * as Sentry from '@sentry/node';
+
+// 设置全局上下文
+Sentry.setContext('app', {
+  version: process.env.APP_VERSION,
+  environment: process.env.NODE_ENV,
+  region: process.env.AWS_REGION
+});
+
+// 请求上下文
+app.addHook('onRequest', async (request, reply) => {
+  // 设置用户上下文
+  if (request.user) {
+    Sentry.setUser({
+      id: request.user.id,
+      email: request.user.email,
+      username: request.user.username
+    });
+  }
+
+  // 设置请求上下文
+  Sentry.setContext('request', {
+    url: request.url,
+    method: request.method,
+    headers: request.headers,
+    ip: request.ip
+  });
+
+  // 设置标签
+  Sentry.setTag('request_id', request.id);
+  Sentry.setTag('user_agent', request.headers['user-agent']);
+});
+```
+
+### 性能监控
+
+#### 事务追踪
+
+```javascript
+import * as Sentry from '@sentry/node';
+
+// 手动创建事务
 const transaction = Sentry.startTransaction({
-  name: 'api-request',
-  op: 'http.server'
+  name: 'user-registration',
+  op: 'registration'
 });
 
 try {
-  const result = await processRequest();
+  // 用户注册步骤
+  Sentry.startSpan({ name: 'validate-email' }, async () => {
+    await validateEmail(request.body.email);
+  });
+
+  Sentry.startSpan({ name: 'create-user' }, async () => {
+    const user = await createUser(request.body);
+    return user;
+  });
+
+  Sentry.startSpan({ name: 'send-welcome-email' }, async () => {
+    await sendWelcomeEmail(user.email);
+  });
+
   transaction.setStatus('ok');
-  return result;
 } catch (error) {
-  transaction.setStatus('internal_error');
+  transaction.setStatus('error');
   Sentry.captureException(error);
-  throw error;
 } finally {
   transaction.finish();
 }
 ```
 
-#### 使用场景
-- API调用错误处理
-- 数据库操作异常
-- 第三方服务集成
-- 用户输入验证
-- 系统级错误监控
-
-#### 设计优势
-- **云端监控**: 错误数据自动上传到 Sentry 云端
-- **实时告警**: 支持多种告警渠道（邮件、Slack、Webhook）
-- **性能追踪**: 自动记录应用性能指标
-- **版本追踪**: 支持版本发布和错误关联
-
-## 模块间协作
-
-### 依赖注入容器与插件系统的集成
+#### 自动性能追踪
 
 ```javascript
-// 容器负责服务注册和管理
-container.register('pluginManager', pluginManager);
-container.register('errorHandler', errorHandler);
+import * as Sentry from '@sentry/node';
 
-// 插件系统利用容器进行依赖注入
-class MyPlugin extends PluginInterface {
-  async start(context) {
-    const services = context.container.resolveAll(['logger', 'config']);
-    // 使用注入的服务
+// HTTP 请求追踪
+app.addHook('onRequest', async (request, reply) => {
+  const transaction = Sentry.startTransaction({
+    name: `${request.method} ${request.url}`,
+    op: 'http.request'
+  });
+
+  // 将事务存储在请求上下文中
+  request.sentryTransaction = transaction;
+});
+
+app.addHook('onResponse', async (request, reply) => {
+  if (request.sentryTransaction) {
+    request.sentryTransaction.setHttpStatus(reply.statusCode);
+    request.sentryTransaction.finish();
+  }
+});
+
+// 数据库查询追踪
+class DatabaseService {
+  async query(sql, params) {
+    return Sentry.startSpan({
+      name: 'database.query',
+      op: 'db.query',
+      description: sql
+    }, async (span) => {
+      span.setData('sql', sql);
+      span.setData('params', params);
+
+      try {
+        const result = await this.pool.query(sql, params);
+        span.setData('rowCount', result.rowCount);
+        return result;
+      } catch (error) {
+        span.setStatus('error');
+        throw error;
+      }
+    });
   }
 }
 ```
 
-### 错误处理与插件系统的集成
+### 分布式追踪
 
 ```javascript
-// 插件错误通过统一处理器处理
-pluginManager.hook('plugin:error', async (error) => {
-  await errorHandler.handle(error, { component: 'plugin' });
+import * as Sentry from '@sentry/node';
+
+// 服务间追踪头传递
+app.addHook('onRequest', async (request, reply) => {
+  // 从请求头提取追踪信息
+  const sentryTrace = request.headers['sentry-trace'];
+  const baggage = request.headers['baggage'];
+
+  if (sentryTrace) {
+    // 继续现有事务
+    const transaction = Sentry.continueTrace({
+      sentryTrace,
+      baggage
+    }, {
+      name: `${request.method} ${request.url}`,
+      op: 'http.request'
+    });
+
+    request.sentryTransaction = transaction;
+  }
 });
 
-// 错误处理器可以触发插件钩子
-await errorHandler.handle(error, { context: 'system' });
-eventStream.emit('system:error', error);
+// 向外请求时传递追踪头
+class HttpClient {
+  async request(options) {
+    return Sentry.startSpan({
+      name: 'external.http.request',
+      op: 'http.client'
+    }, async (span) => {
+      span.setData('url', options.url);
+      span.setData('method', options.method);
+
+      // 获取当前追踪头
+      const headers = {
+        ...options.headers,
+        ...Sentry.getTraceHeaders()
+      };
+
+      try {
+        const response = await fetch(options.url, {
+          ...options,
+          headers
+        });
+
+        span.setHttpStatus(response.status);
+        return response;
+      } catch (error) {
+        span.setStatus('error');
+        throw error;
+      }
+    });
+  }
+}
 ```
 
-## 配置和初始化
+### 自定义集成
 
-### 核心模块初始化顺序
-
-1. **创建容器实例**
-2. **注册基础服务**（配置、日志）
-3. **初始化错误处理器**
-4. **设置插件管理器上下文**
-5. **注册核心模块服务**
-6. **启动插件系统**
-
-### 配置示例
+#### 业务指标监控
 
 ```javascript
-const config = {
-  container: {
-    enableStats: true,
-    maxServices: 100
-  },
-  plugins: {
-    autoStart: ['core', 'auth'],
-    timeout: 30000
-  },
-  errorHandler: {
-    enableLogging: true,
-    enableReporting: false,
-    maxRetries: 3
+import * as Sentry from '@sentry/node';
+
+// 自定义指标收集
+class MetricsCollector {
+  constructor() {
+    this.metrics = new Map();
   }
-};
+
+  increment(name, value = 1, tags = {}) {
+    const key = `${name}:${JSON.stringify(tags)}`;
+
+    if (!this.metrics.has(key)) {
+      this.metrics.set(key, 0);
+    }
+
+    this.metrics.set(key, this.metrics.get(key) + value);
+
+    // 发送到 Sentry
+    Sentry.metrics.increment(name, value, {
+      tags
+    });
+  }
+
+  gauge(name, value, tags = {}) {
+    Sentry.metrics.gauge(name, value, {
+      tags
+    });
+  }
+
+  timing(name, value, tags = {}) {
+    Sentry.metrics.timing(name, value, {
+      tags
+    });
+  }
+}
+
+// 在业务中使用
+const metrics = new MetricsCollector();
+
+class UserService {
+  async createUser(userData) {
+    const startTime = Date.now();
+
+    try {
+      const user = await this.userRepository.create(userData);
+
+      // 记录成功指标
+      metrics.increment('user.created', 1, {
+        source: 'api',
+        plan: userData.plan || 'free'
+      });
+
+      metrics.timing('user.creation_time', Date.now() - startTime);
+
+      return user;
+    } catch (error) {
+      // 记录失败指标
+      metrics.increment('user.creation_failed', 1, {
+        error_type: error.name
+      });
+
+      throw error;
+    }
+  }
+}
 ```
 
-## 性能和监控
+#### 用户反馈收集
 
-### 性能优化
-- **延迟加载**: 插件按需加载
-- **缓存机制**: 单例服务缓存
-- **异步处理**: 非阻塞的错误处理和恢复
+```javascript
+import * as Sentry from '@sentry/node';
 
-### 监控指标
-- 容器服务注册数量
-- 插件加载状态和数量
-- 错误发生频率和类型分布
-- 恢复策略执行统计
+// 用户反馈路由
+app.post('/api/feedback', async (request, reply) => {
+  const { eventId, comments, email, name } = request.body;
 
-## 最佳实践
+  try {
+    // 创建用户反馈
+    await Sentry.captureUserFeedback({
+      event_id: eventId,
+      email,
+      name,
+      comments
+    });
 
-### 1. 服务设计原则
-- 单一职责：每个服务负责一个明确的功能
-- 接口一致：实现统一的服务接口
-- 错误友好：抛出具有意义的错误
+    reply.send({ success: true });
+  } catch (error) {
+    request.log.error('Failed to capture user feedback:', error);
+    reply.status(500).send({ error: 'Failed to submit feedback' });
+  }
+});
 
-### 2. 插件开发规范
-- 依赖声明：明确声明插件依赖
-- 生命周期管理：正确实现生命周期方法
-- 资源清理：在停止时释放资源
+// 错误页面中的反馈收集
+app.get('/error-feedback', async (request, reply) => {
+  const { eventId } = request.query;
 
-### 3. 错误处理策略
-- 按类型处理：不同错误类型使用不同策略
-- 优雅降级：失败时提供备选方案
-- 用户友好：向用户展示友好的错误信息
+  // 显示反馈表单
+  reply.view('error-feedback', {
+    eventId,
+    dsn: process.env.SENTRY_DSN
+  });
+});
+```
 
-## 总结
+### 监控和告警
 
-WokeFlow 的核心架构通过 Awilix 依赖注入容器、fastify-plugin 系统和 Sentry 错误监控三个核心开源组件构建了一个高度模块化、可扩展的企业级应用框架。这种设计既保证了系统的轻量化运行，又提供了强大的扩展能力和错误处理机制，为构建复杂的企业应用提供了坚实的基础。
+#### 错误率监控
 
+```javascript
+import * as Sentry from '@sentry/node';
+
+// 错误率阈值监控
+const errorMonitor = {
+  window: 5 * 60 * 1000, // 5分钟窗口
+  threshold: 0.05, // 5% 错误率
+  errors: [],
+  totalRequests: 0,
+
+  recordRequest(success) {
+    this.totalRequests++;
+
+    if (!success) {
+      this.errors.push(Date.now());
+    }
+
+    // 清理过期错误
+    const cutoff = Date.now() - this.window;
+    this.errors = this.errors.filter(time => time > cutoff);
+
+    // 检查错误率
+    const errorRate = this.errors.length / this.totalRequests;
+
+    if (errorRate > this.threshold) {
+      Sentry.captureMessage('High error rate detected', {
+        level: 'warning',
+        tags: {
+          type: 'error_rate_alert'
+        },
+        extra: {
+          errorRate: errorRate.toFixed(4),
+          errors: this.errors.length,
+          totalRequests: this.totalRequests,
+          windowMinutes: this.window / (60 * 1000)
+        }
+      });
+    }
+  }
+};
+
+// 在请求钩子中使用
+app.addHook('onResponse', async (request, reply) => {
+  const success = reply.statusCode < 400;
+  errorMonitor.recordRequest(success);
+});
+```
+
+#### 性能监控
+
+```javascript
+import * as Sentry from '@sentry/node';
+
+// 性能监控中间件
+const performanceMonitor = {
+  slowQueryThreshold: 1000, // 1秒
+  slowRequestThreshold: 5000, // 5秒
+
+  monitorDatabaseQuery(query, duration) {
+    if (duration > this.slowQueryThreshold) {
+      Sentry.captureMessage('Slow database query detected', {
+        level: 'warning',
+        tags: {
+          type: 'slow_query'
+        },
+        extra: {
+          query: query.substring(0, 200), // 截断长查询
+          duration,
+          threshold: this.slowQueryThreshold
+        }
+      });
+    }
+  },
+
+  monitorRequest(method, url, duration, statusCode) {
+    if (duration > this.slowRequestThreshold) {
+      Sentry.captureMessage('Slow request detected', {
+        level: 'warning',
+        tags: {
+          type: 'slow_request',
+          method,
+          status_code: statusCode.toString()
+        },
+        extra: {
+          url,
+          duration,
+          threshold: this.slowRequestThreshold
+        }
+      });
+    }
+  }
+};
+
+// 集成到应用中
+class DatabaseService {
+  async query(sql, params = []) {
+    const startTime = Date.now();
+
+    try {
+      const result = await this.pool.query(sql, params);
+      const duration = Date.now() - startTime;
+
+      performanceMonitor.monitorDatabaseQuery(sql, duration);
+
+      return result;
+    } catch (error) {
+      const duration = Date.now() - startTime;
+
+      Sentry.captureException(error, {
+        tags: {
+          type: 'database_error',
+          operation: 'query'
+        },
+        extra: {
+          sql,
+          params,
+          duration
+        }
+      });
+
+      throw error;
+    }
+  }
+}
+
+// 请求性能监控
+app.addHook('onResponse', async (request, reply) => {
+  const duration = reply.elapsedTime || 0;
+
+  performanceMonitor.monitorRequest(
+    request.method,
+    request.url,
+    duration,
+    reply.statusCode
+  );
+});
+```
+
+## 🔧 架构集成
+
+### 依赖注入 + 插件系统
+
+```javascript
+// 插件注册到容器
+container.register({
+  authPlugin: asFunction(() => authPlugin).singleton(),
+  errorHandler: asFunction(() => errorHandler).singleton(),
+  metricsCollector: asFunction(() => metricsCollector).singleton()
+});
+
+// 插件中使用容器服务
+async function monitoringPlugin(fastify, options) {
+  const metricsCollector = fastify.container.resolve('metricsCollector');
+
+  // 添加监控钩子
+  fastify.addHook('onRequest', async (request) => {
+    request.startTime = process.hrtime.bigint();
+  });
+
+  fastify.addHook('onResponse', async (request, reply) => {
+    const duration = Number(process.hrtime.bigint() - request.startTime) / 1e6;
+
+    metricsCollector.recordRequest({
+      method: request.method,
+      url: request.url,
+      duration,
+      statusCode: reply.statusCode
+    });
+  });
+}
+```
+
+### 错误监控 + 插件集成
+
+```javascript
+// 插件错误监控
+async function errorTrackingPlugin(fastify, options) {
+  // 全局错误处理
+  fastify.setErrorHandler(async (error, request, reply) => {
+    // 记录到 Sentry
+    Sentry.captureException(error, {
+      tags: {
+        plugin: 'error-handler',
+        route: request.url,
+        method: request.method
+      },
+      extra: {
+        headers: request.headers,
+        params: request.params,
+        query: request.query,
+        body: request.body
+      },
+      user: request.user ? {
+        id: request.user.id,
+        email: request.user.email
+      } : undefined
+    });
+
+    // 返回用户友好的错误
+    const statusCode = error.statusCode || 500;
+    const message = statusCode >= 500 ? 'Internal server error' : error.message;
+
+    reply.status(statusCode).send({
+      error: message,
+      code: error.code || 'INTERNAL_ERROR'
+    });
+  });
+
+  // 未捕获异常处理
+  process.on('uncaughtException', (error) => {
+    Sentry.captureException(error, {
+      tags: { type: 'uncaught_exception' }
+    });
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    Sentry.captureException(reason, {
+      tags: { type: 'unhandled_rejection' },
+      extra: { promise: promise.toString() }
+    });
+  });
+}
+```
+
+## 📊 监控和调试
+
+### 容器监控
+
+```javascript
+// 容器健康检查
+container.register({
+  healthChecker: asClass(HealthChecker).singleton()
+});
+
+class HealthChecker {
+  constructor({ database, redis, externalServices }) {
+    this.database = database;
+    this.redis = redis;
+    this.externalServices = externalServices;
+  }
+
+  async check() {
+    const checks = await Promise.allSettled([
+      this.checkDatabase(),
+      this.checkRedis(),
+      this.checkExternalServices()
+    ]);
+
+    const results = {
+      status: 'healthy',
+      timestamp: new Date(),
+      checks: {}
+    };
+
+    for (const [index, check] of checks.entries()) {
+      const checkName = ['database', 'redis', 'external_services'][index];
+
+      if (check.status === 'rejected') {
+        results.status = 'unhealthy';
+        results.checks[checkName] = {
+          status: 'error',
+          error: check.reason.message
+        };
+      } else {
+        results.checks[checkName] = {
+          status: 'healthy',
+          ...check.value
+        };
+      }
+    }
+
+    return results;
+  }
+}
+```
+
+### 性能基准
+
+```javascript
+// 架构性能测试
+describe('Architecture Performance', () => {
+  let container;
+
+  beforeAll(async () => {
+    container = createContainer();
+    // 注册所有服务
+    await setupContainer(container);
+  });
+
+  test('service resolution performance', async () => {
+    const iterations = 10000;
+    const startTime = process.hrtime.bigint();
+
+    for (let i = 0; i < iterations; i++) {
+      const service = container.resolve('userService');
+      expect(service).toBeDefined();
+    }
+
+    const endTime = process.hrtime.bigint();
+    const duration = Number(endTime - startTime) / 1e9; // 转换为秒
+
+    console.log(`${iterations} service resolutions took ${duration}s`);
+    console.log(`Average time per resolution: ${(duration / iterations * 1000).toFixed(3)}ms`);
+
+    // 性能断言
+    expect(duration / iterations).toBeLessThan(0.001); // 小于1ms
+  });
+
+  test('plugin registration performance', async () => {
+    const app = Fastify();
+    const plugins = [
+      authPlugin,
+      monitoringPlugin,
+      errorTrackingPlugin
+    ];
+
+    const startTime = process.hrtime.bigint();
+
+    for (const plugin of plugins) {
+      await app.register(plugin);
+    }
+
+    const endTime = process.hrtime.bigint();
+    const duration = Number(endTime - startTime) / 1e9;
+
+    console.log(`Plugin registration took ${duration}s`);
+    expect(duration).toBeLessThan(1.0); // 小于1秒
+  });
+});
+```
+
+## ❓ 常见问题
+
+### Q: 如何选择依赖注入的生命周期？
+
+**A:** 根据服务的使用模式：
+
+- **单例 (singleton)**: 全局共享的服务，如数据库连接、配置、日志
+- **作用域 (scoped)**: 每个请求一个实例，如请求上下文、用户会话
+- **瞬时 (transient)**: 每次都创建新实例，如验证器、数据转换器
+
+```javascript
+// 单例服务
+container.register({
+  database: asClass(Database).singleton(), // 应用共享
+  config: asValue(config).singleton()       // 配置对象
+});
+
+// 作用域服务
+container.register({
+  requestContext: asClass(RequestContext).scoped(), // 每个请求一个
+  userService: asClass(UserService).scoped()         // 请求作用域
+});
+
+// 瞬时服务
+container.register({
+  validator: asClass(Validator).transient(),     // 每次验证都新实例
+  uuid: asFunction(() => uuidv4()).transient()   // 每次生成新UUID
+});
+```
+
+### Q: 插件间的依赖如何管理？
+
+**A:** 使用显式依赖声明和条件依赖：
+
+```javascript
+// 插件依赖声明
+export default fp(authPlugin, {
+  name: 'auth-plugin',
+  dependencies: ['fastify-jwt'],     // 强制依赖
+  decorators: ['jwt'],               // 需要的前置装饰器
+  hooks: ['preHandler']              // 使用的钩子
+});
+
+// 条件依赖
+export default fp(cachePlugin, {
+  name: 'cache-plugin',
+  dependencies: [],                  // 无强制依赖
+  decorators: {                      // 可选装饰器
+    redis: { optional: true }
+  }
+});
+```
+
+### Q: 如何调试依赖注入问题？
+
+**A:** 使用容器的调试功能：
+
+```javascript
+// 启用调试模式
+const container = createContainer({
+  injectionMode: 'PROXY' // 更好的错误信息
+});
+
+// 检查服务注册
+console.log('Registered services:', container.registrations);
+
+// 检查服务解析
+try {
+  const service = container.resolve('userService');
+} catch (error) {
+  console.error('Service resolution failed:', error.message);
+  console.log('Available services:', Object.keys(container.registrations));
+}
+
+// 添加解析钩子
+container.register({
+  debugResolver: asFunction(() => ({
+    resolve: (name) => {
+      console.log(`Resolving service: ${name}`);
+      return container.resolve(name);
+    }
+  })).singleton()
+});
+```
+
+## 📚 相关链接
+
+- [Awilix 文档](https://github.com/jeffijoe/awilix) - 依赖注入容器
+- [Fastify 插件指南](https://fastify.dev/docs/latest/Plugins/) - 插件开发
+- [Sentry Node.js SDK](https://docs.sentry.io/platforms/node/) - 错误监控
+- [核心模块文档](core-modules.md) - 核心功能模块
+- [API 文档](api-documentation.md) - 完整的API参考

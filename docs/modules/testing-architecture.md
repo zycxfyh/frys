@@ -1,1020 +1,2230 @@
-# WokeFlow 测试架构文档
-
-## 📚 初学者指南 - 零基础也能看懂
-
-<div style="background-color: #fff9c4; padding: 20px; border-left: 5px solid #fbc02d; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #f57f17;">🎓 什么是"测试"？</h3>
-  <p>想象一下，你要买一辆新车。测试就像是<strong>汽车质量检测</strong>：</p>
-  <ul>
-    <li>🔍 <strong>功能测试</strong> - 就像"试驾"，检查汽车的各项功能是否正常（刹车、转向、加速等）</li>
-    <li>⚡ <strong>性能测试</strong> - 就像"性能测试"，检查汽车的速度、油耗、稳定性等</li>
-    <li>🛡️ <strong>安全测试</strong> - 就像"碰撞测试"，检查汽车的安全性能</li>
-  </ul>
-  <p>在 WokeFlow 中，测试就是<strong>自动检查程序是否正常工作</strong>，确保程序能够正确完成各种功能，不会出现错误。</p>
-</div>
-
-### 🏠 用生活比喻理解测试
-
-#### 1. 🧪 单元测试 - 就像"零件检测"
-
-<div style="background-color: #e1f5fe; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #0277bd;">🏭 生活场景：工厂零件质检</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>🔧 单个零件：工厂生产螺丝、齿轮等单个零件</li>
-    <li>✅ 零件检测：每个零件都要单独检测，确保尺寸、质量符合标准</li>
-    <li>⚡ 快速检测：零件检测很快，几秒钟就能完成</li>
-    <li>📊 批量检测：可以同时检测很多零件，效率很高</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 单元测试：就像"零件检测"，测试程序的每个小功能是否正常</li>
-    <li>🔍 独立测试：每个功能单独测试，不依赖其他功能</li>
-    <li>⚡ 快速执行：测试执行很快，几毫秒就能完成</li>
-    <li>📊 批量测试：可以同时运行很多测试，快速发现问题</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>单元测试就像检查每个零件是否合格，确保每个小功能都正常工作，这是最基础的测试。
-  </div>
-</div>
-
-#### 2. 🔗 集成测试 - 就像"组装测试"
-
-<div style="background-color: #f3e5f5; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #7b1fa2;">🏭 生活场景：组装产品测试</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>🔧 组装产品：把多个零件组装成完整产品（比如把螺丝、齿轮组装成机器）</li>
-    <li>✅ 组装测试：测试组装后的产品，各个零件是否能正常配合工作</li>
-    <li>🔗 连接测试：测试零件之间的连接是否牢固、配合是否顺畅</li>
-    <li>⏱️ 稍慢测试：组装测试比零件检测慢一些，但能发现组装问题</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 集成测试：就像"组装测试"，测试多个模块是否能正常协作</li>
-    <li>🔗 协作测试：测试模块之间的连接和配合是否正常</li>
-    <li>📋 流程测试：测试完整的业务流程是否正常</li>
-    <li>⏱️ 稍慢执行：比单元测试慢一些，但能发现模块间的问题</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>集成测试就像检查组装后的产品，确保各个部分能够正常配合工作，不会出现连接问题。
-  </div>
-</div>
-
-#### 3. 🚀 端到端测试 - 就像"完整产品测试"
-
-<div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #2e7d32;">🏭 生活场景：完整产品验收</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>🚗 完整产品：一辆完整的汽车，所有零件都已组装好</li>
-    <li>✅ 完整测试：像真实用户一样使用产品，测试完整的使用流程</li>
-    <li>🔄 流程测试：测试从启动到完成整个使用流程（启动 → 行驶 → 停车）</li>
-    <li>⏰ 较慢测试：完整测试需要较长时间，但能发现整体问题</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 端到端测试：就像"完整产品测试"，像真实用户一样测试整个系统</li>
-    <li>🔄 流程测试：测试从用户操作到系统响应的完整流程</li>
-    <li>👤 用户视角：从用户的角度测试，确保用户体验正常</li>
-    <li>⏰ 较慢执行：执行时间较长，但能发现整体流程问题</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>端到端测试就像真实用户使用产品，测试完整的业务流程，确保用户能够正常使用系统。
-  </div>
-</div>
-
-#### 4. ⚡ 性能测试 - 就像"性能测试"
-
-<div style="background-color: #fff3e0; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #f57c00;">🏎️ 生活场景：汽车性能测试</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>🏎️ 速度测试：测试汽车的最高速度、加速性能</li>
-    <li>⛽ 油耗测试：测试汽车的燃油效率</li>
-    <li>💪 负载测试：测试汽车在满载情况下的性能</li>
-    <li>📊 数据记录：记录所有性能数据，便于分析和改进</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 性能测试：就像"性能测试"，测试程序的运行速度和资源使用</li>
-    <li>⚡ 速度测试：测试程序响应时间、处理速度</li>
-    <li>💾 资源测试：测试程序的内存使用、CPU占用</li>
-    <li>📊 性能数据：记录性能指标，便于优化和改进</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>性能测试就像测试汽车的性能，确保程序运行速度快、资源使用少，不会因为性能问题影响用户体验。
-  </div>
-</div>
-
-#### 5. 🛡️ 安全测试 - 就像"安全检测"
-
-<div style="background-color: #ffebee; padding: 20px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #c62828;">🔒 生活场景：银行安全检测</h4>
-  
-  <p><strong>想象一下：</strong></p>
-  <ul>
-    <li>🔐 密码测试：测试银行系统是否能防止密码破解</li>
-    <li>🚪 权限测试：测试是否只有授权人员才能访问敏感信息</li>
-    <li>🛡️ 防护测试：测试系统是否能抵御各种攻击（黑客攻击、病毒等）</li>
-    <li>🔍 漏洞扫描：主动寻找系统可能存在的安全漏洞</li>
-  </ul>
-
-  <p><strong>在代码中：</strong></p>
-  <ul>
-    <li>💻 安全测试：就像"安全检测"，测试程序是否能抵御各种安全威胁</li>
-    <li>🔐 认证测试：测试用户认证是否安全，防止未授权访问</li>
-    <li>🛡️ 攻击测试：模拟各种攻击，测试系统的防护能力</li>
-    <li>🔍 漏洞扫描：主动寻找可能存在的安全漏洞</li>
-  </ul>
-
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin-top: 15px;">
-    <strong>💡 简单理解：</strong>安全测试就像银行的安全检测，确保程序能够抵御各种安全威胁，保护用户数据和系统安全。
-  </div>
-</div>
-
-### 📊 测试金字塔 - 理解测试层次
-
-<div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #2e7d32;">🏗️ 测试金字塔模型</h3>
-  
-  <p><strong>就像建房子一样：</strong></p>
-  
-  <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin: 15px 0;">
-    <p><strong>🏗️ 底层（单元测试）- 最多</strong></p>
-    <p style="margin-left: 20px;">就像房子的地基和砖块，数量最多，但每个都很小。单元测试测试每个小功能，数量最多，但执行最快。</p>
-    
-    <p style="margin-top: 15px;"><strong>🏢 中层（集成测试）- 中等</strong></p>
-    <p style="margin-left: 20px;">就像房子的房间，由多个砖块组成。集成测试测试多个模块的协作，数量中等，执行时间中等。</p>
-    
-    <p style="margin-top: 15px;"><strong>🏛️ 顶层（端到端测试）- 最少</strong></p>
-    <p style="margin-left: 20px;">就像整栋房子，包含所有房间。端到端测试测试整个系统，数量最少，但执行时间最长。</p>
-  </div>
-
-  <div style="text-align: center; margin: 20px 0;">
-    <pre style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; display: inline-block; font-size: 0.9em;">
-    ┌─────────────────┐
-    │  端到端测试      │  ← 少量，完整流程
-    │  (E2E Tests)    │
-    ├─────────────────┤
-    │  集成测试        │  ← 中等，模块协作
-    │  (Integration)  │
-    ├─────────────────┤
-    │  单元测试        │  ← 大量，独立功能
-    │  (Unit Tests)   │
-    └─────────────────┘
-    </pre>
-  </div>
-</div>
-
-### ❓ 常见问题解答
-
-<div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #2e7d32;">🤔 你可能想问的问题</h3>
-
-  <h4 style="color: #388e3c;">Q1: 为什么要测试？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 就像生产产品需要质检一样，写程序也需要测试。测试可以确保程序正常工作，不会出现错误，保护用户数据安全。</p>
-
-  <h4 style="color: #388e3c; margin-top: 20px;">Q2: 测试是人工做的吗？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 大部分是自动的！就像工厂的自动化质检设备一样，测试可以自动运行，快速发现问题，比人工测试更高效、更准确。</p>
-
-  <h4 style="color: #388e3c; margin-top: 20px;">Q3: 什么是"测试覆盖率"？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 就像检查是否所有零件都检测过一样，测试覆盖率表示程序的代码有多少被测试过。覆盖率越高，说明测试越全面，程序越可靠。</p>
-
-  <h4 style="color: #388e3c; margin-top: 20px;">Q4: 测试会影响程序运行吗？</h4>
-  <p style="margin-left: 20px;"><strong>A:</strong> 不会！测试只在开发阶段运行，不会影响用户使用的程序。就像汽车出厂前的检测，不会影响用户开车一样。</p>
-</div>
+# WokeFlow 测试架构
 
 ## 📖 概述
 
-<div style="background-color: #e8f5e8; padding: 20px; border-left: 5px solid #4caf50; margin: 20px 0;">
-  <h3 style="margin-top: 0; color: #2e7d32;">🧪 全方位质量保障体系</h3>
-  <p>WokeFlow 采用<strong>多层次的测试策略</strong>，确保系统在<strong>功能</strong>、<strong>性能</strong>、<strong>安全性</strong>方面的可靠性。测试架构基于 <strong>Vitest 测试框架</strong>，结合 <strong>Istanbul 覆盖率工具</strong>，提供全面的自动化测试解决方案。</p>
-  <p><strong>简单说：</strong>测试就像程序的"质量检测系统"，自动检查程序是否正常工作，确保程序可靠、安全、高效。</p>
-  <p><strong>核心理念</strong>：测试不仅是质量保障工具，更是系统设计的镜子。</p>
-</div>
+WokeFlow 提供了一套完整的测试体系，确保代码质量和系统稳定性。测试架构采用分层设计，覆盖从单元测试到端到端测试的完整测试金字塔。
 
-## 🎯 测试架构设计原则
+### 🎯 测试策略
 
-### 1. 🏢 分层测试策略
+- **质量优先**: 测试驱动开发，确保代码质量
+- **自动化为主**: 最大化自动化测试覆盖率
+- **分层测试**: 遵循测试金字塔模型
+- **持续集成**: 测试集成到CI/CD流程
+- **监控反馈**: 实时监控测试结果和质量指标
 
-<div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #f57c00;">测试金字塔模型</h4>
-  <div style="text-align: center; margin: 20px 0;">
-    <pre style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; display: inline-block;">
-    E2E Tests (端到端)
-       ▲     少量、关键路径
-       │
-    Integration (集成)
-       ▲     中等数量、模块协作
-       │
-    Unit Tests (单元)
-       ▲     大量、独立功能
-     ━━━━━  底层基础设施 ━━━━━
-    </pre>
-  </div>
+### 🧪 测试层次
 
-  <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-    <thead>
-      <tr style="background-color: #ffe0b2;">
-        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">测试类型</th>
-        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">范围</th>
-        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">执行速度</th>
-        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">失败影响</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td style="padding: 10px; border: 1px solid #ddd;"><strong>单元测试</strong></td>
-        <td style="padding: 10px; border: 1px solid #ddd;">单个模块独立功能</td>
-        <td style="padding: 10px; border: 1px solid #ddd;">⚡ ~10ms</td>
-        <td style="padding: 10px; border: 1px solid #ddd;">🔴 核心逻辑错误</td>
-      </tr>
-      <tr style="background-color: #fff8e1;">
-        <td style="padding: 10px; border: 1px solid #ddd;"><strong>集成测试</strong></td>
-        <td style="padding: 10px; border: 1px solid #ddd;">模块间协作能力</td>
-        <td style="padding: 10px; border: 1px solid #ddd;">🟡 ~100ms</td>
-        <td style="padding: 10px; border: 1px solid #ddd;">🟠 接口契约问题</td>
-      </tr>
-      <tr>
-        <td style="padding: 10px; border: 1px solid #ddd;"><strong>端到端测试</strong></td>
-        <td style="padding: 10px; border: 1px solid #ddd;">完整业务流程</td>
-        <td style="padding: 10px; border: 1px solid #ddd;">🐌 ~10s</td>
-        <td style="padding: 10px; border: 1px solid #ddd;">🟡 用户体验问题</td>
-      </tr>
-      <tr style="background-color: #fff8e1;">
-        <td style="padding: 10px; border: 1px solid #ddd;"><strong>性能测试</strong></td>
-        <td style="padding: 10px; border: 1px solid #ddd;">系统性能指标</td>
-        <td style="padding: 10px; border: 1px solid #ddd;">🐌 ~30s</td>
-        <td style="padding: 10px; border: 1px solid #ddd;">🟠 性能退化</td>
-      </tr>
-      <tr>
-        <td style="padding: 10px; border: 1px solid #ddd;"><strong>安全测试</strong></td>
-        <td style="padding: 10px; border: 1px solid #ddd;">攻击模拟验证</td>
-        <td style="padding: 10px; border: 1px solid #ddd;">🐌 ~60s</td>
-        <td style="padding: 10px; border: 1px solid #ddd;">🔴 安全漏洞</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-### 2. 🚀 测试驱动开发 (TDD)
-
-<div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #1976d2;">红绿重构循环</h4>
-  <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-      <span style="background-color: #ffcdd2; color: #c62828; padding: 5px 10px; border-radius: 15px; font-weight: bold;">🔴 写测试</span>
-      <span style="color: #666;">→ 先写失败的测试</span>
-    </div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-      <span style="background-color: #c8e6c9; color: #2e7d32; padding: 5px 10px; border-radius: 15px; font-weight: bold;">🟢 让测试通过</span>
-      <span style="color: #666;">→ 编写最简代码</span>
-    </div>
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <span style="background-color: #bbdefb; color: #1976d2; padding: 5px 10px; border-radius: 15px; font-weight: bold;">🔵 重构代码</span>
-      <span style="color: #666;">→ 改进设计，保持测试通过</span>
-    </div>
-  </div>
-
-  <h4 style="margin-top: 20px; color: #1976d2;">TDD 价值</h4>
-  <ul>
-    <li><strong>📚 测试即文档</strong>：通过测试用例展示API使用方法</li>
-    <li><strong>🔒 防止回归</strong>：任何修改都能及时发现问题</li>
-    <li><strong>🎯 设计导向</strong>：测试先行的思维方式改善代码设计</li>
-    <li><strong>⚡ 持续集成</strong>：每次提交自动运行测试，快速反馈</li>
-  </ul>
-</div>
-
-### 3. 📊 覆盖率驱动质量
-
-<div style="background-color: #f3e5f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
-  <h4 style="margin-top: 0; color: #7b1fa2;">覆盖率目标分层</h4>
-
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
-    <div style="background-color: #e1bee7; padding: 15px; border-radius: 8px; text-align: center;">
-      <div style="font-size: 2em; color: #4a148c; margin-bottom: 10px;">🎯</div>
-      <strong>核心模块</strong><br/>
-      <span style="font-size: 1.5em; color: #4a148c;">90%+</span><br/>
-      <small>语句/分支/函数覆盖率</small>
-    </div>
-    <div style="background-color: #e1bee7; padding: 15px; border-radius: 8px; text-align: center;">
-      <div style="font-size: 2em; color: #4a148c; margin-bottom: 10px;">📈</div>
-      <strong>业务逻辑</strong><br/>
-      <span style="font-size: 1.5em; color: #4a148c;">85%+</span><br/>
-      <small>主要业务流程覆盖</small>
-    </div>
-    <div style="background-color: #e1bee7; padding: 15px; border-radius: 8px; text-align: center;">
-      <div style="font-size: 2em; color: #4a148c; margin-bottom: 10px;">🛡️</div>
-      <strong>错误处理</strong><br/>
-      <span style="font-size: 1.5em; color: #4a148c;">95%+</span><br/>
-      <small>异常情况覆盖</small>
-    </div>
-    <div style="background-color: #e1bee7; padding: 15px; border-radius: 8px; text-align: center;">
-      <div style="font-size: 2em; color: #4a148c; margin-bottom: 10px;">🔄</div>
-      <strong>持续监控</strong><br/>
-      <span style="font-size: 1.5em; color: #4a148c;">100%</span><br/>
-      <small>每日覆盖率检查</small>
-    </div>
-  </div>
-
-  <h4 style="margin-top: 20px; color: #7b1fa2;">质量门禁机制</h4>
-  <div style="background-color: #f8f8f8; padding: 15px; border-radius: 8px;">
-    <ul>
-      <li><strong>🚫 覆盖率下降</strong>：新代码覆盖率低于阈值禁止合并</li>
-      <li><strong>❌ 测试失败</strong>：任何测试用例失败禁止合并</li>
-      <li><strong>🔍 代码质量</strong>：ESLint/Prettier 检查失败禁止合并</li>
-      <li><strong>📋 安全扫描</strong>：发现高危安全问题禁止合并</li>
-    </ul>
-  </div>
-</div>
-
-## 测试层次详解
-
-### 1. 单元测试 (Unit Tests)
-
-#### 测试范围
-单元测试专注于测试单个模块的独立功能，不依赖外部系统或服务。
-
-#### 测试结构
 ```
-tests/unit/
-├── core/                    # 核心模块单元测试
-│   ├── axios-inspired-http.test.js
-│   ├── zustand-inspired-state.test.js
-│   ├── jwt-inspired-auth.test.js
-│   └── ...
-└── utils/                   # 工具模块单元测试
+测试金字塔
+    ▲
+    │     端到端测试 (10%)
+    │     少量、关键用户流程
+    │
+    │     集成测试 (20%)
+    │     模块间协作、服务集成
+    │
+    │     单元测试 (70%)
+    │     核心功能、业务逻辑
+    ▼
 ```
 
-#### 单元测试示例
+### 📊 测试覆盖目标
+
+| 测试类型 | 覆盖率目标 | 执行频率 | 主要职责 |
+|----------|------------|----------|----------|
+| 单元测试 | 80%+ | 每次提交 | 核心逻辑正确性 |
+| 集成测试 | 60%+ | 每日构建 | 模块间协作 |
+| 端到端测试 | 30%+ | 发布前 | 用户流程完整性 |
+| 性能测试 | 关键路径 | 定期执行 | 系统性能表现 |
+| 安全测试 | 100% | 定期执行 | 安全漏洞检查 |
+
+## 🧪 单元测试
+
+### 功能特性
+
+- **快速执行**: 毫秒级响应时间
+- **独立运行**: 无外部依赖，纯逻辑测试
+- **全面覆盖**: 语句、分支、条件覆盖
+- **持续反馈**: 开发时实时运行
+- **调试友好**: 详细的错误信息和堆栈跟踪
+
+### 测试框架
+
+WokeFlow 使用 Vitest 作为单元测试框架，提供以下特性：
+
+- **ESM原生支持**: 完整的ES模块支持
+- **TypeScript友好**: 内置TypeScript支持
+- **Jest兼容**: 熟悉的API和断言
+- **并行执行**: 多核CPU充分利用
+- **智能重试**: 失败测试自动重试
+
+### 快速开始
 
 ```javascript
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import ZustandInspiredState from '../../../src/core/ZustandInspiredState.js';
-
-describe('ZustandInspiredState', () => {
-  let zustand;
-
-  beforeEach(async () => {
-    zustand = new ZustandInspiredState();
-    await zustand.initialize();
-  });
-
-  afterEach(async () => {
-    if (zustand) {
-      await zustand.destroy();
-    }
-    zustand = null;
-  });
-
-  describe('构造函数', () => {
-    it('应该正确初始化实例', () => {
-      expect(zustand).toBeInstanceOf(ZustandInspiredState);
-      expect(zustand.stores).toBeDefined();
-    });
-  });
-
-  describe('状态存储创建', () => {
-    it('应该能创建简单的计数器存储', () => {
-      const counterStore = zustand.create((set, get) => ({
-        count: 0,
-        increment: () => set(state => ({ count: state.count + 1 })),
-        decrement: () => set(state => ({ count: state.count - 1 })),
-        getCount: () => get().count
-      }));
-
-      expect(counterStore).toBeDefined();
-      expect(typeof counterStore.increment).toBe('function');
-    });
-
-    it('应该能正确更新状态', () => {
-      const counterStore = zustand.create((set) => ({
-        count: 0,
-        increment: () => set(state => ({ count: state.count + 1 }))
-      }));
-
-      counterStore.increment();
-      expect(counterStore.getState().count).toBe(1);
-
-      counterStore.increment();
-      expect(counterStore.getState().count).toBe(2);
-    });
-  });
-});
-```
-
-#### 测试覆盖率目标
-- **语句覆盖率**: > 80%
-- **分支覆盖率**: > 80%
-- **函数覆盖率**: > 80%
-- **行覆盖率**: > 80%
-- **核心模块**: > 90%
-
-### 2. 集成测试 (Integration Tests)
-
-#### 测试范围
-集成测试验证模块间的协作能力，包括依赖注入、事件通信、数据流转等。
-
-#### 测试结构
-```
-tests/integration/
-├── end-to-end-workflow.test.js    # 端到端工作流测试
-├── http-auth-integration.test.js  # HTTP与认证集成测试
-├── messaging-state-integration.test.js  # 消息与状态集成测试
-├── security-integration.test.js   # 安全集成测试
-└── system-integration.test.js     # 系统集成测试
-```
-
-#### 集成测试示例
-
-```javascript
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-
-const LightweightContainer = (await import('../../../src/core/LightweightContainer.js')).LightweightContainer;
-const AxiosInspiredHTTP = (await import('../../../src/core/AxiosInspiredHTTP.js')).default;
-const JWTInspiredAuth = (await import('../../../src/core/JWTInspiredAuth.js')).default;
-
-describe('系统集成测试', () => {
-  let container;
-  let httpClient;
-  let auth;
-
-  beforeAll(async () => {
-    // 初始化依赖注入容器
-    container = new LightweightContainer();
-
-    // 注册核心服务
-    container.register('http', AxiosInspiredHTTP);
-    container.register('auth', JWTInspiredAuth);
-
-    // 初始化核心模块
-    httpClient = container.resolve('http');
-    auth = container.resolve('auth');
-
-    await httpClient.initialize();
-    await auth.initialize();
-
-    // 设置认证密钥
-    auth.setSecret('default', 'test-secret-key-for-integration');
-  });
-
-  afterAll(async () => {
-    // 清理资源
-    if (auth) await auth.destroy();
-    if (httpClient) await httpClient.destroy();
-  });
-
-  describe('HTTP与认证集成', () => {
-    it('应该能创建认证令牌并在HTTP请求中使用', async () => {
-      // 创建JWT令牌
-      const token = auth.generateToken({
-        userId: 'test-user',
-        username: 'testuser'
-      });
-
-      expect(token).toBeDefined();
-      expect(typeof token).toBe('string');
-
-      // 验证令牌
-      const decoded = auth.verifyToken(token);
-      expect(decoded.userId).toBe('test-user');
-      expect(decoded.username).toBe('testuser');
-    });
-
-    it('应该能处理HTTP请求的认证拦截', async () => {
-      // 创建带认证的HTTP实例
-      const authedHttp = await httpClient.createInstance({
-        baseURL: 'https://httpbin.org',
-        interceptors: {
-          request: [(config) => {
-            const token = auth.generateToken({ userId: 'test' });
-            config.headers.Authorization = `Bearer ${token}`;
-            return config;
-          }]
-        }
-      });
-
-      // 执行请求（这里会失败，因为httpbin.org返回401，但我们测试拦截器）
-      try {
-        await authedHttp.get('/bearer');
-      } catch (error) {
-        // 验证请求头包含了认证令牌
-        expect(error.config.headers.Authorization).toBeDefined();
-        expect(error.config.headers.Authorization.startsWith('Bearer ')).toBe(true);
-      }
-    });
-  });
-});
-```
-
-#### 集成测试场景
-- **依赖注入**: 验证服务间的依赖关系
-- **事件通信**: 测试发布订阅模式的正确性
-- **数据流转**: 验证数据在模块间的传递
-- **错误处理**: 测试异常情况下的系统行为
-- **生命周期**: 验证模块的初始化和销毁
-
-### 3. 端到端测试 (E2E Tests)
-
-#### 测试范围
-端到端测试验证完整业务流程，从用户操作到系统响应的全链路测试。
-
-#### 测试示例
-
-```javascript
-describe('端到端工作流测试', () => {
-  it('应该完成完整的工作流创建和执行流程', async () => {
-    // 1. 用户注册
-    const userData = {
-      username: 'workflowuser',
-      email: 'workflow@test.com',
-      password: 'password123'
-    };
-
-    const registerResponse = await apiClient.post('/auth/register', userData);
-    expect(registerResponse.status).toBe(201);
-
-    // 2. 用户登录
-    const loginResponse = await apiClient.post('/auth/login', {
-      username: userData.username,
-      password: userData.password
-    });
-    expect(loginResponse.status).toBe(200);
-
-    const token = loginResponse.data.token;
-
-    // 3. 创建工作流
-    const workflowData = {
-      name: '测试工作流',
-      description: '端到端测试工作流',
-      tasks: [
-        {
-          id: 'task1',
-          name: '验证用户',
-          type: 'script',
-          script: 'return context.userData.email.includes("@");'
-        }
-      ]
-    };
-
-    const workflowResponse = await apiClient.post('/workflows', workflowData, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    expect(workflowResponse.status).toBe(201);
-
-    const workflowId = workflowResponse.data.id;
-
-    // 4. 启动工作流
-    const startResponse = await apiClient.post(`/workflows/${workflowId}/start`, {
-      userData: { email: 'test@example.com' }
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    expect(startResponse.status).toBe(200);
-
-    // 5. 等待工作流完成
-    await waitForWorkflowCompletion(workflowId, token);
-
-    // 6. 验证工作流结果
-    const resultResponse = await apiClient.get(`/workflows/${workflowId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    expect(resultResponse.data.status).toBe('completed');
-  });
-});
-```
-
-### 4. 性能测试 (Performance Tests)
-
-#### 测试范围
-性能测试验证系统在高负载下的表现，包括响应时间、内存使用、并发处理能力等。
-
-#### 性能测试示例
-
-```javascript
-describe('核心模块性能测试', () => {
-  describe('消息队列性能测试', () => {
-    it('应该处理高频消息发布', async () => {
-      const connection = await messaging.connect('perf-cluster');
-
-      const topic = 'perf.messages';
-      const messageCount = 1000;
-      const messages = [];
-
-      // 创建订阅者
-      const subscription = messaging.subscribe(topic, (message) => {
-        messages.push(JSON.parse(message));
-      });
-
-      // 记录开始时间
-      const startTime = performance.now();
-
-      // 发布大量消息
-      const publishPromises = [];
-      for (let i = 0; i < messageCount; i++) {
-        publishPromises.push(
-          messaging.publish(topic, JSON.stringify({ id: i, data: `message-${i}` }))
-        );
-      }
-
-      await Promise.all(publishPromises);
-
-      // 等待所有消息被处理
-      await new Promise(resolve => {
-        const checkMessages = () => {
-          if (messages.length === messageCount) {
-            resolve();
-          } else {
-            setTimeout(checkMessages, 10);
-          }
-        };
-        checkMessages();
-      });
-
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      // 验证性能指标
-      expect(totalTime).toBeLessThan(5000); // 5秒内完成
-      expect(messages.length).toBe(messageCount);
-
-      // 计算每秒消息数
-      const messagesPerSecond = messageCount / (totalTime / 1000);
-      console.log(`消息吞吐量: ${messagesPerSecond.toFixed(2)} msg/s`);
-
-      messaging.unsubscribe(topic, subscription.id);
-    });
-  });
-});
-```
-
-#### 性能指标
-- **响应时间**: API响应时间 < 100ms
-- **吞吐量**: 每秒处理请求数 > 1000
-- **内存使用**: 堆内存使用 < 50MB
-- **CPU使用率**: CPU使用率 < 70%
-- **并发处理**: 支持 100+ 并发连接
-
-### 5. 安全测试 (Security Tests / Red Team)
-
-#### 测试范围
-安全测试采用红队思维，模拟各种攻击向量，验证系统的安全防护能力。
-
-#### 安全测试框架
-
-```javascript
-class RedTeamFramework {
-  constructor() {
-    this.attacks = new Map();
-    this.results = [];
-  }
-
-  registerAttack(type, attackFunction) {
-    this.attacks.set(type, attackFunction);
-  }
-
-  async executeAttack(type, payload) {
-    const attack = this.attacks.get(type);
-    if (!attack) {
-      throw new Error(`未知攻击类型: ${type}`);
-    }
-
-    const result = await attack(payload);
-    this.results.push({
-      type,
-      payload,
-      result,
-      timestamp: new Date()
-    });
-
-    return result;
-  }
-}
-
-// 攻击向量定义
-export const AttackVectors = {
-  AUTH_BYPASS: 'auth_bypass',
-  SQL_INJECTION: 'sql_injection',
-  XSS: 'xss',
-  CSRF: 'csrf',
-  FUZZING: 'fuzzing',
-  PRIVILEGE_ESCALATION: 'privilege_escalation'
-};
-```
-
-#### 认证绕过测试示例
-
-```javascript
-describe('认证绕过攻击测试', () => {
-  let redTeam;
-  let auth;
+import { describe, it, expect, vi } from 'vitest';
+import { UserService } from '../src/services/UserService.js';
+
+describe('UserService', () => {
+  let userService;
+  let mockRepository;
 
   beforeEach(() => {
-    redTeam = new RedTeamFramework();
-    auth = new JWTInspiredAuth();
-    auth.setSecret('test-key', 'my-test-secret');
+    // 设置测试依赖
+    mockRepository = {
+      create: vi.fn(),
+      findById: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn()
+    };
+
+    userService = new UserService({
+      userRepository: mockRepository,
+      auth: mockAuth,
+      logger: mockLogger
+    });
   });
 
-  it('应该阻止SQL注入式认证绕过', async () => {
-    const bypassPayloads = [
-      { username: "admin' --", password: 'anything' },
-      { username: 'admin', password: "pass' OR '1'='1" },
-      { username: "admin'; DROP TABLE users; --", password: '' }
-    ];
+  describe('createUser', () => {
+    it('should create user successfully', async () => {
+      // 准备测试数据
+      const userData = {
+        username: 'john_doe',
+        email: 'john@example.com',
+        password: 'password123'
+      };
 
-    for (const payload of bypassPayloads) {
-      const result = await redTeam.executeAttack(AttackVectors.AUTH_BYPASS, {
-        credentials: payload,
-        bypassMethod: 'sql_injection'
-      });
+      const expectedUser = {
+        id: 'user_123',
+        ...userData,
+        createdAt: new Date(),
+        status: 'active'
+      };
 
-      // 期望攻击被阻止
-      expect(result.blocked).toBe(true);
-      expect(result.success).toBe(false);
-    }
+      // 设置模拟行为
+      mockRepository.create.mockResolvedValue(expectedUser);
+
+      // 执行测试
+      const result = await userService.createUser(userData);
+
+      // 验证结果
+      expect(result).toEqual(expectedUser);
+      expect(mockRepository.create).toHaveBeenCalledWith(userData);
+    });
+
+    it('should throw error for duplicate email', async () => {
+      const userData = {
+        username: 'jane_doe',
+        email: 'john@example.com', // 重复邮箱
+        password: 'password123'
+      };
+
+      // 模拟邮箱已存在
+      mockRepository.create.mockRejectedValue(
+        new Error('Email already exists')
+      );
+
+      // 验证抛出错误
+      await expect(userService.createUser(userData))
+        .rejects.toThrow('Email already exists');
+    });
+
+    it('should validate required fields', async () => {
+      const invalidData = {
+        username: '', // 空用户名
+        email: 'invalid-email', // 无效邮箱
+        password: '123' // 密码太短
+      };
+
+      await expect(userService.createUser(invalidData))
+        .rejects.toThrow('Validation failed');
+    });
   });
 
-  it('应该阻止令牌伪造攻击', async () => {
-    const fakeTokens = [
-      'invalid.jwt.token',
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.fake.signature',
-      '',
-      null,
-      'tampered.header.payload.signature'
-    ];
+  describe('getUserById', () => {
+    it('should return user when found', async () => {
+      const userId = 'user_123';
+      const expectedUser = {
+        id: userId,
+        username: 'john_doe',
+        email: 'john@example.com'
+      };
 
-    for (const token of fakeTokens) {
-      const result = await redTeam.executeAttack(AttackVectors.AUTH_BYPASS, {
-        token,
-        bypassMethod: 'token_forgery'
-      });
+      mockRepository.findById.mockResolvedValue(expectedUser);
 
-      expect(result.blocked).toBe(true);
-      expect(result.success).toBe(false);
-    }
+      const result = await userService.getUserById(userId);
+
+      expect(result).toEqual(expectedUser);
+      expect(mockRepository.findById).toHaveBeenCalledWith(userId);
+    });
+
+    it('should return null when user not found', async () => {
+      const userId = 'nonexistent';
+
+      mockRepository.findById.mockResolvedValue(null);
+
+      const result = await userService.getUserById(userId);
+
+      expect(result).toBeNull();
+    });
   });
 });
 ```
 
-#### 安全测试向量
-- **认证绕过**: SQL注入、令牌伪造、暴力破解
-- **注入攻击**: SQL注入、命令注入、XSS攻击
-- **访问控制**: 权限提升、越权访问、CSRF攻击
-- **模糊测试**: 随机输入测试边界情况
-- **加密安全**: 密钥泄露、算法弱点
-
-## 测试基础设施
-
-### 1. 测试配置 (vitest.config.js)
+### Mock 和 Stub
 
 ```javascript
+// 使用 Vitest 的内置 Mock
+import { vi } from 'vitest';
+
+// Mock 整个模块
+vi.mock('../src/utils/email.js', () => ({
+  sendWelcomeEmail: vi.fn().mockResolvedValue(true)
+}));
+
+// Mock 部分方法
+const mockHttpClient = {
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn()
+};
+
+// Mock 返回值
+mockHttpClient.get.mockResolvedValue({
+  data: { id: 1, name: 'John' },
+  status: 200
+});
+
+// Mock 异常
+mockHttpClient.post.mockRejectedValue(
+  new Error('Network error')
+);
+
+// 验证调用
+expect(mockHttpClient.get).toHaveBeenCalledWith('/api/users/1');
+expect(mockHttpClient.get).toHaveBeenCalledTimes(1);
+```
+
+### 测试覆盖率
+
+```javascript
+// vitest.config.js
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    environment: 'node',
-    setupFiles: ['./tests/setup.js'],
-    globals: true,
+    coverage: {
+      provider: 'istanbul',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'dist/',
+        'test/',
+        'docs/',
+        '**/*.config.js'
+      ],
+      thresholds: {
+        global: {
+          statements: 80,
+          branches: 75,
+          functions: 85,
+          lines: 80
+        }
+      }
+    }
+  }
+});
+```
+
+## 🔗 集成测试
+
+### 功能特性
+
+- **模块协作**: 测试模块间的交互
+- **外部依赖**: 数据库、缓存、消息队列
+- **API接口**: RESTful API 和 GraphQL
+- **异步处理**: 队列任务和后台作业
+- **容器化**: 使用 Testcontainers 提供隔离环境
+
+### 测试环境
+
+#### Testcontainers 配置
+
+```javascript
+import { PostgreSqlContainer, RedisContainer } from '@testcontainers/postgresql';
+import { RedisContainer as Redis } from '@testcontainers/redis';
+
+describe('User Integration Tests', () => {
+  let postgresContainer;
+  let redisContainer;
+  let database;
+  let cache;
+
+  beforeAll(async () => {
+    // 启动 PostgreSQL 容器
+    postgresContainer = await new PostgreSqlContainer()
+      .withDatabase('testdb')
+      .withUsername('testuser')
+      .withPassword('testpass')
+      .start();
+
+    // 启动 Redis 容器
+    redisContainer = await new RedisContainer()
+      .withPassword('testpass')
+      .start();
+
+    // 连接数据库
+    database = createDatabaseConnection({
+      host: postgresContainer.getHost(),
+      port: postgresContainer.getPort(),
+      database: postgresContainer.getDatabase(),
+      username: postgresContainer.getUsername(),
+      password: postgresContainer.getPassword()
+    });
+
+    // 连接缓存
+    cache = createRedisConnection({
+      host: redisContainer.getHost(),
+      port: redisContainer.getPort(),
+      password: redisContainer.getPassword()
+    });
+
+    // 初始化测试数据
+    await setupTestData(database);
+  }, 60000); // 60秒超时
+
+  afterAll(async () => {
+    // 清理资源
+    await database.close();
+    await cache.disconnect();
+    await postgresContainer.stop();
+    await redisContainer.stop();
+  });
+});
+```
+
+### API 集成测试
+
+```javascript
+import request from 'supertest';
+import { createApp } from '../src/app.js';
+
+describe('User API Integration', () => {
+  let app;
+  let server;
+  let testDatabase;
+
+  beforeAll(async () => {
+    // 创建测试应用
+    app = createApp({
+      database: testDatabase,
+      cache: testCache,
+      queue: testQueue
+    });
+
+    // 启动服务器
+    server = app.listen(0); // 随机端口
+  });
+
+  afterAll(async () => {
+    await server.close();
+    await testDatabase.cleanup();
+  });
+
+  describe('POST /api/users', () => {
+    it('should create user successfully', async () => {
+      const userData = {
+        username: 'john_doe',
+        email: 'john@example.com',
+        password: 'password123'
+      };
+
+      const response = await request(app)
+        .post('/api/users')
+        .send(userData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('id');
+      expect(response.body.username).toBe(userData.username);
+      expect(response.body.email).toBe(userData.email);
+      expect(response.body).not.toHaveProperty('password'); // 密码不应返回
+    });
+
+    it('should validate input data', async () => {
+      const invalidData = {
+        username: '',
+        email: 'invalid-email',
+        password: '123'
+      };
+
+      const response = await request(app)
+        .post('/api/users')
+        .send(invalidData)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('errors');
+      expect(response.body.errors).toContain('Username is required');
+      expect(response.body.errors).toContain('Invalid email format');
+      expect(response.body.errors).toContain('Password too short');
+    });
+
+    it('should handle duplicate email', async () => {
+      // 先创建用户
+      await request(app)
+        .post('/api/users')
+        .send({
+          username: 'user1',
+          email: 'duplicate@example.com',
+          password: 'password123'
+        })
+        .expect(201);
+
+      // 尝试创建重复邮箱用户
+      const response = await request(app)
+        .post('/api/users')
+        .send({
+          username: 'user2',
+          email: 'duplicate@example.com',
+          password: 'password123'
+        })
+        .expect(409);
+
+      expect(response.body.message).toContain('Email already exists');
+    });
+  });
+
+  describe('GET /api/users/:id', () => {
+    let createdUser;
+
+    beforeEach(async () => {
+      // 创建测试用户
+      const response = await request(app)
+        .post('/api/users')
+        .send({
+          username: 'testuser',
+          email: 'test@example.com',
+          password: 'password123'
+        });
+
+      createdUser = response.body;
+    });
+
+    it('should return user by id', async () => {
+      const response = await request(app)
+        .get(`/api/users/${createdUser.id}`)
+        .expect(200);
+
+      expect(response.body.id).toBe(createdUser.id);
+      expect(response.body.username).toBe(createdUser.username);
+    });
+
+    it('should return 404 for non-existent user', async () => {
+      const response = await request(app)
+        .get('/api/users/nonexistent-id')
+        .expect(404);
+
+      expect(response.body.message).toBe('User not found');
+    });
+  });
+
+  describe('PUT /api/users/:id', () => {
+    it('should update user successfully', async () => {
+      // 先创建用户
+      const createResponse = await request(app)
+        .post('/api/users')
+        .send({
+          username: 'updateuser',
+          email: 'update@example.com',
+          password: 'password123'
+        });
+
+      const userId = createResponse.body.id;
+      const updateData = {
+        fullName: 'Updated Name',
+        phone: '+1234567890'
+      };
+
+      // 更新用户
+      const updateResponse = await request(app)
+        .put(`/api/users/${userId}`)
+        .send(updateData)
+        .expect(200);
+
+      expect(updateResponse.body.fullName).toBe(updateData.fullName);
+      expect(updateResponse.body.phone).toBe(updateData.phone);
+    });
+  });
+
+  describe('DELETE /api/users/:id', () => {
+    it('should delete user successfully', async () => {
+      // 先创建用户
+      const createResponse = await request(app)
+        .post('/api/users')
+        .send({
+          username: 'deleteuser',
+          email: 'delete@example.com',
+          password: 'password123'
+        });
+
+      const userId = createResponse.body.id;
+
+      // 删除用户
+      await request(app)
+        .delete(`/api/users/${userId}`)
+        .expect(204);
+
+      // 验证用户已被删除
+      await request(app)
+        .get(`/api/users/${userId}`)
+        .expect(404);
+    });
+  });
+});
+```
+
+### 消息队列集成测试
+
+```javascript
+describe('Workflow Engine Integration', () => {
+  let workflowEngine;
+  let messageQueue;
+  let database;
+
+  beforeEach(async () => {
+    // 设置测试环境
+    workflowEngine = container.resolve('workflowEngine');
+    messageQueue = container.resolve('messageQueue');
+    database = container.resolve('database');
+  });
+
+  it('should execute user registration workflow', async () => {
+    // 定义工作流
+    const workflowDefinition = {
+      name: 'User Registration Workflow',
+      tasks: [
+        {
+          id: 'validate_email',
+          type: 'http',
+          method: 'POST',
+          url: '/api/email/verify',
+          dependencies: []
+        },
+        {
+          id: 'create_user_profile',
+          type: 'script',
+          script: 'await createUserProfile(context.userData)',
+          dependencies: ['validate_email']
+        },
+        {
+          id: 'send_welcome_email',
+          type: 'http',
+          method: 'POST',
+          url: '/api/email/welcome',
+          dependencies: ['create_user_profile']
+        }
+      ]
+    };
+
+    // 创建工作流
+    const workflowId = await workflowEngine.createWorkflow(workflowDefinition);
+
+    // 监听工作流完成事件
+    const workflowCompleted = new Promise((resolve) => {
+      messageQueue.subscribe('workflow.completed', (event) => {
+        if (event.workflowId === workflowId) {
+          resolve(event);
+        }
+      });
+    });
+
+    // 启动工作流
+    const executionId = await workflowEngine.startWorkflow(workflowId, {
+      userData: {
+        email: 'john@example.com',
+        name: 'John Doe'
+      }
+    });
+
+    // 等待工作流完成
+    const completionEvent = await workflowCompleted;
+
+    // 验证结果
+    expect(completionEvent.workflowId).toBe(workflowId);
+    expect(completionEvent.status).toBe('completed');
+    expect(completionEvent.tasksCompleted).toBe(3);
+
+    // 验证数据库状态
+    const workflow = await database.workflows.findById(workflowId);
+    expect(workflow.status).toBe('completed');
+    expect(workflow.tasks.length).toBe(3);
+    expect(workflow.tasks.every(task => task.status === 'completed')).toBe(true);
+  });
+
+  it('should handle workflow failures gracefully', async () => {
+    // 创建会失败的工作流
+    const failingWorkflow = {
+      name: 'Failing Workflow',
+      tasks: [
+        {
+          id: 'failing_task',
+          type: 'http',
+          method: 'POST',
+          url: '/api/nonexistent', // 这个请求会失败
+          dependencies: []
+        }
+      ]
+    };
+
+    const workflowId = await workflowEngine.createWorkflow(failingWorkflow);
+
+    // 监听失败事件
+    const workflowFailed = new Promise((resolve) => {
+      messageQueue.subscribe('workflow.failed', (event) => {
+        if (event.workflowId === workflowId) {
+          resolve(event);
+        }
+      });
+    });
+
+    // 启动工作流
+    await workflowEngine.startWorkflow(workflowId, {});
+
+    // 等待失败
+    const failureEvent = await workflowFailed;
+
+    // 验证失败处理
+    expect(failureEvent.workflowId).toBe(workflowId);
+    expect(failureEvent.status).toBe('failed');
+    expect(failureEvent.error).toBeDefined();
+
+    // 验证数据库状态
+    const workflow = await database.workflows.findById(workflowId);
+    expect(workflow.status).toBe('failed');
+    expect(workflow.error).toBeDefined();
+  });
+});
+```
+
+## 🌐 端到端测试
+
+### 功能特性
+
+- **完整用户流程**: 从用户界面到后端的全链路测试
+- **浏览器自动化**: 使用 Playwright 进行浏览器操作
+- **API测试**: RESTful API 和 GraphQL 接口测试
+- **跨平台兼容**: 多浏览器和设备支持
+- **视觉回归**: 界面截图对比和视觉测试
+
+### Playwright 配置
+
+```javascript
+// playwright.config.js
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests/e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
+
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure'
+  },
+
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'Mobile Chrome',
+      use: { devices['Pixel 5'] },
+    },
+    {
+      name: 'Mobile Safari',
+      use: devices['iPhone 12'],
+    },
+  ],
+
+  webServer: {
+    command: 'npm run dev',
+    port: 3000,
+    reuseExistingServer: !process.env.CI,
+  },
+});
+```
+
+### 用户注册流程测试
+
+```javascript
+import { test, expect } from '@playwright/test';
+
+test.describe('User Registration Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    // 清理测试数据
+    await page.goto('/admin/cleanup');
+    await page.click('text=清理测试数据');
+  });
+
+  test('should complete full user registration flow', async ({ page }) => {
+    // 访问注册页面
+    await page.goto('/register');
+
+    // 填写注册表单
+    await page.fill('[data-testid="username"]', 'johndoe');
+    await page.fill('[data-testid="email"]', 'john@example.com');
+    await page.fill('[data-testid="password"]', 'password123');
+    await page.fill('[data-testid="confirm-password"]', 'password123');
+
+    // 勾选同意条款
+    await page.check('[data-testid="terms-agreement"]');
+
+    // 提交表单
+    await page.click('[data-testid="register-button"]');
+
+    // 等待页面跳转到邮箱验证页面
+    await page.waitForURL('/verify-email');
+
+    // 验证显示正确的提示信息
+    await expect(page.locator('[data-testid="verification-message"]'))
+      .toContainText('验证邮件已发送到 john@example.com');
+
+    // 模拟点击邮件中的验证链接
+    // 注意：实际测试中需要通过API或邮件服务获取验证链接
+    const verificationLink = await getVerificationLinkFromEmail('john@example.com');
+    await page.goto(verificationLink);
+
+    // 验证跳转到登录页面
+    await page.waitForURL('/login');
+
+    // 验证成功消息
+    await expect(page.locator('[data-testid="success-message"]'))
+      .toContainText('邮箱验证成功，请登录');
+
+    // 尝试登录
+    await page.fill('[data-testid="login-email"]', 'john@example.com');
+    await page.fill('[data-testid="login-password"]', 'password123');
+    await page.click('[data-testid="login-button"]');
+
+    // 验证登录成功并跳转到用户仪表板
+    await page.waitForURL('/dashboard');
+
+    // 验证用户信息显示正确
+    await expect(page.locator('[data-testid="user-greeting"]'))
+      .toContainText('欢迎, johndoe');
+
+    // 验证用户菜单可用
+    await page.click('[data-testid="user-menu"]');
+    await expect(page.locator('[data-testid="logout-button"]')).toBeVisible();
+  });
+
+  test('should handle registration validation errors', async ({ page }) => {
+    await page.goto('/register');
+
+    // 尝试提交空表单
+    await page.click('[data-testid="register-button"]');
+
+    // 验证错误消息
+    await expect(page.locator('[data-testid="username-error"]'))
+      .toContainText('用户名不能为空');
+    await expect(page.locator('[data-testid="email-error"]'))
+      .toContainText('邮箱不能为空');
+    await expect(page.locator('[data-testid="password-error"]'))
+      .toContainText('密码不能为空');
+
+    // 填写无效数据
+    await page.fill('[data-testid="email"]', 'invalid-email');
+    await page.fill('[data-testid="password"]', '123');
+    await page.click('[data-testid="register-button"]');
+
+    // 验证格式错误
+    await expect(page.locator('[data-testid="email-error"]'))
+      .toContainText('邮箱格式不正确');
+    await expect(page.locator('[data-testid="password-error"]'))
+      .toContainText('密码长度不能少于8位');
+  });
+
+  test('should prevent duplicate email registration', async ({ page }) => {
+    // 先注册一个用户
+    await page.goto('/register');
+    await page.fill('[data-testid="username"]', 'user1');
+    await page.fill('[data-testid="email"]', 'duplicate@example.com');
+    await page.fill('[data-testid="password"]', 'password123');
+    await page.fill('[data-testid="confirm-password"]', 'password123');
+    await page.check('[data-testid="terms-agreement"]');
+    await page.click('[data-testid="register-button"]');
+
+    // 等待注册完成
+    await page.waitForURL('/verify-email');
+
+    // 尝试注册相同邮箱的用户
+    await page.goto('/register');
+    await page.fill('[data-testid="username"]', 'user2');
+    await page.fill('[data-testid="email"]', 'duplicate@example.com');
+    await page.fill('[data-testid="password"]', 'password123');
+    await page.fill('[data-testid="confirm-password"]', 'password123');
+    await page.check('[data-testid="terms-agreement"]');
+    await page.click('[data-testid="register-button"]');
+
+    // 验证错误提示
+    await expect(page.locator('[data-testid="error-message"]'))
+      .toContainText('该邮箱已被注册');
+  });
+
+  test('should handle email verification timeout', async ({ page }) => {
+    // 注册用户
+    await page.goto('/register');
+    await page.fill('[data-testid="username"]', 'timeoutuser');
+    await page.fill('[data-testid="email"]', 'timeout@example.com');
+    await page.fill('[data-testid="password"]', 'password123');
+    await page.fill('[data-testid="confirm-password"]', 'password123');
+    await page.check('[data-testid="terms-agreement"]');
+    await page.click('[data-testid="register-button"]');
+
+    await page.waitForURL('/verify-email');
+
+    // 等待验证链接过期（假设24小时）
+    // 在测试环境中，我们可以通过修改系统时间或mock来模拟
+
+    // 尝试访问过期的验证链接
+    const expiredLink = 'http://localhost:3000/verify?token=expired-token';
+    await page.goto(expiredLink);
+
+    // 验证显示过期提示
+    await expect(page.locator('[data-testid="error-message"]'))
+      .toContainText('验证链接已过期');
+
+    // 验证可以重新发送验证邮件
+    await page.click('[data-testid="resend-verification"]');
+    await expect(page.locator('[data-testid="success-message"]'))
+      .toContainText('验证邮件已重新发送');
+  });
+});
+```
+
+### 工作流管理界面测试
+
+```javascript
+test.describe('Workflow Management', () => {
+  test.beforeEach(async ({ page }) => {
+    // 登录管理员账户
+    await page.goto('/login');
+    await page.fill('[data-testid="email"]', 'admin@example.com');
+    await page.fill('[data-testid="password"]', 'adminpass');
+    await page.click('[data-testid="login-button"]');
+    await page.waitForURL('/admin');
+  });
+
+  test('should create and execute workflow', async ({ page }) => {
+    // 进入工作流管理页面
+    await page.goto('/admin/workflows');
+
+    // 点击创建工作流按钮
+    await page.click('[data-testid="create-workflow-button"]');
+
+    // 填写工作流基本信息
+    await page.fill('[data-testid="workflow-name"]', '测试工作流');
+    await page.fill('[data-testid="workflow-description"]', '用于端到端测试的工作流');
+
+    // 添加任务
+    await page.click('[data-testid="add-task-button"]');
+
+    // 配置第一个任务
+    await page.fill('[data-testid="task-0-name"]', '发送通知');
+    await page.selectOption('[data-testid="task-0-type"]', 'http');
+    await page.selectOption('[data-testid="task-0-method"]', 'POST');
+    await page.fill('[data-testid="task-0-url"]', 'http://api.example.com/notify');
+
+    // 添加第二个任务
+    await page.click('[data-testid="add-task-button"]');
+    await page.fill('[data-testid="task-1-name"]', '更新数据库');
+    await page.selectOption('[data-testid="task-1-type"]', 'script');
+    await page.fill('[data-testid="task-1-script"]',
+      'await database.update({ status: "completed" })');
+
+    // 设置任务依赖
+    await page.click('[data-testid="task-1-depends-0"]'); // 任务1依赖任务0
+
+    // 保存工作流
+    await page.click('[data-testid="save-workflow-button"]');
+
+    // 验证工作流创建成功
+    await expect(page.locator('[data-testid="workflow-list"]'))
+      .toContainText('测试工作流');
+
+    // 执行工作流
+    await page.click('[data-testid="execute-workflow-button"]');
+
+    // 等待执行完成
+    await page.waitForSelector('[data-testid="execution-completed"]');
+
+    // 验证执行结果
+    await expect(page.locator('[data-testid="task-0-status"]'))
+      .toContainText('完成');
+    await expect(page.locator('[data-testid="task-1-status"]'))
+      .toContainText('完成');
+
+    // 检查执行日志
+    await page.click('[data-testid="view-logs-button"]');
+    await expect(page.locator('[data-testid="execution-log"]'))
+      .toContainText('工作流执行成功');
+  });
+
+  test('should handle workflow execution failures', async ({ page }) => {
+    // 创建会失败的工作流
+    await page.goto('/admin/workflows');
+    await page.click('[data-testid="create-workflow-button"]');
+
+    await page.fill('[data-testid="workflow-name"]', '失败测试工作流');
+    await page.fill('[data-testid="workflow-description"]', '测试工作流失败处理');
+
+    // 添加会失败的任务
+    await page.click('[data-testid="add-task-button"]');
+    await page.fill('[data-testid="task-0-name"]', '调用失败API');
+    await page.selectOption('[data-testid="task-0-type"]', 'http');
+    await page.selectOption('[data-testid="task-0-method"]', 'GET');
+    await page.fill('[data-testid="task-0-url"]', 'http://nonexistent-api.com/fail');
+
+    await page.click('[data-testid="save-workflow-button"]');
+
+    // 执行工作流
+    await page.click('[data-testid="execute-workflow-button"]');
+
+    // 等待执行失败
+    await page.waitForSelector('[data-testid="execution-failed"]');
+
+    // 验证失败状态
+    await expect(page.locator('[data-testid="workflow-status"]'))
+      .toContainText('失败');
+    await expect(page.locator('[data-testid="task-0-status"]'))
+      .toContainText('失败');
+
+    // 检查错误详情
+    await page.click('[data-testid="view-error-details"]');
+    await expect(page.locator('[data-testid="error-message"]'))
+      .toContainText('连接失败');
+
+    // 验证重试功能
+    await page.click('[data-testid="retry-workflow-button"]');
+    await page.waitForSelector('[data-testid="execution-completed"]');
+
+    // 验证重试成功（如果API恢复）
+    // 注意：实际测试中可能需要mock API响应
+  });
+
+  test('should monitor workflow performance', async ({ page }) => {
+    await page.goto('/admin/workflows');
+
+    // 执行多个工作流
+    for (let i = 0; i < 5; i++) {
+      await page.click('[data-testid="execute-workflow-button"]');
+      await page.waitForSelector('[data-testid="execution-completed"]');
+    }
+
+    // 检查性能指标
+    await page.click('[data-testid="performance-tab"]');
+
+    // 验证平均执行时间
+    const avgTime = await page.locator('[data-testid="avg-execution-time"]').textContent();
+    expect(parseFloat(avgTime)).toBeLessThan(5000); // 平均执行时间应小于5秒
+
+    // 验证成功率
+    const successRate = await page.locator('[data-testid="success-rate"]').textContent();
+    expect(parseFloat(successRate)).toBeGreaterThan(95); // 成功率应大于95%
+
+    // 检查资源使用情况
+    await expect(page.locator('[data-testid="memory-usage"]'))
+      .toContainText('MB'); // 应显示内存使用量
+    await expect(page.locator('[data-testid="cpu-usage"]'))
+      .toContainText('%'); // 应显示CPU使用率
+  });
+});
+```
+
+## ⚡ 性能测试
+
+### 功能特性
+
+- **负载测试**: 模拟高并发用户访问
+- **压力测试**: 持续高负载下的系统表现
+- **容量测试**: 确定系统最大承载能力
+- **基准测试**: 与竞争产品进行性能对比
+- **内存泄漏检测**: 长时间运行下的内存使用监控
+
+### 负载测试配置
+
+```javascript
+// loadtest.config.js
+export default {
+  // 测试目标
+  url: 'http://localhost:3000',
+
+  // 并发用户数
+  maxConcurrentUsers: 100,
+
+  // 总请求数
+  totalRequests: 10000,
+
+  // 请求间隔 (毫秒)
+  requestDelay: 100,
+
+  // 测试持续时间 (分钟)
+  duration: 5,
+
+  // 渐进式负载
+  rampUp: {
+    enabled: true,
+    duration: 60, // 1分钟内逐步增加到最大并发
+  },
+
+  // 断言条件
+  assertions: {
+    responseTime: {
+      max: 2000, // 最大响应时间2秒
+    },
+    errorRate: {
+      max: 0.05, // 最大错误率5%
+    },
+    throughput: {
+      min: 50, // 最小每秒请求数
+    }
+  }
+};
+```
+
+### API 性能测试
+
+```javascript
+import { check } from 'k6';
+import http from 'k6/http';
+
+export let options = {
+  stages: [
+    { duration: '1m', target: 10 },   // 1分钟内增加到10用户
+    { duration: '3m', target: 50 },   // 3分钟内增加到50用户
+    { duration: '1m', target: 100 },  // 1分钟内增加到100用户
+    { duration: '2m', target: 100 },  // 保持100用户2分钟
+    { duration: '1m', target: 0 },    // 1分钟内降到0用户
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<2000'], // 95%的请求响应时间小于2秒
+    http_req_failed: ['rate<0.05'],    // 错误率小于5%
+  },
+};
+
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
+
+export default function () {
+  // 用户注册API测试
+  const registerPayload = JSON.stringify({
+    username: `user_${__VU}_${Date.now()}`, // 使用VU ID和时间戳保证唯一性
+    email: `user_${__VU}_${Date.now()}@example.com`,
+    password: 'password123'
+  });
+
+  const registerResponse = http.post(`${BASE_URL}/api/users`, registerPayload, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  check(registerResponse, {
+    'register status is 201': (r) => r.status === 201,
+    'register response time < 1000ms': (r) => r.timings.duration < 1000,
+    'register response has user id': (r) => r.json().hasOwnProperty('id'),
+  });
+
+  // 用户登录API测试
+  const loginPayload = JSON.stringify({
+    email: `user_${__VU}_${Date.now()}@example.com`,
+    password: 'password123'
+  });
+
+  const loginResponse = http.post(`${BASE_URL}/api/auth/login`, loginPayload, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  check(loginResponse, {
+    'login status is 200': (r) => r.status === 200,
+    'login response time < 500ms': (r) => r.timings.duration < 500,
+    'login response has token': (r) => r.json().hasOwnProperty('token'),
+  });
+
+  const token = loginResponse.json().token;
+
+  // 获取用户信息API测试
+  const userResponse = http.get(`${BASE_URL}/api/users/profile`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  check(userResponse, {
+    'get profile status is 200': (r) => r.status === 200,
+    'get profile response time < 300ms': (r) => r.timings.duration < 300,
+  });
+
+  // 模拟用户思考时间
+  const thinkingTime = Math.random() * 1000 + 500; // 500ms 到 1500ms 之间
+  sleep(thinkingTime / 1000);
+}
+
+export function handleSummary(data) {
+  return {
+    'stdout': textSummary(data, { indent: ' ', enableColors: true }),
+    'performance-report.json': JSON.stringify(data, null, 2),
+    'performance-report.html': htmlReport(data),
+  };
+}
+```
+
+### 数据库性能测试
+
+```javascript
+describe('Database Performance Tests', () => {
+  let database;
+  let testData;
+
+  beforeAll(async () => {
+    database = createDatabaseConnection();
+    testData = await generateTestData(10000); // 生成10000条测试数据
+  });
+
+  afterAll(async () => {
+    await database.close();
+  });
+
+  test('should handle high concurrency user queries', async () => {
+    const startTime = Date.now();
+    const promises = [];
+
+    // 并发执行100个查询
+    for (let i = 0; i < 100; i++) {
+      promises.push(database.users.findById(testData[i].id));
+    }
+
+    const results = await Promise.all(promises);
+    const duration = Date.now() - startTime;
+
+    // 验证所有查询成功
+    expect(results.length).toBe(100);
+    results.forEach(result => {
+      expect(result).toBeDefined();
+    });
+
+    // 验证性能
+    expect(duration).toBeLessThan(5000); // 5秒内完成
+    console.log(`100 concurrent queries took ${duration}ms`);
+  });
+
+  test('should handle bulk insert operations', async () => {
+    const bulkData = generateBulkInsertData(1000);
+
+    const startTime = Date.now();
+    const result = await database.users.insertMany(bulkData);
+    const duration = Date.now() - startTime;
+
+    expect(result.insertedCount).toBe(1000);
+    expect(duration).toBeLessThan(10000); // 10秒内完成
+
+    console.log(`Bulk insert of 1000 records took ${duration}ms`);
+  });
+
+  test('should maintain performance under sustained load', async () => {
+    const durations = [];
+
+    // 持续运行5分钟
+    const endTime = Date.now() + 5 * 60 * 1000;
+
+    while (Date.now() < endTime) {
+      const startTime = Date.now();
+
+      // 执行一个典型的查询
+      await database.users.find({ status: 'active' }).limit(100);
+
+      const duration = Date.now() - startTime;
+      durations.push(duration);
+
+      // 短暂休息，避免过度负载
+      await sleep(100);
+    }
+
+    // 分析性能数据
+    const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
+    const maxDuration = Math.max(...durations);
+    const p95Duration = calculatePercentile(durations, 95);
+
+    console.log(`Performance over 5 minutes:
+      Average: ${avgDuration}ms
+      Max: ${maxDuration}ms
+      95th percentile: ${p95Duration}ms`);
+
+    // 验证性能稳定
+    expect(avgDuration).toBeLessThan(200);
+    expect(p95Duration).toBeLessThan(500);
+    expect(maxDuration).toBeLessThan(2000);
+  });
+
+  test('should handle complex queries efficiently', async () => {
+    // 创建复合索引（如果需要）
+    await database.users.createIndex({
+      status: 1,
+      createdAt: -1,
+      department: 1
+    });
+
+    const queries = [
+      { status: 'active' },
+      { department: 'IT', status: 'active' },
+      { createdAt: { $gte: new Date('2024-01-01') } },
+      {
+        $and: [
+          { department: 'IT' },
+          { status: 'active' },
+          { createdAt: { $gte: new Date('2024-01-01') } }
+        ]
+      }
+    ];
+
+    for (const query of queries) {
+      const startTime = Date.now();
+      const result = await database.users.find(query).explain('executionStats');
+      const duration = Date.now() - startTime;
+
+      console.log(`Query: ${JSON.stringify(query)}
+        Execution time: ${duration}ms
+        Documents examined: ${result.executionStats.totalDocsExamined}
+        Documents returned: ${result.executionStats.totalDocsReturned}`);
+
+      // 验证查询性能
+      expect(duration).toBeLessThan(1000);
+      expect(result.executionStats.totalDocsExamined).toBeLessThan(10000);
+    }
+  });
+
+  function calculatePercentile(values, percentile) {
+    const sorted = values.sort((a, b) => a - b);
+    const index = Math.ceil((percentile / 100) * sorted.length) - 1;
+    return sorted[index];
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+});
+```
+
+## 🔒 安全测试
+
+### 功能特性
+
+- **身份验证测试**: 登录、注册、密码重置
+- **授权测试**: 角色权限、访问控制
+- **输入验证测试**: SQL注入、XSS、CSRF
+- **加密测试**: 密码哈希、数据加密
+- **会话管理测试**: 会话固定、并发登录
+
+### 身份验证安全测试
+
+```javascript
+describe('Authentication Security Tests', () => {
+  let app;
+  let agent;
+
+  beforeAll(async () => {
+    app = createTestApp();
+    agent = request.agent(app);
+  });
+
+  test('should prevent brute force attacks', async () => {
+    const email = 'victim@example.com';
+    const wrongPassword = 'wrongpassword';
+
+    // 尝试多次错误登录
+    for (let i = 0; i < 10; i++) {
+      const response = await agent
+        .post('/api/auth/login')
+        .send({ email, password: wrongPassword })
+        .expect(401);
+
+      // 前几次应该返回正常错误
+      if (i < 5) {
+        expect(response.body.message).toBe('Invalid credentials');
+      } else {
+        // 之后应该被限流
+        expect(response.status).toBe(429); // Too Many Requests
+        expect(response.body.message).toContain('Too many failed attempts');
+      }
+    }
+  });
+
+  test('should handle password reset securely', async () => {
+    const email = 'user@example.com';
+
+    // 请求密码重置
+    const resetResponse = await agent
+      .post('/api/auth/forgot-password')
+      .send({ email })
+      .expect(200);
+
+    expect(resetResponse.body.message).toContain('Reset email sent');
+
+    // 验证重置令牌
+    const resetToken = await getResetTokenFromEmail(email); // 从邮件中提取令牌
+    expect(resetToken).toBeDefined();
+
+    // 使用令牌重置密码
+    const newPassword = 'newSecurePassword123!';
+    await agent
+      .post('/api/auth/reset-password')
+      .send({
+        token: resetToken,
+        password: newPassword,
+        confirmPassword: newPassword
+      })
+      .expect(200);
+
+    // 验证新密码可以登录
+    const loginResponse = await agent
+      .post('/api/auth/login')
+      .send({ email, password: newPassword })
+      .expect(200);
+
+    expect(loginResponse.body.token).toBeDefined();
+
+    // 验证旧令牌失效
+    await agent
+      .post('/api/auth/reset-password')
+      .send({
+        token: resetToken, // 使用已使用的令牌
+        password: 'anotherPassword123!',
+        confirmPassword: 'anotherPassword123!'
+      })
+      .expect(400);
+  });
+
+  test('should prevent session fixation attacks', async () => {
+    // 用户1登录
+    const login1 = await agent
+      .post('/api/auth/login')
+      .send({ email: 'user1@example.com', password: 'password1' });
+
+    const sessionId1 = login1.body.sessionId;
+
+    // 模拟会话固定攻击：攻击者设置sessionId
+    const fixedSessionId = 'fixed-session-id-12345';
+
+    // 攻击者诱导用户使用固定sessionId登录
+    const login2 = await request(app)
+      .post('/api/auth/login')
+      .set('Cookie', `sessionId=${fixedSessionId}`)
+      .send({ email: 'user2@example.com', password: 'password2' });
+
+    // 系统应该生成新的sessionId，而不是使用攻击者提供的
+    expect(login2.body.sessionId).not.toBe(fixedSessionId);
+    expect(login2.body.sessionId).toBeDefined();
+  });
+
+  test('should handle concurrent login sessions', async () => {
+    const email = 'user@example.com';
+    const password = 'password123';
+    const maxSessions = 3; // 假设最大允许3个并发会话
+
+    // 创建多个并发会话
+    const loginPromises = [];
+    for (let i = 0; i < maxSessions + 2; i++) {
+      loginPromises.push(
+        request(app)
+          .post('/api/auth/login')
+          .send({ email, password })
+      );
+    }
+
+    const responses = await Promise.all(loginPromises);
+
+    // 前maxSessions个应该成功
+    for (let i = 0; i < maxSessions; i++) {
+      expect(responses[i].status).toBe(200);
+      expect(responses[i].body.token).toBeDefined();
+    }
+
+    // 超出限制的应该失败
+    for (let i = maxSessions; i < responses.length; i++) {
+      expect(responses[i].status).toBe(403);
+      expect(responses[i].body.message).toContain('Maximum sessions exceeded');
+    }
+  });
+
+  test('should validate JWT token integrity', async () => {
+    // 登录获取有效令牌
+    const loginResponse = await agent
+      .post('/api/auth/login')
+      .send({ email: 'user@example.com', password: 'password123' })
+      .expect(200);
+
+    const validToken = loginResponse.body.token;
+
+    // 篡改令牌
+    const tamperedToken = tamperWithJWT(validToken);
+
+    // 使用篡改的令牌访问受保护资源
+    await agent
+      .get('/api/users/profile')
+      .set('Authorization', `Bearer ${tamperedToken}`)
+      .expect(401);
+
+    // 验证错误消息
+    const errorResponse = await agent
+      .get('/api/users/profile')
+      .set('Authorization', `Bearer ${tamperedToken}`);
+
+    expect(errorResponse.body.message).toContain('Invalid token');
+  });
+
+  test('should implement secure logout', async () => {
+    // 登录
+    const loginResponse = await agent
+      .post('/api/auth/login')
+      .send({ email: 'user@example.com', password: 'password123' })
+      .expect(200);
+
+    const token = loginResponse.body.token;
+    const sessionId = loginResponse.body.sessionId;
+
+    // 验证令牌有效
+    await agent
+      .get('/api/users/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    // 登出
+    await agent
+      .post('/api/auth/logout')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    // 验证令牌已失效
+    await agent
+      .get('/api/users/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(401);
+
+    // 验证会话已清理
+    const sessionCheck = await app.locals.sessionStore.get(sessionId);
+    expect(sessionCheck).toBeNull();
+  });
+});
+
+// 辅助函数
+function tamperWithJWT(token) {
+  // 简单的令牌篡改：修改payload部分
+  const parts = token.split('.');
+  if (parts.length !== 3) return token;
+
+  const header = parts[0];
+  const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+
+  // 修改用户角色
+  payload.role = 'admin';
+
+  const tamperedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
+  const tamperedToken = `${header}.${tamperedPayload}.${parts[2]}`;
+
+  return tamperedToken;
+}
+
+async function getResetTokenFromEmail(email) {
+  // 在测试环境中，从内存队列或数据库中获取重置令牌
+  // 实际实现取决于邮件服务和测试环境设置
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('test-reset-token-12345');
+    }, 100);
+  });
+}
+```
+
+### 输入验证安全测试
+
+```javascript
+describe('Input Validation Security Tests', () => {
+  let app;
+
+  beforeAll(async () => {
+    app = createTestApp();
+  });
+
+  describe('SQL Injection Prevention', () => {
+    test('should prevent SQL injection in login', async () => {
+      const maliciousInputs = [
+        "' OR '1'='1",
+        "'; DROP TABLE users; --",
+        "' UNION SELECT * FROM users --",
+        "admin' --",
+        "' OR 1=1 --"
+      ];
+
+      for (const maliciousInput of maliciousInputs) {
+        const response = await request(app)
+          .post('/api/auth/login')
+          .send({
+            email: maliciousInput,
+            password: 'password123'
+          })
+          .expect(401);
+
+        // 应该只是认证失败，而不是SQL错误
+        expect(response.body.message).toBe('Invalid credentials');
+        expect(response.body.message).not.toContain('SQL');
+        expect(response.body.message).not.toContain('syntax');
+      }
+    });
+
+    test('should prevent SQL injection in user search', async () => {
+      const maliciousQueries = [
+        "'; DROP TABLE users; --",
+        "' UNION SELECT password FROM users --",
+        "1' OR '1'='1",
+        "admin'; UPDATE users SET role='admin"
+      ];
+
+      for (const maliciousQuery of maliciousQueries) {
+        const response = await request(app)
+          .get('/api/users/search')
+          .query({ q: maliciousQuery })
+          .expect(200);
+
+        // 验证没有发生SQL注入
+        expect(response.body).toBeDefined();
+        // 检查响应不包含敏感信息
+        expect(response.body).not.toHaveProperty('password');
+      }
+    });
+  });
+
+  describe('XSS Prevention', () => {
+    test('should sanitize HTML input', async () => {
+      const xssPayloads = [
+        '<script>alert("XSS")</script>',
+        '<img src=x onerror=alert("XSS")>',
+        'javascript:alert("XSS")',
+        '<iframe src="javascript:alert(\'XSS\')"></iframe>',
+        '<svg onload=alert("XSS")>'
+      ];
+
+      for (const payload of xssPayloads) {
+        // 创建用户时尝试注入XSS
+        const response = await request(app)
+          .post('/api/users')
+          .send({
+            username: 'testuser',
+            email: 'test@example.com',
+            password: 'password123',
+            bio: payload // 尝试在bio字段注入XSS
+          })
+          .expect(201);
+
+        // 获取用户信息
+        const profileResponse = await request(app)
+          .get(`/api/users/${response.body.id}`)
+          .expect(200);
+
+        // 验证XSS代码已被转义或过滤
+        const bio = profileResponse.body.bio;
+        expect(bio).not.toContain('<script>');
+        expect(bio).not.toContain('javascript:');
+        expect(bio).not.toContain('onerror');
+        expect(bio).not.toContain('onload');
+      }
+    });
+
+    test('should prevent XSS in query parameters', async () => {
+      const xssParams = [
+        '<script>alert("XSS")</script>',
+        '"><script>alert("XSS")</script>',
+        'javascript:alert("XSS")'
+      ];
+
+      for (const param of xssParams) {
+        const response = await request(app)
+          .get('/api/search')
+          .query({ q: param })
+          .expect(200);
+
+        // 验证响应不包含可执行的XSS代码
+        expect(response.text).not.toContain('<script>');
+        expect(response.text).not.toContain('javascript:');
+      }
+    });
+  });
+
+  describe('CSRF Protection', () => {
+    test('should require CSRF token for state-changing operations', async () => {
+      // 登录获取会话
+      const agent = request.agent(app);
+      await agent
+        .post('/api/auth/login')
+        .send({ email: 'user@example.com', password: 'password123' })
+        .expect(200);
+
+      // 尝试没有CSRF令牌的POST请求
+      await agent
+        .post('/api/users/profile')
+        .send({ bio: 'Updated bio' })
+        .expect(403);
+
+      // 获取CSRF令牌
+      const csrfResponse = await agent
+        .get('/api/csrf-token')
+        .expect(200);
+
+      const csrfToken = csrfResponse.body.token;
+
+      // 使用CSRF令牌的请求应该成功
+      await agent
+        .post('/api/users/profile')
+        .set('X-CSRF-Token', csrfToken)
+        .send({ bio: 'Updated bio' })
+        .expect(200);
+    });
+
+    test('should validate CSRF token integrity', async () => {
+      const agent = request.agent(app);
+      await agent
+        .post('/api/auth/login')
+        .send({ email: 'user@example.com', password: 'password123' })
+        .expect(200);
+
+      // 使用无效的CSRF令牌
+      await agent
+        .post('/api/users/profile')
+        .set('X-CSRF-Token', 'invalid-csrf-token')
+        .send({ bio: 'Updated bio' })
+        .expect(403);
+
+      // 使用过期的CSRF令牌
+      const expiredToken = generateExpiredCSRFToken();
+      await agent
+        .post('/api/users/profile')
+        .set('X-CSRF-Token', expiredToken)
+        .send({ bio: 'Updated bio' })
+        .expect(403);
+    });
+  });
+
+  describe('File Upload Security', () => {
+    test('should validate file types', async () => {
+      const maliciousFiles = [
+        { name: 'malicious.exe', type: 'application/x-msdownload' },
+        { name: 'script.php', type: 'application/x-php' },
+        { name: 'webshell.jsp', type: 'application/jsp' },
+        { name: 'malicious.html', type: 'text/html' }
+      ];
+
+      for (const file of maliciousFiles) {
+        const response = await request(app)
+          .post('/api/upload')
+          .attach('file', Buffer.from('malicious content'), file)
+          .expect(400);
+
+        expect(response.body.message).toContain('File type not allowed');
+      }
+    });
+
+    test('should prevent directory traversal', async () => {
+      const traversalAttempts = [
+        '../../../../etc/passwd',
+        '..\\..\\..\\..\\windows\\system32\\config\\sam',
+        '....//....//....//etc/passwd',
+        '%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd'
+      ];
+
+      for (const path of traversalAttempts) {
+        const response = await request(app)
+          .post('/api/upload')
+          .attach('file', Buffer.from('test content'), {
+            filename: path,
+            contentType: 'text/plain'
+          })
+          .expect(400);
+
+        expect(response.body.message).toContain('Invalid filename');
+      }
+    });
+
+    test('should limit file size', async () => {
+      // 创建超过限制的文件 (假设限制是5MB)
+      const largeFile = Buffer.alloc(6 * 1024 * 1024); // 6MB
+
+      const response = await request(app)
+        .post('/api/upload')
+        .attach('file', largeFile, 'large-file.txt')
+        .expect(413); // Payload Too Large
+
+      expect(response.body.message).toContain('File too large');
+    });
+
+    test('should scan for malware', async () => {
+      // 创建包含恶意签名的文件
+      const maliciousContent = Buffer.from('X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*');
+
+      const response = await request(app)
+        .post('/api/upload')
+        .attach('file', maliciousContent, 'eicar.txt')
+        .expect(400);
+
+      expect(response.body.message).toContain('Malware detected');
+    });
+  });
+
+  describe('Rate Limiting', () => {
+    test('should enforce API rate limits', async () => {
+      const endpoint = '/api/users/search';
+      const requests = [];
+
+      // 发送大量请求
+      for (let i = 0; i < 150; i++) { // 假设限制是每分钟100次
+        requests.push(
+          request(app)
+            .get(endpoint)
+            .query({ q: 'test' })
+        );
+      }
+
+      const responses = await Promise.all(requests);
+
+      // 计算成功和失败的请求数
+      const successCount = responses.filter(r => r.status === 200).length;
+      const rateLimitedCount = responses.filter(r => r.status === 429).length;
+
+      expect(successCount).toBeGreaterThan(0);
+      expect(rateLimitedCount).toBeGreaterThan(0);
+      expect(successCount + rateLimitedCount).toBe(150);
+    });
+
+    test('should differentiate rate limits by endpoint', async () => {
+      // 对不同的端点应该有不同的限制
+      const endpoints = [
+        { path: '/api/auth/login', limit: 5 },     // 登录限制严格
+        { path: '/api/users/search', limit: 100 }, // 搜索限制宽松
+        { path: '/api/data/export', limit: 10 }    // 导出限制中等
+      ];
+
+      for (const { path, limit } of endpoints) {
+        const requests = [];
+
+        // 发送超出限制的请求
+        for (let i = 0; i < limit + 5; i++) {
+          if (path === '/api/auth/login') {
+            requests.push(
+              request(app)
+                .post(path)
+                .send({ email: 'test@example.com', password: 'wrong' })
+            );
+          } else {
+            requests.push(request(app).get(path));
+          }
+        }
+
+        const responses = await Promise.all(requests);
+
+        // 前limit个请求应该成功，最后几个应该被限流
+        const successCount = responses.filter(r => r.status !== 429).length;
+        const rateLimitedCount = responses.filter(r => r.status === 429).length;
+
+        expect(successCount).toBe(limit);
+        expect(rateLimitedCount).toBe(5);
+      }
+    });
+  });
+});
+```
+
+## 📊 测试报告和分析
+
+### 测试报告生成
+
+```javascript
+// vitest.config.js - 测试报告配置
+import { defineConfig } from 'vitest/config';
+import { coverageConfigDefaults } from 'vitest/config';
+
+export default defineConfig({
+  test: {
     coverage: {
       provider: 'istanbul',
       reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
         'node_modules/',
-        'tests/',
-        'scripts/',
-        'docs/',
         'dist/',
-        'demo-*.js',
-        '*.config.js'
+        'test/',
+        '**/*.config.js',
+        '**/*.d.ts'
       ],
       thresholds: {
         global: {
-          branches: 80,
-          functions: 80,
-          lines: 80,
-          statements: 80
+          statements: 80,
+          branches: 75,
+          functions: 85,
+          lines: 80
         },
         './src/core/': {
-          branches: 90,
-          functions: 90,
-          lines: 90,
-          statements: 90
+          statements: 90,
+          branches: 85,
+          functions: 95,
+          lines: 90
         }
-      }
+      },
+      reportsDirectory: './coverage'
     },
-    testTimeout: 10000,
-    maxConcurrency: 5,
-    reporters: ['verbose'],
-    include: ['tests/**/*.{test,spec}.{js,mjs}'],
-    exclude: ['node_modules', 'dist', 'coverage']
+    reporters: [
+      'default',
+      'json',
+      'junit', // CI/CD 工具支持
+      'html'
+    ],
+    outputFile: {
+      json: './test-results/test-results.json',
+      junit: './test-results/junit.xml'
+    }
   }
 });
 ```
 
-### 2. 测试环境设置 (setup.js)
+### 质量门禁配置
 
 ```javascript
-// 全局测试辅助函数
-global.performanceMonitor = {
-  start: () => performance.now(),
-  end: (startTime) => ({
-    duration: performance.now() - startTime,
-    formatted: `${(performance.now() - startTime).toFixed(2)}ms`
-  })
-};
-
-global.testDataGenerator = {
-  uuid: () => `test-uuid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-  user: () => ({
-    id: global.testDataGenerator.uuid(),
-    username: `user_${Date.now()}`,
-    email: `user_${Date.now()}@test.com`
-  })
-};
-
-global.asyncHelpers = {
-  sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
-  waitFor: async (condition, timeout = 5000, interval = 100) => {
-    const startTime = Date.now();
-    while (Date.now() - startTime < timeout) {
-      if (condition()) return true;
-      await global.asyncHelpers.sleep(interval);
+// quality-gate.config.js
+export default {
+  // 覆盖率门禁
+  coverage: {
+    global: {
+      statements: 80,
+      branches: 75,
+      functions: 85,
+      lines: 80
+    },
+    // 核心模块要求更高
+    './src/core/': {
+      statements: 90,
+      branches: 85,
+      functions: 95,
+      lines: 90
     }
-    throw new Error(`Condition not met within ${timeout}ms`);
+  },
+
+  // 性能门禁
+  performance: {
+    maxResponseTime: 2000,    // 最大响应时间 (ms)
+    maxMemoryUsage: 512,      // 最大内存使用 (MB)
+    maxCpuUsage: 80,          // 最大CPU使用率 (%)
+    minThroughput: 100        // 最小吞吐量 (req/sec)
+  },
+
+  // 安全门禁
+  security: {
+    maxVulnerabilities: 0,    // 允许的最大漏洞数
+    maxSeverity: 'medium',    // 允许的最大漏洞严重程度
+    requiredHeaders: [        // 必需的安全头
+      'X-Content-Type-Options',
+      'X-Frame-Options',
+      'X-XSS-Protection',
+      'Strict-Transport-Security'
+    ]
+  },
+
+  // 代码质量门禁
+  codeQuality: {
+    maxComplexity: 10,        // 最大圈复杂度
+    maxLinesPerFunction: 50,  // 函数最大行数
+    maxParameters: 4,         // 函数最大参数数
+    requireJSDoc: true        // 要求JSDoc注释
   }
 };
 ```
 
-### 3. 测试配置 (test-config.js)
-
-```javascript
-export const TEST_CONFIG = {
-  environment: {
-    NODE_ENV: 'test',
-    LOG_LEVEL: 'error'
-  },
-  api: {
-    baseURL: 'https://api.workflow.test',
-    timeout: 5000
-  },
-  auth: {
-    secret: 'test-jwt-secret-key-for-wokeflow-testing'
-  }
-};
-
-export class TestDataGenerator {
-  static generateUser(overrides = {}) {
-    return {
-      id: this.generateId(),
-      username: `user_${this.generateId()}`,
-      email: `user${this.generateId()}@test.com`,
-      role: 'user',
-      createdAt: new Date(),
-      ...overrides
-    };
-  }
-}
-```
-
-## 测试运行和报告
-
-### 1. 测试命令
-
-```bash
-# 运行所有测试
-npm test
-
-# 运行单元测试
-npm run test:unit
-
-# 运行集成测试
-npm run test:integration
-
-# 运行性能测试
-npm run test:performance
-
-# 运行安全测试
-npm run test:security
-
-# 运行覆盖率测试
-npm run test:coverage
-
-# 监听模式运行测试
-npm run test:watch
-```
-
-### 2. 覆盖率报告
-
-```bash
-# 生成详细覆盖率报告
-npm run test:coverage
-
-# 查看HTML覆盖率报告
-open coverage/index.html
-
-# LCOV格式报告（CI/CD使用）
-cat coverage/lcov.info
-```
-
-### 3. 性能基准测试
-
-```bash
-# 运行性能基准测试
-npm run benchmark
-
-# 比较性能变化
-node scripts/benchmark.js compare
-```
-
-## CI/CD 集成
-
-### GitHub Actions 配置
+### 持续集成集成
 
 ```yaml
+# .github/workflows/ci.yml
 name: CI/CD Pipeline
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
+    - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: npm ci
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
 
-      - name: Run linting
-        run: npm run lint
+    - name: Install dependencies
+      run: npm ci
 
-      - name: Run unit tests
-        run: npm run test:unit
+    - name: Run linting
+      run: npm run lint
 
-      - name: Run integration tests
-        run: npm run test:integration
+    - name: Run unit tests
+      run: npm run test:unit
 
-      - name: Run security tests
-        run: npm run test:security
+    - name: Run integration tests
+      run: npm run test:integration
 
-      - name: Generate coverage report
-        run: npm run test:coverage
+    - name: Run security tests
+      run: npm run test:security
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage/lcov.info
+    - name: Generate coverage report
+      run: npm run test:coverage
 
-      - name: Run performance tests
-        run: npm run test:performance
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+
+    - name: Run performance tests
+      run: npm run test:performance
+
+    - name: Quality gate check
+      run: npm run quality:check
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Start test environment
+      run: |
+        docker-compose -f docker-compose.test.yml up -d
+        npm run wait-for-services
+
+    - name: Run E2E tests
+      run: npm run test:e2e
+
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: e2e-screenshots
+        path: test-results/screenshots/
+
+  security:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Run security audit
+      run: npm run security:audit
+
+    - name: Run dependency vulnerability scan
+      run: npm run security:scan
+
+    - name: Upload security report
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-report
+        path: security-report.json
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test, e2e, security]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Deploy to staging
+      run: npm run deploy:staging
+
+    - name: Run smoke tests
+      run: npm run test:smoke
+
+    - name: Deploy to production
+      run: npm run deploy:production
+
+    - name: Run production verification
+      run: npm run verify:deployment
 ```
 
-## 测试最佳实践
+## 🎯 测试最佳实践
 
-### 1. 测试组织
-- **描述性命名**: 测试名称应该清晰描述测试内容
-- **独立性**: 每个测试应该独立运行，不依赖其他测试
-- **快速执行**: 单元测试应该在毫秒级完成
-- **可重复性**: 测试结果应该是一致的
+### 测试组织结构
 
-### 2. 测试数据管理
-- **测试数据生成**: 使用工厂函数生成测试数据
-- **数据隔离**: 每个测试使用独立的数据
-- **清理机制**: 测试后自动清理数据
-- **边界情况**: 包含边界值和异常情况
+```
+tests/
+├── unit/                          # 单元测试
+│   ├── core/                     # 核心模块测试
+│   │   ├── http.test.js
+│   │   ├── auth.test.js
+│   │   ├── state.test.js
+│   │   └── queue.test.js
+│   ├── services/                 # 服务层测试
+│   │   ├── userService.test.js
+│   │   └── workflowEngine.test.js
+│   └── utils/                    # 工具函数测试
+│       ├── date.test.js
+│       └── validation.test.js
+├── integration/                  # 集成测试
+│   ├── api/                      # API集成测试
+│   │   ├── users.test.js
+│   │   └── workflows.test.js
+│   ├── database/                 # 数据库集成测试
+│   └── messaging/                # 消息队列集成测试
+├── e2e/                         # 端到端测试
+│   ├── user-registration.spec.js
+│   ├── workflow-management.spec.js
+│   └── admin-dashboard.spec.js
+├── performance/                  # 性能测试
+│   ├── load/                     # 负载测试
+│   ├── stress/                   # 压力测试
+│   └── benchmark/                # 基准测试
+├── security/                     # 安全测试
+│   ├── authentication.test.js
+│   ├── authorization.test.js
+│   ├── input-validation.test.js
+│   └── rate-limiting.test.js
+├── fixtures/                     # 测试数据
+│   ├── users.json
+│   ├── workflows.json
+│   └── sample-data.sql
+├── utils/                        # 测试工具
+│   ├── test-helpers.js
+│   ├── mock-data.js
+│   └── database-helpers.js
+└── config/                       # 测试配置
+    ├── vitest.config.js
+    ├── playwright.config.js
+    └── testcontainers.config.js
+```
 
-### 3. 模拟和存根
-- **外部依赖**: 使用模拟对象替代外部服务
-- **确定性**: 模拟对象提供确定性的响应
-- **验证调用**: 验证被测代码正确调用了依赖
+### 测试命名约定
 
-### 4. 异步测试
-- **Promise处理**: 正确处理异步操作
-- **超时控制**: 设置合理的测试超时时间
-- **竞态条件**: 避免异步操作的竞态条件
+```javascript
+// 单元测试文件命名
+// [模块名].test.js 或 [模块名].spec.js
+// 例如：userService.test.js, httpClient.test.js
 
-### 5. 性能测试
-- **基准测试**: 建立性能基准线
-- **趋势监控**: 监控性能变化趋势
-- **瓶颈识别**: 识别性能瓶颈位置
-- **资源监控**: 监控内存和CPU使用
+// 测试用例命名
+describe('UserService', () => {
+  describe('createUser', () => {
+    it('should create user successfully', () => {
+      // 测试实现
+    });
 
-## 总结
+    it('should throw error for duplicate email', () => {
+      // 测试实现
+    });
 
-WokeFlow 的测试架构提供了从单元测试到安全测试的完整测试体系，确保系统的功能正确性、性能表现和安全可靠性。通过分层的测试策略和自动化的CI/CD集成，实现了高质量的软件交付标准。
+    it('should validate required fields', () => {
+      // 测试实现
+    });
+  });
+});
+```
+
+### Mock 和测试数据管理
+
+```javascript
+// tests/utils/mock-data.js
+export const mockUsers = {
+  activeUser: {
+    id: 'user_123',
+    username: 'johndoe',
+    email: 'john@example.com',
+    role: 'user',
+    status: 'active',
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01')
+  },
+
+  adminUser: {
+    id: 'user_456',
+    username: 'admin',
+    email: 'admin@example.com',
+    role: 'admin',
+    status: 'active',
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01')
+  }
+};
+
+export const mockWorkflows = {
+  simpleWorkflow: {
+    id: 'workflow_123',
+    name: 'Simple Workflow',
+    tasks: [
+      {
+        id: 'task_1',
+        name: 'Send Email',
+        type: 'http',
+        status: 'pending'
+      }
+    ],
+    status: 'created',
+    createdAt: new Date('2024-01-01')
+  }
+};
+
+// tests/utils/test-helpers.js
+export function createMockDatabase() {
+  return {
+    users: {
+      findById: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      find: vi.fn()
+    },
+    workflows: {
+      findById: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn()
+    }
+  };
+}
+
+export function createMockHttpClient() {
+  return {
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+    interceptors: {
+      request: { use: vi.fn() },
+      response: { use: vi.fn() }
+    }
+  };
+}
+
+export async function setupTestDatabase() {
+  const database = createMockDatabase();
+
+  // 设置默认行为
+  database.users.findById.mockResolvedValue(null);
+  database.workflows.findById.mockResolvedValue(null);
+
+  return database;
+}
+```
+
+### 测试执行优化
+
+```javascript
+// vitest.config.js - 优化配置
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    // 并行执行
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        singleThread: false,
+        useAtomics: true
+      }
+    },
+
+    // 按文件大小排序，先执行快的测试
+    sequence: {
+      sequencer: (tests) => {
+        return tests.sort((a, b) => {
+          // 简单的启发式：更小的文件可能更快
+          return a.filepath.length - b.filepath.length;
+        });
+      }
+    },
+
+    // 全局测试超时
+    testTimeout: 10000,
+
+    // Hook 超时
+    hookTimeout: 20000,
+
+    // 重试失败的测试
+    retry: 2,
+
+    // 检测内存泄漏
+    detectOpenHandles: true,
+
+    // 检测内存泄漏（实验性）
+    // detectMemoryLeaks: true,
+
+    // 隔离测试环境
+    isolate: true,
+
+    // 全局设置
+    globals: true,
+
+    // 环境变量
+    env: {
+      NODE_ENV: 'test',
+      DATABASE_URL: 'postgresql://test:test@localhost:5432/testdb'
+    }
+  }
+});
+```
+
+## 📚 总结
+
+WokeFlow 的测试架构采用全面的分层测试策略，确保代码质量和系统稳定性：
+
+### 测试层次覆盖
+- **单元测试**: 验证核心逻辑的正确性
+- **集成测试**: 确保模块间协作正常
+- **端到端测试**: 验证完整用户流程
+- **性能测试**: 保证系统性能表现
+- **安全测试**: 防范安全漏洞风险
+
+### 质量保障措施
+- 自动化测试执行和报告生成
+- 代码覆盖率监控和门禁设置
+- 持续集成中的质量检查
+- 性能基准和安全扫描
+
+### 最佳实践
+- 测试驱动开发 (TDD)
+- 行为驱动测试 (BDD)
+- Mock 和 Stub 的合理使用
+- 测试数据管理和清理
+- 并行测试执行优化
+
+通过完善的测试体系，WokeFlow 确保了系统的可靠性、可维护性和安全性，为生产环境的使用提供了坚实的质量保障。

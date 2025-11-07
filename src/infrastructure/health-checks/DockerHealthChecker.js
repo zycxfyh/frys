@@ -19,7 +19,7 @@ export class DockerHealthChecker extends HealthChecker {
 
     this.dockerHost = config.dockerHost || 'unix:///var/run/docker.sock';
     this.containerName = config.containerName || process.env.CONTAINER_NAME;
-    this.serviceName = config.serviceName || 'wokeflow-app';
+    this.serviceName = config.serviceName || 'frys-app';
     this.healthCheckEndpoint = config.healthCheckEndpoint || '/health';
     this.containerLabels = config.containerLabels || {};
 

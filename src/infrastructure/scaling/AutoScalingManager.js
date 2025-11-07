@@ -10,7 +10,7 @@ import { LoadBalancer } from './LoadBalancer.js';
 
 export class AutoScalingManager {
   constructor(config = {}) {
-    this.serviceName = config.serviceName || 'wokeflow-app';
+    this.serviceName = config.serviceName || 'frys-app';
     this.minInstances = config.minInstances || 1;
     this.maxInstances = config.maxInstances || 10;
     this.currentInstances = config.initialInstances || this.minInstances;

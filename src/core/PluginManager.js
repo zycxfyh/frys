@@ -478,8 +478,8 @@ export function Hook(event, options = {}) {
     const originalMethod = descriptor.value;
 
     // 在插件管理器中注册钩子
-    if (global.wokeflowPluginManager) {
-      global.wokeflowPluginManager.hook(
+    if (global.frysPluginManager) {
+      global.frysPluginManager.hook(
         event,
         originalMethod.bind(target),
         target.name,
@@ -498,8 +498,8 @@ export function Middleware(name) {
     const originalMethod = descriptor.value;
 
     // 在插件管理器中注册中间件
-    if (global.wokeflowPluginManager) {
-      global.wokeflowPluginManager.middleware(
+    if (global.frysPluginManager) {
+      global.frysPluginManager.middleware(
         name,
         originalMethod.bind(target),
       );
@@ -527,9 +527,9 @@ export const pluginManager = new PluginManager();
 
 // 注册到全局
 if (typeof global !== 'undefined') {
-  global.wokeflowPluginManager = pluginManager;
+  global.frysPluginManager = pluginManager;
 }
 
 if (typeof window !== 'undefined') {
-  window.wokeflowPluginManager = pluginManager;
+  window.frysPluginManager = pluginManager;
 }

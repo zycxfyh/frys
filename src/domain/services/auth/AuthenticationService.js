@@ -14,7 +14,7 @@ export class AuthenticationService {
     this.options = {
       jwtSecret:
         options.jwtSecret || process.env.JWT_SECRET || 'your-secret-key',
-      jwtIssuer: options.jwtIssuer || process.env.JWT_ISSUER || 'wokeflow',
+      jwtIssuer: options.jwtIssuer || process.env.JWT_ISSUER || 'frys',
       jwtAudience:
         options.jwtAudience || process.env.JWT_AUDIENCE || 'wokeflow-client',
       accessTokenExpiry: options.accessTokenExpiry || '15m', // 15分钟

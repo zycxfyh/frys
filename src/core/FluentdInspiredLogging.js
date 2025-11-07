@@ -57,7 +57,7 @@ class FluentdInspiredLogging {
       message,
       meta,
       timestamp: new Date(),
-      source: 'wokeflow',
+      source: 'frys',
     };
 
     this.buffer.push(logEntry);

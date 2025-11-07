@@ -1,6 +1,6 @@
 global:
   smtp_smarthost: 'smtp.gmail.com:587'
-  smtp_from: 'alerts@wokeflow.com'
+  smtp_from: 'alerts@frys.com'
   smtp_auth_username: '${SMTP_USERNAME}'
   smtp_auth_password: '${SMTP_PASSWORD}'
 
@@ -12,42 +12,42 @@ route:
   group_wait: 10s
   group_interval: 10s
   repeat_interval: 1h
-  receiver: 'wokeflow-alerts'
+  receiver: 'frys-alerts'
   routes:
     # 严重告警 - 立即通知
     - match:
         severity: critical
-      receiver: 'wokeflow-critical'
+      receiver: 'frys-critical'
       continue: true
 
     # 生产环境告警
     - match:
         environment: production
-      receiver: 'wokeflow-production'
+      receiver: 'frys-production'
       continue: true
 
     # frys 应用告警
     - match:
-        service: wokeflow
-      receiver: 'wokeflow-app-team'
+        service: frys
+      receiver: 'frys-app-team'
       continue: true
 
     # 基础设施告警
     - match:
         service: infrastructure
-      receiver: 'wokeflow-infra-team'
+      receiver: 'frys-infra-team'
       continue: true
 
     # SLO 违反告警
     - match:
         slo: api_availability
-      receiver: 'wokeflow-slo-alerts'
+      receiver: 'frys-slo-alerts'
 
 receivers:
   # 默认告警接收者
-  - name: 'wokeflow-alerts'
+  - name: 'frys-alerts'
     email_configs:
-      - to: 'alerts@wokeflow.com'
+      - to: 'alerts@frys.com'
         subject: 'frys 告警: {{ .GroupLabels.alertname }}'
         body: |
           {{ range .Alerts }}
@@ -68,9 +68,9 @@ receivers:
           {{ end }}
 
   # 严重告警 - 立即响应
-  - name: 'wokeflow-critical'
+  - name: 'frys-critical'
     email_configs:
-      - to: 'oncall@wokeflow.com'
+      - to: 'oncall@frys.com'
         subject: '🚨 严重告警: {{ .GroupLabels.alertname }}'
     slack_configs:
       - api_url: '${SLACK_WEBHOOK_URL}'
@@ -82,9 +82,9 @@ receivers:
         description: 'frys 严重告警: {{ .GroupLabels.alertname }}'
 
   # 生产环境告警
-  - name: 'wokeflow-production'
+  - name: 'frys-production'
     email_configs:
-      - to: 'prod-alerts@wokeflow.com'
+      - to: 'prod-alerts@frys.com'
         subject: '[PROD] frys 告警: {{ .GroupLabels.alertname }}'
     slack_configs:
       - api_url: '${SLACK_WEBHOOK_URL}'
@@ -92,9 +92,9 @@ receivers:
         title: '[PROD] 告警'
 
   # 应用团队告警
-  - name: 'wokeflow-app-team'
+  - name: 'frys-app-team'
     email_configs:
-      - to: 'app-team@wokeflow.com'
+      - to: 'app-team@frys.com'
         subject: '[APP] frys 告警: {{ .GroupLabels.alertname }}'
     slack_configs:
       - api_url: '${SLACK_WEBHOOK_URL}'
@@ -102,9 +102,9 @@ receivers:
         title: '[APP] 告警'
 
   # 基础设施团队告警
-  - name: 'wokeflow-infra-team'
+  - name: 'frys-infra-team'
     email_configs:
-      - to: 'infra-team@wokeflow.com'
+      - to: 'infra-team@frys.com'
         subject: '[INFRA] frys 告警: {{ .GroupLabels.alertname }}'
     slack_configs:
       - api_url: '${SLACK_WEBHOOK_URL}'
@@ -112,9 +112,9 @@ receivers:
         title: '[INFRA] 告警'
 
   # SLO 告警
-  - name: 'wokeflow-slo-alerts'
+  - name: 'frys-slo-alerts'
     email_configs:
-      - to: 'slo@wokeflow.com'
+      - to: 'slo@frys.com'
         subject: '[SLO] 违反: {{ .GroupLabels.alertname }}'
     slack_configs:
       - api_url: '${SLACK_WEBHOOK_URL}'

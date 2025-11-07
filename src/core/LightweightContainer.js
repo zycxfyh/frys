@@ -245,8 +245,8 @@ export function Dependency(...dependencies) {
 export function Service(name, options = {}) {
   return function (constructor) {
     // 在容器中注册
-    if (global.wokeflowContainer) {
-      global.wokeflowContainer.register(name, constructor, options);
+    if (global.frysContainer) {
+      global.frysContainer.register(name, constructor, options);
     }
 
     // 添加服务元数据
@@ -281,9 +281,9 @@ export const globalContainer = new LightweightContainer();
 
 // 注册到全局
 if (typeof global !== 'undefined') {
-  global.wokeflowContainer = globalContainer;
+  global.frysContainer = globalContainer;
 }
 
 if (typeof window !== 'undefined') {
-  window.wokeflowContainer = globalContainer;
+  window.frysContainer = globalContainer;
 }

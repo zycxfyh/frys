@@ -78,8 +78,8 @@ export const config = {
   // 消息队列配置
   messaging: {
     cluster: safeString(
-      getEnvVar('NATS_CLUSTER', 'wokeflow-prod'),
-      'wokeflow-prod',
+      getEnvVar('NATS_CLUSTER', 'frys-prod'),
+      'frys-prod',
     ),
     timeout: safeParseInt(getEnvVar('MESSAGING_TIMEOUT', '5000'), 5000),
     maxConnections: safeParseInt(
@@ -96,8 +96,8 @@ export const config = {
     ),
     expiresIn: getEnvVar('JWT_EXPIRES_IN', '24h'),
     refreshTokenExpiresIn: getEnvVar('JWT_REFRESH_EXPIRES_IN', '7d'),
-    issuer: getEnvVar('JWT_ISSUER', 'wokeflow-production'),
-    audience: getEnvVar('JWT_AUDIENCE', 'wokeflow-users'),
+    issuer: getEnvVar('JWT_ISSUER', 'frys-production'),
+    audience: getEnvVar('JWT_AUDIENCE', 'frys-users'),
   },
 
   // 数据库配置
@@ -105,7 +105,7 @@ export const config = {
     type: safeString(getEnvVar('DB_TYPE', 'mongodb'), 'mongodb'),
     host: safeString(getEnvVar('DB_HOST', 'localhost'), 'localhost'),
     port: safeParseInt(getEnvVar('DB_PORT', '27017'), 27017),
-    name: safeString(getEnvVar('DB_NAME', 'wokeflow_prod'), 'wokeflow_prod'),
+    name: safeString(getEnvVar('DB_NAME', 'frys_prod'), 'frys_prod'),
     username: getEnvVar('DB_USERNAME'),
     password: getEnvVar('DB_PASSWORD'),
     connectionTimeout: safeParseInt(
@@ -188,7 +188,7 @@ export const config = {
     slack: {
       enabled: getEnvVar('SLACK_ENABLED', 'false') === 'true',
       webhookUrl: getEnvVar('SLACK_WEBHOOK_URL'),
-      channel: getEnvVar('SLACK_CHANNEL', '#wokeflow-notifications'),
+      channel: getEnvVar('SLACK_CHANNEL', '#frys-notifications'),
     },
   },
 
@@ -202,7 +202,7 @@ export const config = {
       },
       file: {
         enabled: getEnvVar('LOG_FILE_ENABLED', 'true') === 'true',
-        path: getEnvVar('LOG_FILE_PATH', './logs/wokeflow.log'),
+        path: getEnvVar('LOG_FILE_PATH', './logs/frys.log'),
         maxSize: getEnvVar('LOG_FILE_MAX_SIZE', '10m'),
         maxFiles: getEnvVar('LOG_FILE_MAX_FILES', '5'),
       },

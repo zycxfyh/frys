@@ -29,7 +29,7 @@ export class Span {
     };
 
     // 设置默认标签
-    this.setTag('service.name', options.serviceName || 'wokeflow');
+    this.setTag('service.name', options.serviceName || 'frys');
     this.setTag('service.version', options.serviceVersion || '1.0.0');
     this.setTag('span.kind', this.kind);
     this.setTag('component', options.component || 'unknown');

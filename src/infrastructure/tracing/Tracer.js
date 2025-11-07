@@ -10,7 +10,7 @@ import { logger } from '../../utils/logger.js';
 
 export class Tracer {
   constructor(config = {}) {
-    this.serviceName = config.serviceName || 'wokeflow';
+    this.serviceName = config.serviceName || 'frys';
     this.serviceVersion = config.serviceVersion || '1.0.0';
     this.samplingStrategy = config.samplingStrategy || new SamplingStrategy();
     this.reporter =

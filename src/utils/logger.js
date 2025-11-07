@@ -115,7 +115,7 @@ class StructuredLogFormatter {
       level,
       levelNumeric: LOG_LEVELS[level] || 0,
       message,
-      service: globalContext.get('service') || 'wokeflow',
+      service: globalContext.get('service') || 'frys',
       version: globalContext.get('version') || '1.0.0',
       environment: globalContext.get('environment') || 'development',
       hostname: os.hostname(),
@@ -373,7 +373,7 @@ class StructuredLogger {
 
     // 设置全局上下文
     this.setGlobalContext({
-      service: 'wokeflow',
+      service: 'frys',
       version: '1.0.0',
       environment: config.environment || 'development',
     });

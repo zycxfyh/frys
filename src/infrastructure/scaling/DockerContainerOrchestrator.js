@@ -11,13 +11,13 @@ export class DockerContainerOrchestrator extends ContainerOrchestrator {
   constructor(config = {}) {
     super();
     this.dockerHost = config.dockerHost || 'unix:///var/run/docker.sock';
-    this.network = config.network || 'wokeflow-network';
-    this.imageName = config.imageName || 'wokeflow-app:latest';
+    this.network = config.network || 'frys-network';
+    this.imageName = config.imageName || 'frys-app:latest';
     this.basePort = config.basePort || 3000;
-    this.containerPrefix = config.containerPrefix || 'wokeflow-app-';
+    this.containerPrefix = config.containerPrefix || 'frys-app-';
     this.labels = config.labels || {
-      'wokeflow.service': 'app',
-      'wokeflow.managed': 'true',
+      'frys.service': 'app',
+      'frys.managed': 'true',
     };
     this.environment = config.environment || {};
     this.volumes = config.volumes || [];
@@ -132,7 +132,7 @@ export class DockerContainerOrchestrator extends ContainerOrchestrator {
     try {
       const containers = await this._listContainers({
         filters: {
-          label: [`wokeflow.service=${serviceName}`],
+          label: [`frys.service=${serviceName}`],
           status: ['running'],
         },
       });
@@ -241,8 +241,8 @@ export class DockerContainerOrchestrator extends ContainerOrchestrator {
 
     const labels = {
       ...this.labels,
-      'wokeflow.instance.id': instanceId,
-      'wokeflow.instance.index': (options.index || 0).toString(),
+      'frys.instance.id': instanceId,
+      'frys.instance.index': (options.index || 0).toString(),
       ...options.labels,
     };
 

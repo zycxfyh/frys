@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: wokeflow-staging
+    container_name: frys-staging
     environment:
       - NODE_ENV=staging
       - PORT=3000
@@ -22,7 +22,7 @@ services:
     depends_on:
       - redis
     networks:
-      - wokeflow-staging
+      - frys-staging
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -34,14 +34,14 @@ services:
   # Redis 缓存服务
   redis:
     image: redis:7-alpine
-    container_name: wokeflow-redis-staging
+    container_name: frys-redis-staging
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
     networks:
-      - wokeflow-staging
+      - frys-staging
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -52,17 +52,17 @@ services:
   # PostgreSQL 数据库 (可选，用于生产级测试)
   postgres:
     image: postgres:15-alpine
-    container_name: wokeflow-postgres-staging
+    container_name: frys-postgres-staging
     environment:
-      - POSTGRES_DB=wokeflow_staging
-      - POSTGRES_USER=wokeflow
+      - POSTGRES_DB=frys_staging
+      - POSTGRES_USER=frys
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - wokeflow-staging
+      - frys-staging
     restart: unless-stopped
     profiles:
       - full
@@ -70,7 +70,7 @@ services:
   # Nginx 反向代理
   nginx:
     image: nginx:alpine
-    container_name: wokeflow-nginx-staging
+    container_name: frys-nginx-staging
     ports:
       - "80:80"
       - "443:443"
@@ -81,7 +81,7 @@ services:
     depends_on:
       - wokeflow
     networks:
-      - wokeflow-staging
+      - frys-staging
     restart: unless-stopped
     profiles:
       - web
@@ -89,7 +89,7 @@ services:
   # 监控服务 (Prometheus)
   prometheus:
     image: prom/prometheus:latest
-    container_name: wokeflow-prometheus-staging
+    container_name: frys-prometheus-staging
     ports:
       - "127.0.0.1:9090:9090"
     volumes:
@@ -103,7 +103,7 @@ services:
       - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
     networks:
-      - wokeflow-staging
+      - frys-staging
     restart: unless-stopped
     profiles:
       - monitoring
@@ -111,7 +111,7 @@ services:
   # Grafana 可视化
   grafana:
     image: grafana/grafana:latest
-    container_name: wokeflow-grafana-staging
+    container_name: frys-grafana-staging
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     ports:
@@ -123,7 +123,7 @@ services:
     depends_on:
       - prometheus
     networks:
-      - wokeflow-staging
+      - frys-staging
     restart: unless-stopped
     profiles:
       - monitoring
@@ -136,5 +136,5 @@ volumes:
   nginx_logs:
 
 networks:
-  wokeflow-staging:
+  frys-staging:
     driver: bridge

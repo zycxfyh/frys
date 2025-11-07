@@ -4,63 +4,63 @@ groups:
     rules:
       # 应用实例宕机
       - alert: frysInstanceDown
-        expr: up{job=~"wokeflow-(blue|green)"} == 0
+        expr: up{job=~"frys-(blue|green)"} == 0
         for: 1m
         labels:
           severity: critical
-          service: wokeflow
+          service: frys
         annotations:
           summary: "frys 实例宕机"
           description: "frys {{ $labels.instance }} 实例已宕机 1 分钟"
-          runbook_url: "https://docs.wokeflow.com/runbooks/instance-down"
+          runbook_url: "https://docs.frys.com/runbooks/instance-down"
 
       # 应用响应时间过高
       - alert: frysHighResponseTime
-        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=~"wokeflow-(blue|green)"}[5m])) > 2
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=~"frys-(blue|green)"}[5m])) > 2
         for: 5m
         labels:
           severity: warning
-          service: wokeflow
+          service: frys
         annotations:
           summary: "frys 响应时间过高"
           description: "frys {{ $labels.instance }} 95% 响应时间超过 2 秒"
-          runbook_url: "https://docs.wokeflow.com/runbooks/high-response-time"
+          runbook_url: "https://docs.frys.com/runbooks/high-response-time"
 
       # 应用错误率过高
       - alert: frysHighErrorRate
-        expr: rate(http_requests_total{status=~"5..", job=~"wokeflow-(blue|green)"}[5m]) / rate(http_requests_total{job=~"wokeflow-(blue|green)"}[5m]) > 0.05
+        expr: rate(http_requests_total{status=~"5..", job=~"frys-(blue|green)"}[5m]) / rate(http_requests_total{job=~"frys-(blue|green)"}[5m]) > 0.05
         for: 5m
         labels:
           severity: critical
-          service: wokeflow
+          service: frys
         annotations:
           summary: "frys 错误率过高"
           description: "frys {{ $labels.instance }} 错误率超过 5%"
-          runbook_url: "https://docs.wokeflow.com/runbooks/high-error-rate"
+          runbook_url: "https://docs.frys.com/runbooks/high-error-rate"
 
       # 内存使用过高
       - alert: frysHighMemoryUsage
-        expr: process_resident_memory_bytes{job=~"wokeflow-(blue|green)"} / process_virtual_memory_max_bytes > 0.9
+        expr: process_resident_memory_bytes{job=~"frys-(blue|green)"} / process_virtual_memory_max_bytes > 0.9
         for: 10m
         labels:
           severity: warning
-          service: wokeflow
+          service: frys
         annotations:
           summary: "frys 内存使用过高"
           description: "frys {{ $labels.instance }} 内存使用超过 90%"
-          runbook_url: "https://docs.wokeflow.com/runbooks/high-memory"
+          runbook_url: "https://docs.frys.com/runbooks/high-memory"
 
       # CPU 使用过高
       - alert: frysHighCPUUsage
-        expr: rate(process_cpu_user_seconds_total{job=~"wokeflow-(blue|green)"}[5m]) > 0.8
+        expr: rate(process_cpu_user_seconds_total{job=~"frys-(blue|green)"}[5m]) > 0.8
         for: 10m
         labels:
           severity: warning
-          service: wokeflow
+          service: frys
         annotations:
           summary: "frys CPU 使用过高"
           description: "frys {{ $labels.instance }} CPU 使用率超过 80%"
-          runbook_url: "https://docs.wokeflow.com/runbooks/high-cpu"
+          runbook_url: "https://docs.frys.com/runbooks/high-cpu"
 
   # 基础设施告警
   - name: infrastructure_alerts
@@ -75,7 +75,7 @@ groups:
         annotations:
           summary: "数据库连接失败"
           description: "PostgreSQL 数据库无法连接"
-          runbook_url: "https://docs.wokeflow.com/runbooks/database-down"
+          runbook_url: "https://docs.frys.com/runbooks/database-down"
 
       # Redis 连接失败
       - alert: RedisDown
@@ -87,7 +87,7 @@ groups:
         annotations:
           summary: "Redis 连接失败"
           description: "Redis 缓存服务无法连接"
-          runbook_url: "https://docs.wokeflow.com/runbooks/redis-down"
+          runbook_url: "https://docs.frys.com/runbooks/redis-down"
 
       # Nginx 连接失败
       - alert: NginxDown
@@ -99,7 +99,7 @@ groups:
         annotations:
           summary: "Nginx 代理失败"
           description: "Nginx 反向代理服务宕机"
-          runbook_url: "https://docs.wokeflow.com/runbooks/nginx-down"
+          runbook_url: "https://docs.frys.com/runbooks/nginx-down"
 
       # 系统磁盘空间不足
       - alert: DiskSpaceLow
@@ -111,7 +111,7 @@ groups:
         annotations:
           summary: "磁盘空间不足"
           description: "{{ $labels.mountpoint }} 分区可用空间小于 10%"
-          runbook_url: "https://docs.wokeflow.com/runbooks/disk-space-low"
+          runbook_url: "https://docs.frys.com/runbooks/disk-space-low"
 
       # 系统内存不足
       - alert: SystemMemoryLow
@@ -123,7 +123,7 @@ groups:
         annotations:
           summary: "系统内存不足"
           description: "系统可用内存小于 10%"
-          runbook_url: "https://docs.wokeflow.com/runbooks/memory-low"
+          runbook_url: "https://docs.frys.com/runbooks/memory-low"
 
   # 监控系统告警
   - name: monitoring_alerts
@@ -138,7 +138,7 @@ groups:
         annotations:
           summary: "Prometheus 配置重载失败"
           description: "Prometheus 配置文件重载失败"
-          runbook_url: "https://docs.wokeflow.com/runbooks/prometheus-config"
+          runbook_url: "https://docs.frys.com/runbooks/prometheus-config"
 
       # AlertManager 不可用
       - alert: AlertmanagerDown
@@ -150,22 +150,22 @@ groups:
         annotations:
           summary: "AlertManager 不可用"
           description: "告警管理器服务宕机"
-          runbook_url: "https://docs.wokeflow.com/runbooks/alertmanager-down"
+          runbook_url: "https://docs.frys.com/runbooks/alertmanager-down"
 
   # 业务指标告警
   - name: business_alerts
     rules:
       # API 调用量异常
       - alert: LowAPICalls
-        expr: rate(http_requests_total{job=~"wokeflow-(blue|green)"}[10m]) < 1
+        expr: rate(http_requests_total{job=~"frys-(blue|green)"}[10m]) < 1
         for: 10m
         labels:
           severity: info
-          service: wokeflow
+          service: frys
         annotations:
           summary: "API 调用量异常偏低"
           description: "frys API 10分钟内调用次数少于 1 次"
-          runbook_url: "https://docs.wokeflow.com/runbooks/low-api-calls"
+          runbook_url: "https://docs.frys.com/runbooks/low-api-calls"
 
       # 工作流执行失败率过高
       - alert: HighWorkflowFailureRate
@@ -173,11 +173,11 @@ groups:
         for: 5m
         labels:
           severity: warning
-          service: wokeflow
+          service: frys
         annotations:
           summary: "工作流失败率过高"
           description: "工作流执行失败率超过 10%"
-          runbook_url: "https://docs.wokeflow.com/runbooks/workflow-failures"
+          runbook_url: "https://docs.frys.com/runbooks/workflow-failures"
 
       # 用户认证失败率过高
       - alert: HighAuthFailureRate
@@ -185,8 +185,8 @@ groups:
         for: 5m
         labels:
           severity: warning
-          service: wokeflow
+          service: frys
         annotations:
           summary: "认证失败率过高"
           description: "用户认证失败率超过 20%"
-          runbook_url: "https://docs.wokeflow.com/runbooks/auth-failures"
+          runbook_url: "https://docs.frys.com/runbooks/auth-failures"

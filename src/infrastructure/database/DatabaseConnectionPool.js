@@ -12,8 +12,8 @@ export class DatabaseConnectionPool {
     this.options = {
       host: options.host || process.env.DB_HOST || 'localhost',
       port: options.port || parseInt(process.env.DB_PORT) || 5432,
-      database: options.database || process.env.DB_NAME || 'wokeflow',
-      user: options.user || process.env.DB_USER || 'wokeflow',
+      database: options.database || process.env.DB_NAME || 'frys',
+      user: options.user || process.env.DB_USER || 'frys',
       password: options.password || process.env.DB_PASSWORD || 'password',
       ssl: options.ssl || process.env.DB_SSL === 'true' || false,
 

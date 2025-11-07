@@ -94,7 +94,7 @@ export function initializeSentry() {
 
     // 设置标签
     Sentry.setTags({
-      service: 'wokeflow',
+      service: 'frys',
       version: config.version || '1.0.0',
       environment: config.env || 'development',
     });
@@ -177,7 +177,7 @@ class ErrorHandler {
       Sentry.withScope((scope) => {
         // 设置上下文信息
         scope.setTag('context', context.context || 'unknown');
-        scope.setTag('service', 'wokeflow');
+        scope.setTag('service', 'frys');
 
         if (context.userId) {
           scope.setUser({ id: context.userId });

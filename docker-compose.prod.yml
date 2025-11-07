@@ -2,11 +2,11 @@ version: '3.8'
 
 services:
   # frys 应用服务 - 蓝绿部署
-  wokeflow-blue:
+  frys-blue:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: wokeflow-prod-blue
+    container_name: frys-prod-blue
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -24,7 +24,7 @@ services:
       - redis
       - postgres
     networks:
-      - wokeflow-prod
+      - frys-prod
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -43,11 +43,11 @@ services:
     profiles:
       - blue
 
-  wokeflow-green:
+  frys-green:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: wokeflow-prod-green
+    container_name: frys-prod-green
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -65,7 +65,7 @@ services:
       - redis
       - postgres
     networks:
-      - wokeflow-prod
+      - frys-prod
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -87,7 +87,7 @@ services:
   # Redis 缓存服务
   redis:
     image: redis:7-alpine
-    container_name: wokeflow-prod-redis
+    container_name: frys-prod-redis
     ports:
       # Redis端口仅限内部网络访问，提高安全性
       - "127.0.0.1:6379:6379"
@@ -96,7 +96,7 @@ services:
       - ./redis/redis.conf:/etc/redis/redis.conf:ro
     command: redis-server /etc/redis/redis.conf
     networks:
-      - wokeflow-prod
+      - frys-prod
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
@@ -115,9 +115,9 @@ services:
   # PostgreSQL 数据库
   postgres:
     image: postgres:15-alpine
-    container_name: wokeflow-prod-postgres
+    container_name: frys-prod-postgres
     environment:
-      - POSTGRES_DB=wokeflow_prod
+      - POSTGRES_DB=frys_prod
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_INITDB_ARGS=--encoding=UTF-8
@@ -128,10 +128,10 @@ services:
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - ./backups:/backups
     networks:
-      - wokeflow-prod
+      - frys-prod
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d wokeflow_prod"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d frys_prod"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -147,7 +147,7 @@ services:
   # Nginx 反向代理和负载均衡器
   nginx:
     image: nginx:1.25-alpine
-    container_name: wokeflow-prod-nginx
+    container_name: frys-prod-nginx
     ports:
       - "80:80"
       - "443:443"
@@ -157,10 +157,10 @@ services:
       - ./nginx/logs:/var/log/nginx
       - ./nginx/cache:/var/cache/nginx
     depends_on:
-      - wokeflow-blue
-      - wokeflow-green
+      - frys-blue
+      - frys-green
     networks:
-      - wokeflow-prod
+      - frys-prod
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]
@@ -179,7 +179,7 @@ services:
   # 监控栈 - Prometheus
   prometheus:
     image: prom/prometheus:v2.45.0
-    container_name: wokeflow-prod-prometheus
+    container_name: frys-prod-prometheus
     ports:
       - "127.0.0.1:9090:9090"
     volumes:
@@ -195,7 +195,7 @@ services:
       - '--web.enable-lifecycle'
       - '--web.enable-admin-api'
     networks:
-      - wokeflow-prod
+      - frys-prod
     restart: unless-stopped
     deploy:
       resources:
@@ -209,7 +209,7 @@ services:
   # Grafana 可视化
   grafana:
     image: grafana/grafana:10.1.0
-    container_name: wokeflow-prod-grafana
+    container_name: frys-prod-grafana
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
@@ -224,7 +224,7 @@ services:
     depends_on:
       - prometheus
     networks:
-      - wokeflow-prod
+      - frys-prod
     restart: unless-stopped
     deploy:
       resources:
@@ -238,7 +238,7 @@ services:
   # AlertManager 告警管理
   alertmanager:
     image: prom/alertmanager:v0.25.0
-    container_name: wokeflow-prod-alertmanager
+    container_name: frys-prod-alertmanager
     ports:
       - "127.0.0.1:9093:9093"
     volumes:
@@ -248,13 +248,13 @@ services:
       - '--config.file=/etc/alertmanager/config.yml'
       - '--storage.path=/alertmanager'
     networks:
-      - wokeflow-prod
+      - frys-prod
     restart: unless-stopped
 
   # Node Exporter 系统监控
   node-exporter:
     image: prom/node-exporter:v1.6.1
-    container_name: wokeflow-prod-node-exporter
+    container_name: frys-prod-node-exporter
     ports:
       - "127.0.0.1:9100:9100"
     volumes:
@@ -267,7 +267,7 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
-      - wokeflow-prod
+      - frys-prod
     restart: unless-stopped
     deploy:
       mode: global
@@ -285,7 +285,7 @@ volumes:
     driver: local
 
 networks:
-  wokeflow-prod:
+  frys-prod:
     driver: bridge
     ipam:
       config:

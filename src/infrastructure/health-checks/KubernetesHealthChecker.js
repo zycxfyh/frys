@@ -14,7 +14,7 @@ export class KubernetesHealthChecker extends HealthChecker {
     this.namespace = config.namespace || 'default';
     this.podName = config.podName || process.env.POD_NAME;
     this.serviceName =
-      config.serviceName || process.env.SERVICE_NAME || 'wokeflow-app';
+      config.serviceName || process.env.SERVICE_NAME || 'frys-app';
     this.clusterName = config.clusterName || process.env.CLUSTER_NAME;
     this.kubeconfig = config.kubeconfig || process.env.KUBECONFIG;
 

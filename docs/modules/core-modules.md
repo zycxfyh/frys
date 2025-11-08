@@ -967,7 +967,7 @@ setInterval(() => {
 ## 📚 相关链接
 
 - [项目主页](https://github.com/zycxfyh/frys)
-- [API 文档](api-documentation.md)
-- [部署指南](deployment-guide.md)
-- [测试策略](testing-architecture.md)
-- [贡献指南](../CONTRIBUTING.md)
+- [API 文档](../api/api-documentation.md)
+- [部署指南](../deployment/deployment-guide.md)
+- [测试策略](../testing/testing-architecture.md)
+- [贡献指南](../../CONTRIBUTING.md)

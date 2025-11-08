@@ -106,8 +106,8 @@ const providerConfig = {
       'gpt-4': {
         maxTokens: 8192,
         costPerToken: 0.03, // 每千tokens的价格
-        performance: 0.9,   // 性能评分
-        latency: 2000,      // 平均延迟(ms)
+        performance: 0.9, // 性能评分
+        latency: 2000, // 平均延迟(ms)
       },
       'gpt-3.5-turbo': {
         maxTokens: 4096,
@@ -153,9 +153,10 @@ const providerConfig = {
 
   // 通用配置
   common: {
-    timeout: 30000,       // 请求超时
-    retries: 3,           // 重试次数
-    circuitBreaker: {     // 断路器
+    timeout: 30000, // 请求超时
+    retries: 3, // 重试次数
+    circuitBreaker: {
+      // 断路器
       failureThreshold: 5,
       recoveryTimeout: 60000,
     },
@@ -169,20 +170,20 @@ const providerConfig = {
 // 路由策略配置
 const routingStrategies = {
   // 成本优先策略
-  'cost': {
+  cost: {
     algorithm: 'lowest-cost',
     factors: {
-      cost: 0.8,        // 成本权重80%
+      cost: 0.8, // 成本权重80%
       performance: 0.1, // 性能权重10%
-      latency: 0.1,     // 延迟权重10%
+      latency: 0.1, // 延迟权重10%
     },
     constraints: {
-      maxCost: 0.01,    // 最大成本限制
+      maxCost: 0.01, // 最大成本限制
     },
   },
 
   // 性能优先策略
-  'performance': {
+  performance: {
     algorithm: 'highest-performance',
     factors: {
       performance: 0.7,
@@ -191,12 +192,12 @@ const routingStrategies = {
     },
     constraints: {
       minPerformance: 0.8, // 最小性能要求
-      maxLatency: 2000,     // 最大延迟
+      maxLatency: 2000, // 最大延迟
     },
   },
 
   // 平衡策略
-  'balanced': {
+  balanced: {
     algorithm: 'weighted-score',
     factors: {
       cost: 0.4,
@@ -206,13 +207,13 @@ const routingStrategies = {
   },
 
   // 自适应策略（基于历史数据）
-  'adaptive': {
+  adaptive: {
     algorithm: 'machine-learning',
     learningRate: 0.1,
     adaptationInterval: 3600000, // 每小时调整一次
     historicalData: {
       window: 24 * 60 * 60 * 1000, // 24小时历史数据
-      minSamples: 100,             // 最少样本数
+      minSamples: 100, // 最少样本数
     },
   },
 };
@@ -248,24 +249,26 @@ class Router {
   }
 
   filterCandidates(requirements) {
-    return Object.entries(this.providers).filter(([name, config]) => {
-      // 检查模型可用性
-      if (requirements.model && !config.models[requirements.model]) {
-        return false;
-      }
+    return Object.entries(this.providers)
+      .filter(([name, config]) => {
+        // 检查模型可用性
+        if (requirements.model && !config.models[requirements.model]) {
+          return false;
+        }
 
-      // 检查配额
-      if (this.isQuotaExceeded(name)) {
-        return false;
-      }
+        // 检查配额
+        if (this.isQuotaExceeded(name)) {
+          return false;
+        }
 
-      // 检查健康状态
-      if (!this.isProviderHealthy(name)) {
-        return false;
-      }
+        // 检查健康状态
+        if (!this.isProviderHealthy(name)) {
+          return false;
+        }
 
-      return true;
-    }).map(([name, config]) => ({ name, config }));
+        return true;
+      })
+      .map(([name, config]) => ({ name, config }));
   }
 
   selectLowestCost(candidates, requirements) {
@@ -300,7 +303,7 @@ class QuotaManager {
     const key = `quota:${provider}:${userId}`;
     const quota = this.config.providers[provider].rateLimit;
 
-    const current = await this.redis.get(key) || 0;
+    const current = (await this.redis.get(key)) || 0;
     const remaining = quota.requests - current;
 
     return {
@@ -338,7 +341,9 @@ class QuotaManager {
 
   // 获取配额重置时间
   getResetTime(key) {
-    return new Date(Date.now() + this.config.providers[key.split(':')[1]].rateLimit.period);
+    return new Date(
+      Date.now() + this.config.providers[key.split(':')[1]].rateLimit.period,
+    );
   }
 
   async logQuotaExceeded(provider, userId) {
@@ -494,7 +499,9 @@ class UserService {
     }
 
     // 验证用户名唯一性
-    const existingUsername = await this.userRepository.findByUsername(userData.username);
+    const existingUsername = await this.userRepository.findByUsername(
+      userData.username,
+    );
     if (existingUsername) {
       throw new Error('用户名已被使用');
     }
@@ -530,7 +537,10 @@ class UserService {
       throw new Error('账户已被停用');
     }
 
-    const isValidPassword = await this.authService.verifyPassword(password, user.passwordHash);
+    const isValidPassword = await this.authService.verifyPassword(
+      password,
+      user.passwordHash,
+    );
     if (!isValidPassword) {
       // 记录失败尝试
       await this.recordFailedLogin(user.id);
@@ -613,7 +623,7 @@ class UserService {
     // 验证当前密码
     const isCurrentPasswordValid = await this.authService.verifyPassword(
       currentPassword,
-      user.passwordHash
+      user.passwordHash,
     );
 
     if (!isCurrentPasswordValid) {
@@ -643,10 +653,12 @@ class UserService {
 
   // 辅助方法
   isPasswordStrong(password) {
-    return password.length >= 8 &&
-           /[A-Z]/.test(password) &&
-           /[a-z]/.test(password) &&
-           /[0-9]/.test(password);
+    return (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /[0-9]/.test(password)
+    );
   }
 
   async recordFailedLogin(userId) {
@@ -691,10 +703,10 @@ const workflowDefinition = {
 
   // 全局配置
   config: {
-    timeout: 3600000,      // 1小时超时
+    timeout: 3600000, // 1小时超时
     retryPolicy: {
       maxAttempts: 3,
-      backoffMs: 5000,     // 5秒退避
+      backoffMs: 5000, // 5秒退避
     },
     notifications: {
       onStart: true,
@@ -841,7 +853,6 @@ class WorkflowEngine {
         output: execution.output,
         duration: execution.duration,
       });
-
     } catch (error) {
       // 发送失败事件
       await this.services.messaging.publish('workflow.failed', {
@@ -875,7 +886,6 @@ class WorkflowEngine {
 
       execution.status = 'completed';
       execution.output = execution.context.variables;
-
     } catch (error) {
       execution.status = 'failed';
       execution.error = error.message;
@@ -910,7 +920,6 @@ class WorkflowEngine {
       if (result && typeof result === 'object') {
         Object.assign(execution.context.variables, result);
       }
-
     } catch (error) {
       taskExecution.status = 'failed';
       taskExecution.error = error.message;
@@ -954,14 +963,15 @@ class WorkflowEngine {
 
   // 重试逻辑
   async shouldRetry(task, taskExecution) {
-    const retryPolicy = task.retryPolicy || execution.workflow.config.retryPolicy;
+    const retryPolicy =
+      task.retryPolicy || execution.workflow.config.retryPolicy;
     if (!retryPolicy || taskExecution.retryCount >= retryPolicy.maxAttempts) {
       return false;
     }
 
     // 指数退避
     const delay = retryPolicy.backoffMs * Math.pow(2, taskExecution.retryCount);
-    await new Promise(resolve => setTimeout(resolve, delay));
+    await new Promise((resolve) => setTimeout(resolve, delay));
 
     return true;
   }
@@ -1006,35 +1016,51 @@ class WorkflowEngine {
 import { container } from 'frys';
 
 // 注册AI服务
-container.register('aiProviderManager', (c) => new AIProviderManager({
-  http: c.resolve('http'),
-  cache: c.resolve('cache'),
-  config: c.resolve('config'),
-  logger: c.resolve('logger'),
-}));
+container.register(
+  'aiProviderManager',
+  (c) =>
+    new AIProviderManager({
+      http: c.resolve('http'),
+      cache: c.resolve('cache'),
+      config: c.resolve('config'),
+      logger: c.resolve('logger'),
+    }),
+);
 
-container.register('aiProviderUI', (c) => new AIProviderUI({
-  aiManager: c.resolve('aiProviderManager'),
-  container: document.getElementById('ai-ui'),
-}));
+container.register(
+  'aiProviderUI',
+  (c) =>
+    new AIProviderUI({
+      aiManager: c.resolve('aiProviderManager'),
+      container: document.getElementById('ai-ui'),
+    }),
+);
 
 // 注册用户服务
-container.register('userService', (c) => new UserService({
-  userRepository: c.resolve('userRepository'),
-  authService: c.resolve('authService'),
-  messaging: c.resolve('messaging'),
-  logger: c.resolve('logger'),
-}));
+container.register(
+  'userService',
+  (c) =>
+    new UserService({
+      userRepository: c.resolve('userRepository'),
+      authService: c.resolve('authService'),
+      messaging: c.resolve('messaging'),
+      logger: c.resolve('logger'),
+    }),
+);
 
 // 注册工作流引擎
-container.register('workflowEngine', (c) => new WorkflowEngine({
-  http: c.resolve('http'),
-  messaging: c.resolve('messaging'),
-  state: c.resolve('state'),
-  date: c.resolve('date'),
-  utils: c.resolve('utils'),
-  logger: c.resolve('logger'),
-}));
+container.register(
+  'workflowEngine',
+  (c) =>
+    new WorkflowEngine({
+      http: c.resolve('http'),
+      messaging: c.resolve('messaging'),
+      state: c.resolve('state'),
+      date: c.resolve('date'),
+      utils: c.resolve('utils'),
+      logger: c.resolve('logger'),
+    }),
+);
 ```
 
 ## 📊 监控和指标
@@ -1130,8 +1156,12 @@ describe('UserService', () => {
     const result = await userService.createUser(userData);
 
     expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(userData.email);
-    expect(mockUserRepository.findByUsername).toHaveBeenCalledWith(userData.username);
-    expect(mockAuthService.hashPassword).toHaveBeenCalledWith(userData.password);
+    expect(mockUserRepository.findByUsername).toHaveBeenCalledWith(
+      userData.username,
+    );
+    expect(mockAuthService.hashPassword).toHaveBeenCalledWith(
+      userData.password,
+    );
     expect(mockUserRepository.create).toHaveBeenCalled();
     expect(mockMessaging.publish).toHaveBeenCalledWith('user.created', {
       userId: mockUser.id,
@@ -1152,7 +1182,9 @@ describe('UserService', () => {
       email: userData.email,
     });
 
-    await expect(userService.createUser(userData)).rejects.toThrow('邮箱已被注册');
+    await expect(userService.createUser(userData)).rejects.toThrow(
+      '邮箱已被注册',
+    );
   });
 });
 ```
@@ -1191,12 +1223,13 @@ const selectProvider = (task, constraints) => {
 // 工作流错误处理
 class WorkflowErrorHandler {
   async handleTaskFailure(task, execution, error) {
-    const retryPolicy = task.retryPolicy || execution.workflow.config.retryPolicy;
+    const retryPolicy =
+      task.retryPolicy || execution.workflow.config.retryPolicy;
 
     if (retryPolicy && execution.retryCount < retryPolicy.maxAttempts) {
       // 指数退避重试
       const delay = retryPolicy.backoffMs * Math.pow(2, execution.retryCount);
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
 
       execution.retryCount++;
       return this.retryTask(task, execution);
@@ -1239,4 +1272,4 @@ class WorkflowErrorHandler {
 - [应用服务层文档](application-layer.md) - 应用服务层的实现
 - [基础设施层文档](infrastructure-layer.md) - 基础设施实现
 - [表示层文档](presentation-layer.md) - API接口实现
-- [测试策略](testing-architecture.md) - 测试最佳实践
+- [测试策略](../testing/testing-architecture.md) - 测试最佳实践

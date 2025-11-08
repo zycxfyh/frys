@@ -227,7 +227,7 @@ export class BaseValueObject {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // 转换为32位整数
     }
     return hash.toString();
@@ -336,7 +336,8 @@ export class BaseController {
   }
 
   internalError(res, error, message = 'Internal server error') {
-    const errorMessage = process.env.NODE_ENV === 'production' ? message : error.message;
+    const errorMessage =
+      process.env.NODE_ENV === 'production' ? message : error.message;
     this.logger.error('Controller error:', error);
     return this.error(res, 500, 'INTERNAL_ERROR', errorMessage);
   }
@@ -457,7 +458,10 @@ export class BaseApplicationService {
       this.logger.info(`${this.constructor.name} initialized successfully`);
       return this;
     } catch (error) {
-      this.logger.error(`${this.constructor.name} initialization failed:`, error);
+      this.logger.error(
+        `${this.constructor.name} initialization failed:`,
+        error,
+      );
       throw error;
     }
   }
@@ -777,13 +781,13 @@ export class EventBus {
     if (typeof handlerOrId === 'function') {
       // 按函数引用移除
       const initialLength = handlers.length;
-      const filtered = handlers.filter(h => h.handler !== handlerOrId);
+      const filtered = handlers.filter((h) => h.handler !== handlerOrId);
       this.handlers.set(event, filtered);
       removed = filtered.length < initialLength;
     } else {
       // 按ID移除
       const initialLength = handlers.length;
-      const filtered = handlers.filter(h => h.id !== handlerOrId);
+      const filtered = handlers.filter((h) => h.id !== handlerOrId);
       this.handlers.set(event, filtered);
       removed = filtered.length < initialLength;
     }
@@ -821,9 +825,14 @@ export class EventBus {
     }
 
     // 执行处理器
-    for (const handlerWrapper of handlers.slice()) { // 复制数组以防修改
+    for (const handlerWrapper of handlers.slice()) {
+      // 复制数组以防修改
       try {
-        const result = await handlerWrapper.handler(processedData, event, options);
+        const result = await handlerWrapper.handler(
+          processedData,
+          event,
+          options,
+        );
         results.push(result);
         this.metrics.handled++;
 
@@ -840,7 +849,10 @@ export class EventBus {
 
     // 如果有错误但没有处理器处理，记录警告
     if (errors.length > 0 && results.length === 0) {
-      this.logger.warn(`Event '${event}' emitted but all handlers failed:`, errors);
+      this.logger.warn(
+        `Event '${event}' emitted but all handlers failed:`,
+        errors,
+      );
     }
 
     return { results, errors };
@@ -906,7 +918,10 @@ export class EventBus {
     return {
       ...this.metrics,
       events: this.eventNames(),
-      totalListeners: Array.from(this.handlers.values()).reduce((sum, handlers) => sum + handlers.length, 0),
+      totalListeners: Array.from(this.handlers.values()).reduce(
+        (sum, handlers) => sum + handlers.length,
+        0,
+      ),
     };
   }
 
@@ -1022,7 +1037,9 @@ export class Result {
    */
   getOrThrow(errorMessage = null) {
     if (!this.success) {
-      throw new Error(errorMessage || this.error?.message || 'Result is failure');
+      throw new Error(
+        errorMessage || this.error?.message || 'Result is failure',
+      );
     }
     return this.data;
   }
@@ -1087,7 +1104,12 @@ export class Failure extends Result {
  * 基础错误类
  */
 export class AppError extends Error {
-  constructor(message, code = 'INTERNAL_ERROR', statusCode = 500, details = null) {
+  constructor(
+    message,
+    code = 'INTERNAL_ERROR',
+    statusCode = 500,
+    details = null,
+  ) {
     super(message);
     this.name = this.constructor.name;
     this.code = code;
@@ -1173,12 +1195,10 @@ export class BusinessError extends AppError {
  */
 export class ExternalServiceError extends AppError {
   constructor(service, originalError) {
-    super(
-      `External service error: ${service}`,
-      'EXTERNAL_SERVICE_ERROR',
-      502,
-      { service, originalError: originalError.message }
-    );
+    super(`External service error: ${service}`, 'EXTERNAL_SERVICE_ERROR', 502, {
+      service,
+      originalError: originalError.message,
+    });
   }
 }
 
@@ -1187,12 +1207,10 @@ export class ExternalServiceError extends AppError {
  */
 export class DatabaseError extends AppError {
   constructor(operation, originalError) {
-    super(
-      `Database operation failed: ${operation}`,
-      'DATABASE_ERROR',
-      500,
-      { operation, originalError: originalError.message }
-    );
+    super(`Database operation failed: ${operation}`, 'DATABASE_ERROR', 500, {
+      operation,
+      originalError: originalError.message,
+    });
   }
 }
 ```
@@ -1294,9 +1312,10 @@ export class ErrorHandler {
       body: {
         error: {
           code: 'INTERNAL_ERROR',
-          message: process.env.NODE_ENV === 'production'
-            ? 'Internal server error'
-            : error.message,
+          message:
+            process.env.NODE_ENV === 'production'
+              ? 'Internal server error'
+              : error.message,
         },
       },
     };
@@ -1434,7 +1453,14 @@ export interface WorkflowConfig {
 export interface WorkflowTask {
   id: string;
   name: string;
-  type: 'http' | 'script' | 'service' | 'parallel' | 'condition' | 'delay' | 'manual';
+  type:
+    | 'http'
+    | 'script'
+    | 'service'
+    | 'parallel'
+    | 'condition'
+    | 'delay'
+    | 'manual';
   dependsOn?: string[];
   timeout?: number;
   retryPolicy?: RetryPolicy;
@@ -1643,7 +1669,7 @@ export class CacheKeyGenerator {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash;
     }
     return hash.toString(36);
@@ -1667,7 +1693,10 @@ container.register('eventBus', () => new EventBus(console));
 container.register('logger', () => console);
 
 // 注册控制器工厂
-container.register('baseController', (c) => new BaseController(c.resolve('logger')));
+container.register(
+  'baseController',
+  (c) => new BaseController(c.resolve('logger')),
+);
 
 // 注册错误处理器
 container.register('errorHandler', () => ErrorHandler);
@@ -1694,7 +1723,8 @@ const eventBusMetrics = {
 
 // 依赖注入容器指标
 const containerMetrics = {
-  registeredServices: container.getStats().factories + container.getStats().instances,
+  registeredServices:
+    container.getStats().factories + container.getStats().instances,
   resolvedServices: container.getStats().instances,
   activeScopes: container.getStats().scopes,
   registeredServiceNames: container.getStats().services,
@@ -1735,14 +1765,14 @@ describe('Result Types', () => {
   });
 
   it('should map success result', () => {
-    const result = Result.success(5).map(x => x * 2);
+    const result = Result.success(5).map((x) => x * 2);
 
     expect(result.getData()).toBe(10);
   });
 
   it('should not map failure result', () => {
     const error = new Error('test');
-    const result = Result.failure(error).map(x => x * 2);
+    const result = Result.failure(error).map((x) => x * 2);
 
     expect(result.isFailure()).toBe(true);
     expect(result.getError()).toBe(error);
@@ -1750,8 +1780,8 @@ describe('Result Types', () => {
 
   it('should chain operations with flatMap', () => {
     const result = Result.success(5)
-      .flatMap(x => Result.success(x * 2))
-      .flatMap(x => Result.success(x + 1));
+      .flatMap((x) => Result.success(x * 2))
+      .flatMap((x) => Result.success(x + 1));
 
     expect(result.getData()).toBe(11);
   });
@@ -1760,15 +1790,19 @@ describe('Result Types', () => {
     const successResult = Result.success('success');
     const failureResult = Result.failure(new Error('error'));
 
-    expect(successResult.fold(
-      data => `Success: ${data}`,
-      error => `Error: ${error.message}`
-    )).toBe('Success: success');
+    expect(
+      successResult.fold(
+        (data) => `Success: ${data}`,
+        (error) => `Error: ${error.message}`,
+      ),
+    ).toBe('Success: success');
 
-    expect(failureResult.fold(
-      data => `Success: ${data}`,
-      error => `Error: ${error.message}`
-    )).toBe('Error: error');
+    expect(
+      failureResult.fold(
+        (data) => `Success: ${data}`,
+        (error) => `Error: ${error.message}`,
+      ),
+    ).toBe('Error: error');
   });
 });
 ```
@@ -1844,9 +1878,9 @@ async function sendEmail(email) {
 // 好的依赖注入实践
 class UserService {
   constructor(
-    userRepository,    // 接口而非具体实现
-    authService,       // 单一职责服务
-    eventPublisher     // 事件发布器
+    userRepository, // 接口而非具体实现
+    authService, // 单一职责服务
+    eventPublisher, // 事件发布器
   ) {
     this.userRepo = userRepository;
     this.auth = authService;
@@ -1855,11 +1889,15 @@ class UserService {
 }
 
 // 注册时使用工厂函数
-container.register('userService', (c) => new UserService(
-  c.resolve('userRepository'),
-  c.resolve('authService'),
-  c.resolve('eventPublisher')
-));
+container.register(
+  'userService',
+  (c) =>
+    new UserService(
+      c.resolve('userRepository'),
+      c.resolve('authService'),
+      c.resolve('eventPublisher'),
+    ),
+);
 ```
 
 ## 📚 相关链接
@@ -1867,4 +1905,4 @@ container.register('userService', (c) => new UserService(
 - [应用服务层文档](application-layer.md) - 应用服务层的实现
 - [基础设施层文档](infrastructure-layer.md) - 基础设施实现
 - [表示层文档](presentation-layer.md) - API接口实现
-- [测试策略](testing-architecture.md) - 测试最佳实践
+- [测试策略](../testing/testing-architecture.md) - 测试最佳实践

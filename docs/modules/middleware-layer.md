@@ -49,16 +49,19 @@ frys 的中间件层提供了请求处理管道中的关键功能，包括输入
 import { InputValidationMiddleware } from 'frys-middleware';
 
 const validationMiddleware = new InputValidationMiddleware({
-  failOnSecurityViolation: true,  // 安全违规时失败
-  sanitizeInput: true,           // 清理输入数据
-  logViolations: true,           // 记录违规行为
+  failOnSecurityViolation: true, // 安全违规时失败
+  sanitizeInput: true, // 清理输入数据
+  logViolations: true, // 记录违规行为
 });
 
 // Express应用使用
 app.use(validationMiddleware.middleware());
 
 // 或者直接使用验证方法
-const result = await validationMiddleware.validateRequestBody(req.body, req.path);
+const result = await validationMiddleware.validateRequestBody(
+  req.body,
+  req.path,
+);
 if (!result.valid) {
   return res.status(400).json({ errors: result.errors });
 }
@@ -140,8 +143,13 @@ const validationSchemas = {
         type: 'string',
         required: true,
         enum: [
-          'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-          'application/pdf', 'text/plain', 'application/json',
+          'image/jpeg',
+          'image/png',
+          'image/gif',
+          'image/webp',
+          'application/pdf',
+          'text/plain',
+          'application/json',
         ],
       },
       size: {
@@ -161,10 +169,10 @@ const validationSchemas = {
 const sqlInjectionRules = {
   // 检查危险模式
   dangerousPatterns: [
-    /(\bunion\b.*\bselect\b)/i,    // UNION SELECT
-    /(\bexec\b.*\bsp_)/i,          // EXEC sp_
-    /(\bexec\b.*\bxp_)/i,          // EXEC xp_
-    /(--|#|\/\*|\*\/)/,            // SQL注释
+    /(\bunion\b.*\bselect\b)/i, // UNION SELECT
+    /(\bexec\b.*\bsp_)/i, // EXEC sp_
+    /(\bexec\b.*\bxp_)/i, // EXEC xp_
+    /(--|#|\/\*|\*\/)/, // SQL注释
     /;\s*(drop|alter|create|truncate|delete|update|insert)/i,
   ],
 
@@ -182,7 +190,7 @@ const sqlInjectionRules = {
     if (value.includes('\x00')) return true;
 
     // 检查危险模式
-    return dangerousPatterns.some(pattern => pattern.test(value));
+    return dangerousPatterns.some((pattern) => pattern.test(value));
   },
 };
 
@@ -198,7 +206,7 @@ const xssProtectionRules = {
     const lowerValue = value.toLowerCase();
 
     // 检查危险标签
-    if (dangerousTags.some(tag => lowerValue.includes(`<${tag}`))) {
+    if (dangerousTags.some((tag) => lowerValue.includes(`<${tag}`))) {
       return true;
     }
 
@@ -297,7 +305,7 @@ import { PerformanceMonitoringMiddleware } from 'frys-middleware';
 
 const performanceMiddleware = new PerformanceMonitoringMiddleware({
   enabled: true,
-  slowRequestThreshold: 1000,    // 慢请求阈值(ms)
+  slowRequestThreshold: 1000, // 慢请求阈值(ms)
   memoryThreshold: 100 * 1024 * 1024, // 内存阈值(100MB)
   logSlowRequests: true,
   alertOnThreshold: true,
@@ -320,36 +328,36 @@ console.log('内存峰值:', stats.peakMemoryUsage);
 const performanceMetrics = {
   // 响应时间指标
   responseTime: {
-    histogram: true,        // 直方图统计
+    histogram: true, // 直方图统计
     percentiles: [50, 95, 99], // 百分位数
     buckets: [100, 500, 1000, 2000, 5000], // 时间桶
   },
 
   // 内存使用指标
   memoryUsage: {
-    gauge: true,           // 计量器
-    trackPeak: true,       // 追踪峰值
-    trackAverage: true,    // 追踪平均值
+    gauge: true, // 计量器
+    trackPeak: true, // 追踪峰值
+    trackAverage: true, // 追踪平均值
   },
 
   // CPU使用指标
   cpuUsage: {
     gauge: true,
-    perRequest: true,      // 按请求统计
+    perRequest: true, // 按请求统计
   },
 
   // 请求量指标
   requestCount: {
-    counter: true,         // 计数器
-    byMethod: true,        // 按HTTP方法统计
-    byStatus: true,        // 按状态码统计
-    byEndpoint: true,      // 按端点统计
+    counter: true, // 计数器
+    byMethod: true, // 按HTTP方法统计
+    byStatus: true, // 按状态码统计
+    byEndpoint: true, // 按端点统计
   },
 
   // 并发指标
   concurrentRequests: {
     gauge: true,
-    trackMax: true,        // 追踪最大并发数
+    trackMax: true, // 追踪最大并发数
   },
 };
 ```
@@ -438,21 +446,21 @@ class PerformanceMonitoringMiddleware {
     const method = req.method;
     this.stats.requestCountByMethod.set(
       method,
-      (this.stats.requestCountByMethod.get(method) || 0) + 1
+      (this.stats.requestCountByMethod.get(method) || 0) + 1,
     );
 
     // 按状态码统计
     const status = res.statusCode;
     this.stats.requestCountByStatus.set(
       status,
-      (this.stats.requestCountByStatus.get(status) || 0) + 1
+      (this.stats.requestCountByStatus.get(status) || 0) + 1,
     );
 
     // 响应时间直方图
     const bucket = this.getHistogramBucket(responseTime);
     this.stats.responseTimeHistogram.set(
       bucket,
-      (this.stats.responseTimeHistogram.get(bucket) || 0) + 1
+      (this.stats.responseTimeHistogram.get(bucket) || 0) + 1,
     );
 
     // 内存峰值
@@ -474,7 +482,9 @@ class PerformanceMonitoringMiddleware {
     this.stats.slowRequests++;
 
     if (this.options.logSlowRequests) {
-      console.warn(`🐌 慢请求检测: ${req.method} ${req.path} - ${responseTime.toFixed(2)}ms`);
+      console.warn(
+        `🐌 慢请求检测: ${req.method} ${req.path} - ${responseTime.toFixed(2)}ms`,
+      );
     }
 
     if (this.options.alertOnThreshold) {
@@ -490,7 +500,9 @@ class PerformanceMonitoringMiddleware {
 
   handleMemoryAlert(memoryUsage) {
     if (this.options.alertOnThreshold) {
-      console.error(`🚨 内存使用告警: ${(memoryUsage / 1024 / 1024).toFixed(2)}MB`);
+      console.error(
+        `🚨 内存使用告警: ${(memoryUsage / 1024 / 1024).toFixed(2)}MB`,
+      );
 
       this.sendAlert('memory_alert', {
         memoryUsage,
@@ -507,16 +519,17 @@ class PerformanceMonitoringMiddleware {
   getStats() {
     return {
       ...this.stats,
-      averageResponseTime: this.stats.totalRequests > 0
-        ? this.stats.totalResponseTime / this.stats.totalRequests
-        : 0,
+      averageResponseTime:
+        this.stats.totalRequests > 0
+          ? this.stats.totalResponseTime / this.stats.totalRequests
+          : 0,
       activeRequests: this.activeRequests,
     };
   }
 
   resetStats() {
     // 重置统计数据
-    Object.keys(this.stats).forEach(key => {
+    Object.keys(this.stats).forEach((key) => {
       if (typeof this.stats[key] === 'number') {
         this.stats[key] = 0;
       } else if (this.stats[key] instanceof Map) {
@@ -543,8 +556,8 @@ class PerformanceMonitoringMiddleware {
 import { CacheMiddleware } from 'frys-middleware';
 
 const cacheMiddleware = new CacheMiddleware({
-  cache: redisCache,        // 缓存后端
-  defaultTTL: 300,         // 默认缓存时间(秒)
+  cache: redisCache, // 缓存后端
+  defaultTTL: 300, // 默认缓存时间(秒)
   cacheableMethods: ['GET', 'HEAD'],
   cacheableStatusCodes: [200, 203, 204, 206, 300, 301, 404, 405, 410, 414],
 
@@ -562,7 +575,7 @@ const cacheMiddleware = new CacheMiddleware({
 
   // 缓存控制
   cacheControl: {
-    'public': true,
+    public: true,
     'max-age': 300,
     's-maxage': 600,
   },
@@ -572,15 +585,16 @@ const cacheMiddleware = new CacheMiddleware({
 app.use(cacheMiddleware.middleware());
 
 // 路由级缓存配置
-app.get('/api/users/:id',
+app.get(
+  '/api/users/:id',
   cacheMiddleware.cache({
-    ttl: 600,        // 10分钟
+    ttl: 600, // 10分钟
     key: (req) => `user:${req.params.id}`,
     condition: (req) => !req.query.force, // 除非强制刷新
   }),
   (req, res) => {
     // 业务逻辑...
-  }
+  },
 );
 
 // 缓存失效
@@ -600,20 +614,20 @@ app.post('/api/users', (req, res) => {
 const cacheStrategies = {
   // 静态资源缓存
   static: {
-    ttl: 86400,      // 24小时
+    ttl: 86400, // 24小时
     cacheControl: {
-      'public': true,
+      public: true,
       'max-age': 86400,
-      'immutable': true,
+      immutable: true,
     },
     vary: ['Accept-Encoding'],
   },
 
   // API响应缓存
   api: {
-    ttl: 300,        // 5分钟
+    ttl: 300, // 5分钟
     cacheControl: {
-      'private': true,
+      private: true,
       'max-age': 300,
       's-maxage': 600,
     },
@@ -622,9 +636,9 @@ const cacheStrategies = {
 
   // 用户数据缓存
   user: {
-    ttl: 1800,       // 30分钟
+    ttl: 1800, // 30分钟
     cacheControl: {
-      'private': true,
+      private: true,
       'max-age': 1800,
       'no-cache': true,
     },
@@ -633,9 +647,9 @@ const cacheStrategies = {
 
   // 公共数据缓存
   public: {
-    ttl: 3600,       // 1小时
+    ttl: 3600, // 1小时
     cacheControl: {
-      'public': true,
+      public: true,
       'max-age': 3600,
       's-maxage': 7200,
     },
@@ -692,7 +706,7 @@ function hash(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // 转换为32位整数
   }
   return hash.toString(36);
@@ -707,32 +721,44 @@ function hash(str) {
 import { container } from 'frys';
 
 // 注册输入验证中间件
-container.register('inputValidationMiddleware', (c) => new InputValidationMiddleware({
-  validator: c.resolve('zodValidator'),
-  failOnSecurityViolation: true,
-  sanitizeInput: true,
-  logViolations: true,
-}));
+container.register(
+  'inputValidationMiddleware',
+  (c) =>
+    new InputValidationMiddleware({
+      validator: c.resolve('zodValidator'),
+      failOnSecurityViolation: true,
+      sanitizeInput: true,
+      logViolations: true,
+    }),
+);
 
 // 注册性能监控中间件
-container.register('performanceMonitoringMiddleware', (c) => new PerformanceMonitoringMiddleware({
-  enabled: true,
-  slowRequestThreshold: 1000,
-  memoryThreshold: 100 * 1024 * 1024,
-  logSlowRequests: true,
-  alertOnThreshold: true,
-}));
+container.register(
+  'performanceMonitoringMiddleware',
+  (c) =>
+    new PerformanceMonitoringMiddleware({
+      enabled: true,
+      slowRequestThreshold: 1000,
+      memoryThreshold: 100 * 1024 * 1024,
+      logSlowRequests: true,
+      alertOnThreshold: true,
+    }),
+);
 
 // 注册缓存中间件
-container.register('cacheMiddleware', (c) => new CacheMiddleware({
-  cache: c.resolve('cacheManager'),
-  defaultTTL: 300,
-  conditionalCache: {
-    enabled: true,
-    etag: true,
-    lastModified: true,
-  },
-}));
+container.register(
+  'cacheMiddleware',
+  (c) =>
+    new CacheMiddleware({
+      cache: c.resolve('cacheManager'),
+      defaultTTL: 300,
+      conditionalCache: {
+        enabled: true,
+        etag: true,
+        lastModified: true,
+      },
+    }),
+);
 ```
 
 ## 📊 监控和指标
@@ -745,7 +771,8 @@ const validationMetrics = {
   totalValidations: await validationMiddleware.getStats().totalValidations,
   failedValidations: await validationMiddleware.getStats().failedValidations,
   securityViolations: await validationMiddleware.getStats().securityViolations,
-  averageValidationTime: await validationMiddleware.getStats().averageValidationTime,
+  averageValidationTime:
+    await validationMiddleware.getStats().averageValidationTime,
 };
 
 // 性能监控指标
@@ -805,7 +832,10 @@ describe('InputValidationMiddleware', () => {
       errors: [],
     });
 
-    const result = await middleware.validateRequestBody(mockReq.body, mockReq.path);
+    const result = await middleware.validateRequestBody(
+      mockReq.body,
+      mockReq.path,
+    );
 
     expect(result.valid).toBe(true);
     expect(result.data).toEqual(mockReq.body);
@@ -819,7 +849,7 @@ describe('InputValidationMiddleware', () => {
   });
 
   it('should detect path traversal attempts', () => {
-    const maliciousPath = "../../../etc/passwd";
+    const maliciousPath = '../../../etc/passwd';
 
     expect(middleware.containsPathTraversal(maliciousPath)).toBe(true);
   });
@@ -875,10 +905,7 @@ describe('Middleware Integration', () => {
       email: 'invalid-email', // 无效邮箱
     };
 
-    await request(app)
-      .post('/api/test')
-      .send(invalidData)
-      .expect(400);
+    await request(app).post('/api/test').send(invalidData).expect(400);
   });
 });
 ```
@@ -1017,5 +1044,5 @@ class CacheConsistencyManager {
 
 - [应用服务层文档](application-layer.md) - 应用服务层的实现
 - [基础设施层文档](infrastructure-layer.md) - 基础设施实现
-- [API 文档](api-documentation.md) - 完整的API参考
-- [测试策略](testing-architecture.md) - 测试最佳实践
+- [API 文档](../api/api-documentation.md) - 完整的API参考
+- [测试策略](../testing/testing-architecture.md) - 测试最佳实践

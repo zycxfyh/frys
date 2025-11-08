@@ -48,12 +48,11 @@ import { BaseController } from 'frys-shared';
 // 创建控制器实例
 const authController = new AuthController(
   authenticationService,
-  authorizationService
+  authorizationService,
 );
 
 // 控制器方法
 class AuthController extends BaseController {
-
   // 用户注册
   async register(req, res) {
     const { username, email, password, profile } = req.body;
@@ -65,12 +64,15 @@ class AuthController extends BaseController {
 
     try {
       const user = await this.authService.register({
-        username, email, password, profile: profile || {}
+        username,
+        email,
+        password,
+        profile: profile || {},
       });
 
       return this.created(res, {
         user: user.toPublicDTO(),
-        message: 'User registered successfully'
+        message: 'User registered successfully',
       });
     } catch (error) {
       return this.handleError(res, error);
@@ -90,14 +92,14 @@ class AuthController extends BaseController {
         username,
         password,
         ipAddress: req.ip,
-        userAgent: req.get('User-Agent')
+        userAgent: req.get('User-Agent'),
       });
 
       return this.ok(res, {
         user: result.user,
         session: result.session,
         tokens: result.tokens,
-        message: 'Login successful'
+        message: 'Login successful',
       });
     } catch (error) {
       return this.handleError(res, error);
@@ -139,8 +141,8 @@ class AuthController extends BaseController {
       return this.ok(res, {
         user: {
           ...user.toPublicDTO(),
-          permissions: permissions.all
-        }
+          permissions: permissions.all,
+        },
       });
     } catch (error) {
       return this.handleError(res, error);
@@ -152,7 +154,10 @@ class AuthController extends BaseController {
     const { current_password, new_password } = req.body;
 
     if (!current_password || !new_password) {
-      return this.badRequest(res, 'Both current and new passwords are required');
+      return this.badRequest(
+        res,
+        'Both current and new passwords are required',
+      );
     }
 
     if (new_password.length < 8) {
@@ -161,7 +166,9 @@ class AuthController extends BaseController {
 
     try {
       await this.authService.changePassword(
-        req.user.id, current_password, new_password
+        req.user.id,
+        current_password,
+        new_password,
       );
       return this.ok(res, { message: 'Password changed successfully' });
     } catch (error) {
@@ -183,7 +190,7 @@ class BaseController {
       success: true,
       data,
       message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -193,7 +200,7 @@ class BaseController {
       success: true,
       data,
       message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -209,9 +216,9 @@ class BaseController {
       error: {
         code: 'BAD_REQUEST',
         message,
-        details
+        details,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -220,9 +227,9 @@ class BaseController {
       success: false,
       error: {
         code: 'UNAUTHORIZED',
-        message
+        message,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -231,9 +238,9 @@ class BaseController {
       success: false,
       error: {
         code: 'FORBIDDEN',
-        message
+        message,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -242,9 +249,9 @@ class BaseController {
       success: false,
       error: {
         code: 'NOT_FOUND',
-        message
+        message,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -253,9 +260,9 @@ class BaseController {
       success: false,
       error: {
         code: 'CONFLICT',
-        message
+        message,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -266,9 +273,10 @@ class BaseController {
       success: false,
       error: {
         code: 'INTERNAL_ERROR',
-        message: process.env.NODE_ENV === 'production' ? message : error.message
+        message:
+          process.env.NODE_ENV === 'production' ? message : error.message,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -312,8 +320,12 @@ const authController = container.resolve('authController');
 // 公开路由
 router.post('/register', (req, res) => authController.register(req, res));
 router.post('/login', (req, res) => authController.login(req, res));
-router.post('/refresh-token', (req, res) => authController.refreshToken(req, res));
-router.post('/forgot-password', (req, res) => authController.forgotPassword(req, res));
+router.post('/refresh-token', (req, res) =>
+  authController.refreshToken(req, res),
+);
+router.post('/forgot-password', (req, res) =>
+  authController.forgotPassword(req, res),
+);
 router.get('/verify-email', (req, res) => authController.verifyEmail(req, res));
 
 // 需要认证的路由
@@ -321,23 +333,31 @@ router.use(authenticate); // JWT认证中间件
 
 router.post('/logout', (req, res) => authController.logout(req, res));
 router.get('/me', (req, res) => authController.getCurrentUser(req, res));
-router.post('/change-password', (req, res) => authController.changePassword(req, res));
+router.post('/change-password', (req, res) =>
+  authController.changePassword(req, res),
+);
 
 // 管理员路由
-router.get('/sessions/:userId?', authorize(['users:view_sessions']),
-  (req, res) => authController.getUserSessions(req, res)
+router.get(
+  '/sessions/:userId?',
+  authorize(['users:view_sessions']),
+  (req, res) => authController.getUserSessions(req, res),
 );
 
-router.delete('/sessions/:sessionId', authorize(['users:terminate_sessions']),
-  (req, res) => authController.terminateSession(req, res)
+router.delete(
+  '/sessions/:sessionId',
+  authorize(['users:terminate_sessions']),
+  (req, res) => authController.terminateSession(req, res),
 );
 
-router.post('/reset-password', authorize(['users:reset_password']),
-  (req, res) => authController.resetPassword(req, res)
+router.post(
+  '/reset-password',
+  authorize(['users:reset_password']),
+  (req, res) => authController.resetPassword(req, res),
 );
 
-router.get('/stats', authorize(['auth:view_stats']),
-  (req, res) => authController.getAuthStats(req, res)
+router.get('/stats', authorize(['auth:view_stats']), (req, res) =>
+  authController.getAuthStats(req, res),
 );
 
 export default router;
@@ -363,7 +383,7 @@ apiRouter.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     version: API_VERSION,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -399,73 +419,86 @@ import { rateLimit } from 'express-rate-limit';
 // 应用级中间件
 const setupMiddleware = (app) => {
   // 安全中间件
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+        },
       },
-    },
-    hsts: {
-      maxAge: 31536000,
-      includeSubDomains: true,
-      preload: true
-    }
-  }));
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      },
+    }),
+  );
 
   // CORS配置
-  app.use(cors({
-    origin: process.env.NODE_ENV === 'production'
-      ? process.env.ALLOWED_ORIGINS?.split(',') || ['https://yourdomain.com']
-      : ['http://localhost:3000', 'http://localhost:3001'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  }));
+  app.use(
+    cors({
+      origin:
+        process.env.NODE_ENV === 'production'
+          ? process.env.ALLOWED_ORIGINS?.split(',') || [
+              'https://yourdomain.com',
+            ]
+          : ['http://localhost:3000', 'http://localhost:3001'],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    }),
+  );
 
   // 压缩中间件
-  app.use(compression({
-    level: 6, // 压缩级别
-    threshold: 1024, // 最小压缩大小
-    filter: (req, res) => {
-      // 不压缩图片和视频
-      if (req.headers['accept-encoding']?.includes('gzip')) {
-        return compression.filter(req, res);
-      }
-      return false;
-    }
-  }));
+  app.use(
+    compression({
+      level: 6, // 压缩级别
+      threshold: 1024, // 最小压缩大小
+      filter: (req, res) => {
+        // 不压缩图片和视频
+        if (req.headers['accept-encoding']?.includes('gzip')) {
+          return compression.filter(req, res);
+        }
+        return false;
+      },
+    }),
+  );
 
   // 请求体解析
-  app.use(express.json({
-    limit: '10mb',
-    strict: true,
-    verify: (req, res, buf) => {
-      // 验证JSON格式
-      try {
-        JSON.parse(buf);
-      } catch (e) {
-        res.status(400).json({
-          error: 'Invalid JSON format'
-        });
-        throw new Error('Invalid JSON');
-      }
-    }
-  }));
+  app.use(
+    express.json({
+      limit: '10mb',
+      strict: true,
+      verify: (req, res, buf) => {
+        // 验证JSON格式
+        try {
+          JSON.parse(buf);
+        } catch (e) {
+          res.status(400).json({
+            error: 'Invalid JSON format',
+          });
+          throw new Error('Invalid JSON');
+        }
+      },
+    }),
+  );
 
-  app.use(express.urlencoded({
-    extended: false,
-    limit: '10mb'
-  }));
+  app.use(
+    express.urlencoded({
+      extended: false,
+      limit: '10mb',
+    }),
+  );
 
   // 请求速率限制
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15分钟
     max: 100, // 每个IP 15分钟内最多100个请求
     message: {
-      error: 'Too many requests from this IP, please try again later.'
+      error: 'Too many requests from this IP, please try again later.',
     },
     standardHeaders: true,
     legacyHeaders: false,
@@ -478,7 +511,7 @@ const setupMiddleware = (app) => {
     keyGenerator: (req) => {
       // 基于用户ID或IP
       return req.user?.id || req.ip;
-    }
+    },
   });
 
   app.use('/api/', limiter);
@@ -488,7 +521,7 @@ const setupMiddleware = (app) => {
     windowMs: 60 * 1000, // 1分钟
     max: 30, // 每分钟最多30个API请求
     message: 'API rate limit exceeded',
-    skip: (req) => req.user?.role === 'admin'
+    skip: (req) => req.user?.role === 'admin',
   });
 
   app.use('/api/v1', apiLimiter);
@@ -508,7 +541,7 @@ export const authenticate = (req, res, next) => {
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
-        error: 'Access token is required'
+        error: 'Access token is required',
       });
     }
 
@@ -524,18 +557,18 @@ export const authenticate = (req, res, next) => {
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
-        error: 'Token expired'
+        error: 'Token expired',
       });
     }
 
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
-        error: 'Invalid token'
+        error: 'Invalid token',
       });
     }
 
     return res.status(500).json({
-      error: 'Authentication error'
+      error: 'Authentication error',
     });
   }
 };
@@ -569,26 +602,26 @@ export const authorize = (requiredPermissions) => {
     try {
       if (!req.user) {
         return res.status(401).json({
-          error: 'Authentication required'
+          error: 'Authentication required',
         });
       }
 
       // 检查权限
       const hasPermission = await checkUserPermissions(
         req.user.id,
-        requiredPermissions
+        requiredPermissions,
       );
 
       if (!hasPermission) {
         return res.status(403).json({
-          error: 'Insufficient permissions'
+          error: 'Insufficient permissions',
         });
       }
 
       next();
     } catch (error) {
       return res.status(500).json({
-        error: 'Authorization error'
+        error: 'Authorization error',
       });
     }
   };
@@ -599,16 +632,18 @@ export const requireRole = (requiredRoles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
-        error: 'Authentication required'
+        error: 'Authentication required',
       });
     }
 
     const userRoles = req.user.roles || [];
-    const hasRequiredRole = requiredRoles.some(role => userRoles.includes(role));
+    const hasRequiredRole = requiredRoles.some((role) =>
+      userRoles.includes(role),
+    );
 
     if (!hasRequiredRole) {
       return res.status(403).json({
-        error: 'Insufficient role permissions'
+        error: 'Insufficient role permissions',
       });
     }
 
@@ -621,7 +656,7 @@ export const requireOwnership = (resourceIdParam = 'id') => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
-        error: 'Authentication required'
+        error: 'Authentication required',
       });
     }
 
@@ -633,7 +668,7 @@ export const requireOwnership = (resourceIdParam = 'id') => {
 
     if (!resourceId.includes(userId) && !req.user.roles.includes('admin')) {
       return res.status(403).json({
-        error: 'Access denied: not resource owner'
+        error: 'Access denied: not resource owner',
       });
     }
 
@@ -659,13 +694,13 @@ export const validateRequest = (schemaName) => {
     try {
       const result = await validationMiddleware.validateRequestBody(
         req.body,
-        req.path
+        req.path,
       );
 
       if (!result.valid) {
         return res.status(400).json({
           error: 'Validation failed',
-          details: result.errors
+          details: result.errors,
         });
       }
 
@@ -674,7 +709,7 @@ export const validateRequest = (schemaName) => {
       next();
     } catch (error) {
       return res.status(500).json({
-        error: 'Validation error'
+        error: 'Validation error',
       });
     }
   };
@@ -696,7 +731,7 @@ export const validateParams = (paramValidators) => {
     if (errors.length > 0) {
       return res.status(400).json({
         error: 'Parameter validation failed',
-        details: errors
+        details: errors,
       });
     }
 
@@ -717,20 +752,20 @@ export const validateFileUpload = (options = {}) => {
 
     if (required && files.length === 0) {
       return res.status(400).json({
-        error: 'File upload is required'
+        error: 'File upload is required',
       });
     }
 
     for (const file of files) {
       if (file.size > maxSize) {
         return res.status(400).json({
-          error: `File size exceeds maximum allowed size (${maxSize} bytes)`
+          error: `File size exceeds maximum allowed size (${maxSize} bytes)`,
         });
       }
 
       if (!allowedTypes.includes(file.mimetype)) {
         return res.status(400).json({
-          error: `File type ${file.mimetype} is not allowed`
+          error: `File type ${file.mimetype} is not allowed`,
         });
       }
     }
@@ -773,7 +808,7 @@ export class CreateUserRequest {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -918,7 +953,11 @@ export class ApiResponse {
   }
 
   static paginated(data, pagination, message = null) {
-    return new ApiResponse(true, new PaginatedResponse(data, pagination), message);
+    return new ApiResponse(
+      true,
+      new PaginatedResponse(data, pagination),
+      message,
+    );
   }
 }
 ```
@@ -1027,11 +1066,16 @@ export class TransformerFactory {
 
   // 批量转换
   static transformMany(items, transformer, method = 'toDTO') {
-    return items.map(item => transformer[method](item));
+    return items.map((item) => transformer[method](item));
   }
 
   // 条件转换
-  static transformConditional(item, condition, trueTransformer, falseTransformer) {
+  static transformConditional(
+    item,
+    condition,
+    trueTransformer,
+    falseTransformer,
+  ) {
     const transformer = condition(item) ? trueTransformer : falseTransformer;
     return transformer.toDTO(item);
   }
@@ -1046,33 +1090,53 @@ export class TransformerFactory {
 import { container } from 'frys';
 
 // 注册控制器
-container.register('authController', (c) => new AuthController(
-  c.resolve('authenticationService'),
-  c.resolve('authorizationService')
-));
+container.register(
+  'authController',
+  (c) =>
+    new AuthController(
+      c.resolve('authenticationService'),
+      c.resolve('authorizationService'),
+    ),
+);
 
-container.register('userController', (c) => new UserController(
-  c.resolve('userService'),
-  c.resolve('authorizationService')
-));
+container.register(
+  'userController',
+  (c) =>
+    new UserController(
+      c.resolve('userService'),
+      c.resolve('authorizationService'),
+    ),
+);
 
 // 注册中间件
-container.register('inputValidationMiddleware', (c) => new InputValidationMiddleware({
-  validator: c.resolve('zodValidator')
-}));
+container.register(
+  'inputValidationMiddleware',
+  (c) =>
+    new InputValidationMiddleware({
+      validator: c.resolve('zodValidator'),
+    }),
+);
 
-container.register('performanceMonitoringMiddleware', (c) => new PerformanceMonitoringMiddleware({
-  enabled: true,
-  slowRequestThreshold: 1000
-}));
+container.register(
+  'performanceMonitoringMiddleware',
+  (c) =>
+    new PerformanceMonitoringMiddleware({
+      enabled: true,
+      slowRequestThreshold: 1000,
+    }),
+);
 
 // 注册路由
-container.register('authRoutes', (c) => createAuthRoutes(c.resolve('authController')));
-container.register('apiRoutes', (c) => createApiRoutes({
-  auth: c.resolve('authRoutes'),
-  users: c.resolve('userRoutes'),
-  ai: c.resolve('aiRoutes'),
-}));
+container.register('authRoutes', (c) =>
+  createAuthRoutes(c.resolve('authController')),
+);
+container.register('apiRoutes', (c) =>
+  createApiRoutes({
+    auth: c.resolve('authRoutes'),
+    users: c.resolve('userRoutes'),
+    ai: c.resolve('aiRoutes'),
+  }),
+);
 ```
 
 ## 📊 监控和指标
@@ -1181,9 +1245,9 @@ describe('AuthController', () => {
         success: true,
         data: expect.objectContaining({
           user: mockUser.toPublicDTO(),
-          message: 'User registered successfully'
-        })
-      })
+          message: 'User registered successfully',
+        }),
+      }),
     );
   });
 
@@ -1197,9 +1261,9 @@ describe('AuthController', () => {
       expect.objectContaining({
         success: false,
         error: expect.objectContaining({
-          code: 'BAD_REQUEST'
-        })
-      })
+          code: 'BAD_REQUEST',
+        }),
+      }),
     );
   });
 
@@ -1373,9 +1437,8 @@ app.use('/api/v2', v2Routes);
 
 // 自定义版本控制中间件
 const apiVersioning = (req, res, next) => {
-  const version = req.headers['api-version'] ||
-                  req.query.version ||
-                  req.path.split('/')[2]; // 从路径提取版本
+  const version =
+    req.headers['api-version'] || req.query.version || req.path.split('/')[2]; // 从路径提取版本
 
   req.apiVersion = version;
   next();
@@ -1400,7 +1463,7 @@ const handleVersionCompatibility = (req, res, next) => {
 
   if (!supportedVersions.includes(requestedVersion)) {
     return res.status(400).json({
-      error: `API version ${requestedVersion} is not supported`
+      error: `API version ${requestedVersion} is not supported`,
     });
   }
 
@@ -1536,5 +1599,5 @@ app.use('/auth/login', authLimiter);
 - [应用服务层文档](application-layer.md) - 应用服务层的实现
 - [领域驱动设计文档](domain-layer.md) - 领域层设计模式
 - [基础设施层文档](infrastructure-layer.md) - 基础设施实现
-- [API 文档](api-documentation.md) - 完整的API参考
-- [测试策略](testing-architecture.md) - 测试最佳实践
+- [API 文档](../api/api-documentation.md) - 完整的API参考
+- [测试策略](../testing/testing-architecture.md) - 测试最佳实践

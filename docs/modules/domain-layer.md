@@ -1,4 +1,4 @@
-# frys 领域驱动设计层
+# frys 领域驱动设计层 (src/domain/)
 
 ## 📖 模块概述
 
@@ -15,10 +15,10 @@ frys 的领域层采用了领域驱动设计 (Domain-Driven Design, DDD) 的核�
 ### 🏗️ 领域架构
 
 ```
-领域驱动设计层
+领域驱动设计层 (src/domain/)
 ├── 📋 实体 (Entities)
-│   ├── 用户实体 (User)
-│   ├── 角色实体 (Role)
+│   ├── 用户实体 (auth/User.js)
+│   ├── 角色实体 (auth/Role.js)
 │   ├── 令牌实体 (Token)
 │   └── 工作流实体 (Workflow)
 ├── 💎 值对象 (Value Objects)
@@ -76,9 +76,9 @@ const user = new User({
 });
 
 // 用户行为
-user.updateLastLogin();     // 更新最后登录时间
-user.verifyEmail();         // 验证邮箱
-user.assignRole('admin');   // 分配角色
+user.updateLastLogin(); // 更新最后登录时间
+user.verifyEmail(); // 验证邮箱
+user.assignRole('admin'); // 分配角色
 user.assignPermission('admin:*'); // 分配权限
 
 // 检查权限（支持通配符）
@@ -97,20 +97,20 @@ const publicDTO = user.toPublicDTO();
 class User extends BaseEntity {
   constructor(props) {
     // 基础属性
-    this.id;              // 唯一标识符
-    this.createdAt;       // 创建时间
-    this.updatedAt;       // 更新时间
+    this.id; // 唯一标识符
+    this.createdAt; // 创建时间
+    this.updatedAt; // 更新时间
 
     // 业务属性
-    this.username;        // 用户名
-    this.email;           // 邮箱地址
-    this.passwordHash;    // 密码哈希
-    this.isActive;        // 是否激活
+    this.username; // 用户名
+    this.email; // 邮箱地址
+    this.passwordHash; // 密码哈希
+    this.isActive; // 是否激活
     this.isEmailVerified; // 邮箱是否验证
-    this.roles;           // 角色列表
-    this.permissions;     // 权限列表
-    this.profile;         // 用户资料
-    this.lastLoginAt;     // 最后登录时间
+    this.roles; // 角色列表
+    this.permissions; // 权限列表
+    this.profile; // 用户资料
+    this.lastLoginAt; // 最后登录时间
   }
 }
 ```
@@ -127,11 +127,11 @@ const adminRole = new Role({
   name: 'Administrator',
   description: '系统管理员，具有所有权限',
   permissions: [
-    'user:*',      // 用户管理所有权限
-    'role:*',      // 角色管理所有权限
-    'system:*',    // 系统管理所有权限
+    'user:*', // 用户管理所有权限
+    'role:*', // 角色管理所有权限
+    'system:*', // 系统管理所有权限
   ],
-  isSystemRole: true,     // 系统内置角色
+  isSystemRole: true, // 系统内置角色
   createdBy: 'system',
 });
 
@@ -139,11 +139,7 @@ const editorRole = new Role({
   id: 'role-editor',
   name: 'Editor',
   description: '内容编辑员',
-  permissions: [
-    'content:create',
-    'content:edit',
-    'content:publish',
-  ],
+  permissions: ['content:create', 'content:edit', 'content:publish'],
   parentRoles: ['role-user'], // 继承用户角色
 });
 
@@ -278,7 +274,9 @@ class Permission extends BaseValueObject {
       throw new Error('权限字符串是必需的');
     }
     if (!this.isValidFormat()) {
-      throw new Error('权限格式无效，应为 resource:action 或 resource:action:scope');
+      throw new Error(
+        '权限格式无效，应为 resource:action 或 resource:action:scope',
+      );
     }
   }
 
@@ -375,7 +373,7 @@ class UserAggregate extends BaseAggregate {
   // 获取用户的所有权限（包括角色权限）
   getAllPermissions() {
     const userPermissions = this.user.permissions;
-    const rolePermissions = this.roles.flatMap(role => role.permissions);
+    const rolePermissions = this.roles.flatMap((role) => role.permissions);
 
     return [...new Set([...userPermissions, ...rolePermissions])];
   }
@@ -391,8 +389,10 @@ class UserAggregate extends BaseAggregate {
     ];
 
     for (const [perm1, perm2] of exclusivePermissions) {
-      if (this.hasPermission(allPermissions, perm1) &&
-          this.hasPermission(newPermissions, perm2)) {
+      if (
+        this.hasPermission(allPermissions, perm1) &&
+        this.hasPermission(newPermissions, perm2)
+      ) {
         return true;
       }
     }
@@ -437,11 +437,13 @@ class AuthAggregate extends BaseAggregate {
     this.clearFailedAttempts();
 
     // 发布事件
-    this.addDomainEvent(new UserAuthenticatedEvent(
-      this.user.id,
-      tokens.accessToken.id,
-      tokens.refreshToken.id
-    ));
+    this.addDomainEvent(
+      new UserAuthenticatedEvent(
+        this.user.id,
+        tokens.accessToken.id,
+        tokens.refreshToken.id,
+      ),
+    );
 
     return tokens;
   }
@@ -449,7 +451,7 @@ class AuthAggregate extends BaseAggregate {
   async refreshToken(refreshTokenValue) {
     // 验证刷新令牌
     const refreshToken = this.activeTokens.find(
-      t => t.type === 'refresh' && t.tokenValue === refreshTokenValue
+      (t) => t.type === 'refresh' && t.tokenValue === refreshTokenValue,
     );
 
     if (!refreshToken || refreshToken.isExpired()) {
@@ -464,11 +466,13 @@ class AuthAggregate extends BaseAggregate {
       const newRefreshToken = await this.generateRefreshToken();
       refreshToken.revoke();
 
-      this.addDomainEvent(new TokenRotatedEvent(
-        this.user.id,
-        refreshToken.id,
-        newRefreshToken.id
-      ));
+      this.addDomainEvent(
+        new TokenRotatedEvent(
+          this.user.id,
+          refreshToken.id,
+          newRefreshToken.id,
+        ),
+      );
 
       return {
         accessToken: newAccessToken,
@@ -481,7 +485,7 @@ class AuthAggregate extends BaseAggregate {
 
   // 令牌管理
   async revokeToken(tokenValue) {
-    const token = this.activeTokens.find(t => t.tokenValue === tokenValue);
+    const token = this.activeTokens.find((t) => t.tokenValue === tokenValue);
     if (token) {
       token.revoke();
       this.addDomainEvent(new TokenRevokedEvent(token.id));
@@ -516,7 +520,7 @@ class UserDomainService {
   async registerUser(registrationData) {
     // 验证用户名唯一性
     const existingUser = await this.userRepository.findByUsername(
-      registrationData.username
+      registrationData.username,
     );
     if (existingUser) {
       throw new DomainError('用户名已存在');
@@ -524,7 +528,7 @@ class UserDomainService {
 
     // 验证邮箱唯一性
     const existingEmail = await this.userRepository.findByEmail(
-      registrationData.email
+      registrationData.email,
     );
     if (existingEmail) {
       throw new DomainError('邮箱已被注册');
@@ -561,11 +565,11 @@ class UserDomainService {
     const results = new Map();
 
     for (const user of users) {
-      const userRoles = roles.filter(r => r.userId === user.id);
+      const userRoles = roles.filter((r) => r.userId === user.id);
       const userPermissions = this.calculateUserPermissions(user, userRoles);
 
-      const hasAllPermissions = requiredPermissions.every(perm =>
-        this.hasPermission(userPermissions, perm)
+      const hasAllPermissions = requiredPermissions.every((perm) =>
+        this.hasPermission(userPermissions, perm),
       );
 
       results.set(user.id, hasAllPermissions);
@@ -597,9 +601,9 @@ class UserDomainService {
     await this.userRepository.save(user);
 
     // 发布状态变更事件
-    await this.eventPublisher.publish(new UserStateChangedEvent(
-      userId, oldState, newState, reason
-    ));
+    await this.eventPublisher.publish(
+      new UserStateChangedEvent(userId, oldState, newState, reason),
+    );
 
     return user;
   }
@@ -607,10 +611,12 @@ class UserDomainService {
   // 辅助方法
   isPasswordStrong(password) {
     // 密码强度规则
-    return password.length >= 8 &&
-           /[A-Z]/.test(password) &&
-           /[a-z]/.test(password) &&
-           /[0-9]/.test(password);
+    return (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /[0-9]/.test(password)
+    );
   }
 
   calculateUserPermissions(user, roles) {
@@ -626,8 +632,8 @@ class UserDomainService {
   }
 
   hasPermission(userPermissions, requiredPermission) {
-    return userPermissions.some(perm =>
-      this.matchesPermission(perm, requiredPermission)
+    return userPermissions.some((perm) =>
+      this.matchesPermission(perm, requiredPermission),
     );
   }
 }
@@ -642,7 +648,7 @@ class AuthDomainService {
     tokenRepository,
     passwordHasher,
     tokenGenerator,
-    eventPublisher
+    eventPublisher,
   ) {
     this.userRepository = userRepository;
     this.tokenRepository = tokenRepository;
@@ -664,7 +670,7 @@ class AuthDomainService {
     // 验证密码
     const isValidPassword = await this.passwordHasher.verify(
       credentials.password,
-      user.passwordHash
+      user.passwordHash,
     );
 
     if (!isValidPassword) {
@@ -702,7 +708,8 @@ class AuthDomainService {
    */
   async refreshToken(refreshTokenValue) {
     // 验证刷新令牌
-    const refreshToken = await this.tokenRepository.findByValue(refreshTokenValue);
+    const refreshToken =
+      await this.tokenRepository.findByValue(refreshTokenValue);
     if (!refreshToken || refreshToken.type !== 'refresh') {
       throw new DomainError('无效的刷新令牌');
     }
@@ -1072,7 +1079,11 @@ class DomainEventHandlers {
     await this.services.securityService.checkAccountSecurity(event.aggregateId);
 
     // 发送登录通知（可选）
-    if (await this.services.userService.hasLoginNotificationsEnabled(event.aggregateId)) {
+    if (
+      await this.services.userService.hasLoginNotificationsEnabled(
+        event.aggregateId,
+      )
+    ) {
       await this.services.notificationService.sendLoginNotification(event);
     }
   }
@@ -1082,7 +1093,9 @@ class DomainEventHandlers {
     await this.services.workflowService.validateWorkflow(event.aggregateId);
 
     // 初始化工作流统计
-    await this.services.analyticsService.initializeWorkflowStats(event.aggregateId);
+    await this.services.analyticsService.initializeWorkflowStats(
+      event.aggregateId,
+    );
 
     // 通知相关用户
     await this.services.notificationService.notifyWorkflowCreation(event);
@@ -1215,24 +1228,41 @@ container.register('roleFactory', () => new RoleFactory());
 container.register('tokenFactory', () => new TokenFactory());
 
 // 注册仓储
-container.register('userRepository', (c) => new PostgreSQLUserRepository(c.resolve('database')));
-container.register('roleRepository', (c) => new PostgreSQLRoleRepository(c.resolve('database')));
-container.register('tokenRepository', (c) => new PostgreSQLTokenRepository(c.resolve('database')));
+container.register(
+  'userRepository',
+  (c) => new PostgreSQLUserRepository(c.resolve('database')),
+);
+container.register(
+  'roleRepository',
+  (c) => new PostgreSQLRoleRepository(c.resolve('database')),
+);
+container.register(
+  'tokenRepository',
+  (c) => new PostgreSQLTokenRepository(c.resolve('database')),
+);
 
 // 注册领域服务
-container.register('userDomainService', (c) => new UserDomainService(
-  c.resolve('userRepository'),
-  c.resolve('roleRepository'),
-  c.resolve('eventPublisher')
-));
+container.register(
+  'userDomainService',
+  (c) =>
+    new UserDomainService(
+      c.resolve('userRepository'),
+      c.resolve('roleRepository'),
+      c.resolve('eventPublisher'),
+    ),
+);
 
-container.register('authDomainService', (c) => new AuthDomainService(
-  c.resolve('userRepository'),
-  c.resolve('tokenRepository'),
-  c.resolve('passwordHasher'),
-  c.resolve('tokenGenerator'),
-  c.resolve('eventPublisher')
-));
+container.register(
+  'authDomainService',
+  (c) =>
+    new AuthDomainService(
+      c.resolve('userRepository'),
+      c.resolve('tokenRepository'),
+      c.resolve('passwordHasher'),
+      c.resolve('tokenGenerator'),
+      c.resolve('eventPublisher'),
+    ),
+);
 
 // 注册规约
 container.register('userSpecifications', () => ({
@@ -1250,7 +1280,9 @@ container.register('userSpecifications', () => ({
 // 实体创建指标
 const entityMetrics = {
   usersCreated: await userRepository.count(),
-  activeUsers: await userRepository.countBySpecification(new ActiveUserSpecification()),
+  activeUsers: await userRepository.countBySpecification(
+    new ActiveUserSpecification(),
+  ),
   rolesAssigned: await roleRepository.count(),
   tokensIssued: await tokenRepository.countByType('access'),
 };
@@ -1258,9 +1290,11 @@ const entityMetrics = {
 // 领域服务指标
 const domainServiceMetrics = {
   authenticationAttempts: await authDomainService.getAuthenticationAttempts(),
-  successfulAuthentications: await authDomainService.getSuccessfulAuthentications(),
+  successfulAuthentications:
+    await authDomainService.getSuccessfulAuthentications(),
   failedAuthentications: await authDomainService.getFailedAuthentications(),
-  averageAuthenticationTime: await authDomainService.getAverageAuthenticationTime(),
+  averageAuthenticationTime:
+    await authDomainService.getAverageAuthenticationTime(),
 };
 
 // 仓储性能指标
@@ -1297,7 +1331,9 @@ describe('User Entity', () => {
 
   it('should validate username format', () => {
     expect(() => new Username('ab')).toThrow('用户名长度必须在3-50个字符之间');
-    expect(() => new Username('user@domain')).toThrow('用户名只能包含字母、数字、下划线和连字符');
+    expect(() => new Username('user@domain')).toThrow(
+      '用户名只能包含字母、数字、下划线和连字符',
+    );
     expect(() => new Username('valid_user')).not.toThrow();
   });
 
@@ -1343,11 +1379,9 @@ describe('UserDomainService', () => {
       findById: vi.fn(),
     };
 
-    domainService = new UserDomainService(
-      userRepository,
-      roleRepository,
-      { publish: vi.fn() }
-    );
+    domainService = new UserDomainService(userRepository, roleRepository, {
+      publish: vi.fn(),
+    });
   });
 
   it('should register user successfully', async () => {
@@ -1366,17 +1400,21 @@ describe('UserDomainService', () => {
   });
 
   it('should reject duplicate username', async () => {
-    userRepository.findByUsername.mockResolvedValue(new User({
-      id: 'existing',
-      username: 'john_doe',
-      email: 'existing@example.com',
-    }));
+    userRepository.findByUsername.mockResolvedValue(
+      new User({
+        id: 'existing',
+        username: 'john_doe',
+        email: 'existing@example.com',
+      }),
+    );
 
-    await expect(domainService.registerUser({
-      username: 'john_doe',
-      email: 'new@example.com',
-      password: 'StrongPass123!',
-    })).rejects.toThrow('用户名已存在');
+    await expect(
+      domainService.registerUser({
+        username: 'john_doe',
+        email: 'new@example.com',
+        password: 'StrongPass123!',
+      }),
+    ).rejects.toThrow('用户名已存在');
   });
 });
 ```
@@ -1532,5 +1570,5 @@ class OrderEventHandlers {
 
 - [应用服务层文档](application-layer.md) - 应用服务层的实现
 - [基础设施层文档](infrastructure-layer.md) - 基础设施实现
-- [测试策略](testing-architecture.md) - 测试最佳实践
+- [测试策略](../testing/testing-architecture.md) - 测试最佳实践
 - [Eric Evans - Domain-Driven Design](https://domainlanguage.com/ddd/) - DDD经典著作

@@ -1,8 +1,8 @@
-# frys 应用服务层
+# frys 应用服务层 (src/application/)
 
 ## 📖 模块概述
 
-frys 的应用服务层提供了企业级应用的业务逻辑实现，通过依赖注入的方式整合各个核心模块，提供用户管理、工作流执行、AI服务集成等关键业务功能。该层采用了清洁架构原则，确保业务逻辑与基础设施解耦。
+frys 的应用服务层 (src/application/)提供了企业级应用的业务逻辑实现，通过依赖注入的方式整合各个核心模块，提供用户管理、工作流执行、AI服务集成等关键业务功能。该层采用了清洁架构原则，确保业务逻辑与基础设施解耦。
 
 ### 🎯 核心特性
 
@@ -16,7 +16,7 @@ frys 的应用服务层提供了企业级应用的业务逻辑实现，通过依
 ### 🏗️ 服务架构
 
 ```
-应用服务层
+应用服务层 (src/application/)
 ├── 🤖 AI服务集成 (AI Services)
 │   ├── OpenAI 服务集成
 │   ├── Claude 服务集成
@@ -56,7 +56,7 @@ frys 的应用服务层提供了企业级应用的业务逻辑实现，通过依
 ```javascript
 import { container } from 'frys';
 
-const aiService = container.resolve('aiService');
+const openAIService = container.resolve('openAIService');
 
 // OpenAI 文本生成
 const response = await aiService.generateText({
@@ -70,20 +70,21 @@ const response = await aiService.generateText({
 const conversation = await aiService.createConversation({
   provider: 'claude',
   model: 'claude-3-opus-20240229',
-  messages: [
-    { role: 'user', content: '你好，请介绍一下自己' }
-  ],
+  messages: [{ role: 'user', content: '你好，请介绍一下自己' }],
 });
 
 // 多模型比较
-const results = await aiService.compareModels([
-  { provider: 'openai', model: 'gpt-4' },
-  { provider: 'claude', model: 'claude-3-opus-20240229' },
-  { provider: 'gemini', model: 'gemini-pro' }
-], {
-  prompt: '写一首关于AI的诗',
-  criteria: ['creativity', 'coherence', 'relevance']
-});
+const results = await aiService.compareModels(
+  [
+    { provider: 'openai', model: 'gpt-4' },
+    { provider: 'claude', model: 'claude-3-opus-20240229' },
+    { provider: 'gemini', model: 'gemini-pro' },
+  ],
+  {
+    prompt: '写一首关于AI的诗',
+    criteria: ['creativity', 'coherence', 'relevance'],
+  },
+);
 ```
 
 ### AI服务配置
@@ -135,10 +136,14 @@ const aiConfig = {
 const routingConfig = {
   // 基于任务类型的路由
   taskRouting: {
-    'text-generation': ['openai:gpt-4', 'claude:claude-3-opus', 'gemini:gemini-pro'],
+    'text-generation': [
+      'openai:gpt-4',
+      'claude:claude-3-opus',
+      'gemini:gemini-pro',
+    ],
     'code-generation': ['openai:gpt-4', 'deepseek:deepseek-coder'],
-    'analysis': ['claude:claude-3-opus', 'openai:gpt-4'],
-    'creative': ['gemini:gemini-pro', 'claude:claude-3-opus'],
+    analysis: ['claude:claude-3-opus', 'openai:gpt-4'],
+    creative: ['gemini:gemini-pro', 'claude:claude-3-opus'],
   },
 
   // 基于成本的路由
@@ -191,7 +196,7 @@ const user = await cacheService.get('user:123');
 const userData = await cacheService.getOrSet(
   'user:profile:123',
   async () => await fetchUserFromDatabase(123),
-  { ttl: 1800, strategy: 'database' }
+  { ttl: 1800, strategy: 'database' },
 );
 
 // 批量操作
@@ -210,7 +215,7 @@ const cacheConfig = {
   layers: {
     memory: {
       max: 1000, // 最大条目数
-      ttl: 300,  // 默认TTL（秒）
+      ttl: 300, // 默认TTL（秒）
       strategy: 'lru', // LRU策略
     },
     redis: {
@@ -256,29 +261,29 @@ const cacheConfig = {
 // 创建智能缓存策略
 const smartStrategy = cacheService.createSmartStrategy({
   accessPattern: 'read-heavy', // read-heavy, write-heavy, balanced
-  dataType: 'user-data',       // user-data, config, query-results
-  freshness: 'medium',         // high, medium, low
+  dataType: 'user-data', // user-data, config, query-results
+  freshness: 'medium', // high, medium, low
 });
 
 // 访问模式策略
 const readHeavyStrategy = cacheService.createAccessPatternStrategy({
-  readRatio: 0.9,    // 90%读操作
-  writeRatio: 0.1,   // 10%写操作
+  readRatio: 0.9, // 90%读操作
+  writeRatio: 0.1, // 10%写操作
   burstTolerance: 0.2, // 突发写入容忍度
 });
 
 // 新鲜度策略
 const freshStrategy = cacheService.createFreshnessStrategy({
-  maxAge: 300,       // 最大年龄5分钟
+  maxAge: 300, // 最大年龄5分钟
   stalenessTolerance: 0.1, // 10%陈旧容忍度
-  refreshThreshold: 0.8,   // 80%时刷新
+  refreshThreshold: 0.8, // 80%时刷新
 });
 
 // 复合策略
-const compositeStrategy = cacheService.createCompositeStrategy([
-  readHeavyStrategy,
-  freshStrategy,
-], 'weighted'); // 加权组合
+const compositeStrategy = cacheService.createCompositeStrategy(
+  [readHeavyStrategy, freshStrategy],
+  'weighted',
+); // 加权组合
 ```
 
 ### 缓存预热和监控
@@ -380,15 +385,15 @@ const sessionConfig = {
 
   // 存储配置
   storage: {
-    primary: 'redis',    // 主存储
-    backup: 'database',  // 备份存储
-    sync: true,          // 启用同步
+    primary: 'redis', // 主存储
+    backup: 'database', // 备份存储
+    sync: true, // 启用同步
   },
 
   // 清理配置
   cleanup: {
     interval: 60 * 60 * 1000, // 每小时清理一次
-    batchSize: 100,           // 每次清理100个会话
+    batchSize: 100, // 每次清理100个会话
     retentionPeriod: 30 * 24 * 60 * 60 * 1000, // 保留30天
   },
 };
@@ -405,7 +410,7 @@ const contextConfig = {
   // 上下文压缩
   compression: {
     enabled: true,
-    threshold: 10,     // 超过10条消息时压缩
+    threshold: 10, // 超过10条消息时压缩
     strategy: 'summary', // summary, filter, truncate
   },
 
@@ -413,20 +418,20 @@ const contextConfig = {
   importanceScoring: {
     enabled: true,
     factors: {
-      recency: 0.3,     // 最近程度权重
-      relevance: 0.4,   // 相关性权重
-      userIntent: 0.3,  // 用户意图权重
+      recency: 0.3, // 最近程度权重
+      relevance: 0.4, // 相关性权重
+      userIntent: 0.3, // 用户意图权重
     },
   },
 
   // 记忆管理
   memory: {
     shortTerm: {
-      capacity: 50,     // 短期记忆容量
-      decay: 0.1,       // 衰减率
+      capacity: 50, // 短期记忆容量
+      decay: 0.1, // 衰减率
     },
     longTerm: {
-      capacity: 200,    // 长期记忆容量
+      capacity: 200, // 长期记忆容量
       consolidation: 0.8, // 巩固阈值
     },
   },
@@ -439,11 +444,14 @@ const context = await conversationManager.getContext(sessionId);
 await conversationManager.setContextVariable(sessionId, 'user_role', 'premium');
 
 // 获取相关上下文
-const relevantContext = await conversationManager.getRelevantContext(sessionId, {
-  query: '机器学习项目',
-  limit: 10,
-  threshold: 0.7,
-});
+const relevantContext = await conversationManager.getRelevantContext(
+  sessionId,
+  {
+    query: '机器学习项目',
+    limit: 10,
+    threshold: 0.7,
+  },
+);
 ```
 
 ## 🗄️ 数据库管理服务 (DatabaseManagementService)
@@ -575,7 +583,7 @@ await dbService.createMigration('add_user_preferences', {
 });
 
 // 执行迁移
-await dbService.migrate('up');  // 升级到最新版本
+await dbService.migrate('up'); // 升级到最新版本
 await dbService.migrate('down', 2); // 回滚2个版本
 
 // 检查迁移状态
@@ -617,9 +625,9 @@ await cacheManagementUseCase.cleanupCache({
 
 // 缓存优化用例
 const optimizationResult = await cacheManagementUseCase.optimizeCache({
-  analysis: true,     // 执行性能分析
+  analysis: true, // 执行性能分析
   recommendations: true, // 生成优化建议
-  autoApply: false,   // 不自动应用
+  autoApply: false, // 不自动应用
 });
 
 console.log('优化建议:', optimizationResult.recommendations);
@@ -633,20 +641,20 @@ const useCaseConfig = {
   // 缓存管理用例配置
   cacheManagement: {
     warmup: {
-      concurrency: 5,        // 预热并发数
-      batchSize: 100,        // 批处理大小
-      timeout: 30000,        // 超时时间
+      concurrency: 5, // 预热并发数
+      batchSize: 100, // 批处理大小
+      timeout: 30000, // 超时时间
     },
     cleanup: {
       retentionPeriod: 7 * 24 * 60 * 60 * 1000, // 保留7天
-      safeMode: true,       // 安全清理模式
-      backupEnabled: true,  // 启用备份
+      safeMode: true, // 安全清理模式
+      backupEnabled: true, // 启用备份
     },
     optimization: {
       analysisInterval: 60 * 60 * 1000, // 分析间隔
       autoOptimization: false, // 不自动优化
       threshold: {
-        hitRate: 0.7,     // 命中率阈值
+        hitRate: 0.7, // 命中率阈值
         memoryUsage: 0.8, // 内存使用阈值
       },
     },
@@ -654,8 +662,8 @@ const useCaseConfig = {
 
   // 业务验证配置
   validation: {
-    strict: true,         // 严格验证
-    sanitize: true,       // 数据清理
+    strict: true, // 严格验证
+    sanitize: true, // 数据清理
     customValidators: {
       email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
       phone: (value) => /^\+?[\d\s\-\(\)]+$/.test(value),
@@ -665,9 +673,9 @@ const useCaseConfig = {
   // 审计配置
   audit: {
     enabled: true,
-    level: 'detailed',    // none, basic, detailed
-    storage: 'database',  // database, file, both
-    retention: 365,       // 保留天数
+    level: 'detailed', // none, basic, detailed
+    storage: 'database', // database, file, both
+    retention: 365, // 保留天数
   },
 };
 ```
@@ -689,17 +697,25 @@ container.register('databaseManagementService', DatabaseManagementService);
 container.register('cacheManagementUseCase', CacheManagementUseCase);
 
 // 配置服务依赖
-container.register('aiService', (c) => new AIService({
-  http: c.resolve('http'),
-  config: c.resolve('config'),
-  logger: c.resolve('logger'),
-}));
+container.register(
+  'aiService',
+  (c) =>
+    new AIService({
+      http: c.resolve('http'),
+      config: c.resolve('config'),
+      logger: c.resolve('logger'),
+    }),
+);
 
-container.register('cacheService', (c) => new CacheService({
-  cacheManager: c.resolve('cacheManager'),
-  strategies: c.resolve('cacheStrategies'),
-  logger: c.resolve('logger'),
-}));
+container.register(
+  'cacheService',
+  (c) =>
+    new CacheService({
+      cacheManager: c.resolve('cacheManager'),
+      strategies: c.resolve('cacheStrategies'),
+      logger: c.resolve('logger'),
+    }),
+);
 ```
 
 ### 服务依赖图
@@ -915,7 +931,9 @@ describe('AI Service Integration', () => {
     // 配置主提供商失败，备用提供商成功
     mockHttp.post
       .mockRejectedValueOnce(new Error('OpenAI failed'))
-      .mockResolvedValueOnce({ data: { choices: [{ text: 'Response from Claude' }] } });
+      .mockResolvedValueOnce({
+        data: { choices: [{ text: 'Response from Claude' }] },
+      });
 
     const result = await aiService.generateText({
       provider: 'openai',
@@ -1010,5 +1028,5 @@ class SessionManager {
 - [核心模块文档](core-modules.md) - 了解底层核心模块
 - [领域驱动设计文档](domain-layer.md) - 领域层设计模式
 - [基础设施层文档](infrastructure-layer.md) - 基础设施实现
-- [API 文档](api-documentation.md) - 完整的API参考
-- [测试策略](testing-architecture.md) - 测试最佳实践
+- [API 文档](../api/api-documentation.md) - 完整的API参考
+- [测试策略](../testing/testing-architecture.md) - 测试最佳实践

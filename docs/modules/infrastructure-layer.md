@@ -1,8 +1,8 @@
-# frys 基础设施层
+# frys 基础设施层 (src/infrastructure/)
 
 ## 📖 模块概述
 
-frys 的基础设施层提供了企业级应用的底层技术支持，通过抽象化基础设施组件实现与业务逻辑的解耦。该层包含数据库、缓存、消息队列、监控、可观测性等核心基础设施服务，确保应用的稳定运行和高性能。
+frys 的基础设施层 (src/infrastructure/)提供了企业级应用的底层技术支持，通过抽象化基础设施组件实现与业务逻辑的解耦。该层包含数据库、缓存、消息队列、监控、可观测性等核心基础设施服务，确保应用的稳定运行和高性能。
 
 ### 🎯 核心特性
 
@@ -16,7 +16,7 @@ frys 的基础设施层提供了企业级应用的底层技术支持，通过抽
 ### 🏗️ 基础设施架构
 
 ```
-基础设施层
+基础设施层 (src/infrastructure/)
 ├── 💾 数据库基础设施 (Database)
 │   ├── 连接池管理 (Connection Pool)
 │   ├── 查询优化器 (Query Optimizer)
@@ -88,17 +88,17 @@ const poolConfig = {
   ssl: true,
 
   // 连接池配置
-  min: 2,          // 最小连接数
-  max: 20,         // 最大连接数
-  idle: 10000,     // 空闲连接超时(ms)
-  acquire: 60000,  // 获取连接超时(ms)
+  min: 2, // 最小连接数
+  max: 20, // 最大连接数
+  idle: 10000, // 空闲连接超时(ms)
+  acquire: 60000, // 获取连接超时(ms)
 
   // 健康检查
   healthCheck: {
     enabled: true,
-    interval: 30000,    // 健康检查间隔
-    timeout: 5000,      // 健康检查超时
-    retryCount: 3,      // 重试次数
+    interval: 30000, // 健康检查间隔
+    timeout: 5000, // 健康检查超时
+    retryCount: 3, // 重试次数
   },
 
   // 监控配置
@@ -120,7 +120,9 @@ const pool = new DatabaseConnectionPool(poolConfig);
 const client = await pool.acquire();
 
 try {
-  const result = await client.query('SELECT * FROM users WHERE id = $1', [userId]);
+  const result = await client.query('SELECT * FROM users WHERE id = $1', [
+    userId,
+  ]);
   return result.rows[0];
 } finally {
   pool.release(client);
@@ -143,7 +145,7 @@ const optimizer = new DatabaseOptimizer({
 // 分析慢查询
 const slowQueries = await optimizer.analyzeSlowQueries({
   threshold: 1000, // 慢查询阈值(ms)
-  limit: 100,      // 返回前100个慢查询
+  limit: 100, // 返回前100个慢查询
 });
 
 for (const query of slowQueries) {
@@ -189,8 +191,8 @@ const migrationManager = new MigrationManager({
   tableName: 'migrations',
 
   // 迁移配置
-  validateChecksums: true,  // 验证迁移文件校验和
-  allowOutOfOrder: false,   // 不允许乱序执行
+  validateChecksums: true, // 验证迁移文件校验和
+  allowOutOfOrder: false, // 不允许乱序执行
   baselineVersion: '1.0.0', // 基线版本
 });
 
@@ -251,10 +253,10 @@ const monitor = new DatabaseMonitor({
 
   // 告警阈值
   thresholds: {
-    maxConnections: 90,      // 连接池使用率90%
-    slowQueryTime: 1000,     // 慢查询1秒
-    lockWaitTime: 5000,      // 锁等待5秒
-    tableSizeGB: 10,         // 表大小10GB
+    maxConnections: 90, // 连接池使用率90%
+    slowQueryTime: 1000, // 慢查询1秒
+    lockWaitTime: 5000, // 锁等待5秒
+    tableSizeGB: 10, // 表大小10GB
   },
 
   // 告警配置
@@ -340,7 +342,7 @@ await cacheManager.delete('user:123');
 const userData = await cacheManager.getOrSet(
   'user:profile:123',
   async () => await fetchUserFromDatabase(123),
-  { ttl: 1800 }
+  { ttl: 1800 },
 );
 
 // 批量操作
@@ -362,23 +364,23 @@ const strategies = new CacheStrategies();
 
 // 创建访问模式策略
 const readHeavyStrategy = strategies.createAccessPatternStrategy({
-  readRatio: 0.9,    // 90%读操作
-  writeRatio: 0.1,   // 10%写操作
+  readRatio: 0.9, // 90%读操作
+  writeRatio: 0.1, // 10%写操作
   burstTolerance: 0.2, // 突发写入容忍度
 });
 
 // 创建新鲜度策略
 const freshStrategy = strategies.createFreshnessStrategy({
-  maxAge: 300,       // 最大年龄5分钟
+  maxAge: 300, // 最大年龄5分钟
   stalenessTolerance: 0.1, // 10%陈旧容忍度
-  refreshThreshold: 0.8,   // 80%时刷新
+  refreshThreshold: 0.8, // 80%时刷新
 });
 
 // 创建复合策略
-const compositeStrategy = strategies.createCompositeStrategy([
-  readHeavyStrategy,
-  freshStrategy,
-], 'weighted'); // 加权组合
+const compositeStrategy = strategies.createCompositeStrategy(
+  [readHeavyStrategy, freshStrategy],
+  'weighted',
+); // 加权组合
 
 // 注册自定义策略
 strategies.registerStrategy('user-data', readHeavyStrategy);
@@ -450,9 +452,9 @@ await subscriber.subscribe(async (message) => {
 import { EventBus } from 'frys-infrastructure';
 
 const eventBus = new EventBus({
-  async: true,        // 异步处理事件
+  async: true, // 异步处理事件
   errorHandling: true, // 启用错误处理
-  monitoring: true,    // 启用监控
+  monitoring: true, // 启用监控
 });
 
 // 注册事件处理器
@@ -535,14 +537,22 @@ const payload = await authMiddleware.verifyToken(accessToken);
 app.use(authMiddleware.authenticate());
 
 // 权限检查中间件
-app.get('/admin/users', authMiddleware.authorize(['admin:users']), (req, res) => {
-  // 只有管理员可以访问
-});
+app.get(
+  '/admin/users',
+  authMiddleware.authorize(['admin:users']),
+  (req, res) => {
+    // 只有管理员可以访问
+  },
+);
 
 // 自定义权限检查
-app.get('/api/profile', authMiddleware.checkPermission('read:profile'), (req, res) => {
-  // 检查用户是否有读取资料的权限
-});
+app.get(
+  '/api/profile',
+  authMiddleware.checkPermission('read:profile'),
+  (req, res) => {
+    // 检查用户是否有读取资料的权限
+  },
+);
 ```
 
 ## 🏥 健康检查 (Health Checks)
@@ -584,10 +594,10 @@ const healthChecker = new HealthChecker({
 
   // 健康标准
   thresholds: {
-    responseTime: 1000,    // 响应时间 < 1秒
-    errorRate: 0.05,       // 错误率 < 5%
-    memoryUsage: 0.8,      // 内存使用 < 80%
-    cpuUsage: 0.7,         // CPU使用 < 70%
+    responseTime: 1000, // 响应时间 < 1秒
+    errorRate: 0.05, // 错误率 < 5%
+    memoryUsage: 0.8, // 内存使用 < 80%
+    cpuUsage: 0.7, // CPU使用 < 70%
   },
 });
 
@@ -628,7 +638,7 @@ const dockerChecker = new DockerHealthChecker({
       healthCheck: {
         test: ['CMD', 'curl', '-f', 'http://localhost/health'],
         interval: 30000000000, // 30秒
-        timeout: 10000000000,  // 10秒
+        timeout: 10000000000, // 10秒
         retries: 3,
       },
     },
@@ -637,7 +647,7 @@ const dockerChecker = new DockerHealthChecker({
       healthCheck: {
         test: ['CMD', 'pg_isready', '-U', 'postgres'],
         interval: 10000000000, // 10秒
-        timeout: 5000000000,   // 5秒
+        timeout: 5000000000, // 5秒
         retries: 5,
       },
     },
@@ -667,7 +677,7 @@ const loadTester = new LoadTester({
 
   // 负载配置
   phases: [
-    { duration: 60, arrivalRate: 10 },  // 1分钟，10个请求/秒
+    { duration: 60, arrivalRate: 10 }, // 1分钟，10个请求/秒
     { duration: 120, arrivalRate: 50 }, // 2分钟，50个请求/秒
     { duration: 60, arrivalRate: 100 }, // 1分钟，100个请求/秒
   ],
@@ -727,31 +737,31 @@ const stressTester = new StressTester({
 
   // 增量策略配置
   incremental: {
-    startRate: 10,      // 起始请求率
-    increment: 10,      // 每次增量
+    startRate: 10, // 起始请求率
+    increment: 10, // 每次增量
     incrementInterval: 60, // 增量间隔(秒)
-    maxRate: 500,       // 最大请求率
+    maxRate: 500, // 最大请求率
   },
 
   // 尖峰策略配置
   spike: {
-    normalRate: 50,     // 正常请求率
-    spikeRate: 500,     // 尖峰请求率
-    spikeDuration: 30,  // 尖峰持续时间
-    cooldown: 60,       // 冷却时间
+    normalRate: 50, // 正常请求率
+    spikeRate: 500, // 尖峰请求率
+    spikeDuration: 30, // 尖峰持续时间
+    cooldown: 60, // 冷却时间
   },
 
   // 持续策略配置
   sustained: {
-    rate: 200,          // 持续请求率
-    duration: 300,      // 测试持续时间
+    rate: 200, // 持续请求率
+    duration: 300, // 测试持续时间
   },
 
   // 停止条件
   stopConditions: {
-    maxResponseTime: 5000,   // 最大响应时间
-    maxErrorRate: 0.5,       // 最大错误率
-    maxDuration: 600,        // 最大测试时间
+    maxResponseTime: 5000, // 最大响应时间
+    maxErrorRate: 0.5, // 最大错误率
+    maxDuration: 600, // 最大测试时间
   },
 });
 
@@ -832,10 +842,10 @@ const tracingMiddleware = new TracingMiddleware({
   tracer: tracer,
 
   // 追踪配置
-  traceHeaders: true,    // 追踪请求头
-  traceBody: false,      // 不追踪请求体（隐私考虑）
-  traceQuery: true,      // 追踪查询参数
-  traceUser: true,       // 追踪用户信息
+  traceHeaders: true, // 追踪请求头
+  traceBody: false, // 不追踪请求体（隐私考虑）
+  traceQuery: true, // 追踪查询参数
+  traceUser: true, // 追踪用户信息
 
   // 自定义标签
   customTags: {
@@ -889,18 +899,18 @@ const orchestrator = new DockerContainerOrchestrator({
 
   // 伸缩配置
   scaling: {
-    minReplicas: 2,      // 最小副本数
-    maxReplicas: 10,     // 最大副本数
-    scaleUpThreshold: 70,  // CPU使用率70%时扩容
+    minReplicas: 2, // 最小副本数
+    maxReplicas: 10, // 最大副本数
+    scaleUpThreshold: 70, // CPU使用率70%时扩容
     scaleDownThreshold: 30, // CPU使用率30%时缩容
-    cooldownPeriod: 300,   // 冷却期5分钟
+    cooldownPeriod: 300, // 冷却期5分钟
   },
 
   // 健康检查
   healthCheck: {
-    interval: 30,        // 30秒检查一次
-    timeout: 10,         // 10秒超时
-    retries: 3,          // 重试3次
+    interval: 30, // 30秒检查一次
+    timeout: 10, // 10秒超时
+    retries: 3, // 重试3次
   },
 
   // 负载均衡
@@ -939,8 +949,8 @@ const scalingPolicy = new ScalingPolicy({
   // 基于CPU的伸缩策略
   cpuBased: {
     enabled: true,
-    targetUtilization: 0.7,  // 目标CPU利用率70%
-    scaleUpThreshold: 0.8,   // 80%时扩容
+    targetUtilization: 0.7, // 目标CPU利用率70%
+    scaleUpThreshold: 0.8, // 80%时扩容
     scaleDownThreshold: 0.4, // 40%时缩容
     stabilizationWindow: 300, // 稳定窗口5分钟
   },
@@ -948,24 +958,24 @@ const scalingPolicy = new ScalingPolicy({
   // 基于内存的伸缩策略
   memoryBased: {
     enabled: true,
-    targetUtilization: 0.8,  // 目标内存利用率80%
-    scaleUpThreshold: 0.9,   // 90%时扩容
+    targetUtilization: 0.8, // 目标内存利用率80%
+    scaleUpThreshold: 0.9, // 90%时扩容
     scaleDownThreshold: 0.5, // 50%时缩容
   },
 
   // 基于请求率的伸缩策略
   requestBased: {
     enabled: true,
-    targetRPS: 1000,         // 目标每秒请求数
-    scaleUpThreshold: 1.2,   // 120%时扩容
+    targetRPS: 1000, // 目标每秒请求数
+    scaleUpThreshold: 1.2, // 120%时扩容
     scaleDownThreshold: 0.7, // 70%时缩容
   },
 
   // 预测性伸缩
   predictive: {
     enabled: true,
-    historyWindow: 168,      // 7天历史数据
-    forecastHorizon: 24,     // 预测24小时
+    historyWindow: 168, // 7天历史数据
+    forecastHorizon: 24, // 预测24小时
     confidenceThreshold: 0.8, // 置信度阈值
   },
 });
@@ -1038,8 +1048,8 @@ const exceptionHandler = new GlobalExceptionHandler({
   alerting: {
     enabled: true,
     thresholds: {
-      errorRate: 0.1,    // 错误率10%时告警
-      errorCount: 100,   // 每分钟100个错误时告警
+      errorRate: 0.1, // 错误率10%时告警
+      errorCount: 100, // 每分钟100个错误时告警
     },
     channels: ['slack', 'email'],
   },
@@ -1088,9 +1098,9 @@ const retryStrategy = recoveryStrategies.createRetryStrategy({
 
 // 断路器策略
 const circuitBreakerStrategy = recoveryStrategies.createCircuitBreakerStrategy({
-  failureThreshold: 5,      // 5次失败后断开
-  recoveryTimeout: 60000,   // 1分钟后尝试恢复
-  monitoringWindow: 10000,  // 10秒监控窗口
+  failureThreshold: 5, // 5次失败后断开
+  recoveryTimeout: 60000, // 1分钟后尝试恢复
+  monitoringWindow: 10000, // 10秒监控窗口
 });
 
 // 降级策略
@@ -1108,16 +1118,15 @@ const timeoutStrategy = recoveryStrategies.createTimeoutStrategy({
 });
 
 // 组合策略
-const compositeStrategy = recoveryStrategies.createCompositeStrategy([
-  retryStrategy,
-  circuitBreakerStrategy,
-  fallbackStrategy,
-], 'failover'); // 故障转移模式
+const compositeStrategy = recoveryStrategies.createCompositeStrategy(
+  [retryStrategy, circuitBreakerStrategy, fallbackStrategy],
+  'failover',
+); // 故障转移模式
 
 // 执行带恢复的操作
 const result = await recoveryStrategies.executeWithRecovery(
   async () => await unreliableService.call(),
-  compositeStrategy
+  compositeStrategy,
 );
 ```
 
@@ -1132,10 +1141,10 @@ import { HttpClientPool } from 'frys-infrastructure';
 
 const httpPool = new HttpClientPool({
   // 池配置
-  min: 5,          // 最小连接数
-  max: 50,         // 最大连接数
-  idle: 30000,     // 空闲超时30秒
-  acquire: 10000,  // 获取超时10秒
+  min: 5, // 最小连接数
+  max: 50, // 最大连接数
+  idle: 30000, // 空闲超时30秒
+  acquire: 10000, // 获取超时10秒
 
   // HTTP配置
   baseURL: 'https://api.example.com',
@@ -1185,13 +1194,13 @@ import { WorkerPool } from 'frys-infrastructure';
 
 const workerPool = new WorkerPool({
   // 工作进程配置
-  minWorkers: 2,     // 最小工作进程数
-  maxWorkers: 8,     // 最大工作进程数
+  minWorkers: 2, // 最小工作进程数
+  maxWorkers: 8, // 最大工作进程数
   workerScript: './workers/image-processor.js',
 
   // 任务队列配置
-  queueSize: 1000,   // 队列大小
-  timeout: 30000,    // 任务超时30秒
+  queueSize: 1000, // 队列大小
+  timeout: 30000, // 任务超时30秒
 
   // 监控配置
   monitoring: {
@@ -1237,7 +1246,7 @@ const cacheMiddleware = new CacheMiddleware({
   cache: cacheManager,
 
   // 缓存配置
-  defaultTTL: 300,   // 默认5分钟
+  defaultTTL: 300, // 默认5分钟
   cacheableMethods: ['GET', 'HEAD'],
   cacheableStatusCodes: [200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501],
 
@@ -1255,7 +1264,7 @@ const cacheMiddleware = new CacheMiddleware({
 
   // 缓存控制
   cacheControl: {
-    'public': true,
+    public: true,
     'max-age': 300,
     's-maxage': 600,
   },
@@ -1265,14 +1274,18 @@ const cacheMiddleware = new CacheMiddleware({
 app.use(cacheMiddleware);
 
 // 自定义缓存规则
-app.get('/api/users/:id', cacheMiddleware.cache({
-  ttl: 600,    // 10分钟
-  key: (req) => `user:${req.params.id}`,
-  condition: (req) => !req.query.force, // 除非强制刷新
-}), async (req, res) => {
-  const user = await userService.getUser(req.params.id);
-  res.json(user);
-});
+app.get(
+  '/api/users/:id',
+  cacheMiddleware.cache({
+    ttl: 600, // 10分钟
+    key: (req) => `user:${req.params.id}`,
+    condition: (req) => !req.query.force, // 除非强制刷新
+  }),
+  async (req, res) => {
+    const user = await userService.getUser(req.params.id);
+    res.json(user);
+  },
+);
 
 // 清除缓存
 app.post('/api/users', async (req, res) => {
@@ -1295,15 +1308,27 @@ import { container } from 'frys';
 
 // 注册数据库基础设施
 container.register('databasePool', (c) => new DatabaseConnectionPool(dbConfig));
-container.register('databaseOptimizer', (c) => new DatabaseOptimizer({
-  database: c.resolve('databasePool'),
-}));
-container.register('migrationManager', (c) => new MigrationManager({
-  database: c.resolve('databasePool'),
-}));
-container.register('databaseMonitor', (c) => new DatabaseMonitor({
-  database: c.resolve('databasePool'),
-}));
+container.register(
+  'databaseOptimizer',
+  (c) =>
+    new DatabaseOptimizer({
+      database: c.resolve('databasePool'),
+    }),
+);
+container.register(
+  'migrationManager',
+  (c) =>
+    new MigrationManager({
+      database: c.resolve('databasePool'),
+    }),
+);
+container.register(
+  'databaseMonitor',
+  (c) =>
+    new DatabaseMonitor({
+      database: c.resolve('databasePool'),
+    }),
+);
 
 // 注册持久化层
 container.register('cacheManager', (c) => new CacheManager(cacheConfig));
@@ -1314,34 +1339,57 @@ container.register('messageBroker', (c) => new MessageBroker(messagingConfig));
 container.register('eventBus', (c) => new EventBus(eventBusConfig));
 
 // 注册认证基础设施
-container.register('authMiddleware', (c) => new AuthenticationMiddleware(authConfig));
+container.register(
+  'authMiddleware',
+  (c) => new AuthenticationMiddleware(authConfig),
+);
 
 // 注册健康检查
 container.register('healthChecker', (c) => new HealthChecker(healthConfig));
-container.register('dockerChecker', (c) => new DockerHealthChecker(dockerConfig));
+container.register(
+  'dockerChecker',
+  (c) => new DockerHealthChecker(dockerConfig),
+);
 
 // 注册监控和追踪
 container.register('tracer', (c) => new Tracer(tracingConfig));
-container.register('tracingMiddleware', (c) => new TracingMiddleware({
-  tracer: c.resolve('tracer'),
-}));
+container.register(
+  'tracingMiddleware',
+  (c) =>
+    new TracingMiddleware({
+      tracer: c.resolve('tracer'),
+    }),
+);
 
 // 注册自动伸缩
-container.register('containerOrchestrator', (c) => new DockerContainerOrchestrator(orchestratorConfig));
+container.register(
+  'containerOrchestrator',
+  (c) => new DockerContainerOrchestrator(orchestratorConfig),
+);
 container.register('scalingPolicy', (c) => new ScalingPolicy(scalingConfig));
 
 // 注册异常处理
-container.register('exceptionHandler', (c) => new GlobalExceptionHandler(exceptionConfig));
-container.register('recoveryStrategies', (c) => new ExceptionRecoveryStrategies());
+container.register(
+  'exceptionHandler',
+  (c) => new GlobalExceptionHandler(exceptionConfig),
+);
+container.register(
+  'recoveryStrategies',
+  (c) => new ExceptionRecoveryStrategies(),
+);
 
 // 注册资源池
 container.register('httpClientPool', (c) => new HttpClientPool(httpPoolConfig));
 container.register('workerPool', (c) => new WorkerPool(workerPoolConfig));
 
 // 注册中间件
-container.register('cacheMiddleware', (c) => new CacheMiddleware({
-  cache: c.resolve('cacheManager'),
-}));
+container.register(
+  'cacheMiddleware',
+  (c) =>
+    new CacheMiddleware({
+      cache: c.resolve('cacheManager'),
+    }),
+);
 ```
 
 ## 📊 监控和指标
@@ -1440,7 +1488,11 @@ describe('CacheManager', () => {
 
     expect(mockLayer1.get).toHaveBeenCalledWith(testKey);
     expect(mockLayer2.get).toHaveBeenCalledWith(testKey);
-    expect(mockLayer1.set).toHaveBeenCalledWith(testKey, testValue, expect.any(Object));
+    expect(mockLayer1.set).toHaveBeenCalledWith(
+      testKey,
+      testValue,
+      expect.any(Object),
+    );
     expect(result).toEqual(testValue);
   });
 });
@@ -1491,13 +1543,15 @@ describe('Database Infrastructure Integration', () => {
     for (let i = 0; i < 1000; i++) {
       await databasePool.query(
         'INSERT INTO test_users (name, email) VALUES ($1, $2)',
-        [`User ${i}`, `user${i}@example.com`]
+        [`User ${i}`, `user${i}@example.com`],
       );
     }
 
     // 执行查询并分析
     const slowQueries = await databaseOptimizer.analyzeSlowQueries();
-    const suggestions = await databaseOptimizer.generateOptimizationSuggestions(slowQueries[0]);
+    const suggestions = await databaseOptimizer.generateOptimizationSuggestions(
+      slowQueries[0],
+    );
 
     expect(suggestions).toBeDefined();
     expect(suggestions.length).toBeGreaterThan(0);
@@ -1522,7 +1576,8 @@ describe('Database Infrastructure Integration', () => {
 
 ```javascript
 const selectCacheStrategy = (dataCharacteristics) => {
-  const { accessPattern, updateFrequency, size, criticality } = dataCharacteristics;
+  const { accessPattern, updateFrequency, size, criticality } =
+    dataCharacteristics;
 
   if (accessPattern === 'read-heavy' && updateFrequency === 'low') {
     return 'read-through-lru';
@@ -1598,26 +1653,26 @@ const optimizeTracing = (tracingConfig) => {
     // 自适应采样
     sampling: {
       adaptive: true,
-      targetRate: 0.1,      // 目标采样率10%
-      minRate: 0.01,        // 最小采样率1%
-      maxRate: 1.0,         // 最大采样率100%
+      targetRate: 0.1, // 目标采样率10%
+      minRate: 0.01, // 最小采样率1%
+      maxRate: 1.0, // 最大采样率100%
       adjustmentInterval: 60, // 每分钟调整一次
     },
 
     // 异步导出
     export: {
       async: true,
-      batchSize: 100,       // 批量大小
-      flushInterval: 5000,  // 刷新间隔5秒
-      maxQueueSize: 10000,  // 最大队列大小
+      batchSize: 100, // 批量大小
+      flushInterval: 5000, // 刷新间隔5秒
+      maxQueueSize: 10000, // 最大队列大小
     },
 
     // 轻量级跨度
     span: {
       lightweight: true,
       excludeTags: ['request.body', 'response.body'], // 排除大数据
-      maxTags: 20,         // 最大标签数
-      maxLogs: 10,         // 最大日志数
+      maxTags: 20, // 最大标签数
+      maxLogs: 10, // 最大日志数
     },
 
     // 性能监控
@@ -1634,6 +1689,6 @@ const optimizeTracing = (tracingConfig) => {
 
 - [应用服务层文档](application-layer.md) - 应用服务层的实现
 - [领域驱动设计文档](domain-layer.md) - 领域层设计模式
-- [部署指南](deployment-guide.md) - 基础设施部署配置
-- [监控和告警](monitoring-setup.md) - 监控系统配置
-- [性能优化](performance-monitoring.md) - 性能优化策略
+- [部署指南](../deployment/deployment-guide.md) - 基础设施部署配置
+- [监控和告警](../deployment/monitoring-setup.md) - 监控系统配置
+- [性能优化](../development/performance-monitoring.md) - 性能优化策略

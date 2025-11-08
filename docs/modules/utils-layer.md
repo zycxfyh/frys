@@ -136,7 +136,9 @@ class ConfigManager {
         },
       },
       defaultProvider: process.env.AI_DEFAULT_PROVIDER || 'openai',
-      fallbackProviders: (process.env.AI_FALLBACK_PROVIDERS || '').split(',').filter(Boolean),
+      fallbackProviders: (process.env.AI_FALLBACK_PROVIDERS || '')
+        .split(',')
+        .filter(Boolean),
     };
 
     // 监控配置
@@ -155,7 +157,9 @@ class ConfigManager {
     // 安全配置
     this.config.security = {
       cors: {
-        origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000'],
+        origin: process.env.CORS_ORIGIN
+          ? process.env.CORS_ORIGIN.split(',')
+          : ['http://localhost:3000'],
         credentials: process.env.CORS_CREDENTIALS === 'true',
       },
       rateLimit: {
@@ -219,7 +223,7 @@ class ConfigManager {
 
     // AI提供商检查
     const hasValidProvider = Object.values(this.config.ai.providers).some(
-      provider => provider.apiKey
+      (provider) => provider.apiKey,
     );
 
     if (!hasValidProvider) {
@@ -234,7 +238,9 @@ class ConfigManager {
           errors.push(`Invalid configuration for ${key}`);
         }
       } catch (error) {
-        errors.push(`Configuration validation error for ${key}: ${error.message}`);
+        errors.push(
+          `Configuration validation error for ${key}: ${error.message}`,
+        );
       }
     }
 
@@ -248,17 +254,22 @@ class ConfigManager {
    */
   postProcessConfig() {
     // 处理特殊格式
-    if (this.config.database.password && this.config.database.password.startsWith('encrypted:')) {
+    if (
+      this.config.database.password &&
+      this.config.database.password.startsWith('encrypted:')
+    ) {
       // 解密密码
       this.config.database.password = this.decryptPassword(
-        this.config.database.password.substring(10)
+        this.config.database.password.substring(10),
       );
     }
 
     // 转换时间格式
     if (this.config.security.rateLimit.windowMs) {
       // 确保是数字
-      this.config.security.rateLimit.windowMs = parseInt(this.config.security.rateLimit.windowMs);
+      this.config.security.rateLimit.windowMs = parseInt(
+        this.config.security.rateLimit.windowMs,
+      );
     }
   }
 
@@ -399,51 +410,58 @@ class Logger {
 
     // 控制台输出
     if (this.options.enableConsole) {
-      transports.push(new winston.transports.Console({
-        level: this.options.level,
-        format: this.options.format === 'json'
-          ? winston.format.combine(
-              winston.format.timestamp(),
-              winston.format.errors({ stack: true }),
-              winston.format.json()
-            )
-          : winston.format.combine(
-              winston.format.timestamp(),
-              winston.format.errors({ stack: true }),
-              winston.format.colorize(),
-              winston.format.simple()
-            ),
-      }));
+      transports.push(
+        new winston.transports.Console({
+          level: this.options.level,
+          format:
+            this.options.format === 'json'
+              ? winston.format.combine(
+                  winston.format.timestamp(),
+                  winston.format.errors({ stack: true }),
+                  winston.format.json(),
+                )
+              : winston.format.combine(
+                  winston.format.timestamp(),
+                  winston.format.errors({ stack: true }),
+                  winston.format.colorize(),
+                  winston.format.simple(),
+                ),
+        }),
+      );
     }
 
     // 文件输出
     if (this.options.enableFile) {
       // 错误日志
-      transports.push(new DailyRotateFile({
-        level: 'error',
-        filename: `${this.options.logDir}/error-%DATE%.log`,
-        datePattern: 'YYYY-MM-DD',
-        maxSize: this.options.maxSize,
-        maxFiles: this.options.maxFiles,
-        format: winston.format.combine(
-          winston.format.timestamp(),
-          winston.format.errors({ stack: true }),
-          winston.format.json()
-        ),
-      }));
+      transports.push(
+        new DailyRotateFile({
+          level: 'error',
+          filename: `${this.options.logDir}/error-%DATE%.log`,
+          datePattern: 'YYYY-MM-DD',
+          maxSize: this.options.maxSize,
+          maxFiles: this.options.maxFiles,
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.errors({ stack: true }),
+            winston.format.json(),
+          ),
+        }),
+      );
 
       // 组合日志
-      transports.push(new DailyRotateFile({
-        filename: `${this.options.logDir}/combined-%DATE%.log`,
-        datePattern: 'YYYY-MM-DD',
-        maxSize: this.options.maxSize,
-        maxFiles: this.options.maxFiles,
-        format: winston.format.combine(
-          winston.format.timestamp(),
-          winston.format.errors({ stack: true }),
-          winston.format.json()
-        ),
-      }));
+      transports.push(
+        new DailyRotateFile({
+          filename: `${this.options.logDir}/combined-%DATE%.log`,
+          datePattern: 'YYYY-MM-DD',
+          maxSize: this.options.maxSize,
+          maxFiles: this.options.maxFiles,
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.errors({ stack: true }),
+            winston.format.json(),
+          ),
+        }),
+      );
     }
 
     return winston.createLogger({
@@ -476,7 +494,10 @@ class Logger {
    */
   child(context = {}) {
     const childLogger = new Logger(this.options);
-    childLogger.context = new Map([...this.context, ...Object.entries(context)]);
+    childLogger.context = new Map([
+      ...this.context,
+      ...Object.entries(context),
+    ]);
     childLogger.logger = this.logger.child(context);
     return childLogger;
   }
@@ -884,7 +905,10 @@ class SecretManager {
   decrypt(encryptedText) {
     const [ivHex, encrypted] = encryptedText.split(':');
     const iv = Buffer.from(ivHex, 'hex');
-    const decipher = crypto.createDecipher(this.options.algorithm, this.masterKey);
+    const decipher = crypto.createDecipher(
+      this.options.algorithm,
+      this.masterKey,
+    );
 
     let decrypted = decipher.update(encrypted, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
@@ -910,7 +934,8 @@ class SecretManager {
    * 生成数据库密码
    */
   generatePassword(length = 16) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
     let password = '';
 
     for (let i = 0; i < length; i++) {
@@ -1114,7 +1139,8 @@ export function isValidUrl(url) {
 export function isValidUUID(uuid) {
   if (typeof uuid !== 'string') return false;
 
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   return uuidRegex.test(uuid);
 }
 
@@ -1134,7 +1160,12 @@ export function isValidPassword(password) {
   const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
 
   // 至少满足3个复杂度条件
-  const complexityCount = [hasUpperCase, hasLowerCase, hasNumbers, hasSpecialChar].filter(Boolean).length;
+  const complexityCount = [
+    hasUpperCase,
+    hasLowerCase,
+    hasNumbers,
+    hasSpecialChar,
+  ].filter(Boolean).length;
   return complexityCount >= 3;
 }
 
@@ -1189,7 +1220,12 @@ export function isValidStringLength(str, min = 0, max = null) {
 /**
  * 数组验证
  */
-export function isValidArray(arr, minLength = 0, maxLength = null, itemValidator = null) {
+export function isValidArray(
+  arr,
+  minLength = 0,
+  maxLength = null,
+  itemValidator = null,
+) {
   if (!Array.isArray(arr)) return false;
 
   if (arr.length < minLength) return false;
@@ -1254,24 +1290,26 @@ export function isValidDate(date) {
 export function sanitizeInput(input) {
   if (typeof input !== 'string') return input;
 
-  return input
-    // 移除控制字符
-    .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
-    // 转义HTML实体
-    .replace(/[<>'"&]/g, (char) => {
-      const entityMap = {
-        '<': '&lt;',
-        '>': '&gt;',
-        "'": '&#39;',
-        '"': '&quot;',
-        '&': '&amp;',
-      };
-      return entityMap[char];
-    })
-    // 限制连续空格
-    .replace(/\s{2,}/g, ' ')
-    // 移除前后空格
-    .trim();
+  return (
+    input
+      // 移除控制字符
+      .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+      // 转义HTML实体
+      .replace(/[<>'"&]/g, (char) => {
+        const entityMap = {
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;',
+          '&': '&amp;',
+        };
+        return entityMap[char];
+      })
+      // 限制连续空格
+      .replace(/\s{2,}/g, ' ')
+      // 移除前后空格
+      .trim()
+  );
 }
 
 /**
@@ -1281,7 +1319,7 @@ export function sanitizeObject(obj) {
   if (!obj || typeof obj !== 'object') return obj;
 
   if (Array.isArray(obj)) {
-    return obj.map(item => sanitizeObject(item));
+    return obj.map((item) => sanitizeObject(item));
   }
 
   const sanitized = {};
@@ -1302,7 +1340,7 @@ export function sanitizeObject(obj) {
  * 创建类型守卫
  */
 export function createTypeGuard(validator) {
-  return function(value, errorMessage = 'Type validation failed') {
+  return function (value, errorMessage = 'Type validation failed') {
     if (!validator(value)) {
       throw new Error(errorMessage);
     }
@@ -1358,11 +1396,15 @@ export function validateObject(obj, schema) {
 
     // 长度检查（字符串和数组）
     if (rules.minLength !== undefined && value.length < rules.minLength) {
-      errors.push(`${field} must be at least ${rules.minLength} characters long`);
+      errors.push(
+        `${field} must be at least ${rules.minLength} characters long`,
+      );
     }
 
     if (rules.maxLength !== undefined && value.length > rules.maxLength) {
-      errors.push(`${field} must be at most ${rules.maxLength} characters long`);
+      errors.push(
+        `${field} must be at most ${rules.maxLength} characters long`,
+      );
     }
 
     // 数值范围检查
@@ -1414,7 +1456,11 @@ export function safeSet(obj, path, value) {
   const keys = path.split('.');
   const lastKey = keys.pop();
   const target = keys.reduce((current, key) => {
-    if (!(key in current) || typeof current[key] !== 'object' || current[key] === null) {
+    if (
+      !(key in current) ||
+      typeof current[key] !== 'object' ||
+      current[key] === null
+    ) {
       current[key] = {};
     }
     return current[key];
@@ -1492,7 +1538,11 @@ const secretMetrics = {
 
 ```javascript
 import { describe, it, expect, vi } from 'vitest';
-import { isValidEmail, validateObject, sanitizeInput } from '../utils/type-guards.js';
+import {
+  isValidEmail,
+  validateObject,
+  sanitizeInput,
+} from '../utils/type-guards.js';
 
 describe('Type Guards', () => {
   describe('isValidEmail', () => {
@@ -1548,7 +1598,9 @@ describe('Type Guards', () => {
 
   describe('sanitizeInput', () => {
     it('should sanitize HTML characters', () => {
-      expect(sanitizeInput('<script>alert("xss")</script>')).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+      expect(sanitizeInput('<script>alert("xss")</script>')).toBe(
+        '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;',
+      );
     });
 
     it('should remove control characters', () => {
@@ -1618,10 +1670,10 @@ const prodLogger = new Logger({
 });
 
 // 根据严重程度记录不同级别
-logger.error('Database connection failed', error);  // 错误
-logger.warn('High memory usage detected', { usage: '85%' });  // 警告
-logger.info('User login successful', { userId, ip });  // 信息
-logger.debug('Cache hit ratio', { ratio: 0.95 });  // 调试
+logger.error('Database connection failed', error); // 错误
+logger.warn('High memory usage detected', { usage: '85%' }); // 警告
+logger.info('User login successful', { userId, ip }); // 信息
+logger.debug('Cache hit ratio', { ratio: 0.95 }); // 调试
 ```
 
 ### Q: 如何确保类型安全？
@@ -1675,4 +1727,4 @@ app.post('/users', (req, res) => {
 - [应用服务层文档](application-layer.md) - 应用服务层的实现
 - [基础设施层文档](infrastructure-layer.md) - 基础设施实现
 - [表示层文档](presentation-layer.md) - API接口实现
-- [测试策略](testing-architecture.md) - 测试最佳实践
+- [测试策略](../testing/testing-architecture.md) - 测试最佳实践

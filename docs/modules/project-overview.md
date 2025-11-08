@@ -1268,8 +1268,8 @@ class NotificationService {
 
 ## 📚 相关链接
 
-- [frys 核心架构](core-architecture.md) - 详细的架构设计文档
+- [frys 核心架构](../architecture/core-architecture.md) - 详细的架构设计文档
 - [核心模块文档](core-modules.md) - 核心功能模块说明
 - [业务服务文档](business-services.md) - 业务逻辑实现指南
-- [测试架构文档](testing-architecture.md) - 完整的测试策略
-- [DevOps 指南](devops.md) - 部署和运维指南
+- [测试架构文档](../testing/testing-architecture.md) - 完整的测试策略
+- [DevOps 指南](../deployment/devops.md) - 部署和运维指南

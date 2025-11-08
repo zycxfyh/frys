@@ -1529,5 +1529,5 @@ container.register({
 - [Awilix 文档](https://github.com/jeffijoe/awilix) - 依赖注入容器
 - [Fastify 插件指南](https://fastify.dev/docs/latest/Plugins/) - 插件开发
 - [Sentry Node.js SDK](https://docs.sentry.io/platforms/node/) - 错误监控
-- [核心模块文档](core-modules.md) - 核心功能模块
-- [API 文档](api-documentation.md) - 完整的API参考
+- [核心模块文档](../modules/core-modules.md) - 核心功能模块
+- [API 文档](../api/api-documentation.md) - 完整的API参考

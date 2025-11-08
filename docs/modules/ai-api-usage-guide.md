@@ -636,7 +636,7 @@ example2_openAIChat();
 - **[项目主页](https://github.com/zycxfyh/frys)** - GitHub仓库
 - **[API文档](http://localhost:3000/api/docs)** - 在线API文档
 - **[使用示例](examples/)** - 完整代码示例
-- **[配置指南](docs/modules/ai-provider-management.md)** - 详细配置说明
+- **[配置指南](ai-provider-management.md)** - 详细配置说明
 
 ---
 

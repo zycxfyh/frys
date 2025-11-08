@@ -552,6 +552,6 @@ container.register('orderService', OrderService);
 ## 📚 相关链接
 
 - [核心模块文档](core-modules.md) - 了解底层核心模块
-- [API 文档](api-documentation.md) - 完整的API参考
-- [部署指南](deployment-guide.md) - 服务部署和配置
-- [测试策略](testing-architecture.md) - 测试最佳实践
+- [API 文档](../api/api-documentation.md) - 完整的API参考
+- [部署指南](../deployment/deployment-guide.md) - 服务部署和配置
+- [测试策略](../testing/testing-architecture.md) - 测试最佳实践

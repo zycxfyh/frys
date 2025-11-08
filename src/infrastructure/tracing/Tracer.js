@@ -6,6 +6,7 @@
 import { Span } from './Span.js';
 import { SamplingStrategy } from './SamplingStrategy.js';
 import { TracingReporter } from './TracingReporter.js';
+import { TraceContext } from './TraceContext.js';
 import { logger } from '../../utils/logger.js';
 
 export class Tracer {
@@ -15,6 +16,7 @@ export class Tracer {
     this.samplingStrategy = config.samplingStrategy || new SamplingStrategy();
     this.reporter =
       config.reporter || new TracingReporter(config.reporterConfig);
+    this.context = config.context || new TraceContext();
     this.activeSpans = new Map();
     this.finishedSpans = [];
     this.maxActiveSpans = config.maxActiveSpans || 1000;
@@ -143,6 +145,15 @@ export class Tracer {
       name: span.name,
     });
 
+    // 在当前上下文中设置活动跨度
+    const currentContext = this.context.getCurrent();
+    if (currentContext) {
+      currentContext.activeSpan = span;
+    } else {
+      // 如果没有上下文，创建一个新的
+      this.context.run({ activeSpan: span }, () => {});
+    }
+
     return span;
   }
 
@@ -180,7 +191,18 @@ export class Tracer {
    * @param {object} options - 选项
    */
   async traceFunction(name, fn, options = {}) {
-    const span = this.createSpan(name, options);
+    // 检查当前上下文是否有活动跨度
+    const currentContext = this.context.getCurrent();
+    const parentSpan = currentContext?.activeSpan;
+
+    let span;
+    if (parentSpan) {
+      // 创建子跨度
+      span = this.createChildSpan(parentSpan, name, options);
+    } else {
+      // 创建根跨度
+      span = this.createSpan(name, options);
+    }
 
     if (!span) {
       // 不采样，直接执行函数
@@ -188,7 +210,10 @@ export class Tracer {
     }
 
     try {
-      const result = await fn(span);
+      // 在上下文中运行函数
+      const result = await this.context.run({ ...currentContext, activeSpan: span }, async () => {
+        return await fn(span);
+      });
       span.finish();
       return result;
     } catch (error) {
@@ -380,7 +405,7 @@ export class Tracer {
   _sanitizeArgs(args, maxLength) {
     return args.map((arg) => {
       if (typeof arg === 'string' && arg.length > maxLength) {
-        return arg.substring(0, maxLength) + '...';
+        return `${arg.substring(0, maxLength)  }...`;
       }
       if (arg && typeof arg === 'object') {
         // 简化对象表示
@@ -395,7 +420,7 @@ export class Tracer {
    */
   _sanitizeResult(result, maxLength) {
     if (typeof result === 'string' && result.length > maxLength) {
-      return result.substring(0, maxLength) + '...';
+      return `${result.substring(0, maxLength)  }...`;
     }
     if (result && typeof result === 'object') {
       return `[${result.constructor.name}]`;

@@ -629,7 +629,7 @@ class WebDAVServer {
       req.pipe(writeStream);
 
       await new Promise((resolve, reject) => {
-        writeStream.on('finish', resolve);
+        writeStream.on('finish', () => resolve());
         writeStream.on('error', reject);
       });
 
@@ -641,7 +641,8 @@ class WebDAVServer {
 
       logger.debug(`WebDAV PUT: ${filePath} (${bytesWritten} bytes)`);
     } catch (error) {
-      throw error;
+      logger.error(`WebDAV PUT failed for ${filePath}:`, error);
+      this.sendError(res, 500, 'Internal server error');
     }
   }
 
@@ -750,6 +751,11 @@ export class RealtimeCommunication extends EventEmitter {
     };
   }
 
+  async initialize() {
+    // 初始化实时通信系统
+    logger.debug('RealtimeCommunication initialized');
+  }
+
   async start() {
     if (this.isRunning) return;
 
@@ -816,6 +822,11 @@ export class RealtimeCommunication extends EventEmitter {
       logger.error('Failed to stop realtime communication system', error);
       throw error;
     }
+  }
+
+  // shutdown方法作为stop的别名
+  async shutdown() {
+    return this.stop();
   }
 
   // WebSocket相关方法

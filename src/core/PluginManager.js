@@ -4,7 +4,7 @@
  */
 
 import { logger } from '../utils/logger.js';
-import { frysError, ErrorType } from './error-handler.js';
+import { frysError } from './error-handler.js';
 
 /**
  * 插件接口

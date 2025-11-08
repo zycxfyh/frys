@@ -32,7 +32,7 @@ const QUEUE_CONFIG = {
 const queues = new Map();
 
 // 工作进程管理
-let workers = new Map();
+const workers = new Map();
 
 /**
  * 创建或获取队列实例
@@ -65,7 +65,15 @@ function setupQueueEvents(queue, queueName) {
   });
 
   queue.on('error', (error) => {
+    // 在开发/测试环境中，如果是Redis连接错误，只显示一次警告
+    if (error.code === 'ECONNREFUSED' && (config.env === 'development' || config.env === 'test')) {
+      if (!queue.redisConnectionWarned) {
+        logger.warn(`📋 Redis未连接 [${queueName}] - 队列功能将被禁用`);
+        queue.redisConnectionWarned = true;
+      }
+    } else {
     logger.error(`📋 队列错误 [${queueName}]`, error);
+    }
   });
 
   queue.on('waiting', (jobId) => {

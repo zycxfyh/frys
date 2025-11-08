@@ -302,7 +302,7 @@ class ResourceMonitor {
 
   getNetworkStats() {
     const networkInterfaces = os.networkInterfaces();
-    let rxBytes = 0, txBytes = 0;
+    const rxBytes = 0, txBytes = 0;
 
     // 简化实现，实际应该跟踪网络接口统计
     return { rxBytes, txBytes };

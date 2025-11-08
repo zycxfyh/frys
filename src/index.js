@@ -7,6 +7,7 @@
 
 import { logger } from './utils/logger.js';
 import { config } from './utils/config.js';
+import { pathToFileURL } from 'url';
 
 // 导入新的开源组件
 import { getContainer, registerValue } from './core/container.js';
@@ -99,6 +100,12 @@ class frysProduction {
     const state = container.resolve('state');
     if (state && typeof state.initialize === 'function') {
       await state.initialize();
+    }
+
+    // 初始化消息适配器
+    const messaging = container.resolve('messaging');
+    if (messaging && typeof messaging.initialize === 'function') {
+      await messaging.initialize();
     }
 
     // 初始化业务服务
@@ -237,7 +244,8 @@ class frysProduction {
       // 启动Web服务器
       this.server = await startServer(config.port, config.host);
 
-      // 启动业务服务
+      // 启动业务服务（允许失败）
+      try {
       const workflowEngine = container.resolve('workflowEngine');
       if (workflowEngine && typeof workflowEngine.start === 'function') {
         await workflowEngine.start();
@@ -248,6 +256,10 @@ class frysProduction {
       if (userService && typeof userService.start === 'function') {
         await userService.start();
         logger.debug('用户服务已启动');
+        }
+      } catch (serviceError) {
+        logger.warn('业务服务启动失败，但服务器将继续运行', serviceError.message);
+        // 不抛出错误，让服务器继续运行
       }
 
       // 启动插件系统
@@ -480,7 +492,7 @@ const app = new frysProduction();
 export { app, frysProduction };
 
 // 如果直接运行此文件
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   app.start().catch((error) => {
     logger.error('应用启动失败', error);
     process.exit(1);

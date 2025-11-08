@@ -20,25 +20,36 @@ VCPToolBox提出了以下突破性概念：
 ### 1. 🧪 Agent系统 - 独立多Agent封装
 
 ```javascript
-import { agentManager, AIServiceAgent, WorkflowAgent, MemoryAgent } from './src/core/AgentSystem.js';
+import {
+  agentManager,
+  AIServiceAgent,
+  WorkflowAgent,
+  MemoryAgent,
+} from './src/core/AgentSystem.js';
 
 // 创建AI服务代理
 const aiAgent = new AIServiceAgent('ai-agent-1', openAIService);
 await agentManager.createAgent('ai-agent-1', 'ai-service', {
-  capabilities: ['text-generation', 'image-generation']
+  capabilities: ['text-generation', 'image-generation'],
 });
 
 // 创建工作流代理
 const workflowAgent = new WorkflowAgent('workflow-agent-1', workflowEngine);
 await agentManager.createAgent('workflow-agent-1', 'workflow', {
-  capabilities: ['task-coordination', 'error-recovery']
+  capabilities: ['task-coordination', 'error-recovery'],
 });
 
 // 执行代理任务
-const result = await agentManager.executeOnAgent('ai-agent-1', 'executeAIRequest', taskId, request);
+const result = await agentManager.executeOnAgent(
+  'ai-agent-1',
+  'executeAIRequest',
+  taskId,
+  request,
+);
 ```
 
 **核心特性：**
+
 - 每个Agent独立运行，互不干扰
 - 智能生命周期管理和状态追踪
 - 权限控制和资源隔离
@@ -54,31 +65,31 @@ const workflowDefinition = {
   nodes: {
     validate: {
       type: 'task',
-      taskFunction: validateInput
+      taskFunction: validateInput,
     },
     condition: {
       type: 'condition',
-      conditionFunction: checkCondition
+      conditionFunction: checkCondition,
     },
     processA: {
       type: 'task',
-      taskFunction: processPathA
+      taskFunction: processPathA,
     },
     processB: {
       type: 'task',
-      taskFunction: processPathB
+      taskFunction: processPathB,
     },
     parallel: {
       type: 'parallel',
-      subWorkflows: [subWorkflow1, subWorkflow2]
-    }
+      subWorkflows: [subWorkflow1, subWorkflow2],
+    },
   },
   connections: [
     { from: 'validate', to: 'condition' },
     { from: 'condition', to: 'processA', condition: true },
     { from: 'condition', to: 'processB', condition: false },
-    { from: 'processA', to: 'parallel' }
-  ]
+    { from: 'processA', to: 'parallel' },
+  ],
 };
 
 // 执行工作流
@@ -87,6 +98,7 @@ const result = await executor.execute(context, inputs);
 ```
 
 **核心特性：**
+
 - 支持条件分支和循环逻辑
 - 并行任务执行和依赖管理
 - 错误恢复和重试机制
@@ -99,33 +111,43 @@ import { MemoryNetwork } from './src/core/MemoryNetwork.js';
 
 const memoryNetwork = new MemoryNetwork({
   enableVectorization: true,
-  similarityThreshold: 0.8
+  similarityThreshold: 0.8,
 });
 
 // 存储记忆
-const nodeId = await memoryNetwork.storeMemory('session-123', 'conversation', {
-  user: '如何学习编程？',
-  assistant: '建议从基础开始...',
-  timestamp: new Date()
-}, {
-  tags: ['programming', 'education'],
-  importance: 0.8
-});
+const nodeId = await memoryNetwork.storeMemory(
+  'session-123',
+  'conversation',
+  {
+    user: '如何学习编程？',
+    assistant: '建议从基础开始...',
+    timestamp: new Date(),
+  },
+  {
+    tags: ['programming', 'education'],
+    importance: 0.8,
+  },
+);
 
 // 检索记忆
 const results = await memoryNetwork.retrieveMemory('session-123', '编程学习', {
   limit: 5,
   useVector: true,
-  minRelevance: 0.3
+  minRelevance: 0.3,
 });
 
 // 语义搜索
-const semanticResults = await memoryNetwork.semanticSearch('session-123', '编程入门', {
-  limit: 10
-});
+const semanticResults = await memoryNetwork.semanticSearch(
+  'session-123',
+  '编程入门',
+  {
+    limit: 10,
+  },
+);
 ```
 
 **核心特性：**
+
 - 跨会话记忆持久化
 - 知识图谱和实体关系
 - 向量化和语义搜索
@@ -141,7 +163,9 @@ pluginProtocolSystem.registerProtocolAdapter('http', HTTPAdapter);
 pluginProtocolSystem.registerProtocolAdapter('websocket', WebSocketAdapter);
 
 // 加载插件
-await pluginProtocolSystem.loadPlugin('data-processor', `
+await pluginProtocolSystem.loadPlugin(
+  'data-processor',
+  `
   export default function(context, api) {
     return {
       async process(data) {
@@ -150,15 +174,22 @@ await pluginProtocolSystem.loadPlugin('data-processor', `
       }
     };
   }
-`, {
-  permissions: ['data:read', 'data:write']
-});
+`,
+  {
+    permissions: ['data:read', 'data:write'],
+  },
+);
 
 // 调用插件方法
-const result = await pluginProtocolSystem.callPluginMethod('data-processor', 'process', [1, 2, 3, 4]);
+const result = await pluginProtocolSystem.callPluginMethod(
+  'data-processor',
+  'process',
+  [1, 2, 3, 4],
+);
 ```
 
 **核心特性：**
+
 - HTTP、WebSocket、Message Queue、gRPC协议支持
 - 插件沙箱和安全隔离
 - 热更新和动态加载
@@ -176,7 +207,7 @@ await realtimeCommunication.start();
 realtimeCommunication.broadcastToRoom('workflow-updates', {
   type: 'workflow_completed',
   workflowId: 'wf-123',
-  result: { success: true }
+  result: { success: true },
 });
 
 // WebDAV文件操作
@@ -186,6 +217,7 @@ realtimeCommunication.broadcastToRoom('workflow-updates', {
 ```
 
 **核心特性：**
+
 - 双向WebSocket通信
 - WebDAV文件共享协议
 - 房间管理和消息路由
@@ -203,7 +235,7 @@ await distributedDeployment.start();
 const taskId = await distributedDeployment.submitTask({
   type: 'ai-processing',
   data: largeDataset,
-  capabilities: ['gpu', 'high-memory']
+  capabilities: ['gpu', 'high-memory'],
 });
 
 // 监控集群状态
@@ -212,6 +244,7 @@ console.log(`集群状态: ${stats.availableNodes}/${stats.totalNodes} 节点可
 ```
 
 **核心特性：**
+
 - 自动节点发现和注册
 - 智能负载均衡算法
 - 资源监控和自动伸缩
@@ -219,66 +252,73 @@ console.log(`集群状态: ${stats.availableNodes}/${stats.totalNodes} 节点可
 
 ## 🎯 架构优势对比
 
-| 特性 | 传统架构 | VCPToolBox理念 | frys实现 |
-|------|----------|----------------|----------|
-| Agent管理 | 单一进程 | 独立多Agent封装 | Agent容器化管理 |
-| 工作流执行 | 线性串行 | 非线性超异步 | DAG工作流引擎 |
-| 记忆管理 | 会话隔离 | 交叉记忆网络 | 向量化和知识图谱 |
-| 插件系统 | 静态加载 | 六大协议支持 | 协议抽象层 |
-| 通信方式 | 单向调用 | WebSocket+WebDAV | 实时双向通信 |
-| 部署方式 | 单机部署 | 分布式算力均衡 | 集群自动伸缩 |
+| 特性       | 传统架构 | VCPToolBox理念   | frys实现         |
+| ---------- | -------- | ---------------- | ---------------- |
+| Agent管理  | 单一进程 | 独立多Agent封装  | Agent容器化管理  |
+| 工作流执行 | 线性串行 | 非线性超异步     | DAG工作流引擎    |
+| 记忆管理   | 会话隔离 | 交叉记忆网络     | 向量化和知识图谱 |
+| 插件系统   | 静态加载 | 六大协议支持     | 协议抽象层       |
+| 通信方式   | 单向调用 | WebSocket+WebDAV | 实时双向通信     |
+| 部署方式   | 单机部署 | 分布式算力均衡   | 集群自动伸缩     |
 
 ## 🚀 性能提升
 
 借鉴VCPToolBox理念后，frys在以下方面实现显著提升：
 
 ### 并发处理能力
+
 - **并行任务执行**: 支持数千个并发Agent同时运行
 - **异步工作流**: 非阻塞的DAG执行引擎，吞吐量提升300%
 
 ### 智能调度
+
 - **负载均衡**: 基于实时指标的智能任务分发
 - **资源优化**: CPU/内存/GPU的精确调度，避免资源浪费
 
 ### 高可用性
+
 - **故障转移**: 单节点故障自动切换，服务连续性99.9%
 - **自动伸缩**: 根据负载自动调整集群规模，成本优化40%
 
 ### 扩展性
+
 - **插件生态**: 支持数百个插件的热插拔加载
 - **协议适配**: 轻松集成新的通信协议和外部服务
 
 ## 📊 实际应用场景
 
 ### 1. 大规模AI处理集群
+
 ```javascript
 // 分布式AI模型推理
 const results = await distributedDeployment.submitTask({
   type: 'ai-batch-processing',
   data: millionRecords,
   capabilities: ['gpu', 'high-memory'],
-  priority: 'high'
+  priority: 'high',
 });
 ```
 
 ### 2. 实时协作工作流
+
 ```javascript
 // 多用户实时协作
 realtimeCommunication.broadcastToRoom('project-alpha', {
   type: 'task_updated',
   user: 'alice',
   taskId: 'task-123',
-  changes: { status: 'completed' }
+  changes: { status: 'completed' },
 });
 ```
 
 ### 3. 智能记忆增强
+
 ```javascript
 // 上下文感知的对话系统
 const relevantMemories = await memoryNetwork.retrieveMemory(
   userSession,
   userQuery,
-  { useVector: true, limit: 5 }
+  { useVector: true, limit: 5 },
 );
 
 const enhancedPrompt = buildPromptWithContext(userQuery, relevantMemories);
@@ -287,38 +327,40 @@ const enhancedPrompt = buildPromptWithContext(userQuery, relevantMemories);
 ## 🔧 部署和配置
 
 ### 基础配置
+
 ```javascript
 const frysConfig = {
   agentSystem: {
     maxAgents: 100,
-    defaultTimeout: 30000
+    defaultTimeout: 30000,
   },
   workflowExecutor: {
     maxConcurrency: 50,
-    retryAttempts: 3
+    retryAttempts: 3,
   },
   memoryNetwork: {
     vectorDimension: 384,
-    compressionThreshold: 1000
+    compressionThreshold: 1000,
   },
   pluginSystem: {
     protocols: ['http', 'websocket', 'grpc'],
-    sandboxTimeout: 10000
+    sandboxTimeout: 10000,
   },
   realtimeCommunication: {
     enableWebSocket: true,
     enableWebDAV: true,
-    maxConnections: 1000
+    maxConnections: 1000,
   },
   distributedDeployment: {
     enableAutoScaling: true,
     maxNodes: 20,
-    discoveryMethod: 'etcd'
-  }
+    discoveryMethod: 'etcd',
+  },
 };
 ```
 
 ### 集群部署
+
 ```bash
 # 启动控制节点
 frys start --role controller --config cluster-config.json
@@ -345,6 +387,6 @@ frys start --role monitor --cluster cluster-name
 
 ---
 
-*借鉴项目: [VCPToolBox](https://github.com/lioensky/VCPToolBox)*
-*实现时间: 2025年11月7日*
-*作者: frys开发团队*
+_借鉴项目: [VCPToolBox](https://github.com/lioensky/VCPToolBox)_
+_实现时间: 2025年11月7日_
+_作者: frys开发团队_

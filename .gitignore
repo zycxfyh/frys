@@ -163,3 +163,43 @@ junit.xml
 
 # Local development
 .local
+
+# Project specific
+*.env.local
+.env.development
+.env.staging
+.env.production
+
+# CI/CD artifacts
+.ci-cache/
+.quality-cache/
+
+# Repomix output
+repomix-output.xml
+
+# Test artifacts
+test-results/
+coverage/
+.nyc_output/
+
+# IDE and Editor files
+.vscode/settings.json
+.idea/workspace.xml
+*.sublime-project
+*.sublime-workspace
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup

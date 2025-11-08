@@ -103,7 +103,7 @@ export class HealthChecker {
    */
   async _executeCheck(checkConfig) {
     const startTime = Date.now();
-    let result = {
+    const result = {
       name: checkConfig.name,
       status: 'unknown',
       duration: 0,

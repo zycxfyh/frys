@@ -293,7 +293,7 @@ export class BenchmarkManager {
     }
     this.history.get(key).push({
       timestamp: result.timestamp || new Date().toISOString(),
-      result: result,
+      result,
     });
 
     // 限制历史记录数量

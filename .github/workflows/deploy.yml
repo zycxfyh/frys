@@ -1,0 +1,261 @@
+name: 🚀 部署工作流
+
+# 仅在手动触发或特定条件下运行
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '部署环境'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      version:
+        description: '版本标签 (可选)'
+        required: false
+        type: string
+      force_deploy:
+        description: '强制部署 (跳过某些检查)'
+        required: false
+        type: boolean
+        default: false
+
+# 环境变量
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # 部署前验证
+  pre-deploy-validation:
+    name: '部署前验证'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      should_deploy: ${{ steps.validation.outputs.should_deploy }}
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🛠️ 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 🔍 部署前检查
+      id: validation
+      run: |
+        echo "执行部署前验证..."
+
+        # 检查代码质量
+        if npm run lint -- --quiet --max-warnings=0; then
+          echo "✅ 代码质量检查通过"
+        else
+          echo "❌ 代码质量检查失败"
+          if [ "${{ inputs.force_deploy }}" != "true" ]; then
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+        fi
+
+        # 检查测试
+        if npm run test:smoke; then
+          echo "✅ 冒烟测试通过"
+        else
+          echo "❌ 冒烟测试失败"
+          if [ "${{ inputs.force_deploy }}" != "true" ]; then
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+        fi
+
+        # 检查构建
+        if npm run build; then
+          echo "✅ 构建成功"
+        else
+          echo "❌ 构建失败"
+          echo "should_deploy=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+
+        echo "should_deploy=true" >> $GITHUB_OUTPUT
+
+  # Staging 部署
+  deploy-staging:
+    name: '部署到 Staging'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: inputs.environment == 'staging' && needs.pre-deploy-validation.outputs.should_deploy == 'true'
+    needs: pre-deploy-validation
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🛠️ 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 🏗️ 构建应用
+      run: npm run build:prod
+
+    - name: 🐳 构建 Docker 镜像
+      run: |
+        docker build -t frys-staging:${{ github.sha }} .
+        docker tag frys-staging:${{ github.sha }} frys-staging:latest
+
+    - name: 🚀 部署到 Staging
+      id: deploy
+      run: |
+        echo "部署到 staging 环境..."
+
+        # 这里可以集成实际的部署逻辑
+        # 例如: Kubernetes, Docker Compose, AWS 等
+
+        # 示例: 使用 docker-compose
+        # docker-compose -f docker-compose.staging.yml up -d --build
+
+        # 设置部署 URL
+        echo "url=https://staging.frys.com" >> $GITHUB_OUTPUT
+
+    - name: ✅ 部署验证
+      run: node scripts/verify-deployment.js
+      env:
+        DEPLOY_ENV: staging
+        DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+
+    - name: 📊 性能基准
+      run: node scripts/performance-benchmark.js --baseline
+
+    - name: 📢 部署通知
+      run: |
+        echo "✅ Staging 部署成功"
+        echo "🌐 URL: ${{ steps.deploy.outputs.url }}"
+
+  # Production 部署
+  deploy-production:
+    name: '部署到 Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: inputs.environment == 'production' && needs.pre-deploy-validation.outputs.should_deploy == 'true'
+    needs: pre-deploy-validation
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🛠️ 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 🏗️ 生产构建
+      run: npm run build:prod
+      env:
+        NODE_ENV: production
+
+    - name: 🐳 构建生产镜像
+      run: |
+        docker build -t frys-production:${{ github.sha }} .
+        docker tag frys-production:${{ github.sha }} frys-production:latest
+
+    - name: 🚀 蓝绿部署到 Production
+      id: deploy
+      run: |
+        echo "执行蓝绿部署到生产环境..."
+
+        # 这里调用实际的部署脚本
+        # ./scripts/deploy.sh --env production
+
+        # 设置部署 URL
+        echo "url=https://frys.com" >> $GITHUB_OUTPUT
+
+    - name: ✅ 部署后验证
+      run: node scripts/verify-deployment.js
+      env:
+        DEPLOY_ENV: production
+        DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+
+    - name: 📊 部署指标收集
+      run: |
+        echo "收集部署指标..."
+        # 收集部署时间、成功率等指标
+
+    - name: 🔄 启动监控回滚
+      run: |
+        echo "启动智能监控和回滚..."
+        # 启动监控脚本在后台运行
+        # nohup node scripts/smart-rollback.js monitor --env production &
+
+    - name: 📢 部署通知
+      run: |
+        echo "🎉 生产部署成功！"
+        echo "🌐 URL: ${{ steps.deploy.outputs.url }}"
+
+  # 部署后监控
+  post-deploy-monitoring:
+    name: '部署后监控'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: needs.pre-deploy-validation.outputs.should_deploy == 'true'
+    needs: [pre-deploy-validation, deploy-staging, deploy-production]
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: ⏱️ 观察期等待
+      run: |
+        echo "等待系统稳定..."
+        sleep 300  # 5分钟观察期
+
+    - name: 📊 健康检查
+      run: |
+        ENV_URL="${{ inputs.environment == 'production' && secrets.PRODUCTION_URL || secrets.STAGING_URL }}"
+
+        if curl -f "$ENV_URL/health" > /dev/null 2>&1; then
+          echo "✅ 健康检查通过"
+        else
+          echo "❌ 健康检查失败"
+          exit 1
+        fi
+
+    - name: 📈 性能监控
+      run: node scripts/performance-monitor.js --check --threshold 0.9
+      env:
+        DEPLOY_ENV: ${{ inputs.environment }}
+
+    - name: 📢 监控报告
+      run: |
+        echo "## 📊 部署后监控报告" > monitoring-report.md
+        echo "- 环境: ${{ inputs.environment }}" >> monitoring-report.md
+        echo "- 时间: $(date)" >> monitoring-report.md
+        echo "- 状态: ✅ 正常" >> monitoring-report.md
+
+    - name: 🏷️ 上传监控报告
+      uses: actions/upload-artifact@v4
+      with:
+        name: post-deploy-monitoring-${{ inputs.environment }}
+        path: monitoring-report.md
+        retention-days: 7

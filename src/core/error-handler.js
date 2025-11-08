@@ -5,13 +5,12 @@
 
 import * as Sentry from '@sentry/node';
 import * as Profiling from '@sentry/profiling-node';
-import { resolve } from './container.js';
 import { logger } from '../utils/logger.js';
 import { config } from '../utils/config.js';
 
-// Sentry 配置
-const SENTRY_CONFIG = {
-  dsn: config.sentry?.dsn,
+// Sentry 配置 - 只有在配置了DSN时才启用
+const SENTRY_CONFIG = config.sentry?.dsn ? {
+  dsn: config.sentry.dsn,
   environment: config.env || 'development',
   release: config.version || '1.0.0',
   integrations: [
@@ -60,7 +59,7 @@ const SENTRY_CONFIG = {
     }
     return event;
   },
-};
+} : null;
 
 /**
  * 过滤敏感数据
@@ -84,7 +83,7 @@ function filterSensitiveData(obj) {
  * 初始化 Sentry
  */
 export function initializeSentry() {
-  if (config.sentry?.dsn) {
+  if (SENTRY_CONFIG) {
     Sentry.init(SENTRY_CONFIG);
 
     // 设置用户上下文（如果有的话）
@@ -101,7 +100,12 @@ export function initializeSentry() {
 
     logger.info('🛡️ Sentry 错误监控已初始化');
   } else {
-    logger.warn('⚠️ Sentry DSN 未配置，错误监控将被禁用');
+    // 在开发环境中不显示警告，只在生产环境中提示
+    if (config.env === 'production') {
+      logger.warn('⚠️ Sentry DSN 未配置，生产环境中建议启用错误监控');
+    } else {
+      logger.debug('ℹ️ Sentry DSN 未配置，使用本地错误处理');
+    }
   }
 }
 
@@ -216,6 +220,8 @@ class ErrorHandler {
 
     // 发射错误事件
     try {
+      // 只有在容器初始化后才发射事件
+      const { resolve } = await import('./container.js');
       const eventSystem = resolve('eventSystem');
       if (eventSystem) {
         eventSystem.emit('error:occurred', {
@@ -225,7 +231,10 @@ class ErrorHandler {
         });
       }
     } catch (eventError) {
+      // 静默忽略容器未初始化时的错误
+      if (!eventError.message.includes("Could not resolve 'eventSystem'")) {
       logger.error('发射错误事件失败', eventError);
+      }
     }
   }
 
@@ -293,6 +302,15 @@ class ErrorHandler {
       },
       timestamp: Date.now(),
     };
+  }
+
+  /**
+   * 创建标准化的错误对象 (保持向后兼容性)
+   */
+  createError(type, message, context = {}, code = 500) {
+    const error = new frysError(message, type, code, context);
+    this.handle(error, { context: 'error_creation' });
+    return error;
   }
 
   /**

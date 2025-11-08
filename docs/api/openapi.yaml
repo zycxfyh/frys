@@ -1,0 +1,836 @@
+openapi: 3.0.3
+info:
+  title: frys 工作流管理系统 API
+  description: 企业级轻量化工作流管理系统的 REST API
+  version: 1.0.0
+  contact:
+    email: 1666384464@qq.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000
+    description: 开发环境
+  - url: https://api.frys.dev
+    description: 生产环境
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT 访问令牌
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 用户唯一标识
+        email:
+          type: string
+          format: email
+          description: 用户邮箱
+        username:
+          type: string
+          description: 用户名
+        fullName:
+          type: string
+          description: 完整姓名
+        role:
+          type: string
+          enum: [admin, manager, user]
+          description: 用户角色
+        status:
+          type: string
+          enum: [active, inactive, pending]
+          description: 用户状态
+        createdAt:
+          type: string
+          format: date-time
+          description: 创建时间
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新时间
+
+    Workflow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 工作流唯一标识
+        name:
+          type: string
+          description: 工作流名称
+        description:
+          type: string
+          description: 工作流描述
+        version:
+          type: string
+          description: 工作流版本
+        status:
+          type: string
+          enum: [draft, published, archived]
+          description: 工作流状态
+        definition:
+          type: object
+          description: 工作流定义（JSON格式）
+        createdBy:
+          type: string
+          format: uuid
+          description: 创建者ID
+        createdAt:
+          type: string
+          format: date-time
+          description: 创建时间
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新时间
+
+    WorkflowExecution:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 执行实例唯一标识
+        workflowId:
+          type: string
+          format: uuid
+          description: 工作流ID
+        status:
+          type: string
+          enum: [running, completed, failed, cancelled]
+          description: 执行状态
+        input:
+          type: object
+          description: 输入参数
+        output:
+          type: object
+          description: 输出结果
+        error:
+          type: string
+          description: 错误信息
+        startedAt:
+          type: string
+          format: date-time
+          description: 开始时间
+        completedAt:
+          type: string
+          format: date-time
+          description: 完成时间
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 请求是否成功
+        data:
+          type: object
+          description: 响应数据
+        message:
+          type: string
+          description: 响应消息
+        timestamp:
+          type: string
+          format: date-time
+          description: 响应时间戳
+
+    PaginatedResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+            pagination:
+              type: object
+              properties:
+                page:
+                  type: integer
+                  minimum: 1
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                total:
+                  type: integer
+                  minimum: 0
+                totalPages:
+                  type: integer
+                  minimum: 0
+        timestamp:
+          type: string
+          format: date-time
+
+  parameters:
+    pageParam:
+      name: page
+      in: query
+      description: 页码（从1开始）
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    limitParam:
+      name: limit
+      in: query
+      description: 每页数量
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+
+    searchParam:
+      name: search
+      in: query
+      description: 搜索关键词
+      required: false
+      schema:
+        type: string
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: 健康检查
+      description: 检查服务健康状态
+      tags:
+        - 系统
+      responses:
+        '200':
+          description: 服务正常
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/v1/info:
+    get:
+      summary: 获取API信息
+      description: 获取API版本和服务信息
+      tags:
+        - 系统
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/v1/auth/register:
+    post:
+      summary: 用户注册
+      description: 注册新用户账户
+      tags:
+        - 认证
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - name
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                name:
+                  type: string
+                  minLength: 2
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: 请求参数错误
+        '409':
+          description: 用户已存在
+
+  /api/v1/auth/login:
+    post:
+      summary: 用户登录
+      description: 用户登录获取访问令牌
+      tags:
+        - 认证
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          description: 认证失败
+
+  /api/v1/auth/refresh:
+    post:
+      summary: 刷新访问令牌
+      description: 使用刷新令牌获取新的访问令牌
+      tags:
+        - 认证
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          description: 令牌无效
+
+  /api/v1/users:
+    get:
+      summary: 获取用户列表
+      description: 分页获取用户列表（管理员权限）
+      tags:
+        - 用户管理
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/searchParam'
+        - name: status
+          in: query
+          description: 用户状态筛选
+          required: false
+          schema:
+            type: string
+            enum: [active, inactive, pending]
+        - name: role
+          in: query
+          description: 用户角色筛选
+          required: false
+          schema:
+            type: string
+            enum: [admin, manager, user]
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+
+    post:
+      summary: 创建用户
+      description: 创建新用户（管理员权限）
+      tags:
+        - 用户管理
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - name
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                name:
+                  type: string
+                  minLength: 2
+                role:
+                  type: string
+                  enum: [admin, manager, user]
+                  default: user
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: 请求参数错误
+        '409':
+          description: 用户已存在
+
+  /api/v1/users/{id}:
+    get:
+      summary: 获取用户信息
+      description: 根据ID获取单个用户信息
+      tags:
+        - 用户管理
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 用户ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: 用户不存在
+
+    put:
+      summary: 更新用户信息
+      description: 更新指定用户的信息
+      tags:
+        - 用户管理
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 用户ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum: [admin, manager, user]
+                status:
+                  type: string
+                  enum: [active, inactive, pending]
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 用户不存在
+
+    delete:
+      summary: 删除用户
+      description: 删除指定用户（管理员权限）
+      tags:
+        - 用户管理
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 用户ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: 用户不存在
+
+  /api/v1/workflows:
+    get:
+      summary: 获取工作流列表
+      description: 分页获取工作流列表
+      tags:
+        - 工作流管理
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/searchParam'
+        - name: status
+          in: query
+          description: 工作流状态筛选
+          required: false
+          schema:
+            type: string
+            enum: [draft, published, archived]
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+
+    post:
+      summary: 创建工作流
+      description: 创建新的工作流定义
+      tags:
+        - 工作流管理
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - definition
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                description:
+                  type: string
+                  maxLength: 1000
+                definition:
+                  type: object
+                  description: 工作流定义JSON
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: 请求参数错误
+
+  /api/v1/workflows/{id}:
+    get:
+      summary: 获取工作流详情
+      description: 根据ID获取工作流详细信息
+      tags:
+        - 工作流管理
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 工作流ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: 工作流不存在
+
+    put:
+      summary: 更新工作流
+      description: 更新工作流定义和信息
+      tags:
+        - 工作流管理
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 工作流ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                description:
+                  type: string
+                  maxLength: 1000
+                definition:
+                  type: object
+                  description: 工作流定义JSON
+                status:
+                  type: string
+                  enum: [draft, published, archived]
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 工作流不存在
+
+    delete:
+      summary: 删除工作流
+      description: 删除指定的工作流
+      tags:
+        - 工作流管理
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 工作流ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: 工作流不存在
+
+  /api/v1/workflows/{id}/execute:
+    post:
+      summary: 执行工作流
+      description: 执行指定的工作流
+      tags:
+        - 工作流管理
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 工作流ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                input:
+                  type: object
+                  description: 工作流输入参数
+                options:
+                  type: object
+                  description: 执行选项
+                  properties:
+                    async:
+                      type: boolean
+                      default: true
+                      description: 是否异步执行
+                    timeout:
+                      type: integer
+                      minimum: 1000
+                      maximum: 3600000
+                      default: 300000
+                      description: 执行超时时间（毫秒）
+      responses:
+        '200':
+          description: 执行成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '202':
+          description: 异步执行已接受
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      executionId:
+                        type: string
+                        format: uuid
+                        description: 执行实例ID
+                      status:
+                        type: string
+                        enum: [accepted]
+                  message:
+                    type: string
+                    example: "工作流执行已接受"
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 工作流不存在
+
+  /api/v1/workflows/executions/{id}:
+    get:
+      summary: 获取执行状态
+      description: 获取工作流执行实例的详细信息和状态
+      tags:
+        - 工作流管理
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 执行实例ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: 执行实例不存在
+
+  /api/v1/workflows/executions/{id}/events:
+    get:
+      summary: 监听执行事件
+      description: Server-Sent Events 端点，用于实时监听工作流执行事件
+      tags:
+        - 工作流管理
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 执行实例ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 事件流
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: Server-Sent Events 格式的事件流
+
+  /api/v1/metrics:
+    get:
+      summary: 获取系统指标
+      description: 获取 Prometheus 格式的系统监控指标
+      tags:
+        - 监控
+      responses:
+        '200':
+          description: 指标数据
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Prometheus 格式的指标数据
+
+tags:
+  - name: 认证
+    description: 用户认证和授权相关接口
+  - name: 用户管理
+    description: 用户账户管理和权限控制
+  - name: 工作流管理
+    description: 工作流创建、执行和管理
+  - name: 系统
+    description: 系统状态和信息查询
+  - name: 监控
+    description: 系统监控和指标收集

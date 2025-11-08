@@ -197,9 +197,9 @@ export class CacheMiddleware {
         headers: {
           'content-type': headers['content-type'] || 'application/json',
           'x-cached-at': new Date().toISOString(),
-          'x-cache-ttl': this.options.defaultTtl / 1000 + 's',
+          'x-cache-ttl': `${this.options.defaultTtl / 1000  }s`,
         },
-        body: body,
+        body,
         expiry: Date.now() + this.options.defaultTtl,
       };
 

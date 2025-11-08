@@ -3,12 +3,16 @@
  * 为每个AI供应商提供独立的API端点
  */
 
+import fastifySwagger from '@fastify/swagger';
 import { logger } from '../../utils/logger.js';
 import { OpenAIService } from '../../application/services/ai/OpenAIService.js';
 import { ClaudeService } from '../../application/services/ai/ClaudeService.js';
 import { GeminiService } from '../../application/services/ai/GeminiService.js';
 import { DeepSeekService } from '../../application/services/ai/DeepSeekService.js';
 import { AlibabaService } from '../../application/services/ai/AlibabaService.js';
+import { LangChainService } from '../../application/services/ai/LangChainService.js';
+import { CogneeMemoryService } from '../../application/services/ai/CogneeMemoryService.js';
+import { ConversationManager } from '../../application/services/ConversationManager.js';
 
 // 服务实例缓存
 const services = new Map();
@@ -741,6 +745,387 @@ export function createAIRoutes() {
     }
   });
 
+  // ==========================================
+  // LangChain 集成路由
+  // ==========================================
+
+  // 创建对话链
+  routes.push({
+    method: 'POST',
+    url: '/api/ai/langchain/chains',
+    handler: async (request, reply) => {
+      try {
+        const langChainService = getService('langchain', LangChainService);
+        const result = await langChainService.createConversationChain(request.body);
+
+        reply.send({
+          success: true,
+          data: result,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        logger.error('创建对话链失败', { error: error.message });
+        reply.code(500).send({
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+    },
+    schema: {
+      description: '创建LangChain对话链',
+      tags: ['AI', 'LangChain'],
+      body: {
+        type: 'object',
+        properties: {
+          model: { type: 'string', enum: ['openai', 'claude', 'gemini'] },
+          memoryType: { type: 'string', enum: ['buffer', 'conversation'] },
+          promptTemplate: { type: 'string' },
+          chainId: { type: 'string' }
+        }
+      }
+    }
+  });
+
+  // 执行对话
+  routes.push({
+    method: 'POST',
+    url: '/api/ai/langchain/chains/:chainId/converse',
+    handler: async (request, reply) => {
+      try {
+        const { chainId } = request.params;
+        const { input, options } = request.body;
+
+        const langChainService = getService('langchain', LangChainService);
+        const result = await langChainService.runConversation(chainId, input, options);
+
+        reply.send({
+          success: true,
+          data: result,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        logger.error('对话执行失败', { chainId: request.params.chainId, error: error.message });
+        reply.code(500).send({
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+    },
+    schema: {
+      description: '执行LangChain对话',
+      tags: ['AI', 'LangChain'],
+      params: {
+        type: 'object',
+        properties: {
+          chainId: { type: 'string' }
+        },
+        required: ['chainId']
+      },
+      body: {
+        type: 'object',
+        properties: {
+          input: { type: 'string' },
+          options: { type: 'object' }
+        },
+        required: ['input']
+      }
+    }
+  });
+
+  // 获取对话历史
+  routes.push({
+    method: 'GET',
+    url: '/api/ai/langchain/chains/:chainId/history',
+    handler: async (request, reply) => {
+      try {
+        const { chainId } = request.params;
+        const langChainService = getService('langchain', LangChainService);
+        const result = await langChainService.getConversationHistory(chainId);
+
+        reply.send({
+          success: true,
+          data: result,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        logger.error('获取对话历史失败', { chainId: request.params.chainId, error: error.message });
+        reply.code(500).send({
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+    },
+    schema: {
+      description: '获取LangChain对话历史',
+      tags: ['AI', 'LangChain']
+    }
+  });
+
+  // ==========================================
+  // Cognee 记忆系统路由
+  // ==========================================
+
+  // 存储记忆
+  routes.push({
+    method: 'POST',
+    url: '/api/ai/memory/store',
+    handler: async (request, reply) => {
+      try {
+        const cogneeService = getService('cognee', CogneeMemoryService);
+        const result = await cogneeService.storeMemory(request.body);
+
+        reply.send({
+          success: true,
+          data: result,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        logger.error('存储记忆失败', { error: error.message });
+        reply.code(500).send({
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+    },
+    schema: {
+      description: '存储记忆到Cognee',
+      tags: ['AI', 'Memory'],
+      body: {
+        type: 'object',
+        properties: {
+          content: { type: 'string' },
+          type: { type: 'string', enum: ['conversation', 'fact', 'entity', 'event', 'insight'] },
+          metadata: { type: 'object' },
+          userId: { type: 'string' },
+          sessionId: { type: 'string' },
+          tags: { type: 'array', items: { type: 'string' } }
+        },
+        required: ['content']
+      }
+    }
+  });
+
+  // 检索记忆
+  routes.push({
+    method: 'POST',
+    url: '/api/ai/memory/search',
+    handler: async (request, reply) => {
+      try {
+        const { query, options } = request.body;
+        const cogneeService = getService('cognee', CogneeMemoryService);
+        const result = await cogneeService.retrieveMemory(query, options);
+
+        reply.send({
+          success: true,
+          data: result,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        logger.error('检索记忆失败', { error: error.message });
+        reply.code(500).send({
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+    },
+    schema: {
+      description: '从Cognee检索记忆',
+      tags: ['AI', 'Memory'],
+      body: {
+        type: 'object',
+        properties: {
+          query: { type: 'string' },
+          options: {
+            type: 'object',
+            properties: {
+              userId: { type: 'string' },
+              sessionId: { type: 'string' },
+              limit: { type: 'number' },
+              type: { type: 'string' }
+            }
+          }
+        },
+        required: ['query']
+      }
+    }
+  });
+
+  // ==========================================
+  // 对话管理路由
+  // ==========================================
+
+  // 创建对话
+  routes.push({
+    method: 'POST',
+    url: '/api/ai/conversations',
+    handler: async (request, reply) => {
+      try {
+        const conversationManager = getService('conversation', ConversationManager);
+        const result = await conversationManager.createConversation(request.body);
+
+        reply.send({
+          success: true,
+          data: result,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        logger.error('创建对话失败', { error: error.message });
+        reply.code(500).send({
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+    },
+    schema: {
+      description: '创建新对话',
+      tags: ['AI', 'Conversation'],
+      body: {
+        type: 'object',
+        properties: {
+          conversationId: { type: 'string' },
+          userId: { type: 'string' },
+          sessionId: { type: 'string' },
+          model: { type: 'string', enum: ['openai', 'claude', 'gemini'] },
+          memory: { type: 'boolean' },
+          persistMemory: { type: 'boolean' },
+          systemPrompt: { type: 'string' }
+        }
+      }
+    }
+  });
+
+  // 发送消息
+  routes.push({
+    method: 'POST',
+    url: '/api/ai/conversations/:conversationId/messages',
+    handler: async (request, reply) => {
+      try {
+        const { conversationId } = request.params;
+        const { message, options } = request.body;
+
+        const conversationManager = getService('conversation', ConversationManager);
+        const result = await conversationManager.sendMessage(conversationId, message, options);
+
+        reply.send({
+          success: true,
+          data: result,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        logger.error('发送消息失败', { conversationId: request.params.conversationId, error: error.message });
+        reply.code(500).send({
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+    },
+    schema: {
+      description: '向对话发送消息',
+      tags: ['AI', 'Conversation'],
+      params: {
+        type: 'object',
+        properties: {
+          conversationId: { type: 'string' }
+        },
+        required: ['conversationId']
+      },
+      body: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+          options: { type: 'object' }
+        },
+        required: ['message']
+      }
+    }
+  });
+
+  // 获取对话历史
+  routes.push({
+    method: 'GET',
+    url: '/api/ai/conversations/:conversationId/history',
+    handler: async (request, reply) => {
+      try {
+        const { conversationId } = request.params;
+        const { limit, offset } = request.query;
+
+        const conversationManager = getService('conversation', ConversationManager);
+        const result = await conversationManager.getConversationHistory(conversationId, {
+          limit: parseInt(limit) || undefined,
+          offset: parseInt(offset) || 0
+        });
+
+        reply.send({
+          success: true,
+          data: result,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        logger.error('获取对话历史失败', { conversationId: request.params.conversationId, error: error.message });
+        reply.code(500).send({
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+    },
+    schema: {
+      description: '获取对话历史',
+      tags: ['AI', 'Conversation'],
+      params: {
+        type: 'object',
+        properties: {
+          conversationId: { type: 'string' }
+        },
+        required: ['conversationId']
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          limit: { type: 'number' },
+          offset: { type: 'number' }
+        }
+      }
+    }
+  });
+
+  // 结束对话
+  routes.push({
+    method: 'POST',
+    url: '/api/ai/conversations/:conversationId/end',
+    handler: async (request, reply) => {
+      try {
+        const { conversationId } = request.params;
+        const conversationManager = getService('conversation', ConversationManager);
+        const result = await conversationManager.endConversation(conversationId);
+
+        reply.send({
+          success: true,
+          data: result,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        logger.error('结束对话失败', { conversationId: request.params.conversationId, error: error.message });
+        reply.code(500).send({
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+    },
+    schema: {
+      description: '结束对话',
+      tags: ['AI', 'Conversation']
+    }
+  });
+
   return routes;
 }
 
@@ -758,7 +1143,7 @@ export function registerAIRoutes(fastify, options = {}) {
 
   // 添加OpenAPI文档
   if (options.enableDocs) {
-    fastify.register(require('@fastify/swagger'), {
+    fastify.register(fastifySwagger, {
       exposeRoute: true,
       routePrefix: '/api/docs',
       swagger: {
@@ -776,6 +1161,11 @@ export function registerAIRoutes(fastify, options = {}) {
           { name: 'OpenAI', description: 'OpenAI专用接口' },
           { name: 'Claude', description: 'Claude专用接口' },
           { name: 'Gemini', description: 'Gemini专用接口' },
+          { name: 'DeepSeek', description: 'DeepSeek专用接口' },
+          { name: 'Alibaba', description: 'Alibaba专用接口' },
+          { name: 'LangChain', description: 'LangChain集成接口' },
+          { name: 'Memory', description: '记忆系统接口' },
+          { name: 'Conversation', description: '对话管理接口' },
           { name: 'Stats', description: '统计信息接口' }
         ]
       }

@@ -1,0 +1,235 @@
+name: 🔍 部署监控与回溯
+
+on:
+  deployment_status
+  schedule:
+    # 每小时检查一次生产环境状态
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      check_type:
+        description: '检查类型'
+        required: true
+        default: 'comprehensive'
+        type: choice
+        options:
+        - health
+        - performance
+        - security
+        - comprehensive
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  health-monitoring:
+    name: '🏥 健康监控'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event.deployment_status.state == 'success'
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🟢 设置 Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 🏥 健康检查
+      run: |
+        echo "🏥 执行生产环境健康检查..."
+
+        # 检查Staging环境
+        echo "检查Staging环境..."
+        curl -f -s --max-time 30 https://staging.frys.com/health || echo "⚠️  Staging环境健康检查失败"
+
+        # 检查生产环境
+        echo "检查生产环境..."
+        curl -f -s --max-time 30 https://frys.com/health || echo "⚠️  生产环境健康检查失败"
+
+        # 记录健康状态
+        echo "✅ 健康检查完成"
+
+  performance-monitoring:
+    name: '📊 性能监控'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.check_type == 'performance') || (github.event_name == 'workflow_dispatch' && github.event.inputs.check_type == 'comprehensive')
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🟢 设置 Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 📊 性能基准测试
+      run: |
+        echo "📊 执行性能基准测试..."
+        npm run benchmark -- --env=production --quiet
+        echo "✅ 性能基准测试完成"
+
+    - name: 📈 SLO 检查
+      run: |
+        echo "📈 执行服务水平目标检查..."
+        node scripts/slo-check.js --baseline --quiet
+        echo "✅ SLO检查完成"
+
+  security-monitoring:
+    name: '🔒 安全监控'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.check_type == 'security') || (github.event_name == 'workflow_dispatch' && github.event.inputs.check_type == 'comprehensive')
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🟢 设置 Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 🔒 安全审计
+      run: |
+        echo "🔒 执行安全审计..."
+        npm audit --audit-level=moderate --json > security-audit.json || true
+        echo "✅ 安全审计完成"
+
+    - name: 🛡️ 运行时安全检查
+      run: |
+        echo "🛡️ 执行运行时安全检查..."
+        node scripts/security-audit.js --runtime --quiet
+        echo "✅ 运行时安全检查完成"
+
+  alert-management:
+    name: '🚨 告警管理'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [health-monitoring, performance-monitoring, security-monitoring]
+    if: always()
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🚨 检查告警条件
+      run: |
+        echo "🚨 检查监控告警条件..."
+
+        # 收集监控结果
+        HEALTH_STATUS="${{ needs.health-monitoring.result }}"
+        PERF_STATUS="${{ needs.performance-monitoring.result }}"
+        SEC_STATUS="${{ needs.security-monitoring.result }}"
+
+        echo "健康监控状态: $HEALTH_STATUS"
+        echo "性能监控状态: $PERF_STATUS"
+        echo "安全监控状态: $SEC_STATUS"
+
+        # 生成告警摘要
+        ALERTS=""
+        if [ "$HEALTH_STATUS" != "success" ]; then
+          ALERTS="${ALERTS}\n🚨 健康检查失败"
+        fi
+        if [ "$PERF_STATUS" != "success" ]; then
+          ALERTS="${ALERTS}\n⚠️  性能检查失败"
+        fi
+        if [ "$SEC_STATUS" != "success" ]; then
+          ALERTS="${ALERTS}\n🔴 安全检查失败"
+        fi
+
+        if [ -n "$ALERTS" ]; then
+          echo "发现告警:$ALERTS"
+          echo "alerts=$ALERTS" >> $GITHUB_ENV
+        else
+          echo "✅ 所有监控检查通过"
+        fi
+
+    - name: 📢 发送告警通知
+      if: env.alerts != ''
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const alerts = process.env.alerts;
+          const message = `🚨 **frys 监控告警**
+
+**时间**: ${new Date().toISOString()}
+**触发**: 定时监控检查
+
+**告警详情**:
+${alerts.split('\\n').filter(a => a).map(alert => `- ${alert}`).join('\\n')}
+
+[📊 查看监控详情](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+---
+*自动监控系统*`;
+
+          // 创建Issue通知
+          github.rest.issues.create({
+            issue_number: 1, // 或使用特定的监控issue编号
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `🚨 监控告警 - ${new Date().toISOString()}`,
+            body: message,
+            labels: ['monitoring', 'alert']
+          });
+
+  rollback-readiness:
+    name: '🔄 回滚准备'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: alert-management
+    if: needs.alert-management.result == 'failure'
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🔄 准备回滚策略
+      run: |
+        echo "🔄 检测到监控失败，准备回滚策略..."
+
+        # 生成回滚计划
+        node scripts/smart-rollback.js --plan --env=production
+        echo "✅ 回滚计划已生成"
+
+    - name: 📋 回滚通知
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const message = `🔄 **回滚准备就绪**
+
+由于监控检查失败，系统已自动准备回滚策略。
+
+**建议操作**:
+1. 检查失败的具体原因
+2. 评估是否需要立即回滚
+3. 如果需要回滚，执行: \`./scripts/smart-rollback.js --rollback\`
+
+[📋 查看回滚计划](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+---
+*智能回滚系统*`;
+
+          github.rest.issues.createComment({
+            issue_number: 1, // 使用监控issue
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: message
+          });

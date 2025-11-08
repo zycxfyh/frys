@@ -377,6 +377,11 @@ export class MemoryNetwork extends EventEmitter {
     this.startMaintenanceTasks();
   }
 
+  async initialize() {
+    // 初始化记忆网络
+    logger.debug('MemoryNetwork initialized');
+  }
+
   startMaintenanceTasks() {
     // 每小时执行一次内存压缩
     setInterval(() => {
@@ -748,11 +753,11 @@ export class MemoryNetwork extends EventEmitter {
     if (sentences.length <= 2) return content;
 
     // 取前两个和最后一个句子作为摘要
-    const summary = [
+    const summary = `${[
       sentences[0],
       sentences[1],
       sentences[sentences.length - 1]
-    ].join('. ') + '.';
+    ].join('. ')  }.`;
 
     return summary;
   }
@@ -800,6 +805,29 @@ export class MemoryNetwork extends EventEmitter {
     this.vectorStore = new VectorStore();
 
     logger.info('Memory network cleaned up');
+  }
+
+  /**
+   * 关闭记忆网络，清理资源
+   */
+  async shutdown() {
+    try {
+      // 清理所有记忆节点
+      this.memoryNodes.clear();
+
+      // 清理向量存储
+      if (this.vectorStore && typeof this.vectorStore.clear === 'function') {
+        this.vectorStore.clear();
+      }
+
+      // 清理会话
+      this.sessions.clear();
+
+      logger.info('MemoryNetwork shut down successfully');
+    } catch (error) {
+      logger.error('Error during MemoryNetwork shutdown:', error);
+      throw error;
+    }
   }
 }
 

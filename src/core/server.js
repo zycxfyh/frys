@@ -10,7 +10,8 @@ import { logger } from '../utils/logger.js';
 import { config } from '../utils/config.js';
 
 // 导入插件
-import { pluginManager } from './PluginManager.js';
+import { pluginManager } from './plugin-system.js';
+import { registerAIRoutes } from '../presentation/routes/ai-routes.js';
 
 /**
  * 创建 Fastify 应用实例
@@ -19,8 +20,10 @@ function createFastifyApp() {
   const app = Fastify({
     logger: false, // 我们使用自己的logger
     disableRequestLogging: true, // 避免重复日志
+    routerOptions: {
     ignoreTrailingSlash: true,
     maxParamLength: 500,
+    },
     bodyLimit: 1048576, // 1MB
   });
 
@@ -121,17 +124,21 @@ async function configureApp(app) {
  * 配置路由
  */
 async function configureRoutes(app) {
-  const workflowEngine = resolve('workflowEngine');
-  const userService = resolve('userService');
-  const auth = resolve('auth');
+  // 等待容器初始化
+  const { getContainer } = await import('./container.js');
+  const container = await getContainer();
 
-  // 健康检查路由
+  const workflowEngine = container.resolve('workflowEngine');
+  const userService = container.resolve('userService');
+  const auth = container.resolve('auth');
+
+  // 健康检查路由 (不需要认证)
   app.get('/health', async (request, reply) => {
     const health = await getSystemHealth();
     reply.status(health.healthy ? 200 : 503).send(health);
   });
 
-  // API 路由组
+  // API 路由组 (需要认证)
   app.register(async (apiRoutes) => {
     // JWT 认证中间件
     apiRoutes.addHook('preHandler', async (request, reply) => {
@@ -187,6 +194,9 @@ async function configureRoutes(app) {
       }
     });
   }, { prefix: '/api/v1' });
+
+  // 注册AI API路由
+  registerAIRoutes(app, { enableDocs: true });
 }
 
 /**
@@ -202,9 +212,13 @@ async function getSystemHealth() {
     // 检查核心服务
     const services = ['http', 'messaging', 'state', 'auth', 'workflowEngine', 'userService'];
 
+    // 等待容器初始化
+    const { getContainer } = await import('./container.js');
+    const container = await getContainer();
+
     for (const serviceName of services) {
       try {
-        const service = resolve(serviceName);
+        const service = container.resolve(serviceName);
         if (service && typeof service.healthCheck === 'function') {
           checks.services[serviceName] = await service.healthCheck();
         } else {

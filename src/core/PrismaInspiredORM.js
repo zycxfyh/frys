@@ -14,7 +14,7 @@ class PrismaInspiredORM {
   defineModel(modelName, fields) {
     const model = {
       name: modelName,
-      fields: fields,
+      fields,
       relations: [],
       indexes: [],
       created_at: Date.now(),

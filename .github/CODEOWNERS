@@ -1,0 +1,48 @@
+# frys 代码所有者配置
+# 确保关键代码变更得到适当审查
+
+# 核心架构和基础设施
+/src/core/                    @team/frys-core
+/src/infrastructure/          @team/frys-devops
+/src/shared/                  @team/frys-core
+
+# 业务逻辑
+/src/application/             @team/frys-backend
+/src/domain/                  @team/frys-backend
+
+# 前端和API
+/src/presentation/            @team/frys-frontend
+/web/                         @team/frys-frontend
+
+# 测试
+/tests/                       @team/frys-qa
+/test-results/                @team/frys-qa
+
+# 部署和运维
+/scripts/                     @team/frys-devops
+/docker-compose.*.yml         @team/frys-devops
+/Dockerfile                   @team/frys-devops
+/nginx/                       @team/frys-devops
+
+# 监控和安全
+/monitoring/                  @team/frys-devops
+SECURITY.md                   @team/frys-security
+/scripts/security-audit.js    @team/frys-security
+
+# 文档
+/docs/                        @team/frys-docs
+*.md                          @team/frys-docs
+
+# CI/CD 配置
+/.github/                     @team/frys-devops
+lefthook.yml                  @team/frys-devops
+
+# 包配置
+package.json                  @team/frys-core
+vitest.config.js              @team/frys-core
+playwright.config.js          @team/frys-qa
+
+# 全局所有者 (需要所有团队批准的重大变更)
+/.github/workflows/ci-cd-pipeline.yml  @team/frys-core @team/frys-devops @team/frys-security
+/scripts/smart-rollback.js            @team/frys-core @team/frys-devops @team/frys-security
+/scripts/deploy.sh                    @team/frys-core @team/frys-devops

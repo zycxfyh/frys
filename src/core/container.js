@@ -10,6 +10,9 @@ import { config } from '../utils/config.js';
 // 导入服务
 import { WorkflowEngine } from '../services/WorkflowEngine.js';
 import { UserService } from '../services/UserService.js';
+import { LangChainService } from '../application/services/ai/LangChainService.js';
+import { CogneeMemoryService } from '../application/services/ai/CogneeMemoryService.js';
+import { ConversationManager } from '../application/services/ConversationManager.js';
 
 // 创建 Awilix 容器
 const container = createContainer({
@@ -67,8 +70,32 @@ async function loadCoreModules() {
 
   // 注册业务服务 - 在核心服务注册之后
   container.register({
-    workflowEngine: asClass(WorkflowEngine).singleton(),
-    userService: asClass(UserService).singleton(),
+    workflowEngine: asClass(WorkflowEngine, {
+      injector: (c) => ({
+        http: c.resolve('http'),
+        messaging: c.resolve('messaging'),
+        state: c.resolve('state'),
+        date: c.resolve('date'),
+        utils: c.resolve('utils'),
+      }),
+    }).singleton(),
+    userService: asClass(UserService, {
+      injector: (c) => ({
+        http: c.resolve('http'),
+        auth: c.resolve('auth'),
+        state: c.resolve('state'),
+        messaging: c.resolve('messaging'),
+        date: c.resolve('date'),
+        utils: c.resolve('utils'),
+      }),
+    }).singleton(),
+  });
+
+  // 注册AI服务
+  container.register({
+    langChainService: asClass(LangChainService).singleton(),
+    cogneeMemoryService: asClass(CogneeMemoryService).singleton(),
+    conversationManager: asClass(ConversationManager).singleton(),
   });
 
   modulesLoaded = true;
@@ -133,7 +160,7 @@ export function getContainerStatus() {
   return {
     servicesCount: Object.keys(registrations).length,
     services: Object.keys(registrations),
-    registrations: registrations,
+    registrations,
   };
 }
 

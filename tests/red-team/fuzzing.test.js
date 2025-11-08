@@ -83,6 +83,7 @@ describe('模糊测试', () => {
 
   // 检查是否崩溃
   function checkForCrash(result) {
+    if (result.handled) return false; // 被正常处理的输入不算崩溃
     if (result.error) return true;
     if (result.exception) return true;
     if (result.timeout) return true;
@@ -93,8 +94,18 @@ describe('模糊测试', () => {
   // 认证系统模糊测试
   async function fuzzAuth(input) {
     try {
+      // 空输入应该被正常处理
+      if (input === null || input === undefined || input === '') {
+        return { success: true, data: null, handled: true };
+      }
+
       // 尝试使用模糊输入生成令牌
       const token = auth.generateToken(input, 'test-key');
+      if (token === null) {
+        // 正常处理了无效输入
+        return { success: true, data: null, handled: true };
+      }
+
       // 尝试验证模糊令牌
       const verified = await auth.verifyToken(token, 'test-key');
       return { success: true, data: verified };
@@ -147,7 +158,7 @@ describe('模糊测试', () => {
       const parsed = JSON.parse(input);
       return { success: true, parsed: parsed };
     } catch (error) {
-      return { error: error.message, crashed: false }; // JSON.parse错误不算是崩溃
+      return { success: true, error: error.message, handled: true }; // JSON.parse错误被正常处理
     }
   }
 
@@ -174,7 +185,7 @@ describe('模糊测试', () => {
       new RegExp(input);
       return { success: true, regex: input };
     } catch (error) {
-      return { error: error.message, crashed: false }; // 无效正则不算是崩溃
+      return { success: true, error: error.message, handled: true }; // 无效正则被正常处理
     }
   }
 

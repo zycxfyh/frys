@@ -54,11 +54,14 @@ const user = await userService.createUser({
   username: 'john_doe',
   email: 'john@example.com',
   password: 'securePassword123',
-  fullName: 'John Doe'
+  fullName: 'John Doe',
 });
 
 // 用户登录
-const authResult = await userService.authenticateUser('john_doe', 'securePassword123');
+const authResult = await userService.authenticateUser(
+  'john_doe',
+  'securePassword123',
+);
 console.log('登录成功:', authResult.token);
 
 // 验证令牌
@@ -77,7 +80,7 @@ const user = await userService.getUserProfile(userId);
 // 更新用户信息
 const updatedUser = await userService.updateUser(userId, {
   fullName: 'John Smith',
-  email: 'johnsmith@example.com'
+  email: 'johnsmith@example.com',
 });
 
 // 删除用户
@@ -88,7 +91,7 @@ const users = await userService.listUsers({
   status: 'active',
   role: 'admin',
   limit: 20,
-  offset: 0
+  offset: 0,
 });
 ```
 
@@ -136,14 +139,14 @@ const workflowDefinition = {
       type: 'http',
       method: 'POST',
       url: '/api/email/verify',
-      dependencies: []
+      dependencies: [],
     },
     {
       id: 'create_profile',
       name: '创建用户资料',
       type: 'script',
       script: 'await createUserProfile(context.userData)',
-      dependencies: ['validate_email']
+      dependencies: ['validate_email'],
     },
     {
       id: 'send_welcome',
@@ -151,15 +154,15 @@ const workflowDefinition = {
       type: 'http',
       method: 'POST',
       url: '/api/email/welcome',
-      dependencies: ['create_profile']
-    }
-  ]
+      dependencies: ['create_profile'],
+    },
+  ],
 };
 
 // 创建并启动工作流
 const workflowId = await workflowEngine.createWorkflow(workflowDefinition);
 await workflowEngine.startWorkflow(workflowId, {
-  userData: { email: 'user@example.com', name: 'John' }
+  userData: { email: 'user@example.com', name: 'John' },
 });
 ```
 
@@ -186,6 +189,7 @@ const runningWorkflows = await workflowEngine.getRunningWorkflows();
 ### 任务类型
 
 #### HTTP任务
+
 ```javascript
 {
   id: 'api_call',
@@ -199,6 +203,7 @@ const runningWorkflows = await workflowEngine.getRunningWorkflows();
 ```
 
 #### 脚本任务
+
 ```javascript
 {
   id: 'process_data',
@@ -211,6 +216,7 @@ const runningWorkflows = await workflowEngine.getRunningWorkflows();
 ```
 
 #### 延迟任务
+
 ```javascript
 {
   id: 'wait',
@@ -220,6 +226,7 @@ const runningWorkflows = await workflowEngine.getRunningWorkflows();
 ```
 
 #### 条件任务
+
 ```javascript
 {
   id: 'check_condition',
@@ -247,7 +254,7 @@ class UserService {
     await this.messaging.publish('user.created', {
       userId: user.id,
       user: user,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     return user;
@@ -271,6 +278,7 @@ class WorkflowEngine {
 业务服务会自动发布以下事件：
 
 #### 用户服务事件
+
 - `user.created` - 用户创建
 - `user.authenticated` - 用户登录
 - `user.updated` - 用户信息更新
@@ -278,6 +286,7 @@ class WorkflowEngine {
 - `user.logout` - 用户登出
 
 #### 工作流引擎事件
+
 - `workflow.created` - 工作流创建
 - `workflow.started` - 工作流启动
 - `workflow.completed` - 工作流完成
@@ -337,7 +346,7 @@ const userMetrics = {
   totalUsers: await userService.getTotalUserCount(),
   activeUsers: await userService.getActiveUserCount(),
   newUsersToday: await userService.getNewUsersCount('day'),
-  loginAttempts: await userService.getLoginAttemptsCount()
+  loginAttempts: await userService.getLoginAttemptsCount(),
 };
 
 // 工作流指标
@@ -345,7 +354,7 @@ const workflowMetrics = {
   totalWorkflows: await workflowEngine.getTotalWorkflowCount(),
   runningWorkflows: await workflowEngine.getRunningWorkflowCount(),
   completedWorkflows: await workflowEngine.getCompletedWorkflowCount(),
-  failedWorkflows: await workflowEngine.getFailedWorkflowCount()
+  failedWorkflows: await workflowEngine.getFailedWorkflowCount(),
 };
 ```
 
@@ -360,7 +369,7 @@ const duration = Date.now() - startTime;
 logger.info('用户认证耗时', {
   username,
   duration,
-  success: !!result.token
+  success: !!result.token,
 });
 
 // 工作流执行监控
@@ -369,7 +378,7 @@ workflowEngine.on('workflow.completed', (event) => {
     workflowId: event.workflowId,
     duration: event.duration,
     tasksCount: event.tasksCount,
-    success: true
+    success: true,
   });
 });
 ```
@@ -426,7 +435,7 @@ describe('用户注册工作流', () => {
     const userData = {
       email: 'john@example.com',
       password: 'password123',
-      name: 'John Doe'
+      name: 'John Doe',
     };
 
     // 监听工作流创建事件
@@ -526,7 +535,7 @@ class OrderService {
 
     // 启动订单处理工作流
     await this.workflowEngine.startWorkflow('order-processing', {
-      orderId: order.id
+      orderId: order.id,
     });
 
     // 发布事件
@@ -546,4 +555,3 @@ container.register('orderService', OrderService);
 - [API 文档](api-documentation.md) - 完整的API参考
 - [部署指南](deployment-guide.md) - 服务部署和配置
 - [测试策略](testing-architecture.md) - 测试最佳实践
-

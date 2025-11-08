@@ -293,15 +293,15 @@ export class TracingMiddleware {
 
     if (typeof body === 'string') {
       return body.length > this.config.maxBodyLength
-        ? body.substring(0, this.config.maxBodyLength) + '...'
+        ? `${body.substring(0, this.config.maxBodyLength)  }...`
         : body;
     }
 
     if (typeof body === 'object') {
       const sanitized = this._sanitizeObject(body);
       return JSON.stringify(sanitized).length > this.config.maxBodyLength
-        ? JSON.stringify(sanitized).substring(0, this.config.maxBodyLength) +
-            '...'
+        ? `${JSON.stringify(sanitized).substring(0, this.config.maxBodyLength) 
+            }...`
         : sanitized;
     }
 

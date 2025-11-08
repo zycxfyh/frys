@@ -14,7 +14,8 @@ const mockUserRepository = {
 
 const mockRoleRepository = {
   findByUserId: vi.fn(),
-  findByName: vi.fn()
+  findByName: vi.fn(),
+  count: vi.fn()
 };
 
 const mockPermissionRepository = {
@@ -63,6 +64,7 @@ describe('授权服务集成测试', () => {
       const superAdmin = new User({
         id: 'admin-123',
         username: 'superadmin',
+        email: 'admin@example.com',
         roles: ['super_admin'],
         permissions: []
       });
@@ -80,6 +82,7 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
+        email: 'user@example.com',
         roles: [],
         permissions: ['read:own_profile', 'write:own_profile']
       });
@@ -98,6 +101,7 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
+        email: 'editor@example.com',
         roles: ['editor'],
         permissions: []
       });
@@ -124,6 +128,7 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
+        email: 'wildcard@example.com',
         roles: [],
         permissions: ['documents:*']
       });
@@ -144,6 +149,7 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
+        email: 'multi@example.com',
         roles: [],
         permissions: ['read:documents']
       });
@@ -164,6 +170,7 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
+        email: 'manager@example.com',
         roles: ['manager']
       });
 
@@ -223,6 +230,7 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
+        email: 'project@example.com',
         roles: []
       });
 
@@ -251,7 +259,8 @@ describe('授权服务集成测试', () => {
       // Arrange
       const user = new User({
         id: 'user-123',
-        username: 'testuser'
+        username: 'testuser',
+        email: 'org@example.com'
       });
 
       const membership = {
@@ -279,7 +288,8 @@ describe('授权服务集成测试', () => {
       // Arrange
       const user = new User({
         id: 'user-123',
-        username: 'testuser'
+        username: 'testuser',
+        email: 'unauth@example.com'
       });
 
       mockProjectMembershipRepository.findByUserAndProject.mockResolvedValue(null);
@@ -361,6 +371,7 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
+        email: 'stats@example.com',
         permissions: ['direct:permission'],
         roles: ['user']
       });
@@ -391,6 +402,7 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
+        email: 'batch@example.com',
         permissions: ['read:documents']
       });
 
@@ -446,7 +458,8 @@ describe('授权服务集成测试', () => {
       // Arrange
       const user = new User({
         id: 'user-123',
-        username: 'testuser'
+        username: 'testuser',
+        email: 'error@example.com'
       });
 
       mockRoleRepository.findByUserId.mockRejectedValue(new Error('Database error'));
@@ -465,6 +478,7 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
+        email: 'invalid@example.com',
         permissions: ['invalid-permission-format']
       });
 
@@ -480,6 +494,7 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
+        email: 'empty@example.com',
         permissions: [],
         roles: []
       });
@@ -501,6 +516,7 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
+        email: 'perf@example.com',
         permissions: ['perm1', 'perm2', 'perm3'],
         roles: ['role1']
       });

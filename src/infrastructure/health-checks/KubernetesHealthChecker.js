@@ -444,7 +444,7 @@ export class KubernetesHealthChecker extends HealthChecker {
           const volumes = await this._getPodVolumes();
           resources.push({
             type: 'pod_volumes',
-            volumes: volumes,
+            volumes,
             status: 'mounted',
           });
         } catch (error) {

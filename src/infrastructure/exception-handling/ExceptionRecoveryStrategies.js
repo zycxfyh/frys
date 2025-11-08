@@ -230,6 +230,9 @@ export class ExceptionRecoveryStrategies {
 
     // 基于消息内容分类
     const message = exception.message.toLowerCase();
+    if (message.includes('econnrefused')) return 'connection_refused';
+    if (message.includes('enotfound')) return 'dns_lookup_failed';
+    if (message.includes('etimedout')) return 'connection_timeout';
     if (message.includes('connection')) return 'connection_error';
     if (message.includes('timeout')) return 'timeout_error';
     if (message.includes('memory')) return 'memory_error';

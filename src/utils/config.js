@@ -35,23 +35,39 @@ const getEnvVar = (key, defaultValue, validator = null) => {
 
 // 加载环境配置
 const loadEnvConfig = () => {
+  // 优先使用测试环境配置文件
+  const envFiles = ['test.env', '.env'];
+
+  for (const envFile of envFiles) {
   try {
-    const envPath = join(__dirname, '../../.env');
+      const envPath = join(__dirname, '../../', envFile);
     const envContent = readFileSync(envPath, 'utf8');
     const envVars = {};
 
     envContent.split('\n').forEach((line) => {
-      const [key, ...valueParts] = line.split('=');
+        // 跳过注释和空行
+        const trimmedLine = line.trim();
+        if (trimmedLine && !trimmedLine.startsWith('#')) {
+          const [key, ...valueParts] = trimmedLine.split('=');
       if (key && valueParts.length > 0) {
         envVars[key.trim()] = valueParts.join('=').trim();
+          }
       }
     });
 
+      if (Object.keys(envVars).length > 0) {
+        console.log(`📄 从 ${envFile} 加载了环境配置`);
     return envVars;
+      }
   } catch (error) {
-    // 如果没有 .env 文件，使用默认配置
-    return {};
+      // 文件不存在或读取失败，继续尝试下一个文件
+      continue;
+    }
   }
+
+  // 如果没有配置文件，使用默认配置
+  console.log('⚠️ 未找到环境配置文件，使用默认配置');
+  return {};
 };
 
 const _envVars = loadEnvConfig();
@@ -134,6 +150,59 @@ export const config = {
     alertmanager: {
       enabled: safeBoolean(getEnvVar('ALERTMANAGER_ENABLED', 'true'), true),
       webhookUrl: getEnvVar('ALERTMANAGER_WEBHOOK_URL', '', isValidUrl),
+    },
+  },
+
+  // AI服务配置
+  ai: {
+    providers: {
+      openai: {
+        apiKey: getEnvVar('OPENAI_API_KEY'),
+        baseURL: getEnvVar('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
+        models: getEnvVar('OPENAI_MODELS', 'gpt-4,gpt-4-turbo,gpt-3.5-turbo').split(','),
+        timeout: safeParseInt(getEnvVar('OPENAI_TIMEOUT', '30000'), 30000),
+      },
+      claude: {
+        apiKey: getEnvVar('CLAUDE_API_KEY'),
+        baseURL: getEnvVar('CLAUDE_BASE_URL', 'https://api.anthropic.com'),
+        models: getEnvVar('CLAUDE_MODELS', 'claude-3-sonnet-20240229,claude-3-haiku-20240307').split(','),
+        timeout: safeParseInt(getEnvVar('CLAUDE_TIMEOUT', '30000'), 30000),
+      },
+      gemini: {
+        apiKey: getEnvVar('GEMINI_API_KEY'),
+        baseURL: getEnvVar('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com'),
+        models: getEnvVar('GEMINI_MODELS', 'gemini-pro,gemini-pro-vision').split(','),
+        timeout: safeParseInt(getEnvVar('GEMINI_TIMEOUT', '30000'), 30000),
+      },
+      deepseek: {
+        apiKey: getEnvVar('DEEPSEEK_API_KEY'),
+        baseURL: getEnvVar('DEEPSEEK_BASE_URL', 'https://api.deepseek.com'),
+        models: getEnvVar('DEEPSEEK_MODELS', 'deepseek-chat,deepseek-coder').split(','),
+        timeout: safeParseInt(getEnvVar('DEEPSEEK_TIMEOUT', '30000'), 30000),
+      },
+      alibaba: {
+        apiKey: getEnvVar('ALIBABA_API_KEY'),
+        baseURL: getEnvVar('ALIBABA_BASE_URL', 'https://dashscope.aliyuncs.com/api/v1'),
+        models: getEnvVar('ALIBABA_MODELS', 'qwen-turbo,qwen-plus,qwen-max').split(','),
+        timeout: safeParseInt(getEnvVar('ALIBABA_TIMEOUT', '30000'), 30000),
+      },
+      cognee: {
+        apiKey: getEnvVar('COGNEE_API_KEY'),
+        baseURL: getEnvVar('COGNEE_BASE_URL', 'https://api.cognee.ai'),
+        projectId: getEnvVar('COGNEE_PROJECT_ID'),
+        timeout: safeParseInt(getEnvVar('COGNEE_TIMEOUT', '30000'), 30000),
+      },
+    },
+    conversation: {
+      maxHistory: safeParseInt(getEnvVar('CONVERSATION_MAX_HISTORY', '50'), 50),
+      defaultModel: safeString(getEnvVar('CONVERSATION_DEFAULT_MODEL', 'openai'), 'openai'),
+      persistMemory: safeBoolean(getEnvVar('CONVERSATION_PERSIST_MEMORY', 'true'), true),
+      timeout: safeParseInt(getEnvVar('CONVERSATION_TIMEOUT', '30000'), 30000),
+    },
+    memory: {
+      enabled: safeBoolean(getEnvVar('MEMORY_ENABLED', 'true'), true),
+      type: safeString(getEnvVar('MEMORY_TYPE', 'cognee'), 'cognee'),
+      maxContextLength: safeParseInt(getEnvVar('MEMORY_MAX_CONTEXT_LENGTH', '4000'), 4000),
     },
   },
 

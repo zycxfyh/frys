@@ -381,7 +381,7 @@ class WebSocketAdapter extends ProtocolAdapter {
       throw frysError.system('WebSocket is not connected');
     }
 
-    const messageId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const messageId = `${Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
     const payload = {
       id: messageId,
       target: connection.target,
@@ -695,6 +695,11 @@ export class PluginProtocolSystem extends EventEmitter {
     this.registerProtocolAdapter('grpc', GRPCAdapter);
   }
 
+  async initialize() {
+    // 初始化插件协议系统
+    logger.debug('PluginProtocolSystem initialized');
+  }
+
   registerProtocolAdapter(protocolType, AdapterClass) {
     this.protocolAdapters.set(protocolType, AdapterClass);
     logger.info(`Protocol adapter registered: ${protocolType}`);
@@ -914,6 +919,19 @@ export class PluginProtocolSystem extends EventEmitter {
     await Promise.all(unloadPromises);
 
     logger.info('Plugin protocol system cleaned up');
+  }
+
+  /**
+   * 关闭插件协议系统，清理资源
+   */
+  async shutdown() {
+    try {
+      await this.cleanup();
+      logger.info('PluginProtocolSystem shut down successfully');
+    } catch (error) {
+      logger.error('Error during PluginProtocolSystem shutdown:', error);
+      throw error;
+    }
   }
 }
 

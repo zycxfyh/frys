@@ -1,17 +1,60 @@
+# frys Git Hooks - 符合GitHub Actions最佳实践
+# 轻量级本地检查，避免重复CI工作
+
 pre-commit:
+  parallel: true
   commands:
+    # 快速代码质量检查
     lint:
-      run: pnpm run lint
+      run: npm run lint -- --quiet --max-warnings=0
+      glob: "*.{js,mjs}"
+      exclude: "node_modules/**"
+
+    # 格式检查
     format:
-      run: pnpm run format:check
+      run: npm run format:check
+      glob: "*.{js,json,md}"
+      exclude: "node_modules/**"
+
+    # 基础单元测试 (快速子集)
     test:
-      run: pnpm run test:unit
-  glob: "*.{js,json,md}"
+      run: npm run test:unit -- --run --reporter=verbose --testTimeout=5000
+      glob: "*.{js,mjs}"
+      exclude: "node_modules/**"
+      fail_fast: true
+
+    # 依赖检查
+    deps:
+      run: npm ls --depth=0 > /dev/null
+      glob: "package.json"
 
 pre-push:
+  parallel: false  # 推送前串行执行，确保顺序
   commands:
+    # 完整质量检查
     quality:
-      run: pnpm run quality
-    test:
-      run: pnpm run test:ci
-  glob: "*.{js,json,md}"
+      run: npm run quality:quick
+      fail_fast: true
+
+    # 集成测试子集
+    integration:
+      run: npm run test:integration:light -- --reporter=verbose
+      fail_fast: true
+
+    # 安全检查
+    security:
+      run: npm audit --audit-level=high
+      fail_fast: false  # 安全问题不阻塞推送，但会警告
+
+commit-msg:
+  commands:
+    # 提交信息格式检查
+    commitlint:
+      run: |
+        if ! echo "$1" | grep -E "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .{1,}" > /dev/null; then
+          echo "❌ 提交信息格式不符合规范"
+          echo "请使用: type(scope): description"
+          echo "例如: feat(auth): add login validation"
+          exit 1
+        fi
+      fail_fast: true

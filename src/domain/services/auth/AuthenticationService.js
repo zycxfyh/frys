@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import { User, Email, Username } from '../../entities/auth/User.js';
 import { JWTPayload, TokenPair, Session } from '../../entities/auth/Token.js';
 import { logger } from '../../../utils/logger.js';
+import UUIDInspiredId from '../../../core/UUIDInspiredId.js';
 
 export class AuthenticationService {
   constructor(options = {}) {
@@ -27,6 +28,7 @@ export class AuthenticationService {
     };
 
     this.loginAttempts = new Map(); // 用户登录尝试计数
+    this.idGenerator = new UUIDInspiredId(); // ID生成器
   }
 
   /**
@@ -51,6 +53,7 @@ export class AuthenticationService {
 
       // 创建用户实体
       const user = new User({
+        id: this.idGenerator.v4(),
         username: username.value,
         email: email.value,
         passwordHash,
@@ -118,6 +121,7 @@ export class AuthenticationService {
 
       // 创建会话
       const session = new Session({
+        id: this.idGenerator.v4(),
         userId: user.id,
         sessionId: this.generateSessionId(),
         ipAddress,
@@ -143,7 +147,7 @@ export class AuthenticationService {
       };
     } catch (error) {
       logger.error('User login failed', {
-        username,
+        username: credentials.username,
         error: error.message,
       });
       throw error;
@@ -160,6 +164,10 @@ export class AuthenticationService {
         issuer: this.options.jwtIssuer,
         audience: this.options.jwtAudience,
       });
+
+      if (!payload) {
+        throw new Error('Invalid token');
+      }
 
       if (payload.type !== 'refresh') {
         throw new Error('Invalid token type');
@@ -217,6 +225,10 @@ export class AuthenticationService {
         issuer: this.options.jwtIssuer,
         audience: this.options.jwtAudience,
       });
+
+      if (!payload) {
+        throw new Error('Invalid token');
+      }
 
       if (payload.type !== 'access') {
         throw new Error('Invalid token type');
@@ -353,7 +365,7 @@ export class AuthenticationService {
 
       // 更新用户密码
       user.passwordHash = passwordHash;
-      user.updatedAt = new Date();
+      user.markAsModified();
       await this.userRepository.save(user);
 
       // 撤销用户所有令牌（除了当前会话）
@@ -417,6 +429,7 @@ export class AuthenticationService {
     // 保存令牌到数据库
     const accessTokenEntity = await this.tokenRepository.save(
       new (await import('../../entities/auth/Token.js')).Token({
+        id: this.idGenerator.v4(),
         userId: user.id,
         tokenType: 'access',
         tokenValue: accessToken,
@@ -427,6 +440,7 @@ export class AuthenticationService {
 
     const refreshTokenEntity = await this.tokenRepository.save(
       new (await import('../../entities/auth/Token.js')).Token({
+        id: this.idGenerator.v4(),
         userId: user.id,
         tokenType: 'refresh',
         tokenValue: refreshToken,

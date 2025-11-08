@@ -1,0 +1,119 @@
+# GitHub 仓库设置配置文件
+# 这个文件可以与 GitHub Settings 同步工具一起使用
+# 参考: https://github.com/probot/settings
+
+repository:
+  # 仓库基本信息
+  name: wokeflow
+  description: "🌟 基于优秀开源项目的轻量化企业级工作流平台"
+  homepage: "https://github.com/zycxfyh/frys"
+  topics: "workflow, lightweight, modular, devops, nodejs, enterprise"
+
+  # 仓库设置
+  private: false
+  has_issues: true
+  has_projects: true
+  has_wiki: true
+  has_downloads: true
+  default_branch: main
+
+  # 功能开关
+  allow_squash_merge: true
+  allow_merge_commit: false
+  allow_rebase_merge: true
+  delete_branch_on_merge: true
+
+  # 安全设置
+  allow_forking: true
+  web_commit_signoff_required: false
+
+# 分支保护规则
+branches:
+  - name: main
+    protection:
+      required_status_checks:
+        strict: true
+        contexts:
+          - "local-validation"
+          - "automated-testing"
+          - "security-checks"
+          - "integration-testing"
+          - "production-deployment"
+          - "monitoring-rollback"
+      enforce_admins: false
+      required_pull_request_reviews:
+        required_approving_review_count: 2
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: true
+        dismissal_restrictions: {}
+      restrictions: null
+      allow_force_pushes: false
+      allow_deletions: false
+      block_creations: false
+
+  - name: develop
+    protection:
+      required_status_checks:
+        strict: true
+        contexts:
+          - "local-validation"
+          - "automated-testing"
+          - "security-checks"
+          - "integration-testing"
+          - "staging-deployment"
+          - "regression-testing"
+      enforce_admins: false
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: false
+        dismissal_restrictions: {}
+      restrictions: null
+      allow_force_pushes: false
+      allow_deletions: false
+      block_creations: false
+
+# 标签设置
+labels:
+  - name: "bug"
+    color: "d73a49"
+    description: "Something isn't working"
+  - name: "enhancement"
+    color: "a2eeef"
+    description: "New feature or request"
+  - name: "documentation"
+    color: "0075ca"
+    description: "Improvements or additions to documentation"
+  - name: "good first issue"
+    color: "7057ff"
+    description: "Good for newcomers"
+  - name: "help wanted"
+    color: "008672"
+    description: "Extra attention is needed"
+  - name: "invalid"
+    color: "e4e669"
+    description: "This doesn't seem right"
+  - name: "question"
+    color: "d876e3"
+    description: "Further information is requested"
+  - name: "wontfix"
+    color: "ffffff"
+    description: "This will not be worked on"
+  - name: "duplicate"
+    color: "cfd3d7"
+    description: "This issue or pull request already exists"
+  - name: "security"
+    color: "b60205"
+    description: "Security vulnerability"
+  - name: "triage"
+    color: "fbca04"
+    description: "Needs triage"
+  - name: "dependencies"
+    color: "0366d6"
+    description: "Pull requests that update a dependency file"
+  - name: "automated"
+    color: "4051b5"
+    description: "Pull request from automated system"
+  - name: "github-actions"
+    color: "000000"
+    description: "Pull requests that update GitHub Actions code"

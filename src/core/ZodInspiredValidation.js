@@ -1,12 +1,153 @@
 /**
  * ZodInspiredValidation 风格的验证系统
  * 借鉴 Zod 的核心理念，增强输入验证和安全防护
+ * 重构版本：应用SOLID原则，单一职责和开闭原则
  */
 import {
   sanitizeInput,
-  validateObject,
-  createTypeGuard,
 } from '../utils/type-guards.js';
+
+// 验证器接口 - 依赖倒置原则
+class BaseValidator {
+  validate(_data, _schema, _context) {
+    throw new Error('validate method must be implemented by subclass');
+  }
+}
+
+// 基础类型验证器
+class TypeValidator extends BaseValidator {
+  validate(data, schema, context) {
+    if (schema.required && (data === null || data === undefined || data === '')) {
+      context.errors.push('Required field is missing');
+      return false;
+    }
+
+    if (schema.type && typeof data !== schema.type && data !== null && data !== undefined) {
+      context.errors.push(`Expected type ${schema.type}, got ${typeof data}`);
+      return false;
+    }
+
+    return true;
+  }
+}
+
+// 字符串验证器
+class StringValidator extends BaseValidator {
+  validate(data, schema, context) {
+    if (schema.type !== 'string' || typeof data !== 'string') {
+      return true; // 不是字符串类型，跳过
+    }
+
+    if (schema.minLength && data.length < schema.minLength) {
+      context.errors.push(`String too short, minimum length is ${schema.minLength}`);
+      return false;
+    }
+
+    if (schema.maxLength && data.length > schema.maxLength) {
+      context.errors.push(`String too long, maximum length is ${schema.maxLength}`);
+      return false;
+    }
+
+    if (schema.pattern && !schema.pattern.test(data)) {
+      context.errors.push('String does not match required pattern');
+      return false;
+    }
+
+    return true;
+  }
+}
+
+// 数字验证器
+class NumberValidator extends BaseValidator {
+  validate(data, schema, context) {
+    if (schema.type !== 'number' || typeof data !== 'number') {
+      return true;
+    }
+
+    if (schema.minimum !== undefined && data < schema.minimum) {
+      context.errors.push(`Number too small, minimum is ${schema.minimum}`);
+      return false;
+    }
+
+    if (schema.maximum !== undefined && data > schema.maximum) {
+      context.errors.push(`Number too large, maximum is ${schema.maximum}`);
+      return false;
+    }
+
+    return true;
+  }
+}
+
+// 数组验证器
+class ArrayValidator extends BaseValidator {
+  validate(data, schema, context) {
+    if (schema.type !== 'array' || !Array.isArray(data)) {
+      return true;
+    }
+
+    if (schema.minItems !== undefined && data.length < schema.minItems) {
+      context.errors.push(`Array too short, minimum items is ${schema.minItems}`);
+      return false;
+    }
+
+    if (schema.maxItems !== undefined && data.length > schema.maxItems) {
+      context.errors.push(`Array too long, maximum items is ${schema.maxItems}`);
+      return false;
+    }
+
+    return true;
+  }
+}
+
+// 对象验证器
+class ObjectValidator extends BaseValidator {
+  validate(data, schema, context) {
+    if (schema.type !== 'object' || typeof data !== 'object' || data === null) {
+      return true;
+    }
+
+    if (schema.properties) {
+      for (const [prop, propSchema] of Object.entries(schema.properties)) {
+        if (data.hasOwnProperty(prop)) {
+          // 递归验证嵌套属性
+          const nestedContext = { errors: [], warnings: [] };
+          const validators = [new TypeValidator(), new StringValidator(), new NumberValidator()];
+          for (const validator of validators) {
+            if (!validator.validate(data[prop], propSchema, nestedContext)) {
+              break;
+            }
+          }
+          context.errors.push(...nestedContext.errors.map(err => `${prop}: ${err}`));
+        } else if (propSchema.required) {
+          context.errors.push(`Missing required property: ${prop}`);
+        }
+      }
+    }
+
+    return context.errors.length === 0;
+  }
+}
+
+// 自定义验证器
+class CustomValidator extends BaseValidator {
+  validate(data, schema, context) {
+    if (schema.customValidators) {
+      for (const validator of schema.customValidators) {
+        try {
+          const result = validator(data);
+          if (result !== true) {
+            context.errors.push(result || 'Custom validation failed');
+            return false;
+          }
+        } catch (error) {
+          context.errors.push(`Custom validation error: ${error.message}`);
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+}
 
 class ZodInspiredValidation {
   /**
@@ -17,7 +158,37 @@ class ZodInspiredValidation {
     this.schemas = new Map(); // Schema定义
     this.validations = []; // 验证历史
     this.securityRules = new Map(); // 安全规则
+
+    // 初始化验证器链 - 开闭原则，支持扩展
+    this.validators = [
+      new TypeValidator(),
+      new StringValidator(),
+      new NumberValidator(),
+      new ArrayValidator(),
+      new ObjectValidator(),
+      new CustomValidator()
+    ];
+
     this.initializeSecurityRules();
+  }
+
+  /**
+   * 添加自定义验证器 - 开闭原则
+   * @param {BaseValidator} validator - 验证器实例
+   */
+  addValidator(validator) {
+    if (!(validator instanceof BaseValidator)) {
+      throw new Error('Validator must extend BaseValidator');
+    }
+    this.validators.push(validator);
+  }
+
+  /**
+   * 移除验证器
+   * @param {Function} validatorClass - 验证器类
+   */
+  removeValidator(validatorClass) {
+    this.validators = this.validators.filter(v => !(v instanceof validatorClass));
   }
 
   /**
@@ -78,78 +249,18 @@ class ZodInspiredValidation {
       throw new Error(`Schema ${schemaName} not found`);
     }
 
-    const result = {
+    const context = {
       success: true,
-      data: data,
+      data,
       errors: [],
       warnings: [],
       sanitized: false,
     };
 
-    // 基本类型验证
-    if (
-      schema.required &&
-      (data === null || data === undefined || data === '')
-    ) {
-      result.success = false;
-      result.errors.push('Required field is missing');
-    }
-
-    if (
-      schema.type &&
-      typeof data !== schema.type &&
-      data !== null &&
-      data !== undefined
-    ) {
-      result.success = false;
-      result.errors.push(`Expected type ${schema.type}, got ${typeof data}`);
-    }
-
-    // 字符串特定验证
-    if (schema.type === 'string' && typeof data === 'string') {
-      if (schema.minLength && data.length < schema.minLength) {
-        result.success = false;
-        result.errors.push(
-          `String too short, minimum length is ${schema.minLength}`,
-        );
-      }
-      if (schema.maxLength && data.length > schema.maxLength) {
-        result.success = false;
-        result.errors.push(
-          `String too long, maximum length is ${schema.maxLength}`,
-        );
-      }
-      if (schema.pattern && !schema.pattern.test(data)) {
-        result.success = false;
-        result.errors.push('String does not match required pattern');
-      }
-    }
-
-    // 数字特定验证
-    if (schema.type === 'number' && typeof data === 'number') {
-      if (schema.min !== undefined && data < schema.min) {
-        result.success = false;
-        result.errors.push(`Number too small, minimum value is ${schema.min}`);
-      }
-      if (schema.max !== undefined && data > schema.max) {
-        result.success = false;
-        result.errors.push(`Number too large, maximum value is ${schema.max}`);
-      }
-    }
-
-    // 数组验证
-    if (schema.type === 'array' && Array.isArray(data)) {
-      if (schema.minItems && data.length < schema.minItems) {
-        result.success = false;
-        result.errors.push(
-          `Array too small, minimum items is ${schema.minItems}`,
-        );
-      }
-      if (schema.maxItems && data.length > schema.maxItems) {
-        result.success = false;
-        result.errors.push(
-          `Array too large, maximum items is ${schema.maxItems}`,
-        );
+    // 使用验证器链进行验证 - 开闭原则
+    for (const validator of this.validators) {
+      if (!validator.validate(data, schema, context)) {
+        context.success = false;
       }
     }
 
@@ -157,30 +268,30 @@ class ZodInspiredValidation {
     if (options.securityCheck !== false) {
       const securityResult = this.performSecurityChecks(data, options);
       if (!securityResult.safe) {
-        result.success = false;
-        result.errors.push(...securityResult.errors);
+        context.success = false;
+        context.errors.push(...securityResult.errors);
       }
       if (securityResult.warnings.length > 0) {
-        result.warnings.push(...securityResult.warnings);
+        context.warnings.push(...securityResult.warnings);
       }
     }
 
     // 数据清理（如果启用了清理）
     if (options.sanitize && typeof data === 'string') {
-      result.data = sanitizeInput(data);
-      result.sanitized = true;
+      context.data = sanitizeInput(data);
+      context.sanitized = true;
     }
 
     this.validations.push({
       schema: schemaName,
       data,
-      result: result.success,
+      result: context.success,
       timestamp: new Date(),
-      errors: result.errors.length,
-      warnings: result.warnings.length,
+      errors: context.errors.length,
+      warnings: context.warnings.length,
     });
 
-    return result;
+    return context;
   }
 
   /**
@@ -237,11 +348,11 @@ class ZodInspiredValidation {
       validations: this.validations.length,
       successRate:
         this.validations.length > 0
-          ? (
+          ? `${(
               (this.validations.filter((v) => v.result).length /
                 this.validations.length) *
               100
-            ).toFixed(2) + '%'
+            ).toFixed(2)  }%`
           : '0%',
     };
   }

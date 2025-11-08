@@ -227,8 +227,8 @@ export class GlobalExceptionHandler {
       type: 'emergencyShutdown',
     });
 
-    // 立即退出，不等待清理
-    process.exit(1);
+    // 使用配置的退出函数
+    this.gracefulShutdown(1);
   }
 
   /**

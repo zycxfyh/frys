@@ -296,7 +296,7 @@ class FileLogger {
   }
 
   write(message) {
-    const line = message + '\n';
+    const line = `${message  }\n`;
     const lineSize = Buffer.byteLength(line, 'utf8');
 
     // 检查是否需要轮转文件

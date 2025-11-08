@@ -150,7 +150,7 @@ export class CacheService extends BaseApplicationService {
 
         // 记录缓存指标
         logger.debug('缓存状态监控', {
-          hitRate: (stats.hitRate * 100).toFixed(2) + '%',
+          hitRate: `${(stats.hitRate * 100).toFixed(2)  }%`,
           totalOperations: stats.metrics.hits + stats.metrics.misses,
           layerHealth: health.status,
         });
@@ -169,7 +169,7 @@ export class CacheService extends BaseApplicationService {
           stats.metrics.hits + stats.metrics.misses > 100
         ) {
           logger.warn('缓存命中率过低', {
-            hitRate: (stats.hitRate * 100).toFixed(2) + '%',
+            hitRate: `${(stats.hitRate * 100).toFixed(2)  }%`,
             totalOperations: stats.metrics.hits + stats.metrics.misses,
           });
         }
@@ -454,7 +454,7 @@ export class CacheService extends BaseApplicationService {
     const analysis = this.analyzeCachePerformance();
 
     logger.info('开始缓存配置优化', {
-      currentHitRate: (analysis.overall.hitRate * 100).toFixed(2) + '%',
+      currentHitRate: `${(analysis.overall.hitRate * 100).toFixed(2)  }%`,
       recommendations: analysis.recommendations.length,
     });
 

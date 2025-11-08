@@ -104,7 +104,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it('应该阻止来自不同域的请求', async () => {
@@ -122,7 +122,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it('应该阻止没有Referer头的请求', async () => {
@@ -137,7 +137,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
   });
 
@@ -154,7 +154,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it('应该阻止JSON POST请求CSRF', async () => {
@@ -172,7 +172,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it('应该阻止AJAX请求CSRF', async () => {
@@ -191,7 +191,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
   });
 
@@ -211,7 +211,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it('应该阻止过期的CSRF令牌', async () => {
@@ -229,7 +229,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it('应该阻止窃取的CSRF令牌', async () => {
@@ -247,7 +247,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
   });
 
@@ -264,7 +264,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it('应该阻止通过IP地址绕过', async () => {
@@ -279,7 +279,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it('应该阻止通过localhost绕过', async () => {
@@ -294,7 +294,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
   });
 
@@ -311,7 +311,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it('应该允许SameSite=Strict保护', async () => {
@@ -372,7 +372,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
   });
 
@@ -390,7 +390,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
       const endTime = performance.now();
 
       expect(result.blocked).toBe(true);
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
       expect(endTime - startTime).toBeLessThan(5); // 应该在5ms内响应
     });
   });

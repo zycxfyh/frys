@@ -1,0 +1,76 @@
+name: 🐛 Bug 报告
+description: 报告一个错误或异常行为
+title: "[BUG] 简短描述问题"
+labels: ["bug", "triage"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 🐛 问题描述
+      description: 请详细描述遇到的问题，包括预期的行为和实际的行为
+      placeholder: |
+        1. 预期行为是什么？
+        2. 实际发生了什么？
+        3. 这个问题什么时候开始出现的？
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 🔄 重现步骤
+      description: 请提供重现问题的详细步骤
+      placeholder: |
+        1. 访问 '...'
+        2. 点击 '...'
+        3. 滚动到 '...'
+        4. 看到错误
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: 🌍 环境信息
+      description: 这个问题在哪个环境中出现
+      options:
+        - 生产环境 (Production)
+        - 测试环境 (Staging)
+        - 开发环境 (Development)
+        - 本地环境 (Local)
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: 🌐 浏览器信息
+      description: 如果是前端问题，请提供浏览器信息
+      placeholder: "Chrome 120.0.0, Firefox 119.0, Safari 17.0"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 📋 日志信息
+      description: 请提供相关的日志、错误信息或截图
+      placeholder: |
+        ```
+        错误信息:
+        堆栈跟踪:
+        浏览器控制台输出:
+        ```
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: ➕ 额外信息
+      description: 任何其他有助于解决问题的信息
+      placeholder: |
+        - 相关的配置
+        - 环境变量
+        - 系统信息
+        - 网络状况

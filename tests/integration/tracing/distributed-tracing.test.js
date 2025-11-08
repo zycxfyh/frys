@@ -177,7 +177,7 @@ describe('分布式追踪集成测试', () => {
       expect(extracted.spanId).toBe(span.spanId);
     });
 
-    it('应该转换为JSON格式', () => {
+    it('应该转换为JSON格式', async () => {
       span.setTag('test', 'value');
       span.log('test_log', { data: 'test' });
       span.finish();
@@ -227,7 +227,8 @@ describe('分布式追踪集成测试', () => {
         rules: [
           { operationPattern: 'error_.*', sample: true },
           { operationPattern: 'normal_.*', sample: false }
-        ]
+        ],
+        samplingRate: 1.0 // 确保默认采样率为100%
       });
 
       expect(strategy.shouldSample('error_operation')).toBe(true);
@@ -280,7 +281,7 @@ describe('分布式追踪集成测试', () => {
       const next = () => { nextCalled = true; };
 
       // 执行中间件
-      await middleware.middleware()(mockReq, mockRes, next);
+      await middleware.middleware(mockReq, mockRes, next);
 
       // 完成响应
       mockRes.end();
@@ -394,8 +395,9 @@ describe('分布式追踪集成测试', () => {
         component: 'http'
       });
 
-      // 2. 在上下文中执行数据库查询
-      await tracer.traceFunction('db_query', async () => {
+      // 2. 在根跨度上下文中执行数据库查询
+      await tracer.context.run({ activeSpan: rootSpan }, async () => {
+        await tracer.traceFunction('db_query', async () => {
         // 模拟数据库查询
         await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -409,6 +411,7 @@ describe('分布式追踪集成测试', () => {
         cacheSpan.finish();
 
         return { users: [] };
+        });
       });
 
       // 3. 创建外部API调用跨度

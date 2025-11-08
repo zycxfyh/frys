@@ -3,19 +3,21 @@
  * 提供Alibaba Qwen相关的所有API接口和业务逻辑
  */
 
-import { logger } from '../../../utils/logger.js';
-import { config } from '../../../utils/config.js';
-import { errorHandler } from '../../../core/error-handler.js';
-import { eventSystem } from '../../../core/events.js';
+import BaseService from '../../../core/BaseService.js';
 
-export class AlibabaService {
+export class AlibabaService extends BaseService {
   constructor(options = {}) {
+    super('AlibabaService');
+
     this.name = '通义千问 (Alibaba)';
     this.providerId = 'alibaba';
     this.baseURL = options.baseURL || 'https://dashscope.aliyuncs.com/api/v1';
-    this.apiKey = options.apiKey || config.ai.providers.alibaba.apiKey;
+    this.apiKey = options.apiKey || this.getConfig('ai.providers.alibaba.apiKey');
     this.timeout = options.timeout || 30000;
     this.maxRetries = options.maxRetries || 3;
+
+    // 测试模式检测
+    this.isTestMode = this.apiKey === 'test-alibaba-key' || this.apiKey?.startsWith('test-');
 
     // 监控统计
     this.stats = {
@@ -28,7 +30,7 @@ export class AlibabaService {
 
     this.requestTimes = [];
 
-    logger.info('阿里云通义千问服务初始化完成', {
+    this.logInfo('阿里云通义千问服务初始化完成', {
       baseURL: this.baseURL,
       timeout: this.timeout
     });
@@ -62,14 +64,14 @@ export class AlibabaService {
         throw new Error('Invalid API key');
       }
 
-      logger.info('阿里云通义千问连接测试成功');
+      this.logInfo('阿里云通义千问连接测试成功');
 
       return {
         success: true,
         timestamp: new Date().toISOString()
       };
     } catch (error) {
-      logger.error('阿里云通义千问连接测试失败', { error: error.message });
+      this.logError('阿里云通义千问连接测试失败', error);
       throw errorHandler.createError('ALIBABA_CONNECTION_FAILED', error.message);
     }
   }
@@ -142,7 +144,7 @@ export class AlibabaService {
         }
       };
 
-      logger.debug('发送阿里云通义千问聊天请求', {
+      this.logInfo('发送阿里云通义千问聊天请求', {
         model: request.model,
         messageCount: request.messages.length,
         stream: request.stream
@@ -207,7 +209,7 @@ export class AlibabaService {
       this.stats.errors++;
       const responseTime = Date.now() - startTime;
 
-      logger.error('阿里云通义千问聊天请求失败', {
+      this.logError('阿里云通义千问聊天请求失败', error, {
         model: request.model,
         error: error.message,
         responseTime
@@ -324,6 +326,6 @@ export class AlibabaService {
       avgResponseTime: 0
     };
     this.requestTimes = [];
-    logger.info('阿里云通义千问服务统计信息已重置');
+    this.logInfo('阿里云通义千问服务统计信息已重置');
   }
 }

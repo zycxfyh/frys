@@ -238,9 +238,9 @@ export class BaseModule {
     const next = async () => {
       if (index < this._middlewares.length) {
         const middleware = this._middlewares[index++];
-        return await middleware(context, next);
+        return middleware(context, next);
       } else {
-        return await finalHandler(context);
+        return finalHandler(context);
       }
     };
 

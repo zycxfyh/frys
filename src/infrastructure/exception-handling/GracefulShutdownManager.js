@@ -365,7 +365,7 @@ export class GracefulShutdownManager {
     // 并行清理同一阶段的资源
     const cleanupPromises = resources.map(async (resource) => {
       const startTime = Date.now();
-      let result = { success: false, error: null, timedOut: false };
+      const result = { success: false, error: null, timedOut: false };
 
       try {
         // 创建带超时的清理Promise
@@ -449,5 +449,26 @@ export class GracefulShutdownManager {
     this.isShuttingDown = false;
     this.shutdownPromise = null;
     logger.info('优雅关闭管理器状态已重置');
+  }
+
+  /**
+   * 停止优雅关闭管理器
+   * 用于测试清理
+   */
+  async stop() {
+    if (this.shutdownPromise) {
+      // 如果正在关闭，等待完成
+      await this.shutdownPromise;
+    }
+
+    // 重置状态，但不清理资源（让测试处理资源清理）
+    this.isShuttingDown = false;
+    this.shutdownPromise = null;
+
+    // 移除信号监听器
+    process.removeListener('SIGTERM', this.handleShutdownSignal);
+    process.removeListener('SIGINT', this.handleShutdownSignal);
+
+    logger.debug('优雅关闭管理器已停止');
   }
 }

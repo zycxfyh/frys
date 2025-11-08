@@ -20,6 +20,14 @@ class JWTInspiredAuth extends BaseModule {
 
   constructor() {
     super('auth');
+    // 初始化统计信息
+    this.stats = {
+      generated: 0,
+      verified: 0,
+      failed: 0,
+      lastGeneratedAt: null,
+      lastVerifiedAt: null
+    };
   }
 
   async onInitialize() {
@@ -71,36 +79,21 @@ class JWTInspiredAuth extends BaseModule {
     return atob(str);
   }
 
-  generateToken(payload, keyId = 'default', options = {}) {
-    // 安全检查：如果tokens未初始化，先初始化
+  ensureTokensInitialized() {
     if (!this.tokens) {
       this.tokens = new Map();
       this.tokenCount = 0;
     }
+  }
 
-    // 为了兼容测试期望，允许空payload但返回null
-    if (!payload) {
-      logger.debug('⚠️ 尝试生成空payload令牌');
-      return null;
-    }
-
-    // 检查令牌数量限制
+  checkTokenLimit() {
     if (this.tokenCount >= this.config.maxTokens) {
       throw frysError.system('已达到最大令牌数量限制', 'token_limit');
     }
+  }
 
-    const secret = this.secrets.get(keyId);
-    if (!secret) {
-      // 为了兼容测试期望，使用不存在的密钥时返回null而不是抛错
-      logger.debug(`⚠️ 使用不存在的密钥: ${keyId}`);
-      return null;
-    }
-
-    const header = {
-      alg: this.config.algorithm,
-      typ: 'JWT',
-    };
-
+  createTokenData(payload, keyId, options) {
+    const header = { alg: this.config.algorithm, typ: 'JWT' };
     const now = Math.floor(Date.now() / 1000);
     const tokenPayload = {
       ...payload,
@@ -111,65 +104,68 @@ class JWTInspiredAuth extends BaseModule {
       jti: `jti_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     };
 
+    const secret = this.secrets.get(keyId);
     const tokenId = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const token = {
+
+    return {
       id: tokenId,
       header: this.base64UrlEncode(JSON.stringify(header)),
       payload: this.base64UrlEncode(JSON.stringify(tokenPayload)),
       signature: this.createSignature(header, tokenPayload, secret),
     };
+  }
 
-    const jwtString = `${token.header}.${token.payload}.${token.signature}`;
-    this.tokens.set(tokenId, { ...token, string: jwtString });
+  buildJwtString(tokenData) {
+    return `${tokenData.header}.${tokenData.payload}.${tokenData.signature}`;
+  }
+
+  storeToken(tokenData, jwtString) {
+    this.tokens.set(tokenData.id, { ...tokenData, string: jwtString });
     this.tokenCount++;
+  }
 
-    console.log(`  ✍️  JWT已生成: ${tokenId}`);
+  updateStats() {
+    this.stats.generated++;
+    this.stats.lastGeneratedAt = new Date();
+  }
+
+  generateToken(payload, keyId = 'default', options = {}) {
+    this.ensureTokensInitialized();
+
+    if (!payload) {
+      logger.debug('⚠️ 尝试生成空payload令牌');
+      return null;
+    }
+
+    this.checkTokenLimit();
+
+    const secret = this.secrets.get(keyId);
+    if (!secret) {
+      logger.debug(`⚠️ 使用不存在的密钥: ${keyId}`);
+      return null;
+    }
+
+    const tokenData = this.createTokenData(payload, keyId, options);
+    const jwtString = this.buildJwtString(tokenData);
+
+    this.storeToken(tokenData, jwtString);
+    this.updateStats();
+
     return jwtString;
   }
 
   verifyToken(tokenString, keyId = 'default') {
     try {
-      if (!tokenString) {
-        throw frysError.validation(
-          'Token string cannot be empty',
-          'tokenString',
-        );
-      }
+      this.validateTokenString(tokenString);
+      const parts = this.parseTokenParts(tokenString);
+      const secret = this.getSecretForKey(keyId);
 
-      const parts = tokenString.split('.');
-      if (parts.length !== 3) {
-        throw frysError.validation('Invalid token format', 'tokenFormat');
-      }
-
-      const secret = this.secrets.get(keyId);
-      if (!secret) {
-        throw frysError.authentication(`未知的密钥ID: ${keyId}`);
-      }
-
-      // 验证签名
       const header = JSON.parse(this.base64UrlDecode(parts[0]));
       const payload = JSON.parse(this.base64UrlDecode(parts[1]));
-      const expectedSignature = this.createSignature(header, payload, secret);
-      const actualSignature = parts[2];
 
-      if (actualSignature !== expectedSignature) {
-        throw frysError.authentication('无效的令牌签名');
-      }
-
-      const now = Math.floor(Date.now() / 1000);
-
-      if (payload.exp && payload.exp < now) {
-        throw frysError.authentication('Token expired');
-      }
-
-      // 检查令牌是否存在于已生成的令牌中（防止伪造）
-      const tokenExists = Array.from(this.tokens.values()).some(
-        (token) => token.string === tokenString,
-      );
-
-      if (!tokenExists) {
-        throw frysError.authentication('令牌不存在或已被篡改');
-      }
+      this.verifySignature(header, payload, secret, parts[2]);
+      this.checkExpiration(payload);
+      this.validateTokenExists(tokenString);
 
       logger.debug('JWT验证成功', { userId: payload.userId });
       return payload;
@@ -188,6 +184,51 @@ class JWTInspiredAuth extends BaseModule {
       }
       // 如果errorHandler处理成功但没有返回值，抛出原始错误
       throw error;
+    }
+  }
+
+  validateTokenString(tokenString) {
+    if (!tokenString) {
+      throw frysError.validation('Token string cannot be empty', 'tokenString');
+    }
+  }
+
+  parseTokenParts(tokenString) {
+    const parts = tokenString.split('.');
+    if (parts.length !== 3) {
+      throw frysError.validation('Invalid token format', 'tokenFormat');
+    }
+    return parts;
+  }
+
+  getSecretForKey(keyId) {
+    const secret = this.secrets.get(keyId);
+    if (!secret) {
+      throw frysError.authentication(`未知的密钥ID: ${keyId}`);
+    }
+    return secret;
+  }
+
+  verifySignature(header, payload, secret, actualSignature) {
+    const expectedSignature = this.createSignature(header, payload, secret);
+    if (actualSignature !== expectedSignature) {
+      throw frysError.authentication('无效的令牌签名');
+    }
+  }
+
+  checkExpiration(payload) {
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < now) {
+      throw frysError.authentication('Token expired');
+    }
+  }
+
+  validateTokenExists(tokenString) {
+    const tokenExists = Array.from(this.tokens.values()).some(
+      (token) => token.string === tokenString,
+    );
+    if (!tokenExists) {
+      throw frysError.authentication('令牌不存在或已被篡改');
     }
   }
 

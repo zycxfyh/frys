@@ -52,7 +52,7 @@ export class User extends BaseEntity {
    */
   updateLastLogin() {
     this.lastLoginAt = new Date();
-    this.updatedAt = new Date();
+    this.markAsModified();
   }
 
   /**

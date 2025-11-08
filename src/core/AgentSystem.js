@@ -145,7 +145,7 @@ class AgentContainer extends EventEmitter {
       ...context
     };
 
-    return await taskFunction(executionContext);
+    return taskFunction(executionContext);
   }
 
   addCapability(capability) {
@@ -250,7 +250,7 @@ export class AIServiceAgent extends AgentContainer {
   }
 
   async executeAIRequest(taskId, request) {
-    return this.executeTask(taskId, async (context) => {
+    return this.executeTask(taskId, async (_context) => {
       this.serviceStats.requests++;
 
       try {
@@ -307,7 +307,7 @@ export class WorkflowAgent extends AgentContainer {
   }
 
   async executeWorkflow(taskId, workflowDefinition, inputData) {
-    return this.executeTask(taskId, async (context) => {
+    return this.executeTask(taskId, async (_context) => {
       const workflowId = `wf_${taskId}_${Date.now()}`;
       this.activeWorkflows.set(workflowId, {
         definition: workflowDefinition,
@@ -368,7 +368,7 @@ export class MemoryAgent extends AgentContainer {
   }
 
   async storeMemory(taskId, key, data, metadata = {}) {
-    return this.executeTask(taskId, async (context) => {
+    return this.executeTask(taskId, async (_context) => {
       const memoryEntry = {
         key,
         data,
@@ -390,8 +390,8 @@ export class MemoryAgent extends AgentContainer {
     });
   }
 
-  async retrieveMemory(taskId, key, options = {}) {
-    return this.executeTask(taskId, async (context) => {
+  async retrieveMemory(taskId, key, _options = {}) {
+    return this.executeTask(taskId, async (_context) => {
       const entry = await this.memoryStore.get(key);
       if (!entry) return null;
 
@@ -405,7 +405,7 @@ export class MemoryAgent extends AgentContainer {
   }
 
   async semanticSearch(taskId, query, options = {}) {
-    return this.executeTask(taskId, async (context) => {
+    return this.executeTask(taskId, async (_context) => {
       // 简单的语义搜索实现
       const results = [];
 
@@ -425,7 +425,7 @@ export class MemoryAgent extends AgentContainer {
     });
   }
 
-  updateKnowledgeGraph(key, data, metadata) {
+  updateKnowledgeGraph(key, data, _metadata) {
     // 构建简单的知识图谱关系
     const entities = this.extractEntities(data);
     const relations = this.extractRelations(data);
@@ -498,6 +498,26 @@ export class AgentManager {
     this.agentRegistry.set('ai-service', AIServiceAgent);
     this.agentRegistry.set('workflow', WorkflowAgent);
     this.agentRegistry.set('memory', MemoryAgent);
+  }
+
+  async initialize() {
+    // 初始化Agent管理器
+    logger.debug('AgentManager initialized');
+  }
+
+  async shutdown() {
+    // 关闭所有Agent
+    for (const [agentId, agent] of this.agents) {
+      try {
+        if (agent.shutdown && typeof agent.shutdown === 'function') {
+          await agent.shutdown();
+        }
+      } catch (error) {
+        logger.error(`Failed to shutdown agent ${agentId}`, error);
+      }
+    }
+    this.agents.clear();
+    logger.debug('AgentManager shut down');
   }
 
   registerAgentType(type, AgentClass) {
@@ -629,10 +649,61 @@ export class AgentManager {
   }
 }
 
+// AgentSystem主类 - 统一入口
+export class AgentSystem {
+  constructor(config = {}) {
+    this.config = {
+      maxConcurrentAgents: config.maxConcurrentAgents || 10,
+      defaultTimeout: config.defaultTimeout || 30000,
+      enableMetrics: config.enableMetrics !== false,
+      ...config
+    };
+
+    this.agentManager = new AgentManager();
+    this.initialized = false;
+    logger.info('AgentSystem initialized with config:', this.config);
+  }
+
+  async initialize() {
+    if (this.initialized) return;
+
+    await this.agentManager.initialize();
+    this.initialized = true;
+    logger.info('AgentSystem fully initialized');
+  }
+
+  async shutdown() {
+    if (!this.initialized) return;
+
+    await this.agentManager.shutdown();
+    this.initialized = false;
+    logger.info('AgentSystem shut down');
+  }
+
+  // 代理AgentManager的方法
+  async createAgent(config) {
+    const { name, type, ...agentConfig } = config;
+    return this.agentManager.createAgent(name, type, agentConfig);
+  }
+
+  async getAgent(agentId) {
+    return this.agentManager.getAgent(agentId);
+  }
+
+  async listAgents() {
+    return this.agentManager.listAgents();
+  }
+
+  getStats() {
+    return this.agentManager.getStats();
+  }
+}
+
 // 创建全局Agent管理器实例
 export const agentManager = new AgentManager();
 
 export default {
+  AgentSystem,
   AgentContainer,
   AIServiceAgent,
   WorkflowAgent,

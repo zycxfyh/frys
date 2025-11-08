@@ -89,28 +89,28 @@ sequenceDiagram
 
 ### 主流供应商矩阵
 
-| 供应商 | Base URL | 主要模型 | 价格文档 | 特点 |
-|--------|----------|----------|----------|------|
-| **OpenAI** | `https://api.openai.com/v1` | GPT-4, GPT-3.5 | [价格文档](https://openai.com/pricing/) | 最成熟，功能全面 |
-| **Anthropic Claude** | `https://api.anthropic.com/v1` | Claude-3, Claude-2 | [价格文档](https://www.anthropic.com/pricing/) | 安全可靠，推理强 |
-| **Google Gemini** | `https://generativelanguage.googleapis.com/v1` | Gemini-1.5, Gemini-1.0 | [价格文档](https://ai.google.dev/pricing) | 多模态，Google生态 |
-| **DeepSeek** | `https://api.deepseek.com/v1` | DeepSeek-V2, DeepSeek-Coder | [价格文档](https://platform.deepseek.com/api-docs/pricing) | 高性价比，中文优化 |
-| **通义千问** | `https://dashscope.aliyuncs.com/api/v1` | Qwen-Turbo, Qwen-Max | [价格文档](https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-qianwen) | 阿里云生态，中文擅长 |
-| **文心一言** | `https://aip.baidubce.com/rpc/2.0/ai_custom/v1` | ERNIE-4.0, ERNIE-3.5 | [价格文档](https://ai.baidu.com/ai-doc/PLATFORM/2ah9qbqo9) | 百度生态，知识丰富 |
-| **智谱GLM** | `https://open.bigmodel.cn/api/paas/v3` | GLM-4, GLM-3 | [价格文档](https://open.bigmodel.cn/pricing) | 清华系，学术背景 |
-| **月之暗面Kimi** | `https://api.moonshot.cn/v1` | Moonshot-V1 | [价格文档](https://platform.moonshot.cn/pricing) | 月之暗面出品，新兴供应商 |
-| **讯飞星火** | `https://spark-api.xf-yun.com/v3.1/chat` | Spark-3.5, Spark-3.0 | [价格文档](https://xinghuo.xfyun.cn/sparkapi) | 科大讯飞，语音AI强 |
-| **MiniMax** | `https://api.minimax.chat/v1` | MiniMax-Text, MiniMax-VL | [价格文档](https://www.minimax.chat/pricing) | 字节跳动，娱乐化AI |
+| 供应商               | Base URL                                        | 主要模型                    | 价格文档                                                                            | 特点                     |
+| -------------------- | ----------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------- | ------------------------ |
+| **OpenAI**           | `https://api.openai.com/v1`                     | GPT-4, GPT-3.5              | [价格文档](https://openai.com/pricing/)                                             | 最成熟，功能全面         |
+| **Anthropic Claude** | `https://api.anthropic.com/v1`                  | Claude-3, Claude-2          | [价格文档](https://www.anthropic.com/pricing/)                                      | 安全可靠，推理强         |
+| **Google Gemini**    | `https://generativelanguage.googleapis.com/v1`  | Gemini-1.5, Gemini-1.0      | [价格文档](https://ai.google.dev/pricing)                                           | 多模态，Google生态       |
+| **DeepSeek**         | `https://api.deepseek.com/v1`                   | DeepSeek-V2, DeepSeek-Coder | [价格文档](https://platform.deepseek.com/api-docs/pricing)                          | 高性价比，中文优化       |
+| **通义千问**         | `https://dashscope.aliyuncs.com/api/v1`         | Qwen-Turbo, Qwen-Max        | [价格文档](https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-qianwen) | 阿里云生态，中文擅长     |
+| **文心一言**         | `https://aip.baidubce.com/rpc/2.0/ai_custom/v1` | ERNIE-4.0, ERNIE-3.5        | [价格文档](https://ai.baidu.com/ai-doc/PLATFORM/2ah9qbqo9)                          | 百度生态，知识丰富       |
+| **智谱GLM**          | `https://open.bigmodel.cn/api/paas/v3`          | GLM-4, GLM-3                | [价格文档](https://open.bigmodel.cn/pricing)                                        | 清华系，学术背景         |
+| **月之暗面Kimi**     | `https://api.moonshot.cn/v1`                    | Moonshot-V1                 | [价格文档](https://platform.moonshot.cn/pricing)                                    | 月之暗面出品，新兴供应商 |
+| **讯飞星火**         | `https://spark-api.xf-yun.com/v3.1/chat`        | Spark-3.5, Spark-3.0        | [价格文档](https://xinghuo.xfyun.cn/sparkapi)                                       | 科大讯飞，语音AI强       |
+| **MiniMax**          | `https://api.minimax.chat/v1`                   | MiniMax-Text, MiniMax-VL    | [价格文档](https://www.minimax.chat/pricing)                                        | 字节跳动，娱乐化AI       |
 
 ### 国内供应商扩展
 
-| 供应商 | Base URL | 主要模型 | 价格文档 | 特点 |
-|--------|----------|----------|----------|------|
-| **豆包Marathon** | `https://api.marathon.edu.cn` | Marathon-1.0 | [价格文档](https://marathon.edu.cn/pricing) | 豆包网，教育场景 |
-| **阶跃星辰** | `https://api.stepfun.com/v1` | Step-1, Step-2 | [价格文档](https://platform.stepfun.com/pricing) | 商汤科技，视觉AI强 |
-| **零一万物** | `https://api.01.ai/v1` | Yi-34B, Yi-6B | [价格文档](https://platform.01.ai/pricing) | 01.AI，学术开源 |
-| **360智脑** | `https://api.360.cn/v1` | 360GPT | [价格文档](https://ai.360.cn/pricing) | 360安全，隐私保护 |
-| **华为云盘古** | `https://api.huaweicloud.com/v1` | Pangu-3.0 | [价格文档](https://www.huaweicloud.com/pricing) | 华为云，企业级 |
+| 供应商           | Base URL                         | 主要模型       | 价格文档                                         | 特点               |
+| ---------------- | -------------------------------- | -------------- | ------------------------------------------------ | ------------------ |
+| **豆包Marathon** | `https://api.marathon.edu.cn`    | Marathon-1.0   | [价格文档](https://marathon.edu.cn/pricing)      | 豆包网，教育场景   |
+| **阶跃星辰**     | `https://api.stepfun.com/v1`     | Step-1, Step-2 | [价格文档](https://platform.stepfun.com/pricing) | 商汤科技，视觉AI强 |
+| **零一万物**     | `https://api.01.ai/v1`           | Yi-34B, Yi-6B  | [价格文档](https://platform.01.ai/pricing)       | 01.AI，学术开源    |
+| **360智脑**      | `https://api.360.cn/v1`          | 360GPT         | [价格文档](https://ai.360.cn/pricing)            | 360安全，隐私保护  |
+| **华为云盘古**   | `https://api.huaweicloud.com/v1` | Pangu-3.0      | [价格文档](https://www.huaweicloud.com/pricing)  | 华为云，企业级     |
 
 ---
 
@@ -135,14 +135,14 @@ await providerManager.registerProvider({
     currency: 'USD',
     models: {
       'gpt-4': { input: 0.03, output: 0.06 },
-      'gpt-3.5-turbo': { input: 0.0015, output: 0.002 }
-    }
+      'gpt-3.5-turbo': { input: 0.0015, output: 0.002 },
+    },
   },
   config: {
     timeout: 30000,
     maxRetries: 3,
-    rateLimit: 60 // requests per minute
-  }
+    rateLimit: 60, // requests per minute
+  },
 });
 
 // 注册Claude供应商
@@ -157,9 +157,9 @@ await providerManager.registerProvider({
     currency: 'USD',
     models: {
       'claude-3-opus': { input: 0.015, output: 0.075 },
-      'claude-3-sonnet': { input: 0.003, output: 0.015 }
-    }
-  }
+      'claude-3-sonnet': { input: 0.003, output: 0.015 },
+    },
+  },
 });
 ```
 
@@ -230,7 +230,7 @@ const response = await router.route({
   model: 'gpt-4',
   messages: [{ role: 'user', content: 'Hello!' }],
   strategy: 'cost-effective', // 策略: fastest, cost-effective, reliable
-  fallback: true // 启用降级
+  fallback: true, // 启用降级
 });
 
 console.log('路由结果:', response);
@@ -304,7 +304,7 @@ const ProviderSelector = () => {
 
   return (
     <div className="provider-grid">
-      {providers.map(provider => (
+      {providers.map((provider) => (
         <ProviderCard
           key={provider.id}
           provider={provider}
@@ -325,7 +325,7 @@ const APIConfigForm = ({ providerId }) => {
     apiKey: '',
     baseURL: '',
     organization: '',
-    project: ''
+    project: '',
   });
 
   const [testStatus, setTestStatus] = useState('idle');
@@ -350,14 +350,14 @@ const APIConfigForm = ({ providerId }) => {
         label="API Key"
         type="password"
         value={config.apiKey}
-        onChange={(value) => setConfig({...config, apiKey: value})}
+        onChange={(value) => setConfig({ ...config, apiKey: value })}
         required
       />
 
       <InputField
         label="Base URL (可选)"
         value={config.baseURL}
-        onChange={(value) => setConfig({...config, baseURL: value})}
+        onChange={(value) => setConfig({ ...config, baseURL: value })}
         placeholder="使用默认URL"
       />
 
@@ -411,7 +411,7 @@ const ModelSelector = ({ providerId }) => {
 
   return (
     <div className="model-grid">
-      {models.map(model => (
+      {models.map((model) => (
         <ModelCard
           key={model.id}
           model={model}
@@ -438,7 +438,7 @@ class AIProviderErrorHandler {
       return {
         type: 'AUTHENTICATION_ERROR',
         message: 'API密钥无效或已过期',
-        suggestion: '请检查并更新API密钥'
+        suggestion: '请检查并更新API密钥',
       };
     }
 
@@ -447,7 +447,7 @@ class AIProviderErrorHandler {
       return {
         type: 'QUOTA_EXCEEDED',
         message: 'API使用配额已用完',
-        suggestion: '请检查账户余额或升级套餐'
+        suggestion: '请检查账户余额或升级套餐',
       };
     }
 
@@ -456,7 +456,7 @@ class AIProviderErrorHandler {
       return {
         type: 'NETWORK_ERROR',
         message: '网络连接失败',
-        suggestion: '请检查网络连接或稍后重试'
+        suggestion: '请检查网络连接或稍后重试',
       };
     }
 
@@ -465,7 +465,7 @@ class AIProviderErrorHandler {
       return {
         type: 'MODEL_UNAVAILABLE',
         message: '请求的模型不可用',
-        suggestion: '请选择其他可用模型'
+        suggestion: '请选择其他可用模型',
       };
     }
 
@@ -473,7 +473,7 @@ class AIProviderErrorHandler {
     return {
       type: 'UNKNOWN_ERROR',
       message: '未知错误',
-      suggestion: '请联系技术支持'
+      suggestion: '请联系技术支持',
     };
   }
 
@@ -484,17 +484,19 @@ class AIProviderErrorHandler {
     await logger.error('AI API调用失败', {
       ...errorInfo,
       context,
-      originalError: error
+      originalError: error,
     });
 
     // 发送告警
-    if (errorInfo.type === 'AUTHENTICATION_ERROR' ||
-        errorInfo.type === 'QUOTA_EXCEEDED') {
+    if (
+      errorInfo.type === 'AUTHENTICATION_ERROR' ||
+      errorInfo.type === 'QUOTA_EXCEEDED'
+    ) {
       await alertManager.sendAlert({
         level: 'warning',
         title: `AI供应商错误: ${errorInfo.type}`,
         message: errorInfo.message,
-        context
+        context,
       });
     }
 
@@ -513,7 +515,7 @@ class FallbackStrategy {
       { provider: 'openai', model: 'gpt-4' },
       { provider: 'openai', model: 'gpt-3.5-turbo' },
       { provider: 'claude', model: 'claude-3-sonnet' },
-      { provider: 'gemini', model: 'gemini-1.5-pro' }
+      { provider: 'gemini', model: 'gemini-1.5-pro' },
     ];
   }
 
@@ -523,14 +525,16 @@ class FallbackStrategy {
         const result = await this.providerManager.call(
           option.provider,
           option.model,
-          request
+          request,
         );
         return result;
       } catch (error) {
         const errorInfo = AIProviderErrorHandler.classifyError(error);
 
         // 如果是不可恢复的错误，跳过
-        if (['AUTHENTICATION_ERROR', 'QUOTA_EXCEEDED'].includes(errorInfo.type)) {
+        if (
+          ['AUTHENTICATION_ERROR', 'QUOTA_EXCEEDED'].includes(errorInfo.type)
+        ) {
           continue;
         }
 
@@ -538,7 +542,7 @@ class FallbackStrategy {
         logger.warn('AI调用降级', {
           from: option,
           error: errorInfo,
-          attempt: this.fallbackChain.indexOf(option) + 1
+          attempt: this.fallbackChain.indexOf(option) + 1,
         });
       }
     }
@@ -701,42 +705,42 @@ spec:
         app: ai-provider-manager
     spec:
       containers:
-      - name: ai-provider-manager
-        image: your-registry/frys:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: NODE_ENV
-          value: "production"
-        - name: OPENAI_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: ai-provider-secrets
-              key: openai-api-key
-        - name: ANTHROPIC_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: ai-provider-secrets
-              key: claude-api-key
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: ai-provider-manager
+          image: your-registry/frys:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-provider-secrets
+                  key: openai-api-key
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-provider-secrets
+                  key: claude-api-key
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '250m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
 ```
 
 ---
@@ -764,17 +768,22 @@ const providerStrategy = {
 
   // 智能选择（综合评分）
   smart: (models, preferences = {}) => {
-    const { costWeight = 0.3, speedWeight = 0.4, reliabilityWeight = 0.3 } = preferences;
+    const {
+      costWeight = 0.3,
+      speedWeight = 0.4,
+      reliabilityWeight = 0.3,
+    } = preferences;
 
-    return models.map(model => ({
-      ...model,
-      score: (
-        (1 - model.pricing.normalizedCost) * costWeight +
-        (1 - model.avgLatency / 10000) * speedWeight +
-        model.uptime * reliabilityWeight
-      )
-    })).sort((a, b) => b.score - a.score)[0];
-  }
+    return models
+      .map((model) => ({
+        ...model,
+        score:
+          (1 - model.pricing.normalizedCost) * costWeight +
+          (1 - model.avgLatency / 10000) * speedWeight +
+          model.uptime * reliabilityWeight,
+      }))
+      .sort((a, b) => b.score - a.score)[0];
+  },
 };
 ```
 
@@ -788,13 +797,16 @@ class AIResponseCache {
   }
 
   generateKey(request) {
-    const hash = crypto.createHash('sha256')
-      .update(JSON.stringify({
-        provider: request.provider,
-        model: request.model,
-        messages: request.messages,
-        temperature: request.temperature || 0.7
-      }))
+    const hash = crypto
+      .createHash('sha256')
+      .update(
+        JSON.stringify({
+          provider: request.provider,
+          model: request.model,
+          messages: request.messages,
+          temperature: request.temperature || 0.7,
+        }),
+      )
       .digest('hex');
     return `ai:response:${hash}`;
   }
@@ -833,8 +845,8 @@ class LoadBalancer {
     const weightedProviders = await Promise.all(
       availableProviders.map(async (provider) => ({
         provider,
-        weight: await this.calculateWeight(provider, options)
-      }))
+        weight: await this.calculateWeight(provider, options),
+      })),
     );
 
     // 使用加权随机选择
@@ -884,18 +896,21 @@ class LoadBalancer {
 ## 🔮 未来规划
 
 ### 短期目标 (3个月内)
+
 - [ ] 支持更多AI供应商 (Stability AI, Midjourney等)
 - [ ] 实现更智能的模型推荐算法
 - [ ] 添加批量API调用优化
 - [ ] 完善监控和告警系统
 
 ### 中期目标 (6个月内)
+
 - [ ] 支持流式响应处理
 - [ ] 实现模型微调API集成
 - [ ] 添加自定义模型训练支持
 - [ ] 开发移动端SDK
 
 ### 长期目标 (1年内)
+
 - [ ] 构建AI模型市场平台
 - [ ] 实现联邦学习支持
 - [ ] 添加边缘计算优化
@@ -910,11 +925,13 @@ class LoadBalancer {
 **三步集成AI API供应商管理系统**
 
 ### 1. 安装依赖
+
 ```bash
 npm install frys
 ```
 
 ### 2. 配置供应商
+
 ```javascript
 import { AIProviderManager } from 'frys';
 
@@ -925,16 +942,17 @@ await manager.registerProvider({
   id: 'openai',
   name: 'OpenAI',
   type: 'openai',
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 });
 ```
 
 ### 3. 开始使用
+
 ```javascript
 const response = await manager.call({
   provider: 'openai',
   model: 'gpt-4',
-  messages: [{ role: 'user', content: '你好！' }]
+  messages: [{ role: 'user', content: '你好！' }],
 });
 
 console.log(response.choices[0].message.content);
@@ -944,6 +962,6 @@ console.log(response.choices[0].message.content);
 
 **🎉 享受AI API供应商的统一管理体验！**
 
-*让AI集成变得简单、可靠、高效*
+_让AI集成变得简单、可靠、高效_
 
 </div>

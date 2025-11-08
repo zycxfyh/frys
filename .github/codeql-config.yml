@@ -1,22 +1,38 @@
-name: "CodeQL Configuration"
+# CodeQL 配置文件 - 自定义安全和质量规则
+name: "frys CodeQL Configuration"
 
 disable-default-queries: false
 
 queries:
+  # 安全查询
   - uses: security-and-quality
   - uses: security-experimental
 
+  # 自定义查询 (如果有的话)
+  # - uses: ./ql/custom-queries
+
+# 排除文件和目录
 paths-ignore:
   - node_modules
   - dist
   - build
   - coverage
   - test-results
+  - .git
   - docs
   - examples
-  - scripts
-  - monitoring
+  - scripts/setup-github-repo.sh
 
+# 包含特定文件类型
 paths:
-  - src
-  - tests
+  - src/
+  - lib/
+  - scripts/
+
+# 自定义查询套件
+query-filters:
+  # 排除低优先级的警告
+  - exclude:
+      problem.severity:
+        - warning
+        - recommendation

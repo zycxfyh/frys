@@ -21,6 +21,11 @@ class ZustandInspiredState extends BaseModule {
 
   constructor() {
     super('state');
+    // 初始化基本属性，在onInitialize之前可用
+    this.stores = new Map();
+    this.subscribers = new Map();
+    this.middlewares = new Map();
+    this.actions = new Map();
   }
 
   async onInitialize() {

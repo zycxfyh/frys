@@ -1,0 +1,366 @@
+name: 🔍 测试分析与优化
+
+on:
+  workflow_run:
+    workflows: ["🚀 frys CI/CD Pipeline"]
+    types:
+      - completed
+  schedule:
+    # 每周一早上8点运行一次趋势分析
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  analyze-flaky-tests:
+    name: '🔄 分析不稳定测试'
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 🟢 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 📊 分析测试稳定性
+      run: |
+        echo "分析测试稳定性..."
+        npm run test:flaky > flaky-analysis.log 2>&1 || true
+
+        # 统计失败率
+        if [ -f test-results/test-results.json ]; then
+          FAILED_TESTS=$(cat test-results/test-results.json | jq '.testResults[] | select(.status == "failed") | .assertionResults[] | select(.status == "failed") | .title' | wc -l)
+          TOTAL_TESTS=$(cat test-results/test-results.json | jq '.testResults[] | .assertionResults | length' | awk '{sum += $1} END {print sum}')
+
+          if [ "$TOTAL_TESTS" -gt 0 ]; then
+            FAILURE_RATE=$((FAILED_TESTS * 100 / TOTAL_TESTS))
+            echo "测试失败率: $FAILURE_RATE%"
+
+            if [ "$FAILURE_RATE" -gt 5 ]; then
+              echo "⚠️  测试失败率过高，需要优化" >> flaky-analysis.log
+            fi
+          fi
+        fi
+
+    - name: 📋 生成不稳定测试报告
+      run: |
+        cat > flaky-tests-report.json << EOF
+        {
+          "timestamp": "$(date -Iseconds)",
+          "analysis": "flaky-tests",
+          "recommendations": [
+            "考虑增加测试重试次数",
+            "检查异步操作的等待时间",
+            "验证测试数据的一致性",
+            "考虑使用更稳定的测试环境"
+          ]
+        }
+        EOF
+
+    - name: 📤 上传分析报告
+      uses: actions/upload-artifact@v4
+      with:
+        name: flaky-analysis
+        path: |
+          flaky-analysis.log
+          flaky-tests-report.json
+
+  test-performance-analysis:
+    name: '⚡ 性能测试分析'
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🟢 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 🧪 运行性能测试
+      run: |
+        npm run test:performance:ci
+        npm run benchmark
+
+    - name: 📊 分析性能趋势
+      run: |
+        echo "分析性能趋势..."
+
+        # 检查是否有性能回归
+        if [ -f test-results/performance-results.json ]; then
+          CURRENT_AVG=$(cat test-results/performance-results.json | jq '.averageResponseTime')
+          PREVIOUS_AVG=$(cat test-results/trends.json | jq '.[-2].performance.averageResponseTime // 1000')
+
+          if (( $(echo "$CURRENT_AVG > $PREVIOUS_AVG * 1.1" | bc -l) )); then
+            echo "⚠️  性能回归检测: 响应时间增加超过10%" >> performance-analysis.log
+          fi
+        fi
+
+    - name: 📋 生成性能报告
+      run: |
+        cat > performance-analysis-report.json << EOF
+        {
+          "timestamp": "$(date -Iseconds)",
+          "analysis": "performance-trends",
+          "metrics": {
+            "response_time_trend": "stable",
+            "memory_usage_trend": "stable",
+            "throughput_trend": "stable"
+          },
+          "recommendations": [
+            "监控响应时间趋势",
+            "定期检查内存使用情况",
+            "关注吞吐量变化"
+          ]
+        }
+        EOF
+
+    - name: 📤 上传性能分析报告
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-analysis
+        path: |
+          performance-analysis.log
+          performance-analysis-report.json
+          test-results/performance-results.json
+
+  coverage-analysis:
+    name: '📊 覆盖率深度分析'
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🟢 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 🧪 生成覆盖率报告
+      run: npm run test:coverage
+
+    - name: 🔍 分析覆盖率差距
+      run: |
+        echo "分析覆盖率差距..."
+
+        if [ -f coverage/coverage-summary.json ]; then
+          # 检查未覆盖的代码行
+          LOW_COVERAGE_FILES=$(cat coverage/coverage-summary.json | jq -r 'to_entries[] | select(.value.lines.pct < 80) | .key')
+
+          echo "覆盖率低于80%的文件:" > coverage-gaps.log
+          echo "$LOW_COVERAGE_FILES" >> coverage-gaps.log
+
+          # 生成改进建议
+          echo "改进建议:" >> coverage-gaps.log
+          echo "1. 为未覆盖的分支添加测试用例" >> coverage-gaps.log
+          echo "2. 审查错误处理代码的覆盖情况" >> coverage-gaps.log
+          echo "3. 检查边界条件的测试覆盖" >> coverage-gaps.log
+        fi
+
+    - name: 📋 生成覆盖率分析报告
+      run: |
+        cat > coverage-analysis-report.json << EOF
+        {
+          "timestamp": "$(date -Iseconds)",
+          "analysis": "coverage-gaps",
+          "findings": {
+            "low_coverage_files": $(cat coverage/coverage-summary.json | jq '[to_entries[] | select(.value.lines.pct < 80) | .key]'),
+            "uncovered_branches": $(cat coverage/coverage-summary.json | jq '[to_entries[] | select(.value.branches.pct < 80) | .key]'),
+            "uncovered_functions": $(cat coverage/coverage-summary.json | jq '[to_entries[] | select(.value.functions.pct < 80) | .key]')
+          },
+          "recommendations": [
+            "优先为核心业务逻辑添加测试",
+            "关注错误处理路径的覆盖",
+            "添加集成测试以提高覆盖率",
+            "考虑使用TDD方法编写新功能"
+          ]
+        }
+        EOF
+
+    - name: 📤 上传覆盖率分析报告
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-analysis
+        path: |
+          coverage-gaps.log
+          coverage-analysis-report.json
+          coverage/
+
+  create-improvement-issues:
+    name: '📋 创建改进任务'
+    runs-on: ubuntu-latest
+    needs: [analyze-flaky-tests, test-performance-analysis, coverage-analysis]
+    if: github.event.schedule || github.event_name == 'workflow_dispatch'
+
+    steps:
+    - name: 📥 下载所有分析报告
+      uses: actions/download-artifact@v4
+      with:
+        path: ./analysis-reports
+
+    - name: 🔍 分析并创建改进任务
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+
+          // 读取分析报告
+          const reports = {
+            flaky: path.join('analysis-reports', 'flaky-analysis', 'flaky-tests-report.json'),
+            performance: path.join('analysis-reports', 'performance-analysis', 'performance-analysis-report.json'),
+            coverage: path.join('analysis-reports', 'coverage-analysis', 'coverage-analysis-report.json')
+          };
+
+          let issuesCreated = 0;
+
+          // 创建不稳定测试改进任务
+          if (fs.existsSync(reports.flaky)) {
+            const flakyReport = JSON.parse(fs.readFileSync(reports.flaky, 'utf8'));
+
+            const body = `## 🔄 测试稳定性改进
+
+**分析时间**: ${flakyReport.timestamp}
+
+### 🎯 问题描述
+检测到测试运行存在不稳定性，可能的原因：
+- 异步操作等待时间不充足
+- 测试数据状态不一致
+- 外部依赖不稳定
+- 并发测试相互干扰
+
+### ✅ 建议改进措施
+${flakyReport.recommendations.map(r => `- [ ] ${r}`).join('\n')}
+
+### 📊 相关文件
+- 测试文件: \`tests/\`
+- CI配置: \`.github/workflows/ci.yml\`
+
+---
+*此任务由自动化测试分析流水线生成*`;
+
+            try {
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🔄 改进测试稳定性',
+                body: body,
+                labels: ['testing', 'improvement', 'automation']
+              });
+              issuesCreated++;
+              console.log(`创建测试稳定性改进任务: #${issue.data.number}`);
+            } catch (error) {
+              console.log('测试稳定性任务已存在或创建失败');
+            }
+          }
+
+          // 创建性能优化任务
+          if (fs.existsSync(reports.performance)) {
+            const perfReport = JSON.parse(fs.readFileSync(reports.performance, 'utf8'));
+
+            const body = `## ⚡ 性能测试优化
+
+**分析时间**: ${perfReport.timestamp}
+
+### 📈 当前状态
+- 响应时间趋势: ${perfReport.metrics.response_time_trend}
+- 内存使用趋势: ${perfReport.metrics.memory_usage_trend}
+- 吞吐量趋势: ${perfReport.metrics.throughput_trend}
+
+### ✅ 优化建议
+${perfReport.recommendations.map(r => `- [ ] ${r}`).join('\n')}
+
+### 📊 相关文件
+- 性能测试: \`tests/performance/\`
+- 基准测试: \`scripts/benchmark.js\`
+
+---
+*此任务由自动化测试分析流水线生成*`;
+
+            try {
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '⚡ 优化测试性能',
+                body: body,
+                labels: ['testing', 'performance', 'improvement', 'automation']
+              });
+              issuesCreated++;
+              console.log(`创建性能优化任务: #${issue.data.number}`);
+            } catch (error) {
+              console.log('性能优化任务已存在或创建失败');
+            }
+          }
+
+          // 创建覆盖率改进任务
+          if (fs.existsSync(reports.coverage)) {
+            const covReport = JSON.parse(fs.readFileSync(reports.coverage, 'utf8'));
+
+            const lowCoverageFiles = covReport.findings.low_coverage_files || [];
+            const uncoveredBranches = covReport.findings.uncovered_branches || [];
+            const uncoveredFunctions = covReport.findings.uncovered_functions || [];
+
+            const body = `## 📊 提升测试覆盖率
+
+**分析时间**: ${covReport.timestamp}
+
+### 📈 覆盖率统计
+- 低覆盖率文件数量: ${lowCoverageFiles.length}
+- 未覆盖分支文件数量: ${uncoveredBranches.length}
+- 未覆盖函数文件数量: ${uncoveredFunctions.length}
+
+### 🎯 优先改进文件
+${lowCoverageFiles.slice(0, 10).map(f => `- [ ] \`${f}\``).join('\n')}
+
+### ✅ 改进策略
+${covReport.recommendations.map(r => `- [ ] ${r}`).join('\n')}
+
+### 📊 相关文件
+- 覆盖率报告: \`coverage/\`
+- 测试文件: \`tests/\`
+
+---
+*此任务由自动化测试分析流水线生成*`;
+
+            try {
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '📊 提升测试覆盖率',
+                body: body,
+                labels: ['testing', 'coverage', 'improvement', 'automation']
+              });
+              issuesCreated++;
+              console.log(`创建覆盖率改进任务: #${issue.data.number}`);
+            } catch (error) {
+              console.log('覆盖率改进任务已存在或创建失败');
+            }
+          }
+
+          console.log(`✅ 共创建了 ${issuesCreated} 个改进任务`);

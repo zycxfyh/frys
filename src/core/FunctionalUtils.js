@@ -121,7 +121,7 @@ export const cond = (pairs) => (x) => {
 /**
  * 空值检查
  */
-export const isNil = (x) => x == null;
+export const isNil = (x) => x === null || x === undefined;
 
 /**
  * 非空检查

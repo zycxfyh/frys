@@ -82,7 +82,7 @@ class WorkflowNode {
     }
   }
 
-  async run(context, inputs) {
+  async run(_context, _inputs) {
     // 子类实现具体的执行逻辑
     throw new Error(`Node type '${this.type}' execution not implemented`);
   }
@@ -95,7 +95,9 @@ class TaskNode extends WorkflowNode {
   }
 
   async run(context, inputs) {
-    return await this.taskFunction(context, inputs);
+    const result = await this.taskFunction(context, inputs);
+    this.outputs.set('result', result);
+    return result;
   }
 }
 
@@ -119,7 +121,7 @@ class ParallelNode extends WorkflowNode {
   }
 
   async run(context, inputs) {
-    const promises = this.subWorkflows.map(async (workflow, index) => {
+    const promises = this.subWorkflows.map(async (workflow, _index) => {
       const executor = new AsyncWorkflowExecutor(workflow);
       return executor.execute(context, inputs);
     });
@@ -203,10 +205,27 @@ class WaitNode extends WorkflowNode {
  * 🔄 AsyncWorkflowExecutor - 非线性超异步工作流执行器
  */
 export class AsyncWorkflowExecutor extends EventEmitter {
-  constructor(workflowDefinition) {
+  constructor(workflowDefinition = null, config = {}) {
     super();
+
+    // 支持两种调用方式：new AsyncWorkflowExecutor(definition, config) 或 new AsyncWorkflowExecutor(config)
+    if (workflowDefinition && typeof workflowDefinition === 'object' && !workflowDefinition.nodes && !workflowDefinition.connections) {
+      // 如果第一个参数看起来像配置对象，则交换参数
+      config = workflowDefinition;
+      workflowDefinition = null;
+    }
+
     this.definition = workflowDefinition;
+    this.config = {
+      maxParallelTasks: 5,
+      enableTracing: false,
+      defaultTimeout: 30000,
+      ...config
+    };
+
     this.nodes = new Map();
+    this.nodeStates = new Map(); // 节点状态映射
+    this.nodeConnections = new Map(); // 节点连接映射
     this.executionId = `wf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     this.state = 'created'; // created, running, completed, failed, cancelled
     this.context = {};
@@ -224,36 +243,41 @@ export class AsyncWorkflowExecutor extends EventEmitter {
       skippedNodes: 0
     };
 
-    this.buildWorkflow();
+    // 只有在有definition时才构建工作流
+    if (this.definition) {
+      this.buildWorkflow();
+    }
   }
 
+  /**
+   * 初始化工作流执行器
+   */
+  async initialize() {
+    // 初始化逻辑（如果需要）
+    logger.debug(`AsyncWorkflowExecutor initialized: ${this.executionId}`);
+  }
+
+  /**
+   * 设置工作流定义并构建工作流
+   */
+  setWorkflowDefinition(definition) {
+    this.definition = definition;
+    if (this.definition) {
+      this.buildWorkflow();
+    }
+  }
+
+
   buildWorkflow() {
+    if (!this.definition) {
+      throw new frysError('工作流定义未设置', 'VALIDATION_ERROR');
+    }
+
     const { nodes: nodeDefinitions, connections } = this.definition;
 
     // 创建节点实例
     for (const [nodeId, nodeDef] of Object.entries(nodeDefinitions)) {
-      let node;
-
-      switch (nodeDef.type) {
-        case 'task':
-          node = new TaskNode(nodeId, nodeDef.taskFunction, nodeDef.config);
-          break;
-        case 'condition':
-          node = new ConditionNode(nodeId, nodeDef.conditionFunction, nodeDef.config);
-          break;
-        case 'parallel':
-          node = new ParallelNode(nodeId, nodeDef.subWorkflows, nodeDef.config);
-          break;
-        case 'loop':
-          node = new LoopNode(nodeId, nodeDef.loopFunction, nodeDef.config);
-          break;
-        case 'wait':
-          node = new WaitNode(nodeId, nodeDef.waitCondition, nodeDef.config);
-          break;
-        default:
-          throw frysError.validation(`Unknown node type: ${nodeDef.type}`);
-      }
-
+      const node = this.createNode(nodeId, nodeDef);
       this.nodes.set(nodeId, node);
     }
 
@@ -267,6 +291,23 @@ export class AsyncWorkflowExecutor extends EventEmitter {
 
     this.stats.totalNodes = this.nodes.size;
     logger.info(`Workflow ${this.executionId} built with ${this.stats.totalNodes} nodes`);
+  }
+
+  createNode(nodeId, nodeDef) {
+    switch (nodeDef.type) {
+      case 'task':
+        return new TaskNode(nodeId, nodeDef.taskFunction, nodeDef.config);
+      case 'condition':
+        return new ConditionNode(nodeId, nodeDef.conditionFunction, nodeDef.config);
+      case 'parallel':
+        return new ParallelNode(nodeId, nodeDef.subWorkflows, nodeDef.config);
+      case 'loop':
+        return new LoopNode(nodeId, nodeDef.loopFunction, nodeDef.config);
+      case 'wait':
+        return new WaitNode(nodeId, nodeDef.waitCondition, nodeDef.config);
+      default:
+        throw frysError.validation(`Unknown node type: ${nodeDef.type}`);
+    }
   }
 
   async execute(initialContext = {}, inputs = {}) {
@@ -320,46 +361,90 @@ export class AsyncWorkflowExecutor extends EventEmitter {
 
   async executeWorkflow(inputs) {
     const pendingNodes = new Set(this.nodes.keys());
-    const readyQueue = [];
+    const readyQueue = this.initializeReadyQueue();
 
-    // 初始化就绪队列（无依赖的节点）
+    await this.executeWorkflowLoop(pendingNodes, readyQueue, inputs);
+    this.checkWorkflowCompletion();
+    const outputs = this.collectOutputs();
+
+    this.finalizeWorkflow(outputs);
+
+    return {
+      success: true,
+      executionId: this.executionId,
+      outputs,
+      stats: this.stats
+    };
+  }
+
+  initializeReadyQueue() {
+    const readyQueue = [];
     for (const [nodeId, node] of this.nodes) {
       if (node.dependencies.size === 0) {
         readyQueue.push(nodeId);
       }
     }
+    return readyQueue;
+  }
 
-    // 非线性执行循环
+  async executeWorkflowLoop(pendingNodes, readyQueue, inputs) {
     while (readyQueue.length > 0 || this.runningNodes.size > 0) {
-      // 启动就绪的节点
-      while (readyQueue.length > 0) {
-        const nodeId = readyQueue.shift();
-        if (!pendingNodes.has(nodeId) || this.completedNodes.has(nodeId)) continue;
+      this.startReadyNodes(pendingNodes, readyQueue, inputs);
 
-        this.executeNodeAsync(nodeId, inputs);
-      }
-
-      // 等待至少一个节点完成
       if (this.runningNodes.size > 0) {
         await this.waitForAnyNodeCompletion();
       }
 
-      // 检查是否有新的节点变为就绪状态
-      for (const nodeId of pendingNodes) {
-        if (!this.runningNodes.has(nodeId) && !this.completedNodes.has(nodeId)) {
-          const node = this.nodes.get(nodeId);
-          if (node.canExecute(this.completedNodes)) {
-            readyQueue.push(nodeId);
-          }
+      this.updateReadyQueue(pendingNodes, readyQueue);
+    }
+  }
+
+  startReadyNodes(pendingNodes, readyQueue, inputs) {
+    while (readyQueue.length > 0) {
+      const nodeId = readyQueue.shift();
+      if (!pendingNodes.has(nodeId) || this.completedNodes.has(nodeId)) continue;
+      this.executeNodeAsync(nodeId, inputs);
+    }
+  }
+
+  updateReadyQueue(pendingNodes, readyQueue) {
+    for (const nodeId of pendingNodes) {
+      if (!this.runningNodes.has(nodeId) && !this.completedNodes.has(nodeId)) {
+        const node = this.nodes.get(nodeId);
+        if (node.canExecute(this.completedNodes)) {
+          readyQueue.push(nodeId);
         }
       }
     }
+  }
 
-    // 检查是否所有节点都已完成
+  checkWorkflowCompletion() {
     if (this.completedNodes.size !== this.nodes.size) {
       const failedNodes = Array.from(this.failedNodes);
       throw frysError.system(`Workflow incomplete: ${failedNodes.length} nodes failed: ${failedNodes.join(', ')}`);
     }
+  }
+
+  collectOutputs() {
+    const outputs = {};
+    for (const [nodeId, node] of this.nodes) {
+      if (node.outputs && node.outputs.has('result')) {
+        outputs[nodeId] = node.outputs.get('result');
+      }
+    }
+    return outputs;
+  }
+
+  finalizeWorkflow(outputs) {
+    this.stats.completedAt = new Date();
+    this.stats.duration = this.stats.completedAt - this.stats.startedAt;
+    this.state = 'completed';
+
+    this.emit('completed', {
+      executionId: this.executionId,
+      duration: this.stats.duration,
+      outputs
+    });
   }
 
   async executeNodeAsync(nodeId, inputs) {
@@ -594,6 +679,31 @@ export class AsyncWorkflowExecutor extends EventEmitter {
     ];
 
     return { nodes, connections };
+  }
+
+  /**
+   * 关闭工作流执行器，清理资源
+   */
+  async shutdown() {
+    try {
+      // 停止所有正在执行的工作流
+      if (this.executionTimeout) {
+        clearTimeout(this.executionTimeout);
+        this.executionTimeout = null;
+      }
+
+      // 清理节点状态
+      this.nodes.clear();
+      this.nodeStates.clear();
+
+      // 清理连接
+      this.nodeConnections.clear();
+
+      logger.info('AsyncWorkflowExecutor shut down successfully');
+    } catch (error) {
+      logger.error('Error during AsyncWorkflowExecutor shutdown:', error);
+      throw error;
+    }
   }
 }
 

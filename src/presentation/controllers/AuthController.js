@@ -551,7 +551,7 @@ export class AuthController extends BaseController {
       // 并激活用户邮箱
 
       logger.info('Email verification attempted', {
-        token: token.substring(0, 10) + '...',
+        token: `${token.substring(0, 10)  }...`,
         ip: req.ip,
       });
 

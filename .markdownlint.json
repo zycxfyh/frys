@@ -1,0 +1,162 @@
+{
+  "default": true,
+  "MD001": false,
+  "MD002": false,
+  "MD003": {
+    "style": "atx"
+  },
+  "MD004": {
+    "style": "dash"
+  },
+  "MD005": true,
+  "MD006": true,
+  "MD007": {
+    "indent": 2,
+    "start_indented": false
+  },
+  "MD009": {
+    "br_spaces": 2,
+    "list_item_empty_lines": false,
+    "strict": false
+  },
+  "MD010": {
+    "code_blocks": false,
+    "spaces_per_tab": 2
+  },
+  "MD011": true,
+  "MD012": {
+    "maximum": 1
+  },
+  "MD013": {
+    "line_length": 120,
+    "heading_line_length": 80,
+    "code_block_line_length": 120,
+    "code_blocks": false,
+    "tables": false,
+    "headings": false,
+    "strict": false
+  },
+  "MD014": true,
+  "MD018": false,
+  "MD019": false,
+  "MD020": false,
+  "MD021": false,
+  "MD022": false,
+  "MD023": false,
+  "MD024": {
+    "allow_different_nesting": true,
+    "siblings_only": true
+  },
+  "MD025": {
+    "level": 1,
+    "front_matter_title": ""
+  },
+  "MD026": {
+    "punctuation": ".,;:!。，；：！"
+  },
+  "MD027": true,
+  "MD028": true,
+  "MD029": {
+    "style": "ordered"
+  },
+  "MD030": {
+    "ul_single": 1,
+    "ol_single": 1,
+    "ul_multi": 1,
+    "ol_multi": 1
+  },
+  "MD031": {
+    "list_items": true
+  },
+  "MD032": true,
+  "MD033": {
+    "allowed_elements": [
+      "div",
+      "img",
+      "br",
+      "p",
+      "a",
+      "table",
+      "thead",
+      "tbody",
+      "tr",
+      "th",
+      "td",
+      "code",
+      "pre",
+      "strong",
+      "em",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "ul",
+      "ol",
+      "li",
+      "blockquote",
+      "hr"
+    ]
+  },
+  "MD034": true,
+  "MD035": {
+    "style": "---"
+  },
+  "MD036": false,
+  "MD037": true,
+  "MD038": true,
+  "MD039": true,
+  "MD040": true,
+  "MD041": false,
+  "MD042": true,
+  "MD043": false,
+  "MD044": {
+    "names": [
+      "frys",
+      "JavaScript",
+      "TypeScript",
+      "Node.js",
+      "Docker",
+      "Kubernetes",
+      "PostgreSQL",
+      "Redis",
+      "Fastify",
+      "Awilix",
+      "Axios",
+      "Bull.js",
+      "Sentry",
+      "Vitest",
+      "Playwright",
+      "Prettier",
+      "ESLint",
+      "OpenAPI",
+      "RESTful",
+      "API",
+      "JSON",
+      "YAML",
+      "Git",
+      "GitHub",
+      "CI/CD",
+      "DevOps"
+    ],
+    "code_blocks": false
+  },
+  "MD045": true,
+  "MD046": {
+    "style": "fenced"
+  },
+  "MD047": true,
+  "MD048": {
+    "style": "backtick"
+  },
+  "MD049": {
+    "style": "underscore"
+  },
+  "MD050": {
+    "style": "asterisk"
+  },
+  "MD051": true,
+  "MD052": true,
+  "MD053": true
+}

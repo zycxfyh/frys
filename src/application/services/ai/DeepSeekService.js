@@ -17,6 +17,9 @@ export class DeepSeekService {
     this.timeout = options.timeout || 30000;
     this.maxRetries = options.maxRetries || 3;
 
+    // 测试模式检测
+    this.isTestMode = this.apiKey === 'test-deepseek-key' || this.apiKey?.startsWith('test-');
+
     // 监控统计
     this.stats = {
       requests: 0,

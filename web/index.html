@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>frys - AGI协作云平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/js/all.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <span class="logo-text">frys</span>
+                    <span class="logo-subtitle">AGI协作云平台</span>
+                </div>
+                <nav class="nav">
+                    <button class="nav-btn active" @click="currentView = 'designer'">
+                        <i class="fas fa-project-diagram"></i> 工作流设计器
+                    </button>
+                    <button class="nav-btn" @click="currentView = 'agents'">
+                        <i class="fas fa-robot"></i> Agent管理
+                    </button>
+                    <button class="nav-btn" @click="currentView = 'memory'">
+                        <i class="fas fa-brain"></i> 记忆网络
+                    </button>
+                    <button class="nav-btn" @click="currentView = 'plugins'">
+                        <i class="fas fa-plug"></i> 插件市场
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <!-- 工作流设计器视图 -->
+            <div v-if="currentView === 'designer'" class="workflow-designer">
+                <div class="designer-toolbar">
+                    <div class="toolbar-left">
+                        <h2>工作流设计器</h2>
+                        <span class="workflow-status">{{ workflowStatus }}</span>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn-secondary" @click="loadTemplate">
+                            <i class="fas fa-folder-open"></i> 加载模板
+                        </button>
+                        <button class="btn-primary" @click="runWorkflow">
+                            <i class="fas fa-play"></i> 执行工作流
+                        </button>
+                    </div>
+                </div>
+
+                <div class="designer-container">
+                    <!-- 节点面板 -->
+                    <div class="node-panel">
+                        <h3>节点工具箱</h3>
+                        <div class="node-categories">
+                            <div class="category">
+                                <h4>触发器</h4>
+                                <div class="node-item" draggable="true" @dragstart="onDragStart($event, 'trigger')">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>Webhook触发器</span>
+                                </div>
+                                <div class="node-item" draggable="true" @dragstart="onDragStart($event, 'trigger')">
+                                    <i class="fas fa-clock"></i>
+                                    <span>定时触发器</span>
+                                </div>
+                            </div>
+
+                            <div class="category">
+                                <h4>AI处理</h4>
+                                <div class="node-item" draggable="true" @dragstart="onDragStart($event, 'ai')">
+                                    <i class="fas fa-brain"></i>
+                                    <span>OpenAI GPT</span>
+                                </div>
+                                <div class="node-item" draggable="true" @dragstart="onDragStart($event, 'ai')">
+                                    <i class="fas fa-robot"></i>
+                                    <span>Claude AI</span>
+                                </div>
+                            </div>
+
+                            <div class="category">
+                                <h4>数据处理</h4>
+                                <div class="node-item" draggable="true" @dragstart="onDragStart($event, 'data-processing')">
+                                    <i class="fas fa-filter"></i>
+                                    <span>数据过滤</span>
+                                </div>
+                                <div class="node-item" draggable="true" @dragstart="onDragStart($event, 'data-processing')">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <span>数据聚合</span>
+                                </div>
+                            </div>
+
+                            <div class="category">
+                                <h4>逻辑控制</h4>
+                                <div class="node-item" draggable="true" @dragstart="onDragStart($event, 'condition')">
+                                    <i class="fas fa-code-branch"></i>
+                                    <span>条件分支</span>
+                                </div>
+                                <div class="node-item" draggable="true" @dragstart="onDragStart($event, 'loop')">
+                                    <i class="fas fa-redo"></i>
+                                    <span>循环处理</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 工作流画布 -->
+                    <div class="workflow-canvas" @drop="onDrop" @dragover.prevent>
+                        <div class="canvas-header">
+                            <span>拖拽节点到此处开始设计工作流</span>
+                        </div>
+                        <div class="canvas-content" ref="canvas">
+                            <!-- 动态渲染节点 -->
+                            <div
+                                v-for="node in workflowNodes"
+                                :key="node.id"
+                                class="workflow-node"
+                                :class="node.type"
+                                :style="{ left: node.position.x + 'px', top: node.position.y + 'px' }"
+                                @mousedown="startDragNode($event, node)"
+                            >
+                                <div class="node-header">
+                                    <i :class="getNodeIcon(node.type)"></i>
+                                    <span class="node-title">{{ getNodeTitle(node.type) }}</span>
+                                    <button class="node-delete" @click="removeNode(node.id)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="node-content">
+                                    <div class="node-inputs">
+                                        <div
+                                            v-for="input in node.inputs"
+                                            :key="input.id"
+                                            class="node-port input-port"
+                                            :data-port-id="input.id"
+                                        ></div>
+                                    </div>
+                                    <div class="node-body">
+                                        <div class="node-config">
+                                            <small>{{ node.data.description || '配置节点参数' }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="node-outputs">
+                                        <div
+                                            v-for="output in node.outputs"
+                                            :key="output.id"
+                                            class="node-port output-port"
+                                            :data-port-id="output.id"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 连接线 -->
+                            <svg class="connections-layer" v-if="workflowConnections.length > 0">
+                                <path
+                                    v-for="connection in workflowConnections"
+                                    :key="connection.id"
+                                    :d="getConnectionPath(connection)"
+                                    class="connection-path"
+                                    stroke="#6366f1"
+                                    stroke-width="2"
+                                    fill="none"
+                                    marker-end="url(#arrowhead)"
+                                />
+                                <defs>
+                                    <marker id="arrowhead" markerWidth="10" markerHeight="7"
+                                            refX="9" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#6366f1" />
+                                    </marker>
+                                </defs>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- 属性面板 -->
+                    <div class="properties-panel">
+                        <h3>属性配置</h3>
+                        <div v-if="selectedNode" class="node-properties">
+                            <div class="property-group">
+                                <label>节点ID</label>
+                                <input v-model="selectedNode.id" readonly class="property-input">
+                            </div>
+
+                            <div class="property-group">
+                                <label>节点类型</label>
+                                <select v-model="selectedNode.type" class="property-input">
+                                    <option value="trigger">触发器</option>
+                                    <option value="ai">AI处理</option>
+                                    <option value="data-processing">数据处理</option>
+                                    <option value="condition">条件判断</option>
+                                    <option value="loop">循环处理</option>
+                                </select>
+                            </div>
+
+                            <div v-if="selectedNode.type === 'ai'" class="property-group">
+                                <label>AI模型</label>
+                                <select v-model="selectedNode.data.model" class="property-input">
+                                    <option value="gpt-4">GPT-4</option>
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                    <option value="claude-3">Claude-3</option>
+                                    <option value="gemini-pro">Gemini Pro</option>
+                                </select>
+                            </div>
+
+                            <div v-if="selectedNode.type === 'ai'" class="property-group">
+                                <label>提示词</label>
+                                <textarea
+                                    v-model="selectedNode.data.prompt"
+                                    class="property-input property-textarea"
+                                    placeholder="输入AI提示词..."
+                                ></textarea>
+                            </div>
+
+                            <div v-if="selectedNode.type === 'trigger'" class="property-group">
+                                <label>触发类型</label>
+                                <select v-model="selectedNode.data.triggerType" class="property-input">
+                                    <option value="webhook">Webhook</option>
+                                    <option value="schedule">定时</option>
+                                    <option value="manual">手动</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div v-else class="no-selection">
+                            <i class="fas fa-info-circle"></i>
+                            <p>选择一个节点来配置属性</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent管理视图 -->
+            <div v-if="currentView === 'agents'" class="agents-view">
+                <div class="view-header">
+                    <h2>Agent管理系统</h2>
+                    <button class="btn-primary">
+                        <i class="fas fa-plus"></i> 创建新Agent
+                    </button>
+                </div>
+
+                <div class="agents-grid">
+                    <div class="agent-card" v-for="agent in agents" :key="agent.id">
+                        <div class="agent-header">
+                            <i :class="getAgentIcon(agent.type)"></i>
+                            <h3>{{ agent.name }}</h3>
+                            <span class="agent-status" :class="agent.status">{{ agent.status }}</span>
+                        </div>
+                        <div class="agent-body">
+                            <p>{{ agent.description }}</p>
+                            <div class="agent-stats">
+                                <span><i class="fas fa-tasks"></i> {{ agent.taskCount }} 任务</span>
+                                <span><i class="fas fa-clock"></i> {{ agent.uptime }}</span>
+                            </div>
+                        </div>
+                        <div class="agent-actions">
+                            <button class="btn-sm">
+                                <i class="fas fa-play"></i> 启动
+                            </button>
+                            <button class="btn-sm">
+                                <i class="fas fa-cog"></i> 配置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 记忆网络视图 -->
+            <div v-if="currentView === 'memory'" class="memory-view">
+                <div class="view-header">
+                    <h2>记忆网络系统</h2>
+                    <div class="memory-stats">
+                        <span><i class="fas fa-brain"></i> {{ memoryStats.nodes }} 记忆节点</span>
+                        <span><i class="fas fa-project-diagram"></i> {{ memoryStats.connections }} 连接</span>
+                        <span><i class="fas fa-search"></i> {{ memoryStats.queries }} 查询</span>
+                    </div>
+                </div>
+
+                <div class="memory-search">
+                    <input
+                        type="text"
+                        v-model="memoryQuery"
+                        placeholder="搜索记忆内容..."
+                        class="memory-input"
+                        @keyup.enter="searchMemory"
+                    >
+                    <button @click="searchMemory" class="btn-primary">
+                        <i class="fas fa-search"></i> 搜索
+                    </button>
+                </div>
+
+                <div class="memory-results" v-if="memoryResults.length > 0">
+                    <div class="memory-item" v-for="item in memoryResults" :key="item.id">
+                        <div class="memory-header">
+                            <span class="memory-type">{{ item.type }}</span>
+                            <span class="memory-time">{{ formatTime(item.timestamp) }}</span>
+                        </div>
+                        <div class="memory-content">
+                            {{ item.content }}
+                        </div>
+                        <div class="memory-meta">
+                            <span>相关度: {{ (item.relevance * 100).toFixed(1) }}%</span>
+                            <span>访问次数: {{ item.accessCount }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 插件市场视图 -->
+            <div v-if="currentView === 'plugins'" class="plugins-view">
+                <div class="view-header">
+                    <h2>插件市场</h2>
+                    <button class="btn-primary">
+                        <i class="fas fa-upload"></i> 发布插件
+                    </button>
+                </div>
+
+                <div class="plugins-grid">
+                    <div class="plugin-card" v-for="plugin in plugins" :key="plugin.id">
+                        <div class="plugin-header">
+                            <i :class="plugin.icon"></i>
+                            <h3>{{ plugin.name }}</h3>
+                            <span class="plugin-category">{{ plugin.category }}</span>
+                        </div>
+                        <div class="plugin-body">
+                            <p>{{ plugin.description }}</p>
+                            <div class="plugin-meta">
+                                <span><i class="fas fa-download"></i> {{ plugin.downloads }}</span>
+                                <span><i class="fas fa-star"></i> {{ plugin.rating }}</span>
+                                <span><i class="fas fa-user"></i> {{ plugin.author }}</span>
+                            </div>
+                        </div>
+                        <div class="plugin-actions">
+                            <button class="btn-sm" :class="{ installed: plugin.installed }">
+                                <i :class="plugin.installed ? 'fas fa-check' : 'fas fa-plus'"></i>
+                                {{ plugin.installed ? '已安装' : '安装' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

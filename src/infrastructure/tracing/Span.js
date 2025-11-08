@@ -34,6 +34,14 @@ export class Span {
     this.setTag('span.kind', this.kind);
     this.setTag('component', options.component || 'unknown');
 
+    // 处理额外的标签选项
+    const reservedKeys = ['serviceName', 'serviceVersion', 'component', 'traceId', 'spanId', 'parentSpanId', 'startTime', 'references', 'kind'];
+    for (const [key, value] of Object.entries(options)) {
+      if (!reservedKeys.includes(key) && value !== null && value !== undefined) {
+        this.setTag(key, value);
+      }
+    }
+
     // 如果是根跨度，设置根标签
     if (!this.parentSpanId) {
       this.setTag('span.root', true);
@@ -150,7 +158,7 @@ export class Span {
 
     this.finished = true;
     this.endTime = endTime;
-    this.duration = this.endTime - this.startTime;
+    this.duration = Math.max(1, this.endTime - this.startTime); // 确保duration至少为1ms
 
     // 更新性能指标
     this.metrics.endMemoryUsage = process.memoryUsage();

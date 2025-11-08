@@ -13,15 +13,15 @@ frys 的核心功能模块采用了"站在巨人肩膀上"的设计理念，通�
 
 ### 📦 核心模块矩阵
 
-| 模块 | 开源项目 | 核心功能 | 适用场景 |
-|------|----------|----------|----------|
-| 🌐 HTTP客户端 | Axios | 网络请求处理 | API调用、文件上传 |
-| 💾 状态管理 | Zustand | 响应式状态 | 用户状态、应用配置 |
-| 📨 消息队列 | Bull.js | 作业队列 | 异步任务、定时作业 |
-| 📡 事件系统 | EventEmitter3 | 事件通信 | 模块间解耦通信 |
-| 🔐 认证授权 | JWT | 身份验证 | 用户认证、权限控制 |
-| 📅 日期时间 | Day.js | 时间处理 | 日期计算、格式化 |
-| 🛠️ 工具函数 | Lodash | 数据处理 | 数组操作、对象处理 |
+| 模块          | 开源项目      | 核心功能     | 适用场景           |
+| ------------- | ------------- | ------------ | ------------------ |
+| 🌐 HTTP客户端 | Axios         | 网络请求处理 | API调用、文件上传  |
+| 💾 状态管理   | Zustand       | 响应式状态   | 用户状态、应用配置 |
+| 📨 消息队列   | Bull.js       | 作业队列     | 异步任务、定时作业 |
+| 📡 事件系统   | EventEmitter3 | 事件通信     | 模块间解耦通信     |
+| 🔐 认证授权   | JWT           | 身份验证     | 用户认证、权限控制 |
+| 📅 日期时间   | Day.js        | 时间处理     | 日期计算、格式化   |
+| 🛠️ 工具函数   | Lodash        | 数据处理     | 数组操作、对象处理 |
 
 ## 🌐 HTTP 客户端模块 (Axios)
 
@@ -42,19 +42,19 @@ import { httpClient } from 'frys';
 const response = await httpClient.get('/api/users');
 const user = await httpClient.post('/api/users', {
   name: 'John Doe',
-  email: 'john@example.com'
+  email: 'john@example.com',
 });
 
 // 带参数请求
 const users = await httpClient.get('/api/users', {
-  params: { page: 1, limit: 10 }
+  params: { page: 1, limit: 10 },
 });
 
 // 文件上传
 const formData = new FormData();
 formData.append('file', file);
 await httpClient.post('/api/upload', formData, {
-  headers: { 'Content-Type': 'multipart/form-data' }
+  headers: { 'Content-Type': 'multipart/form-data' },
 });
 ```
 
@@ -66,8 +66,8 @@ const apiClient = httpClient.create({
   baseURL: 'https://api.example.com',
   timeout: 5000,
   headers: {
-    'Authorization': 'Bearer token'
-  }
+    Authorization: 'Bearer token',
+  },
 });
 
 // 请求拦截器 - 自动添加认证
@@ -88,7 +88,7 @@ apiClient.interceptors.response.use(
       redirectToLogin();
     }
     return Promise.reject(error);
-  }
+  },
 );
 ```
 
@@ -99,13 +99,13 @@ const config = {
   baseURL: 'https://api.example.com',
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
-  maxRequests: 100,        // 最大并发请求数
-  retryAttempts: 3,        // 重试次数
-  retryDelay: 1000,        // 重试延迟(ms)
-  cacheEnabled: true,      // 启用缓存
-  cacheTTL: 300000         // 缓存过期时间(ms)
+  maxRequests: 100, // 最大并发请求数
+  retryAttempts: 3, // 重试次数
+  retryDelay: 1000, // 重试延迟(ms)
+  cacheEnabled: true, // 启用缓存
+  cacheTTL: 300000, // 缓存过期时间(ms)
 };
 ```
 
@@ -145,9 +145,10 @@ const useUserStore = createStore((set, get) => ({
   logout: () => set({ user: null }),
 
   // 更新用户信息
-  updateProfile: (updates) => set((state) => ({
-    user: { ...state.user, ...updates }
-  }))
+  updateProfile: (updates) =>
+    set((state) => ({
+      user: { ...state.user, ...updates },
+    })),
 }));
 
 // 使用状态
@@ -160,7 +161,7 @@ function UserProfile() {
         <button onClick={() => login(credentials)} disabled={isLoading}>
           {isLoading ? '登录中...' : '登录'}
         </button>
-  </div>
+      </div>
     );
   }
 
@@ -168,7 +169,7 @@ function UserProfile() {
     <div>
       <h2>欢迎, {user.name}!</h2>
       <button onClick={logout}>登出</button>
-</div>
+    </div>
   );
 }
 ```
@@ -183,12 +184,12 @@ const usePersistentStore = createStore(
   persist(
     (set, get) => ({
       theme: 'light',
-      setTheme: (theme) => set({ theme })
+      setTheme: (theme) => set({ theme }),
     }),
     {
-      name: 'app-settings'
-    }
-  )
+      name: 'app-settings',
+    },
+  ),
 );
 
 // 开发工具中间件 - Redux DevTools 支持
@@ -197,12 +198,12 @@ const useDebugStore = createStore(
     (set, get) => ({
       count: 0,
       increment: () => set((state) => ({ count: state.count + 1 })),
-      decrement: () => set((state) => ({ count: state.count - 1 }))
+      decrement: () => set((state) => ({ count: state.count - 1 })),
     }),
     {
-      name: 'counter'
-    }
-  )
+      name: 'counter',
+    },
+  ),
 );
 ```
 
@@ -213,16 +214,17 @@ const useDebugStore = createStore(
 const count = useStore((state) => state.count);
 
 // 优化用法 - 只在 count 变化时重渲染
-const count = useStore(
-  useCallback((state) => state.count, [])
-);
+const count = useStore(useCallback((state) => state.count, []));
 
 // 多个选择器
 const { user, settings } = useStore(
-  useCallback((state) => ({
-    user: state.user,
-    settings: state.settings
-  }), [])
+  useCallback(
+    (state) => ({
+      user: state.user,
+      settings: state.settings,
+    }),
+    [],
+  ),
 );
 ```
 
@@ -248,7 +250,7 @@ const emailQueue = createQueue('email');
 // 添加任务到队列
 await emailQueue.add('send-welcome', {
   email: 'user@example.com',
-  name: 'John Doe'
+  name: 'John Doe',
 });
 
 // 创建工作者处理任务
@@ -269,7 +271,7 @@ const emailWorker = createWorker('email', async (job) => {
 await emailQueue.add(
   'send-reminder',
   { userId: 123 },
-  { delay: 24 * 60 * 60 * 1000 } // 24小时后执行
+  { delay: 24 * 60 * 60 * 1000 }, // 24小时后执行
 );
 
 // 重复任务
@@ -278,29 +280,29 @@ await emailQueue.add(
   {},
   {
     repeat: {
-      cron: '0 9 * * *' // 每天早上9点
-    }
-  }
+      cron: '0 9 * * *', // 每天早上9点
+    },
+  },
 );
 
 // 优先级任务
 await emailQueue.add(
   'urgent-notification',
   { message: '系统紧急通知' },
-  { priority: 10 } // 高优先级
+  { priority: 10 }, // 高优先级
 );
 
 // 批量添加任务
 const jobs = [
   { email: 'user1@example.com', name: 'User 1' },
-  { email: 'user2@example.com', name: 'User 2' }
+  { email: 'user2@example.com', name: 'User 2' },
 ];
 
 await emailQueue.addBulk(
   jobs.map((data) => ({
     name: 'send-welcome',
-    data
-  }))
+    data,
+  })),
 );
 ```
 
@@ -349,7 +351,7 @@ eventEmitter.on('user.created', (user) => {
 eventEmitter.emit('user.created', {
   id: 123,
   name: 'John Doe',
-  email: 'john@example.com'
+  email: 'john@example.com',
 });
 ```
 
@@ -411,21 +413,29 @@ import { auth } from 'frys';
 await auth.initialize();
 
 // 生成访问令牌
-const accessToken = auth.generateToken({
-  userId: 'user123',
-  username: 'john',
-  roles: ['user', 'admin']
-}, 'access', {
-  expiresIn: '1h'
-});
+const accessToken = auth.generateToken(
+  {
+    userId: 'user123',
+    username: 'john',
+    roles: ['user', 'admin'],
+  },
+  'access',
+  {
+    expiresIn: '1h',
+  },
+);
 
 // 生成刷新令牌
-const refreshToken = auth.generateToken({
-  userId: 'user123',
-  type: 'refresh'
-}, 'refresh', {
-  expiresIn: '7d'
-});
+const refreshToken = auth.generateToken(
+  {
+    userId: 'user123',
+    type: 'refresh',
+  },
+  'refresh',
+  {
+    expiresIn: '7d',
+  },
+);
 
 // 验证令牌
 try {
@@ -504,7 +514,7 @@ const timestamp = dateUtil.create(1577836800000);
 
 // 格式化日期
 console.log(now.format('YYYY-MM-DD HH:mm:ss')); // 2024-01-01 12:00:00
-console.log(now.format('MMM DD, YYYY'));        // Jan 01, 2024
+console.log(now.format('MMM DD, YYYY')); // Jan 01, 2024
 
 // 日期运算
 const tomorrow = now.add(1, 'day');
@@ -513,7 +523,7 @@ const nextYear = now.add(1, 'year');
 
 // 相对时间
 console.log(dateUtil.fromNow(birthday)); // 34 years ago
-console.log(dateUtil.toNow(birthday));   // in 34 years
+console.log(dateUtil.toNow(birthday)); // in 34 years
 
 // 比较日期
 if (now.isAfter(birthday)) {
@@ -568,8 +578,8 @@ import { utils } from 'frys';
 // 数组操作
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-const doubled = utils.map(numbers, n => n * 2);
-const evens = utils.filter(numbers, n => n % 2 === 0);
+const doubled = utils.map(numbers, (n) => n * 2);
+const evens = utils.filter(numbers, (n) => n % 2 === 0);
 const sum = utils.sum(numbers);
 const unique = utils.uniq([1, 2, 2, 3, 3, 3]);
 const chunks = utils.chunk(numbers, 3);
@@ -582,9 +592,9 @@ const omitted = utils.omit(user, ['id']);
 const merged = utils.merge({ a: 1 }, { b: 2 }, { c: 3 });
 
 // 字符串操作
-const camelCase = utils.camelCase('hello world');     // helloWorld
-const kebabCase = utils.kebabCase('HelloWorld');      // hello-world
-const snakeCase = utils.snakeCase('HelloWorld');      // hello_world
+const camelCase = utils.camelCase('hello world'); // helloWorld
+const kebabCase = utils.kebabCase('HelloWorld'); // hello-world
+const snakeCase = utils.snakeCase('HelloWorld'); // hello_world
 ```
 
 ### 高级用法
@@ -610,7 +620,7 @@ const throttledSearch = utils.throttle(searchAPI, 1000);
 const users = [
   { id: 1, name: 'John', department: 'IT', salary: 50000 },
   { id: 2, name: 'Jane', department: 'HR', salary: 45000 },
-  { id: 3, name: 'Bob', department: 'IT', salary: 55000 }
+  { id: 3, name: 'Bob', department: 'IT', salary: 55000 },
 ];
 
 // 分组
@@ -628,10 +638,10 @@ const highEarners = utils.filter(users, (user) => user.salary > 50000);
 const asyncTasks = [
   () => delay(100).then(() => 1),
   () => delay(200).then(() => 2),
-  () => delay(50).then(() => 3)
+  () => delay(50).then(() => 3),
 ];
 
-const results = await utils.mapAsync(asyncTasks, task => task());
+const results = await utils.mapAsync(asyncTasks, (task) => task());
 const fastest = await utils.race(asyncTasks);
 ```
 
@@ -639,11 +649,12 @@ const fastest = await utils.race(asyncTasks);
 
 ```javascript
 // 链式操作
-const result = utils.chain(users)
+const result = utils
+  .chain(users)
   .filter({ department: 'IT' })
   .sortBy('salary')
   .reverse()
-  .map(user => user.name)
+  .map((user) => user.name)
   .uniq()
   .value();
 
@@ -651,13 +662,10 @@ const result = utils.chain(users)
 const result2 = utils.uniq(
   utils.map(
     utils.reverse(
-      utils.sortBy(
-        utils.filter(users, { department: 'IT' }),
-        'salary'
-      )
+      utils.sortBy(utils.filter(users, { department: 'IT' }), 'salary'),
     ),
-    user => user.name
-  )
+    (user) => user.name,
+  ),
 );
 ```
 
@@ -690,8 +698,8 @@ class UserService {
     const response = await this.http.post('/api/users', userData);
 
     // 更新状态
-    this.state.setState(prev => ({
-      users: [...prev.users, response.data]
+    this.state.setState((prev) => ({
+      users: [...prev.users, response.data],
     }));
 
     // 发布事件
@@ -722,10 +730,10 @@ const useUserStore = createStore((set, get) => ({
   users: [],
 
   addUser: (user) => {
-    set(state => ({ users: [...state.users, user] }));
+    set((state) => ({ users: [...state.users, user] }));
     // 触发事件
     eventEmitter.emit('user.added', user);
-  }
+  },
 }));
 
 // 事件监听
@@ -750,15 +758,15 @@ const notificationWorker = createWorker('notifications', async (job) => {
 
 ### 模块性能指标
 
-| 模块 | 冷启动时间 | 内存占用 | CPU使用率 | 响应时间 |
-|------|------------|----------|-----------|----------|
-| HTTP客户端 | < 50ms | < 10MB | < 2% | < 100ms |
-| 状态管理 | < 10ms | < 5MB | < 1% | < 5ms |
-| 消息队列 | < 100ms | < 20MB | < 5% | < 50ms |
-| 事件系统 | < 5ms | < 2MB | < 0.5% | < 1ms |
-| 认证授权 | < 20ms | < 8MB | < 1% | < 10ms |
-| 日期处理 | < 5ms | < 3MB | < 0.5% | < 2ms |
-| 工具函数 | < 5ms | < 5MB | < 0.5% | < 1ms |
+| 模块       | 冷启动时间 | 内存占用 | CPU使用率 | 响应时间 |
+| ---------- | ---------- | -------- | --------- | -------- |
+| HTTP客户端 | < 50ms     | < 10MB   | < 2%      | < 100ms  |
+| 状态管理   | < 10ms     | < 5MB    | < 1%      | < 5ms    |
+| 消息队列   | < 100ms    | < 20MB   | < 5%      | < 50ms   |
+| 事件系统   | < 5ms      | < 2MB    | < 0.5%    | < 1ms    |
+| 认证授权   | < 20ms     | < 8MB    | < 1%      | < 10ms   |
+| 日期处理   | < 5ms      | < 3MB    | < 0.5%    | < 2ms    |
+| 工具函数   | < 5ms      | < 5MB    | < 0.5%    | < 1ms    |
 
 ### 监控最佳实践
 
@@ -771,7 +779,7 @@ httpClient.interceptors.response.use(
       url: response.config.url,
       method: response.config.method,
       duration: Date.now() - response.config.startTime,
-      status: response.status
+      status: response.status,
     });
     return response;
   },
@@ -781,10 +789,10 @@ httpClient.interceptors.response.use(
       url: error.config?.url,
       method: error.config?.method,
       error: error.message,
-      status: error.response?.status
+      status: error.response?.status,
     });
     return Promise.reject(error);
-  }
+  },
 );
 
 // 消息队列监控

@@ -13,12 +13,12 @@ frys 是一个企业级的轻量化工作流管理系统，采用"站在巨人�
 
 ### 🚀 核心特性
 
-| 特性 | 描述 | 优势 |
-|------|------|------|
-| ⚡ **高性能** | 响应时间 < 100ms | 优秀的用户体验 |
-| 🔧 **模块化** | 插件化架构 | 灵活扩展，按需加载 |
-| 🛡️ **安全可靠** | 企业级安全保障 | 数据安全，业务连续 |
-| 📊 **可观测性** | 全面监控和追踪 | 快速定位和解决问题 |
+| 特性              | 描述                | 优势               |
+| ----------------- | ------------------- | ------------------ |
+| ⚡ **高性能**     | 响应时间 < 100ms    | 优秀的用户体验     |
+| 🔧 **模块化**     | 插件化架构          | 灵活扩展，按需加载 |
+| 🛡️ **安全可靠**   | 企业级安全保障      | 数据安全，业务连续 |
+| 📊 **可观测性**   | 全面监控和追踪      | 快速定位和解决问题 |
 | 🚀 **DevOps友好** | 容器化 + 自动化部署 | 快速迭代，持续交付 |
 
 ### 📊 技术指标
@@ -87,9 +87,7 @@ class ServiceManager {
   async preloadCoreServices() {
     const coreServices = ['database', 'cache', 'logger'];
 
-    await Promise.all(
-      coreServices.map(service => this.getService(service))
-    );
+    await Promise.all(coreServices.map((service) => this.getService(service)));
 
     this.preloaded.add(...coreServices);
   }
@@ -232,16 +230,17 @@ const securityConfig = {
   https: {
     key: fs.readFileSync('./certs/server.key'),
     cert: fs.readFileSync('./certs/server.crt'),
-    ca: fs.readFileSync('./certs/ca.crt')
+    ca: fs.readFileSync('./certs/ca.crt'),
   },
 
   // CORS 配置
   cors: {
-    origin: process.env.NODE_ENV === 'production'
-      ? ['https://yourdomain.com']
-      : ['http://localhost:3000'],
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? ['https://yourdomain.com']
+        : ['http://localhost:3000'],
     credentials: true,
-    maxAge: 86400
+    maxAge: 86400,
   },
 
   // Helmet 安全头
@@ -251,14 +250,14 @@ const securityConfig = {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"]
-      }
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
     },
     hsts: {
       maxAge: 31536000,
       includeSubDomains: true,
-      preload: true
-    }
+      preload: true,
+    },
   },
 
   // 会话配置
@@ -267,9 +266,9 @@ const securityConfig = {
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 24小时
-    }
-  }
+      maxAge: 24 * 60 * 60 * 1000, // 24小时
+    },
+  },
 };
 ```
 
@@ -711,8 +710,8 @@ const onboardingWorkflow = {
       service: 'userService.createUser',
       input: {
         email: '${employee.email}',
-        role: '${employee.role}'
-      }
+        role: '${employee.role}',
+      },
     },
     {
       id: 'send_invitation',
@@ -722,8 +721,8 @@ const onboardingWorkflow = {
       dependsOn: ['create_account'],
       input: {
         to: '${employee.email}',
-        template: 'onboarding_invitation'
-      }
+        template: 'onboarding_invitation',
+      },
     },
     {
       id: 'setup_workspace',
@@ -735,17 +734,17 @@ const onboardingWorkflow = {
           name: 'Create Slack Account',
           type: 'http',
           url: 'https://slack.com/api/users.admin.invite',
-          method: 'POST'
+          method: 'POST',
         },
         {
           id: 'setup_gitlab_access',
           name: 'Setup GitLab Access',
           type: 'service',
-          service: 'gitlabService.createUser'
-        }
-      ]
-    }
-  ]
+          service: 'gitlabService.createUser',
+        },
+      ],
+    },
+  ],
 };
 ```
 
@@ -763,8 +762,8 @@ const orderProcessingWorkflow = {
       service: 'paymentService.validatePayment',
       input: {
         orderId: '${order.id}',
-        amount: '${order.total}'
-      }
+        amount: '${order.total}',
+      },
     },
     {
       id: 'reserve_inventory',
@@ -773,8 +772,8 @@ const orderProcessingWorkflow = {
       service: 'inventoryService.reserveItems',
       dependsOn: ['validate_payment'],
       input: {
-        items: '${order.items}'
-      }
+        items: '${order.items}',
+      },
     },
     {
       id: 'calculate_shipping',
@@ -784,8 +783,8 @@ const orderProcessingWorkflow = {
       dependsOn: ['reserve_inventory'],
       input: {
         address: '${order.shippingAddress}',
-        items: '${order.items}'
-      }
+        items: '${order.items}',
+      },
     },
     {
       id: 'process_payment',
@@ -795,8 +794,8 @@ const orderProcessingWorkflow = {
       dependsOn: ['calculate_shipping'],
       input: {
         cardToken: '${payment.cardToken}',
-        amount: '${order.total + shipping.cost}'
-      }
+        amount: '${order.total + shipping.cost}',
+      },
     },
     {
       id: 'ship_order',
@@ -806,8 +805,8 @@ const orderProcessingWorkflow = {
       dependsOn: ['process_payment'],
       input: {
         orderId: '${order.id}',
-        address: '${order.shippingAddress}'
-      }
+        address: '${order.shippingAddress}',
+      },
     },
     {
       id: 'send_confirmation',
@@ -818,17 +817,17 @@ const orderProcessingWorkflow = {
           id: 'email_confirmation',
           name: 'Send Email Confirmation',
           type: 'service',
-          service: 'emailService.sendOrderConfirmation'
+          service: 'emailService.sendOrderConfirmation',
         },
         {
           id: 'sms_notification',
           name: 'Send SMS Notification',
           type: 'service',
-          service: 'smsService.sendOrderNotification'
-        }
-      ]
-    }
-  ]
+          service: 'smsService.sendOrderNotification',
+        },
+      ],
+    },
+  ],
 };
 ```
 
@@ -845,8 +844,8 @@ const purchaseApprovalWorkflow = {
       type: 'service',
       service: 'validationService.validatePurchaseRequest',
       input: {
-        request: '${purchaseRequest}'
-      }
+        request: '${purchaseRequest}',
+      },
     },
     {
       id: 'auto_approval',
@@ -858,9 +857,9 @@ const purchaseApprovalWorkflow = {
           id: 'approve_small',
           name: 'Approve Small Purchase',
           type: 'service',
-          service: 'approvalService.autoApprove'
-        }
-      ]
+          service: 'approvalService.autoApprove',
+        },
+      ],
     },
     {
       id: 'manager_approval',
@@ -873,15 +872,15 @@ const purchaseApprovalWorkflow = {
           id: 'notify_manager',
           name: 'Notify Manager',
           type: 'service',
-          service: 'notificationService.notifyManager'
+          service: 'notificationService.notifyManager',
         },
         {
           id: 'wait_approval',
           name: 'Wait for Approval',
           type: 'manual',
-          assignee: '${purchaseRequest.managerId}'
-        }
-      ]
+          assignee: '${purchaseRequest.managerId}',
+        },
+      ],
     },
     {
       id: 'executive_approval',
@@ -894,24 +893,24 @@ const purchaseApprovalWorkflow = {
           id: 'notify_executive',
           name: 'Notify Executive',
           type: 'service',
-          service: 'notificationService.notifyExecutive'
+          service: 'notificationService.notifyExecutive',
         },
         {
           id: 'wait_executive_approval',
           name: 'Wait for Executive Approval',
           type: 'manual',
-          assignee: '${purchaseRequest.executiveId}'
-        }
-      ]
+          assignee: '${purchaseRequest.executiveId}',
+        },
+      ],
     },
     {
       id: 'process_purchase',
       name: 'Process Purchase',
       type: 'service',
       service: 'purchaseService.processPurchase',
-      dependsOn: ['auto_approval', 'manager_approval', 'executive_approval']
-    }
-  ]
+      dependsOn: ['auto_approval', 'manager_approval', 'executive_approval'],
+    },
+  ],
 };
 ```
 
@@ -1274,4 +1273,3 @@ class NotificationService {
 - [业务服务文档](business-services.md) - 业务逻辑实现指南
 - [测试架构文档](testing-architecture.md) - 完整的测试策略
 - [DevOps 指南](devops.md) - 部署和运维指南
-

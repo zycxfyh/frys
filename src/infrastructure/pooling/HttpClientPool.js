@@ -172,7 +172,7 @@ export class HttpClientPool extends AbstractResourcePool {
       if (age > maxAge) {
         logger.debug('HTTP客户端过期', {
           poolId: client._poolId,
-          age: Math.round(age / 1000 / 60) + '分钟',
+          age: `${Math.round(age / 1000 / 60)  }分钟`,
         });
         return false;
       }

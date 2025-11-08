@@ -219,7 +219,7 @@ export class PerformanceBenchmark extends EventEmitter {
       iterations: allDurations.length,
       throughput: allDurations.length / (totalTime / 1000), // 操作/秒
       latencies: this._calculateLatencies(allDurations),
-      errors: errors,
+      errors,
       memoryUsage: this._collectMemoryStats(),
     };
   }
@@ -297,7 +297,7 @@ export class PerformanceBenchmark extends EventEmitter {
       avgLatency:
         results.reduce((sum, duration) => sum + duration, 0) / results.length,
       latencies: this._calculateLatencies(results),
-      errors: errors,
+      errors,
       concurrencyProfile: {
         maxConcurrency,
         rampUpTime: this.options.rampUpTime,

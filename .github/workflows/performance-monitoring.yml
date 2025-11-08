@@ -1,0 +1,329 @@
+name: 📊 性能监控
+
+# 性能监控触发条件
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # 每天早上8点进行性能监控
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '监控环境'
+        required: false
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      duration:
+        description: '监控持续时间(秒)'
+        required: false
+        type: number
+        default: 300
+
+# 环境变量
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # 性能基准测试
+  performance-baseline:
+    name: '性能基准测试'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🛠️ 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 🏗️ 构建应用
+      run: npm run build
+
+    - name: ⚡ 单元测试性能
+      run: |
+        echo "运行单元测试性能分析..."
+        npm run test:unit -- --reporter=verbose --coverage --profile
+      continue-on-error: true
+
+    - name: 🔬 内存泄漏检查
+      run: |
+        echo "检查内存泄漏..."
+        node --expose-gc --max-old-space-size=256 scripts/memory-leak-test.js
+      continue-on-error: true
+
+    - name: 📊 Lighthouse 性能审计
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        urls: |
+          http://localhost:3000
+        configPath: .lighthouserc.json
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+      continue-on-error: true
+
+    - name: 🏷️ 上传性能基准结果
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-baseline-results
+        path: |
+          .lighthouseci/
+          performance-report.json
+        retention-days: 30
+
+  # 负载测试
+  load-testing:
+    name: '负载测试'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🛠️ 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 🏗️ 构建和启动应用
+      run: |
+        npm run build
+        npm start &
+        sleep 30
+
+    - name: 🚀 启动测试环境
+      run: |
+        docker-compose -f docker-compose.staging.yml up -d --build
+        timeout 180 bash -c 'until curl -f http://localhost:3000/health; do sleep 5; done'
+
+    - name: 📈 Artillery 负载测试
+      uses: artilleryio/action-cli@v1
+      with:
+        command: run --output load-test-results.json scripts/load-test.yml
+      continue-on-error: true
+
+    - name: 🔄 压力测试
+      run: node scripts/load-generator.js http://localhost:3000 --stress --duration 60
+      continue-on-error: true
+
+    - name: 📊 k6 性能测试
+      uses: k6io/action@v0.1.0
+      with:
+        filename: scripts/k6-performance-test.js
+        flags: --out json=k6-results.json
+      continue-on-error: true
+
+    - name: 🧹 清理测试环境
+      if: always()
+        run: docker-compose -f docker-compose.staging.yml down -v
+
+    - name: 🏷️ 上传负载测试结果
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: load-testing-results
+        path: |
+          load-test-results.json
+          k6-results.json
+          stress-test-report.json
+        retention-days: 30
+
+  # SLO 监控
+  slo-monitoring:
+    name: 'SLO 监控'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🛠️ 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 📊 SLO 检查
+      run: node scripts/slo-check.js
+      env:
+        PROMETHEUS_URL: ${{ secrets.PROMETHEUS_URL }}
+        GRAFANA_URL: ${{ secrets.GRAFANA_URL }}
+
+    - name: 🎯 错误预算监控
+      run: |
+        echo "检查错误预算使用情况..."
+        # 这里可以集成错误预算监控逻辑
+
+    - name: 📈 性能指标收集
+      run: |
+        echo "收集性能指标..."
+        # 收集响应时间、吞吐量、资源使用等指标
+
+    - name: 🏷️ 上传 SLO 监控结果
+      uses: actions/upload-artifact@v4
+      with:
+        name: slo-monitoring-results
+        path: |
+          slo-check-report.json
+          slo-baseline.json
+        retention-days: 30
+
+  # 生产环境监控
+  production-monitoring:
+    name: '生产环境监控'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.environment == 'production')
+    environment: production
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🛠️ 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 👀 实时监控检查
+      run: node scripts/performance-monitor.js --live --duration ${{ inputs.duration || 300 }}
+      env:
+        PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+        MONITORING_API_KEY: ${{ secrets.MONITORING_API_KEY }}
+
+    - name: 📊 APM 数据收集
+      run: |
+        echo "收集 APM 数据..."
+        # 集成 New Relic, DataDog 等 APM 工具
+
+    - name: 🚨 异常检测
+      run: |
+        echo "运行异常检测算法..."
+        # 检测性能异常和趋势变化
+
+    - name: 📢 性能警报
+      if: failure()
+      run: |
+        echo "🚨 检测到性能问题！"
+        # 发送警报到相关团队
+
+    - name: 🏷️ 上传生产监控结果
+      uses: actions/upload-artifact@v4
+      with:
+        name: production-monitoring-results
+        path: |
+          production-performance-report.json
+          anomaly-detection-results.json
+        retention-days: 30
+
+  # 性能报告生成
+  performance-report:
+    name: '性能报告生成'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [performance-baseline, load-testing, slo-monitoring]
+    if: always()
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🛠️ 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 📊 生成综合性能报告
+      run: node scripts/performance-monitor.js --report --comprehensive
+      env:
+        CI: true
+
+    - name: 📈 性能趋势分析
+      run: node scripts/coverage-trend-analyzer.js --performance
+      continue-on-error: true
+
+    - name: 📋 性能摘要
+      run: |
+        echo "# 📊 性能监控报告" > performance-summary.md
+        echo "" >> performance-summary.md
+        echo "## 测试时间" >> performance-summary.md
+        echo "$(date)" >> performance-summary.md
+        echo "" >> performance-summary.md
+        echo "## 性能指标" >> performance-summary.md
+
+        # 从各个测试结果中提取关键指标
+        echo "- 基准测试: ✅ 已完成" >> performance-summary.md
+        echo "- 负载测试: ✅ 已完成" >> performance-summary.md
+        echo "- SLO 监控: ✅ 已完成" >> performance-summary.md
+        echo "" >> performance-summary.md
+        echo "## 详细报告" >> performance-summary.md
+        echo "请查看附件中的详细性能测试结果。" >> performance-summary.md
+
+    - name: 🏷️ 上传性能报告
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-report
+        path: |
+          performance-report.json
+          performance-summary.md
+          performance-trend-report.json
+        retention-days: 30
+
+    - name: 🚨 性能阈值检查
+      run: |
+        # 检查是否超过性能阈值
+        if [ -f "performance-report.json" ]; then
+          response_time=$(jq '.metrics.responseTime.avg' performance-report.json 2>/dev/null || echo "0")
+          if (( $(echo "$response_time > 1000" | bc -l 2>/dev/null || echo "0") )); then
+            echo "⚠️ 响应时间超过阈值: ${response_time}ms"
+          fi
+        fi

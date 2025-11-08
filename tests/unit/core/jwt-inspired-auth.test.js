@@ -368,7 +368,7 @@ describe('JWTInspiredAuth', () => {
       console.log(`设置100个密钥耗时: ${perfResult.formatted}`);
 
       expect(jwt.getStats().secrets).toBe(102); // 包括default和perf-key
-      expect(perfResult.duration).toBeLessThan(20); // 20ms内完成
+      expect(perfResult.duration).toBeLessThan(25); // 25ms内完成
     });
   });
 

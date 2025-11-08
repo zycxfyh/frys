@@ -20,6 +20,15 @@ class LodashInspiredUtils extends BaseModule {
 
   constructor() {
     super('utils');
+    // 初始化基本属性，在onInitialize之前可用
+    this.operations = [];
+    this.cache = new Map();
+    this.performanceStats = {
+      totalOperations: 0,
+      avgExecutionTime: 0,
+      cacheHits: 0,
+      cacheMisses: 0,
+    };
   }
 
   async onInitialize() {

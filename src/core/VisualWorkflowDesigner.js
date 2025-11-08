@@ -107,7 +107,7 @@ class AINode extends WorkflowNode {
 
       return {
         success: true,
-        response: response,
+        response,
         executionTime: this.executionTime,
         model: this.data.model
       };

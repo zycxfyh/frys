@@ -66,7 +66,7 @@ const configManager = new ConfigManager({
     { type: 'env', prefix: 'APP_' },
     { type: 'file', path: './config/default.json' },
     { type: 'file', path: `./config/${process.env.NODE_ENV}.json` },
-    { type: 'remote', url: 'http://config-server/config' }
+    { type: 'remote', url: 'http://config-server/config' },
   ],
   // 验证规则
   schema: {
@@ -78,12 +78,12 @@ const configManager = new ConfigManager({
         properties: {
           host: { type: 'string' },
           port: { type: 'number', default: 5432 },
-          name: { type: 'string' }
+          name: { type: 'string' },
         },
-        required: ['host', 'name']
-      }
-    }
-  }
+        required: ['host', 'name'],
+      },
+    },
+  },
 });
 
 // 加载配置
@@ -102,9 +102,9 @@ const dbConfig = configManager.get('database');
 ```javascript
 const envSource = {
   type: 'env',
-  prefix: 'APP_',           // 环境变量前缀
-  separator: '__',          // 嵌套分隔符
-  transform: 'camelCase'    // 键名转换
+  prefix: 'APP_', // 环境变量前缀
+  separator: '__', // 嵌套分隔符
+  transform: 'camelCase', // 键名转换
 };
 
 // 支持的环境变量：
@@ -122,8 +122,8 @@ const jsonSource = {
   type: 'file',
   path: './config/app.json',
   format: 'json',
-  watch: true,              // 启用文件监听
-  reloadDebounce: 1000      // 重载防抖时间
+  watch: true, // 启用文件监听
+  reloadDebounce: 1000, // 重载防抖时间
 };
 
 // YAML 文件源
@@ -131,7 +131,7 @@ const yamlSource = {
   type: 'file',
   path: './config/app.yaml',
   format: 'yaml',
-  encoding: 'utf8'
+  encoding: 'utf8',
 };
 ```
 
@@ -143,19 +143,19 @@ const remoteSource = {
   url: 'http://config-server/v1/config',
   method: 'GET',
   headers: {
-    'Authorization': 'Bearer ' + process.env.CONFIG_TOKEN,
-    'X-Service-Name': 'frys'
+    Authorization: 'Bearer ' + process.env.CONFIG_TOKEN,
+    'X-Service-Name': 'frys',
   },
   timeout: 5000,
   retry: {
     attempts: 3,
     delay: 1000,
-    backoff: 2
+    backoff: 2,
   },
   cache: {
-    ttl: 30000,             // 30秒缓存
-    refreshInterval: 10000  // 10秒刷新
-  }
+    ttl: 30000, // 30秒缓存
+    refreshInterval: 10000, // 10秒刷新
+  },
 };
 ```
 
@@ -357,15 +357,15 @@ const logger = new Logger({
   transports: [
     new ConsoleTransport({
       colorize: true,
-      timestamp: true
+      timestamp: true,
     }),
     new FileTransport({
       filename: 'logs/app.log',
       maxSize: '10m',
       maxFiles: 5,
-      compress: true
-    })
-  ]
+      compress: true,
+    }),
+  ],
 });
 
 // 基本日志记录
@@ -378,7 +378,7 @@ logger.info('User login successful', {
   userId: '12345',
   username: 'john_doe',
   ip: '192.168.1.100',
-  userAgent: 'Mozilla/5.0...'
+  userAgent: 'Mozilla/5.0...',
 });
 ```
 
@@ -414,7 +414,7 @@ const consoleTransport = new ConsoleTransport({
   timestamp: true,
   timestampFormat: 'YYYY-MM-DD HH:mm:ss.SSS',
   include: ['level', 'message', 'timestamp'], // 包含的字段
-  exclude: ['pid', 'hostname']                // 排除的字段
+  exclude: ['pid', 'hostname'], // 排除的字段
 });
 ```
 
@@ -424,12 +424,12 @@ const consoleTransport = new ConsoleTransport({
 const fileTransport = new FileTransport({
   filename: 'logs/app.log',
   level: 'info',
-  maxSize: '10m',           // 文件最大大小
-  maxFiles: 5,              // 最大文件数量
-  compress: true,           // 压缩旧文件
+  maxSize: '10m', // 文件最大大小
+  maxFiles: 5, // 最大文件数量
+  compress: true, // 压缩旧文件
   format: 'json',
-  sync: false,              // 异步写入
-  bufferSize: 64 * 1024     // 缓冲区大小
+  sync: false, // 异步写入
+  bufferSize: 64 * 1024, // 缓冲区大小
 });
 ```
 
@@ -440,17 +440,17 @@ const remoteTransport = new RemoteTransport({
   url: 'https://logs.example.com/api/logs',
   method: 'POST',
   headers: {
-    'Authorization': 'Bearer ' + process.env.LOG_TOKEN,
-    'Content-Type': 'application/json'
+    Authorization: 'Bearer ' + process.env.LOG_TOKEN,
+    'Content-Type': 'application/json',
   },
-  batchSize: 10,            // 批量发送大小
-  flushInterval: 5000,      // 刷新间隔
+  batchSize: 10, // 批量发送大小
+  flushInterval: 5000, // 刷新间隔
   retry: {
     attempts: 3,
     delay: 1000,
-    backoff: 2
+    backoff: 2,
   },
-  queueSize: 1000           // 队列大小限制
+  queueSize: 1000, // 队列大小限制
 });
 ```
 
@@ -573,18 +573,18 @@ const cacheManager = new CacheManager({
     // L1: 内存缓存
     new MemoryCache({
       maxSize: 1000,
-      ttl: 300,          // 5分钟
-      strategy: 'lru'
+      ttl: 300, // 5分钟
+      strategy: 'lru',
     }),
     // L2: Redis缓存
     new RedisCache({
       host: 'localhost',
       port: 6379,
-      ttl: 3600,         // 1小时
-      prefix: 'frys:'
-    })
+      ttl: 3600, // 1小时
+      prefix: 'frys:',
+    }),
   ],
-  serialization: 'json'
+  serialization: 'json',
 });
 
 // 基本缓存操作
@@ -878,23 +878,23 @@ const userSchema = createSchema({
       type: 'string',
       minLength: 2,
       maxLength: 50,
-      pattern: '^[a-zA-Z\\s]+$'
+      pattern: '^[a-zA-Z\\s]+$',
     },
     email: {
       type: 'string',
-      format: 'email'
+      format: 'email',
     },
     age: {
       type: 'number',
       minimum: 18,
-      maximum: 120
+      maximum: 120,
     },
     role: {
       type: 'string',
-      enum: ['user', 'admin', 'moderator']
-    }
+      enum: ['user', 'admin', 'moderator'],
+    },
   },
-  required: ['name', 'email']
+  required: ['name', 'email'],
 });
 
 // 验证数据
@@ -902,7 +902,7 @@ const userData = {
   name: 'John Doe',
   email: 'john@example.com',
   age: 25,
-  role: 'user'
+  role: 'user',
 };
 
 const result = validator.validate(userData, userSchema);
@@ -928,7 +928,7 @@ const basicSchema = createSchema({
       minLength: 3,
       maxLength: 20,
       pattern: '^[a-zA-Z0-9_]+$',
-      transform: 'trim'  // 自动转换
+      transform: 'trim', // 自动转换
     },
 
     // 数字验证
@@ -936,13 +936,13 @@ const basicSchema = createSchema({
       type: 'number',
       minimum: 0,
       maximum: 150,
-      multipleOf: 1  // 整数
+      multipleOf: 1, // 整数
     },
 
     // 布尔值验证
     isActive: {
       type: 'boolean',
-      default: true
+      default: true,
     },
 
     // 数组验证
@@ -951,11 +951,11 @@ const basicSchema = createSchema({
       items: {
         type: 'string',
         minLength: 1,
-        maxLength: 10
+        maxLength: 10,
       },
       minItems: 0,
       maxItems: 5,
-      uniqueItems: true
+      uniqueItems: true,
     },
 
     // 对象验证
@@ -964,12 +964,12 @@ const basicSchema = createSchema({
       properties: {
         street: { type: 'string' },
         city: { type: 'string' },
-        zipCode: { type: 'string', pattern: '^\d{5}$' }
+        zipCode: { type: 'string', pattern: '^\d{5}$' },
       },
-      required: ['street', 'city']
-    }
+      required: ['street', 'city'],
+    },
   },
-  required: ['username', 'email']
+  required: ['username', 'email'],
 });
 ```
 
@@ -981,28 +981,28 @@ const conditionalSchema = createSchema({
   properties: {
     userType: {
       type: 'string',
-      enum: ['individual', 'company']
+      enum: ['individual', 'company'],
     },
     // 条件字段
     ssn: {
       type: 'string',
-      pattern: '^\\d{3}-\\d{2}-\\d{4}$'
+      pattern: '^\\d{3}-\\d{2}-\\d{4}$',
     },
     ein: {
       type: 'string',
-      pattern: '^\\d{2}-\\d{7}$'
-    }
+      pattern: '^\\d{2}-\\d{7}$',
+    },
   },
   // 条件验证规则
   if: {
-    properties: { userType: { const: 'individual' } }
+    properties: { userType: { const: 'individual' } },
   },
   then: {
-    required: ['ssn']
+    required: ['ssn'],
   },
   else: {
-    required: ['ein']
-  }
+    required: ['ein'],
+  },
 });
 ```
 
@@ -1200,8 +1200,8 @@ const lastWeek = now.minus({ weeks: 1 });
 const nextMonth = now.plus({ months: 1 });
 
 // 格式化
-console.log(now.toISO());           // 2023-12-25T10:30:00.000Z
-console.log(now.toLocaleString());  // 2023年12月25日
+console.log(now.toISO()); // 2023-12-25T10:30:00.000Z
+console.log(now.toLocaleString()); // 2023年12月25日
 console.log(now.toFormat('yyyy-MM-dd HH:mm:ss')); // 2023-12-25 10:30:00
 
 // 时区转换
@@ -1222,7 +1222,7 @@ const nextWorkday = DateTime.getNextWorkday(now);
 
 // 相对时间
 console.log(DateTime.fromNow(now.minus({ days: 1 }))); // 1天前
-console.log(DateTime.toNow(now.plus({ hours: 2 })));   // 2小时后
+console.log(DateTime.toNow(now.plus({ hours: 2 }))); // 2小时后
 ```
 
 ### 字符串操作
@@ -1231,34 +1231,34 @@ console.log(DateTime.toNow(now.plus({ hours: 2 })));   // 2小时后
 import { StringUtils } from 'frys/utils';
 
 // 字符串转换
-StringUtils.camelCase('hello_world');        // helloWorld
-StringUtils.pascalCase('hello_world');       // HelloWorld
-StringUtils.snakeCase('helloWorld');         // hello_world
-StringUtils.kebabCase('helloWorld');         // hello-world
-StringUtils.titleCase('hello world');        // Hello World
+StringUtils.camelCase('hello_world'); // helloWorld
+StringUtils.pascalCase('hello_world'); // HelloWorld
+StringUtils.snakeCase('helloWorld'); // hello_world
+StringUtils.kebabCase('helloWorld'); // hello-world
+StringUtils.titleCase('hello world'); // Hello World
 
 // 字符串验证
-StringUtils.isEmail('user@example.com');     // true
+StringUtils.isEmail('user@example.com'); // true
 StringUtils.isPhoneNumber('+1-555-123-4567'); // true
 StringUtils.isUUID('550e8400-e29b-41d4-a716-446655440000'); // true
-StringUtils.isURL('https://example.com');    // true
+StringUtils.isURL('https://example.com'); // true
 
 // 字符串处理
-StringUtils.truncate('Very long string', 10);          // Very long...
-StringUtils.slugify('Hello World!');                    // hello-world
-StringUtils.removeAccents('café résumé naïve');         // cafe resume naive
+StringUtils.truncate('Very long string', 10); // Very long...
+StringUtils.slugify('Hello World!'); // hello-world
+StringUtils.removeAccents('café résumé naïve'); // cafe resume naive
 StringUtils.escapeHtml('<script>alert("xss")</script>'); // &lt;script&gt;...
 
 // 字符串比较
-StringUtils.levenshtein('kitten', 'sitting');           // 3
-StringUtils.similarity('hello', 'hello world');         // 0.5
-StringUtils.soundex('Robert');                          // R163
-StringUtils.soundex('Rupert');                          // R163
+StringUtils.levenshtein('kitten', 'sitting'); // 3
+StringUtils.similarity('hello', 'hello world'); // 0.5
+StringUtils.soundex('Robert'); // R163
+StringUtils.soundex('Rupert'); // R163
 
 // 随机字符串
-StringUtils.random(10);                                 // aB3kL9mP2
-StringUtils.random(8, 'numeric');                       // 48273916
-StringUtils.random(12, 'alphanumeric');                 // A9b2K8mL3pQ7
+StringUtils.random(10); // aB3kL9mP2
+StringUtils.random(8, 'numeric'); // 48273916
+StringUtils.random(12, 'alphanumeric'); // A9b2K8mL3pQ7
 ```
 
 ### 集合操作
@@ -1294,7 +1294,7 @@ CollectionUtils.sample([1, 2, 3, 4, 5], 3); // [2, 4, 1]
 const users = [
   { id: 1, name: 'John', age: 25 },
   { id: 2, name: 'Jane', age: 30 },
-  { id: 3, name: 'Bob', age: 25 }
+  { id: 3, name: 'Bob', age: 25 },
 ];
 
 // 分组
@@ -1303,7 +1303,7 @@ CollectionUtils.groupBy(users, 'age');
 
 // 排序
 CollectionUtils.sortBy(users, 'name'); // 按名字排序
-CollectionUtils.sortBy(users, user => user.age); // 按年龄排序
+CollectionUtils.sortBy(users, (user) => user.age); // 按年龄排序
 
 // 查找
 CollectionUtils.find(users, { age: 25 }); // 找到第一个25岁的用户
@@ -1330,7 +1330,7 @@ await AsyncUtils.delay(1000); // 延迟1秒
 const result = await AsyncUtils.timeout(
   fetchData(),
   5000, // 5秒超时
-  'Request timeout'
+  'Request timeout',
 );
 
 // 重试机制
@@ -1342,21 +1342,23 @@ const result = await AsyncUtils.retry(
     attempts: 3,
     delay: 1000,
     backoff: 2,
-    retryCondition: (error) => error.code === 'ECONNRESET'
-  }
+    retryCondition: (error) => error.code === 'ECONNRESET',
+  },
 );
 
 // 并发控制
 const semaphore = new AsyncUtils.Semaphore(3); // 最多3个并发
 
-const tasks = Array(10).fill().map(async (_, i) => {
-  await semaphore.acquire();
-  try {
-    return await processItem(i);
-  } finally {
-    semaphore.release();
-  }
-});
+const tasks = Array(10)
+  .fill()
+  .map(async (_, i) => {
+    await semaphore.acquire();
+    try {
+      return await processItem(i);
+    } finally {
+      semaphore.release();
+    }
+  });
 
 const results = await Promise.all(tasks);
 
@@ -1364,7 +1366,7 @@ const results = await Promise.all(tasks);
 const batchProcessor = new AsyncUtils.BatchProcessor({
   batchSize: 10,
   concurrency: 3,
-  delay: 100
+  delay: 100,
 });
 
 await batchProcessor.process(items, async (batch) => {
@@ -1398,7 +1400,7 @@ eventEmitter.on('error', async (error) => {
 // 异步队列
 const queue = new AsyncUtils.AsyncQueue({
   concurrency: 5,
-  timeout: 30000
+  timeout: 30000,
 });
 
 queue.add(async () => {
@@ -1511,7 +1513,9 @@ const benchmark = new Benchmark();
 // 配置加载性能测试
 benchmark.add('config.load', async () => {
   const configManager = new ConfigManager({
-    sources: [/* large config sources */]
+    sources: [
+      /* large config sources */
+    ],
   });
   await configManager.load();
 });
@@ -1541,12 +1545,14 @@ benchmark.add('validation.complex', async () => {
 // 运行基准测试
 const results = await benchmark.run({
   iterations: 1000,
-  warmup: 100
+  warmup: 100,
 });
 
 console.log('Performance Results:');
-results.forEach(result => {
-  console.log(`${result.name}: ${result.avgTime.toFixed(3)}ms avg, ${result.opsPerSec.toFixed(0)} ops/sec`);
+results.forEach((result) => {
+  console.log(
+    `${result.name}: ${result.avgTime.toFixed(3)}ms avg, ${result.opsPerSec.toFixed(0)} ops/sec`,
+  );
 });
 ```
 
@@ -1575,7 +1581,7 @@ const cacheConfigs = {
   hotData: { strategy: 'lru', maxSize: 10000 },
 
   // 统计数据 - LFU策略
-  stats: { strategy: 'lfu', maxSize: 5000 }
+  stats: { strategy: 'lfu', maxSize: 5000 },
 };
 ```
 
@@ -1631,25 +1637,25 @@ const logLevels = {
     components: {
       database: 'info',
       cache: 'warn',
-      api: 'debug'
-    }
+      api: 'debug',
+    },
   },
   staging: {
     default: 'info',
     components: {
       database: 'warn',
       cache: 'info',
-      api: 'info'
-    }
+      api: 'info',
+    },
   },
   production: {
     default: 'warn',
     components: {
       database: 'error',
       cache: 'warn',
-      api: 'info'
-    }
-  }
+      api: 'info',
+    },
+  },
 };
 
 // 动态调整日志级别
@@ -1663,4 +1669,3 @@ logger.setLevel('database', 'debug'); // 临时启用数据库调试日志
 - [缓存策略详解](https://redis.io/topics/lru-cache)
 - [数据验证指南](https://json-schema.org/)
 - [日期时间处理库](https://moment.github.io/luxon/)
-

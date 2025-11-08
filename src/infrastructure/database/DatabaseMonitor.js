@@ -392,7 +392,7 @@ export class DatabaseMonitor {
       trends.queryPerformance = {
         current: avgQueryTime,
         change:
-          (((avgQueryTime - earlierAvg) / earlierAvg) * 100).toFixed(2) + '%',
+          `${(((avgQueryTime - earlierAvg) / earlierAvg) * 100).toFixed(2)  }%`,
         trend: avgQueryTime > earlierAvg ? 'worsening' : 'improving',
       };
     }

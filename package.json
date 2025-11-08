@@ -158,7 +158,7 @@
     "@babel/preset-env": "^7.28.5",
     "@playwright/test": "^1.40.0",
     "@swc/cli": "^0.7.9",
-    "@swc/core": "^1.15.0",
+    "@swc/core": "^1.15.1",
     "@testcontainers/postgresql": "^11.8.0",
     "@testcontainers/redis": "^11.8.0",
     "@typescript-eslint/eslint-plugin": "^8.46.3",

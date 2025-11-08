@@ -123,7 +123,7 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "@fastify/swagger": "^9.5.2",
+    "@fastify/swagger": "^9.6.0",
     "@lineai/cognee-api": "^1.0.15",
     "@lineai/memory": "^1.0.25",
     "@sentry/node": "^7.74.1",

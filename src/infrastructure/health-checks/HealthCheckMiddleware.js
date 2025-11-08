@@ -3,7 +3,7 @@
  * 为Express应用提供健康检查端点
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class HealthCheckMiddleware {
   constructor(healthChecker, config = {}) {

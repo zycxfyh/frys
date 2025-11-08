@@ -6,7 +6,7 @@
 import { BaseApplicationService } from '../../shared/kernel/BaseApplicationService.js';
 import DatabaseService from '../../infrastructure/database/DatabaseService.js';
 import { Success, Failure } from '../../shared/kernel/Result.js';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class DatabaseManagementService extends BaseApplicationService {
   constructor(databaseService) {

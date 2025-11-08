@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * VCP系统集成测试
  * 测试所有VCPToolBox启发系统的协同工作
@@ -9,7 +17,7 @@ import { describe, it, beforeEach, afterEach, expect } from 'vitest';
 import { AgentSystem } from '../../src/core/AgentSystem.js';
 import { AsyncWorkflowExecutor } from '../../src/core/AsyncWorkflowExecutor.js';
 import { MemoryNetwork } from '../../src/core/MemoryNetwork.js';
-import { PluginProtocolSystem } from '../../src/core/PluginProtocolSystem.js';
+import { PluginManager } from '../../src/core/PluginSystem.js';
 import { RealtimeCommunication } from '../../src/core/RealtimeCommunication.js';
 
 describe('VCP系统集成测试', () => {
@@ -36,10 +44,7 @@ describe('VCP系统集成测试', () => {
             maxConnections: 1000
         });
 
-        pluginSystem = new PluginProtocolSystem({
-            sandboxEnabled: true,
-            maxPlugins: 20
-        });
+        pluginSystem = new PluginManager();
 
         realtimeComm = new RealtimeCommunication({
             maxConnections: 100,

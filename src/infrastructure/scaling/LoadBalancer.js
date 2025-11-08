@@ -3,7 +3,7 @@
  * 管理和分发请求到多个服务实例
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class LoadBalancer {
   constructor(config = {}) {

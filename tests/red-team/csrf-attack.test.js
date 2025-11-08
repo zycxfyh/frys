@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from '../test-helpers.js';
+
 /**
  * CSRF跨站请求伪造攻击测试
  * 模拟各种CSRF攻击向量

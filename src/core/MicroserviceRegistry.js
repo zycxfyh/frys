@@ -2,7 +2,7 @@
  * 微服务架构 - 服务注册表和发现机制
  * 应用微服务架构原则：服务拆分、注册发现、配置管理
  */
-import { logger } from '../utils/logger.js';
+import { logger } from '../shared/utils/logger.js';
 import { frysError } from './error-handler.js';
 
 class ServiceDefinition {
@@ -38,7 +38,7 @@ class ServiceDefinition {
     const now = Date.now();
     const lastHeartbeat = this.lastHeartbeat.getTime();
     // 30秒内有心跳就算健康
-    return (now - lastHeartbeat) < 30000;
+    return now - lastHeartbeat < 30000;
   }
 }
 
@@ -61,11 +61,19 @@ class MicroserviceRegistry {
    * @param {Array} dependencies - 依赖服务
    */
   registerService(name, version, type, endpoints = [], dependencies = []) {
-    const service = new ServiceDefinition(name, version, type, endpoints, dependencies);
+    const service = new ServiceDefinition(
+      name,
+      version,
+      type,
+      endpoints,
+      dependencies,
+    );
 
     // 检查循环依赖
     if (this.hasCircularDependency(name, dependencies)) {
-      throw frysError.system(`Circular dependency detected for service ${name}`);
+      throw frysError.system(
+        `Circular dependency detected for service ${name}`,
+      );
     }
 
     service.register();
@@ -128,8 +136,8 @@ class MicroserviceRegistry {
   discoverServicesByType(type) {
     const serviceNames = this.serviceTypes.get(type) || new Set();
     return Array.from(serviceNames)
-      .map(name => this.services.get(name))
-      .filter(service => service && service.status === 'registered');
+      .map((name) => this.services.get(name))
+      .filter((service) => service && service.status === 'registered');
   }
 
   /**
@@ -167,7 +175,14 @@ class MicroserviceRegistry {
 
     for (const dep of dependencies) {
       const depService = this.services.get(dep);
-      if (depService && this.hasCircularDependency(dep, depService.dependencies, new Set(visited))) {
+      if (
+        depService &&
+        this.hasCircularDependency(
+          dep,
+          depService.dependencies,
+          new Set(visited),
+        )
+      ) {
         return true;
       }
     }
@@ -251,7 +266,7 @@ class MicroserviceRegistry {
       servicesByType: {},
       healthyServices: 0,
       unhealthyServices: 0,
-      dependencyGraph: {}
+      dependencyGraph: {},
     };
 
     // 按类型统计

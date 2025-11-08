@@ -5,7 +5,7 @@
 
 import { BaseModule } from './BaseModule.js';
 import { frysError, errorHandler } from './error-handler.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../shared/utils/logger.js';
 
 class JWTInspiredAuth extends BaseModule {
   getDefaultConfig() {
@@ -26,7 +26,7 @@ class JWTInspiredAuth extends BaseModule {
       verified: 0,
       failed: 0,
       lastGeneratedAt: null,
-      lastVerifiedAt: null
+      lastVerifiedAt: null,
     };
   }
 
@@ -65,7 +65,10 @@ class JWTInspiredAuth extends BaseModule {
    * Base64 URL编码
    */
   base64UrlEncode(str) {
-    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    return Buffer.from(str, 'utf8').toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
   }
 
   /**
@@ -76,7 +79,7 @@ class JWTInspiredAuth extends BaseModule {
     while (str.length % 4) {
       str += '=';
     }
-    return atob(str);
+    return Buffer.from(str, 'base64').toString('utf8');
   }
 
   ensureTokensInitialized() {
@@ -301,8 +304,8 @@ class JWTInspiredAuth extends BaseModule {
       hash = (hash << 5) - hash + secret.charCodeAt(i);
       hash = hash & hash;
     }
-    // 转换为base64url格式
-    return btoa(Math.abs(hash).toString())
+    // 转换为base64url格式（使用Buffer替代btoa）
+    return Buffer.from(Math.abs(hash).toString(), 'utf8').toString('base64')
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=/g, '');

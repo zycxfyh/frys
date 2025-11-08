@@ -3,7 +3,7 @@
  * 定义容器化应用健康检查的标准接口
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import { EventBus } from '../../shared/kernel/EventBus.js';
 
 export class HealthChecker {

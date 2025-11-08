@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 状态管理与工具函数库的集成测试
  * 测试状态更新中的数据处理和转换操作

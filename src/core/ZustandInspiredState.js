@@ -4,9 +4,9 @@
  */
 
 import { BaseModule } from './BaseModule.js';
-import { ReactiveState } from './FunctionalUtils.js';
+import { ReactiveState } from '../shared/utils/FunctionalUtils.js';
 import { frysError } from './error-handler.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../shared/utils/logger.js';
 
 class ZustandInspiredState extends BaseModule {
   getDefaultConfig() {
@@ -64,10 +64,7 @@ class ZustandInspiredState extends BaseModule {
     const setState = (updater, actionName = 'unknown') => {
       const store = this.stores.get(storeId);
       if (!store) {
-        throw frysError.system(
-          `状态存储不存在: ${storeId}`,
-          'store_not_found',
-        );
+        throw frysError.system(`状态存储不存在: ${storeId}`, 'store_not_found');
       }
 
       if (updater === null || updater === undefined) {
@@ -277,10 +274,7 @@ class ZustandInspiredState extends BaseModule {
   resetStore(storeId) {
     const store = this.stores.get(storeId);
     if (!store) {
-      throw frysError.system(
-        `状态存储不存在: ${storeId}`,
-        'store_not_found',
-      );
+      throw frysError.system(`状态存储不存在: ${storeId}`, 'store_not_found');
     }
 
     store.state = {};

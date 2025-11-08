@@ -1,69 +1,39 @@
-# Dependabot 配置 - 自动更新依赖
 version: 2
 updates:
-  # npm 依赖更新
+  # Node.js 依赖更新
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "team/frys-core"
-    assignees:
-      - "frys-bot"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+      include: "scope"
     labels:
       - "dependencies"
-      - "automated"
-    commit-message:
-      prefix: "chore"
-      prefix-development: "chore"
-      include: "scope"
-    ignore:
-      # 忽略主要版本更新
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-      # 忽略特定不稳定包
-      - dependency-name: "some-unstable-package"
 
   # Docker 镜像更新
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "tuesday"
-      time: "09:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "team/frys-devops"
-    assignees:
-      - "frys-bot"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "docker"
+      include: "scope"
     labels:
       - "docker"
-      - "automated"
-    commit-message:
-      prefix: "build"
-      include: "scope"
+      - "dependencies"
 
   # GitHub Actions 更新
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "wednesday"
-      time: "09:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "team/frys-devops"
-    assignees:
-      - "frys-bot"
-    labels:
-      - "github-actions"
-      - "automated"
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "ci"
       include: "scope"
+    labels:
+      - "github-actions"
+      - "dependencies"

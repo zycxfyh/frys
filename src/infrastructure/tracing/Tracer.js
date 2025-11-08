@@ -7,7 +7,7 @@ import { Span } from './Span.js';
 import { SamplingStrategy } from './SamplingStrategy.js';
 import { TracingReporter } from './TracingReporter.js';
 import { TraceContext } from './TraceContext.js';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class Tracer {
   constructor(config = {}) {
@@ -211,9 +211,12 @@ export class Tracer {
 
     try {
       // 在上下文中运行函数
-      const result = await this.context.run({ ...currentContext, activeSpan: span }, async () => {
-        return await fn(span);
-      });
+      const result = await this.context.run(
+        { ...currentContext, activeSpan: span },
+        async () => {
+          return await fn(span);
+        },
+      );
       span.finish();
       return result;
     } catch (error) {
@@ -405,7 +408,7 @@ export class Tracer {
   _sanitizeArgs(args, maxLength) {
     return args.map((arg) => {
       if (typeof arg === 'string' && arg.length > maxLength) {
-        return `${arg.substring(0, maxLength)  }...`;
+        return `${arg.substring(0, maxLength)}...`;
       }
       if (arg && typeof arg === 'object') {
         // 简化对象表示
@@ -420,7 +423,7 @@ export class Tracer {
    */
   _sanitizeResult(result, maxLength) {
     if (typeof result === 'string' && result.length > maxLength) {
-      return `${result.substring(0, maxLength)  }...`;
+      return `${result.substring(0, maxLength)}...`;
     }
     if (result && typeof result === 'object') {
       return `[${result.constructor.name}]`;

@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from '../test-helpers.js';
+
 /**
  * 红客对抗测试套件
  * 运行完整的红客对抗测试并生成报告
@@ -8,7 +16,7 @@ import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
 import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
 import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
 import SQLiteInspiredDatabase from '../../src/core/SQLiteInspiredDatabase.js';
-import { logger } from '../../src/utils/logger.js';
+import { logger } from '../../src/shared/utils/logger.js';
 
 describe('红客对抗测试套件', () => {
   let redTeam;

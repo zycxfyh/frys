@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 数据库优化集成测试
  * 验证连接池、查询优化、索引管理和监控功能

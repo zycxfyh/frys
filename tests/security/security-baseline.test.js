@@ -1,10 +1,18 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from '../test-helpers.js';
+
 /**
  * frys 安全基线测试套件
  * 验证安全配置和防护措施的有效性
  */
 
 import { describe, it, expect } from 'vitest';
-import { sanitizeInput, validateObject, createTypeGuard } from '../../src/utils/type-guards.js';
+import { sanitizeInput, validateObject, createTypeGuard } from '../../src/shared/utils/type-guards.js';
 
 describe('安全基线测试套件', () => {
 

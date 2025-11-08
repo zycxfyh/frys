@@ -3,7 +3,7 @@
  * 协调应用程序的优雅关闭过程，确保资源正确清理
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import { EventBus } from '../../shared/kernel/EventBus.js';
 
 export class GracefulShutdownManager {

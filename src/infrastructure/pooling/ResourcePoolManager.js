@@ -7,7 +7,7 @@ import { DatabaseConnectionPool } from '../database/DatabaseConnectionPool.js';
 import { HttpClientPool } from './HttpClientPool.js';
 import { GenericObjectPool, ObjectPoolFactories } from './GenericObjectPool.js';
 import { WorkerPool } from './WorkerPool.js';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class ResourcePoolManager {
   constructor(options = {}) {
@@ -251,16 +251,16 @@ export class ResourcePoolManager {
 
     return {
       memory: {
-        rss: `${Math.round(memUsage.rss / 1024 / 1024)  }MB`,
-        heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)  }MB`,
-        heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)  }MB`,
-        external: `${Math.round(memUsage.external / 1024 / 1024)  }MB`,
+        rss: `${Math.round(memUsage.rss / 1024 / 1024)}MB`,
+        heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`,
+        heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`,
+        external: `${Math.round(memUsage.external / 1024 / 1024)}MB`,
       },
       cpu: {
-        user: `${Math.round(cpuUsage.user / 1000)  }ms`,
-        system: `${Math.round(cpuUsage.system / 1000)  }ms`,
+        user: `${Math.round(cpuUsage.user / 1000)}ms`,
+        system: `${Math.round(cpuUsage.system / 1000)}ms`,
       },
-      uptime: `${Math.round(process.uptime())  }s`,
+      uptime: `${Math.round(process.uptime())}s`,
       platform: process.platform,
       arch: process.arch,
       nodeVersion: process.version,

@@ -3,7 +3,7 @@
  * 支持内存缓存、Redis缓存和自定义缓存策略
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class CacheManager {
   constructor(options = {}) {

@@ -10,7 +10,7 @@
  */
 
 import { EventEmitter } from 'events';
-import { logger } from '../utils/logger.js';
+import { logger } from '../shared/utils/logger.js';
 import { frysError } from './error-handler.js';
 
 class MemoryNode {
@@ -25,9 +25,9 @@ class MemoryNode {
       lastAccessed: new Date(),
       importance: 1.0, // 0-1, 重要性评分
       confidence: 1.0, // 0-1, 置信度
-      source: null,    // 来源标识
+      source: null, // 来源标识
       tags: [],
-      ...metadata
+      ...metadata,
     };
 
     this.connections = new Map(); // {targetId: {type, strength, createdAt}}
@@ -39,7 +39,7 @@ class MemoryNode {
     this.connections.set(targetId, {
       type: connectionType,
       strength,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
     this.metadata.updatedAt = new Date();
   }
@@ -72,8 +72,8 @@ class MemoryNode {
       const queryWords = query.toLowerCase().split(/\s+/);
       const contentWords = this.content.toLowerCase().split(/\s+/);
 
-      const matches = queryWords.filter(word =>
-        contentWords.some(contentWord => contentWord.includes(word))
+      const matches = queryWords.filter((word) =>
+        contentWords.some((contentWord) => contentWord.includes(word)),
       );
 
       score += (matches.length / queryWords.length) * 0.5;
@@ -81,8 +81,8 @@ class MemoryNode {
 
     // 标签匹配
     if (this.metadata.tags && Array.isArray(this.metadata.tags)) {
-      const tagMatches = this.metadata.tags.filter(tag =>
-        query.toLowerCase().includes(tag.toLowerCase())
+      const tagMatches = this.metadata.tags.filter((tag) =>
+        query.toLowerCase().includes(tag.toLowerCase()),
       );
       score += (tagMatches.length / this.metadata.tags.length) * 0.3;
     }
@@ -102,7 +102,7 @@ class MemoryNode {
       metadata: this.metadata,
       connections: Array.from(this.connections.entries()),
       hasVector: this.vector !== null,
-      hasSummary: this.summary !== null
+      hasSummary: this.summary !== null,
     };
   }
 }
@@ -157,8 +157,8 @@ class KnowledgeGraph {
       properties: {
         createdAt: new Date(),
         strength: 1.0,
-        ...properties
-      }
+        ...properties,
+      },
     });
 
     // 更新节点连接
@@ -205,17 +205,23 @@ class KnowledgeGraph {
 
   findNodesByType(type) {
     const nodeIds = this.typeIndex.get(type) || new Set();
-    return Array.from(nodeIds).map(id => this.nodes.get(id)).filter(Boolean);
+    return Array.from(nodeIds)
+      .map((id) => this.nodes.get(id))
+      .filter(Boolean);
   }
 
   findNodesByTag(tag) {
     const nodeIds = this.tagIndex.get(tag) || new Set();
-    return Array.from(nodeIds).map(id => this.nodes.get(id)).filter(Boolean);
+    return Array.from(nodeIds)
+      .map((id) => this.nodes.get(id))
+      .filter(Boolean);
   }
 
   findNodesByEntity(entityName) {
     const nodeIds = this.entityIndex.get(entityName) || new Set();
-    return Array.from(nodeIds).map(id => this.nodes.get(id)).filter(Boolean);
+    return Array.from(nodeIds)
+      .map((id) => this.nodes.get(id))
+      .filter(Boolean);
   }
 
   findRelatedNodes(nodeId, maxDepth = 2, relationTypes = null) {
@@ -230,7 +236,8 @@ class KnowledgeGraph {
         if (edge.sourceId === currentId || edge.targetId === currentId) {
           if (relationTypes && !relationTypes.includes(edge.type)) continue;
 
-          const targetId = edge.sourceId === currentId ? edge.targetId : edge.sourceId;
+          const targetId =
+            edge.sourceId === currentId ? edge.targetId : edge.sourceId;
           if (!visited.has(targetId)) {
             related.add(targetId);
             traverse(targetId, depth + 1);
@@ -240,7 +247,9 @@ class KnowledgeGraph {
     };
 
     traverse(nodeId, 0);
-    return Array.from(related).map(id => this.nodes.get(id)).filter(Boolean);
+    return Array.from(related)
+      .map((id) => this.nodes.get(id))
+      .filter(Boolean);
   }
 
   extractEntityName(content) {
@@ -251,7 +260,7 @@ class KnowledgeGraph {
     const patterns = [
       /(?:先生|女士|教授|博士)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/g, // 英文人名
       /([北京|上海|广州|深圳|杭州|南京|苏州|武汉|西安|成都|重庆][市|省|自治区]?)/g, // 中国城市
-      /([腾讯|阿里|百度|字节跳动|京东|美团|滴滴|网易|新浪][公司|集团|科技]?)/g // 公司名称
+      /([腾讯|阿里|百度|字节跳动|京东|美团|滴滴|网易|新浪][公司|集团|科技]?)/g, // 公司名称
     ];
 
     for (const pattern of patterns) {
@@ -275,7 +284,7 @@ class KnowledgeGraph {
       totalEdges: this.edges.size,
       nodeTypes: nodeStats,
       entities: this.entityIndex.size,
-      tags: this.tagIndex.size
+      tags: this.tagIndex.size,
     };
   }
 }
@@ -340,8 +349,10 @@ class VectorStore {
   getStats() {
     return {
       totalVectors: this.vectors.size,
-      averageDimension: this.vectors.size > 0 ?
-        Array.from(this.vectors.values())[0]?.length || 0 : 0
+      averageDimension:
+        this.vectors.size > 0
+          ? Array.from(this.vectors.values())[0]?.length || 0
+          : 0,
     };
   }
 }
@@ -357,7 +368,7 @@ export class MemoryNetwork extends EventEmitter {
       compressionThreshold: 1000,
       similarityThreshold: 0.8,
       vectorDimension: 384, // 默认向量维度
-      ...options
+      ...options,
     };
 
     this.knowledgeGraph = new KnowledgeGraph();
@@ -370,7 +381,7 @@ export class MemoryNetwork extends EventEmitter {
       compressedNodes: 0,
       mergedNodes: 0,
       searchQueries: 0,
-      averageResponseTime: 0
+      averageResponseTime: 0,
     };
 
     // 启动自动维护任务
@@ -384,14 +395,20 @@ export class MemoryNetwork extends EventEmitter {
 
   startMaintenanceTasks() {
     // 每小时执行一次内存压缩
-    setInterval(() => {
-      this.compressMemories();
-    }, 60 * 60 * 1000);
+    setInterval(
+      () => {
+        this.compressMemories();
+      },
+      60 * 60 * 1000,
+    );
 
     // 每30分钟执行一次相似性合并
-    setInterval(() => {
-      this.mergeSimilarMemories();
-    }, 30 * 60 * 1000);
+    setInterval(
+      () => {
+        this.mergeSimilarMemories();
+      },
+      30 * 60 * 1000,
+    );
   }
 
   async storeMemory(sessionId, type, content, metadata = {}) {
@@ -399,7 +416,7 @@ export class MemoryNetwork extends EventEmitter {
 
     const memoryNode = new MemoryNode(nodeId, type, content, {
       sessionId,
-      ...metadata
+      ...metadata,
     });
 
     // 添加到知识图谱
@@ -425,7 +442,8 @@ export class MemoryNetwork extends EventEmitter {
       nodeId,
       sessionId,
       type,
-      content: typeof content === 'string' ? content.substring(0, 100) : content
+      content:
+        typeof content === 'string' ? content.substring(0, 100) : content,
     });
 
     logger.info(`Stored memory node ${nodeId} for session ${sessionId}`);
@@ -442,7 +460,7 @@ export class MemoryNetwork extends EventEmitter {
       type = null,
       tags = [],
       useVector = true,
-      minRelevance = 0.1
+      minRelevance = 0.1,
     } = options;
 
     let candidates = [];
@@ -450,18 +468,18 @@ export class MemoryNetwork extends EventEmitter {
     // 1. 基于会话的初步筛选
     const sessionNodes = this.sessions.get(sessionId) || new Set();
     candidates = Array.from(sessionNodes)
-      .map(nodeId => this.memoryNodes.get(nodeId))
+      .map((nodeId) => this.memoryNodes.get(nodeId))
       .filter(Boolean);
 
     // 2. 类型筛选
     if (type) {
-      candidates = candidates.filter(node => node.type === type);
+      candidates = candidates.filter((node) => node.type === type);
     }
 
     // 3. 标签筛选
     if (tags.length > 0) {
-      candidates = candidates.filter(node =>
-        tags.some(tag => node.metadata.tags?.includes(tag))
+      candidates = candidates.filter((node) =>
+        tags.some((tag) => node.metadata.tags?.includes(tag)),
       );
     }
 
@@ -474,7 +492,7 @@ export class MemoryNetwork extends EventEmitter {
         results.push({
           node,
           relevance,
-          vectorSimilarity: 0
+          vectorSimilarity: 0,
         });
       }
     }
@@ -485,14 +503,14 @@ export class MemoryNetwork extends EventEmitter {
       const vectorResults = await this.vectorStore.findSimilarVectors(
         queryVector,
         limit,
-        minRelevance
+        minRelevance,
       );
 
       // 合并结果
       for (const { nodeId, similarity } of vectorResults) {
         const node = this.memoryNodes.get(nodeId);
         if (node) {
-          const existing = results.find(r => r.node.id === nodeId);
+          const existing = results.find((r) => r.node.id === nodeId);
           if (existing) {
             existing.vectorSimilarity = similarity;
             existing.relevance = Math.max(existing.relevance, similarity);
@@ -500,7 +518,7 @@ export class MemoryNetwork extends EventEmitter {
             results.push({
               node,
               relevance: similarity,
-              vectorSimilarity: similarity
+              vectorSimilarity: similarity,
             });
           }
         }
@@ -511,13 +529,13 @@ export class MemoryNetwork extends EventEmitter {
     const sortedResults = results
       .sort((a, b) => b.relevance - a.relevance)
       .slice(0, limit)
-      .map(result => ({
+      .map((result) => ({
         nodeId: result.node.id,
         type: result.node.type,
         content: result.node.content,
         relevance: result.relevance,
         vectorSimilarity: result.vectorSimilarity,
-        metadata: result.node.metadata
+        metadata: result.node.metadata,
       }));
 
     const responseTime = Date.now() - startTime;
@@ -527,7 +545,7 @@ export class MemoryNetwork extends EventEmitter {
       sessionId,
       query,
       resultCount: sortedResults.length,
-      responseTime
+      responseTime,
     });
 
     return sortedResults;
@@ -612,14 +630,14 @@ export class MemoryNetwork extends EventEmitter {
 
     // 归一化
     const norm = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
-    return vector.map(val => val / norm);
+    return vector.map((val) => val / norm);
   }
 
   simpleHash(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // 转换为32位整数
     }
     return hash;
@@ -627,15 +645,16 @@ export class MemoryNetwork extends EventEmitter {
 
   async compressMemories() {
     // 压缩旧的、不重要的记忆
-    const nodesToCompress = Array.from(this.memoryNodes.values())
-      .filter(node => {
+    const nodesToCompress = Array.from(this.memoryNodes.values()).filter(
+      (node) => {
         const age = Date.now() - node.metadata.createdAt.getTime();
         const isOld = age > 7 * 24 * 60 * 60 * 1000; // 7天
         const isLowImportance = node.metadata.importance < 0.3;
         const isLowAccess = node.metadata.accessCount < 3;
 
         return isOld && (isLowImportance || isLowAccess);
-      });
+      },
+    );
 
     for (const node of nodesToCompress) {
       if (!node.summary) {
@@ -698,14 +717,17 @@ export class MemoryNetwork extends EventEmitter {
     let similarity = 0;
 
     // 内容相似度
-    if (typeof node1.content === 'string' && typeof node2.content === 'string') {
+    if (
+      typeof node1.content === 'string' &&
+      typeof node2.content === 'string'
+    ) {
       const words1 = new Set(node1.content.toLowerCase().split(/\s+/));
       const words2 = new Set(node2.content.toLowerCase().split(/\s+/));
 
-      const intersection = new Set([...words1].filter(x => words2.has(x)));
+      const intersection = new Set([...words1].filter((x) => words2.has(x)));
       const union = new Set([...words1, ...words2]);
 
-      similarity += intersection.size / union.size * 0.6;
+      similarity += (intersection.size / union.size) * 0.6;
     }
 
     // 标签相似度
@@ -713,10 +735,10 @@ export class MemoryNetwork extends EventEmitter {
       const tags1 = new Set(node1.metadata.tags);
       const tags2 = new Set(node2.metadata.tags);
 
-      const intersection = new Set([...tags1].filter(x => tags2.has(x)));
+      const intersection = new Set([...tags1].filter((x) => tags2.has(x)));
       const union = new Set([...tags1, ...tags2]);
 
-      similarity += intersection.size / union.size * 0.4;
+      similarity += (intersection.size / union.size) * 0.4;
     }
 
     return similarity;
@@ -725,8 +747,10 @@ export class MemoryNetwork extends EventEmitter {
   async mergeNodeGroup(nodes) {
     // 将相似节点合并为一个
     const primaryNode = nodes[0];
-    const mergedContent = nodes.map(n => n.content).join('\n---\n');
-    const mergedTags = [...new Set(nodes.flatMap(n => n.metadata.tags || []))];
+    const mergedContent = nodes.map((n) => n.content).join('\n---\n');
+    const mergedTags = [
+      ...new Set(nodes.flatMap((n) => n.metadata.tags || [])),
+    ];
 
     // 更新主要节点
     await this.updateMemory(primaryNode.id, {
@@ -734,9 +758,9 @@ export class MemoryNetwork extends EventEmitter {
       metadata: {
         mergedCount: nodes.length,
         mergedAt: new Date(),
-        originalNodes: nodes.slice(1).map(n => n.id)
+        originalNodes: nodes.slice(1).map((n) => n.id),
       },
-      tags: mergedTags
+      tags: mergedTags,
     });
 
     // 删除其他节点
@@ -749,15 +773,17 @@ export class MemoryNetwork extends EventEmitter {
     // 简化的摘要生成（实际应调用AI模型）
     if (typeof content !== 'string') return content;
 
-    const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const sentences = content
+      .split(/[.!?]+/)
+      .filter((s) => s.trim().length > 0);
     if (sentences.length <= 2) return content;
 
     // 取前两个和最后一个句子作为摘要
     const summary = `${[
       sentences[0],
       sentences[1],
-      sentences[sentences.length - 1]
-    ].join('. ')  }.`;
+      sentences[sentences.length - 1],
+    ].join('. ')}.`;
 
     return summary;
   }
@@ -772,9 +798,9 @@ export class MemoryNetwork extends EventEmitter {
   getSessionMemories(sessionId) {
     const nodeIds = this.sessions.get(sessionId) || new Set();
     return Array.from(nodeIds)
-      .map(id => this.memoryNodes.get(id))
+      .map((id) => this.memoryNodes.get(id))
       .filter(Boolean)
-      .map(node => node.toJSON());
+      .map((node) => node.toJSON());
   }
 
   getStats() {
@@ -783,7 +809,7 @@ export class MemoryNetwork extends EventEmitter {
       knowledgeGraph: this.knowledgeGraph.getStats(),
       vectorStore: this.vectorStore.getStats(),
       activeSessions: this.sessions.size,
-      memoryUsage: this.calculateMemoryUsage()
+      memoryUsage: this.calculateMemoryUsage(),
     };
   }
 

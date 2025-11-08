@@ -1,10 +1,18 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from '../test-helpers.js';
+
 /**
  * 结构化日志系统测试
  * 验证结构化日志的功能和性能
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { logger, setGlobalLogContext, createRequestLogContext, logPerformance } from '../../src/utils/logger.js';
+import { logger, setGlobalLogContext, createRequestLogContext, logPerformance } from '../../src/shared/utils/logger.js';
 import { randomUUID } from 'crypto';
 
 describe('结构化日志系统测试', () => {

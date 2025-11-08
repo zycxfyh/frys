@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 负载均衡器集成测试
  * 测试负载均衡器的各种算法和健康检查功能
@@ -5,7 +13,7 @@
 
 import { describe, it, expect, beforeAll, afterAll, vi, beforeEach } from 'vitest';
 import { LoadBalancer } from '../../../src/infrastructure/scaling/LoadBalancer.js';
-import { logger } from '../../../src/utils/logger.js';
+import { logger } from '../../../src/shared/utils/logger.js';
 
 // Mock fetch for health checks
 global.fetch = vi.fn();

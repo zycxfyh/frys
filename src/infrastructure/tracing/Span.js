@@ -35,9 +35,23 @@ export class Span {
     this.setTag('component', options.component || 'unknown');
 
     // 处理额外的标签选项
-    const reservedKeys = ['serviceName', 'serviceVersion', 'component', 'traceId', 'spanId', 'parentSpanId', 'startTime', 'references', 'kind'];
+    const reservedKeys = [
+      'serviceName',
+      'serviceVersion',
+      'component',
+      'traceId',
+      'spanId',
+      'parentSpanId',
+      'startTime',
+      'references',
+      'kind',
+    ];
     for (const [key, value] of Object.entries(options)) {
-      if (!reservedKeys.includes(key) && value !== null && value !== undefined) {
+      if (
+        !reservedKeys.includes(key) &&
+        value !== null &&
+        value !== undefined
+      ) {
         this.setTag(key, value);
       }
     }

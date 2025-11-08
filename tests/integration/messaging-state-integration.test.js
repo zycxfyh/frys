@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 消息队列与状态管理的集成测试
  * 测试实时数据同步和事件驱动的状态更新

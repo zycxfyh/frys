@@ -6,7 +6,7 @@
 import { Worker } from 'worker_threads';
 import path from 'path';
 import { AbstractResourcePool } from './AbstractResourcePool.js';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class WorkerPool extends AbstractResourcePool {
   constructor(workerScript, options = {}) {

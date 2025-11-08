@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from '../test-helpers.js';
+
 /**
  * 权限提升攻击测试
  * 模拟各种权限提升攻击向量

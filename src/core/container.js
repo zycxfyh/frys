@@ -3,15 +3,19 @@
  * 使用 Awilix 替代自建的 LightweightContainer
  */
 
-import { createContainer, asClass, asFunction, asValue, Lifetime } from 'awilix';
-import { logger } from '../utils/logger.js';
-import { config } from '../utils/config.js';
+import {
+  createContainer,
+  asClass,
+  asFunction,
+  asValue,
+  Lifetime,
+} from 'awilix';
+import { logger } from '../shared/utils/logger.js';
+import { config } from '../shared/utils/config.js';
 
 // 导入服务
-import { WorkflowEngine } from '../services/WorkflowEngine.js';
-import { UserService } from '../services/UserService.js';
-import { LangChainService } from '../application/services/ai/LangChainService.js';
-import { CogneeMemoryService } from '../application/services/ai/CogneeMemoryService.js';
+import { WorkflowEngine } from '../application/services/WorkflowEngine.js';
+import { UserService } from '../shared/services/UserService.js';
 import { ConversationManager } from '../application/services/ConversationManager.js';
 
 // 创建 Awilix 容器
@@ -30,38 +34,13 @@ let modulesLoaded = false;
 async function loadCoreModules() {
   if (modulesLoaded) return;
 
-  // 动态导入核心模块
-  const [
-    { default: AxiosInspiredHTTP },
-    { default: messagingAdapter },
-    { default: ZustandInspiredState },
-    { default: JWTInspiredAuth },
-    { default: DayJSInspiredDate },
-    { default: LodashInspiredUtils },
-    { eventSystem },
-    { default: errorHandler },
-    { default: pluginManager }
-  ] = await Promise.all([
-    import('./AxiosInspiredHTTP.js'),
-    import('./messaging-adapter.js'),
-    import('./ZustandInspiredState.js'),
-    import('./JWTInspiredAuth.js'),
-    import('./DayJSInspiredDate.js'),
-    import('./LodashInspiredUtils.js'),
-    import('./events.js'),
-    import('./error-handler.js'),
-    import('./plugin-system.js')
-  ]);
+  // 导入核心模块
+  const { eventSystem } = await import('./event/EventBus.js');
+  const { default: errorHandler } = await import('./ErrorHandlerConfig.js');
+  const { pluginManager } = await import('./PluginSystem.js');
 
-  // 注册类类型依赖 - 单例生命周期
+  // 注册核心服务
   container.register({
-    http: asClass(AxiosInspiredHTTP).singleton(),
-    messaging: asValue(messagingAdapter),
-    state: asClass(ZustandInspiredState).singleton(),
-    auth: asClass(JWTInspiredAuth).singleton(),
-    date: asClass(DayJSInspiredDate).singleton(),
-    utils: asClass(LodashInspiredUtils).singleton(),
-
     // 系统服务
     eventSystem: asValue(eventSystem),
     errorHandler: asValue(errorHandler),
@@ -93,9 +72,24 @@ async function loadCoreModules() {
 
   // 注册AI服务
   container.register({
-    langChainService: asClass(LangChainService).singleton(),
-    cogneeMemoryService: asClass(CogneeMemoryService).singleton(),
     conversationManager: asClass(ConversationManager).singleton(),
+  });
+
+  // 注册基础服务
+  const { default: AxiosInspiredHTTP } = await import('./AxiosInspiredHTTP.js');
+  const { default: JWTInspiredAuth } = await import('./JWTInspiredAuth.js');
+  const { default: DayJSInspiredDate } = await import('./DayJSInspiredDate.js');
+  const { default: LodashInspiredUtils } = await import('./LodashInspiredUtils.js');
+  const { default: ZustandInspiredState } = await import('./ZustandInspiredState.js');
+  const { messagingAdapter } = await import('./MessagingAdapter.js');
+
+  container.register({
+    http: asClass(AxiosInspiredHTTP).singleton(),
+    auth: asClass(JWTInspiredAuth).singleton(),
+    date: asClass(DayJSInspiredDate).singleton(),
+    utils: asClass(LodashInspiredUtils).singleton(),
+    state: asClass(ZustandInspiredState).singleton(),
+    messaging: asValue(messagingAdapter),
   });
 
   modulesLoaded = true;
@@ -124,7 +118,11 @@ export function resolve(name) {
 /**
  * 注册新服务
  */
-export function registerService(name, serviceClass, lifetime = Lifetime.SINGLETON) {
+export function registerService(
+  name,
+  serviceClass,
+  lifetime = Lifetime.SINGLETON,
+) {
   container.register(name, asClass(serviceClass)[lifetime]());
   logger.debug(`✅ 服务已注册: ${name}`);
 }
@@ -140,7 +138,11 @@ export function registerValue(name, value) {
 /**
  * 注册工厂函数
  */
-export function registerFactory(name, factoryFn, lifetime = Lifetime.SINGLETON) {
+export function registerFactory(
+  name,
+  factoryFn,
+  lifetime = Lifetime.SINGLETON,
+) {
   container.register(name, asFunction(factoryFn)[lifetime]());
   logger.debug(`✅ 工厂函数已注册: ${name}`);
 }

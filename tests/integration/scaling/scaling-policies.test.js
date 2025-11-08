@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 扩容策略集成测试
  * 测试各种扩容策略的决策逻辑
@@ -11,7 +19,7 @@ import {
   RequestScalingPolicy,
   CompositeScalingPolicy
 } from '../../../src/infrastructure/scaling/ScalingPolicy.js';
-import { logger } from '../../../src/utils/logger.js';
+import { logger } from '../../../src/shared/utils/logger.js';
 
 describe('扩容策略集成测试', () => {
   beforeAll(() => {

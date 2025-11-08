@@ -3,10 +3,10 @@
  * 为所有服务提供通用的导入和基础功能
  */
 
-import { logger } from '../utils/logger.js';
-import { eventSystem } from './events.js';
-import { errorHandler } from './error-handler.js';
-import { config } from '../utils/config.js';
+import { logger } from '../shared/utils/logger.js';
+import { eventSystem } from './event/EventBus.js';
+import { errorHandler } from './ErrorHandlerConfig.js';
+import { config } from '../shared/utils/config.js';
 
 class BaseService {
   constructor(serviceName = 'BaseService') {
@@ -21,7 +21,10 @@ class BaseService {
    * 记录信息日志
    */
   logInfo(message, meta = {}) {
-    this.logger.info(`[${this.serviceName}] ${message}`, { service: this.serviceName, ...meta });
+    this.logger.info(`[${this.serviceName}] ${message}`, {
+      service: this.serviceName,
+      ...meta,
+    });
   }
 
   /**
@@ -32,7 +35,7 @@ class BaseService {
       service: this.serviceName,
       error: error.message,
       stack: error.stack,
-      ...meta
+      ...meta,
     });
   }
 
@@ -40,7 +43,10 @@ class BaseService {
    * 记录警告日志
    */
   logWarn(message, meta = {}) {
-    this.logger.warn(`[${this.serviceName}] ${message}`, { service: this.serviceName, ...meta });
+    this.logger.warn(`[${this.serviceName}] ${message}`, {
+      service: this.serviceName,
+      ...meta,
+    });
   }
 
   /**
@@ -50,7 +56,7 @@ class BaseService {
     this.eventSystem.emit(eventName, {
       service: this.serviceName,
       timestamp: new Date().toISOString(),
-      ...data
+      ...data,
     });
   }
 
@@ -67,7 +73,7 @@ class BaseService {
   handleError(error, context = {}) {
     return this.errorHandler.handle(error, {
       service: this.serviceName,
-      ...context
+      ...context,
     });
   }
 
@@ -89,9 +95,11 @@ class BaseService {
    * 验证必需的配置
    */
   validateRequiredConfig(requiredKeys) {
-    const missingKeys = requiredKeys.filter(key => !this.getConfig(key));
+    const missingKeys = requiredKeys.filter((key) => !this.getConfig(key));
     if (missingKeys.length > 0) {
-      throw new Error(`[${this.serviceName}] 缺少必需的配置: ${missingKeys.join(', ')}`);
+      throw new Error(
+        `[${this.serviceName}] 缺少必需的配置: ${missingKeys.join(', ')}`,
+      );
     }
   }
 
@@ -106,11 +114,18 @@ class BaseService {
       const result = await operation();
 
       const duration = Date.now() - startTime;
-      this.logInfo(`操作完成: ${operation.name || 'anonymous'}`, { duration, ...context });
+      this.logInfo(`操作完成: ${operation.name || 'anonymous'}`, {
+        duration,
+        ...context,
+      });
 
       return result;
     } catch (error) {
-      this.logError(`操作失败: ${operation.name || 'anonymous'}`, error, context);
+      this.logError(
+        `操作失败: ${operation.name || 'anonymous'}`,
+        error,
+        context,
+      );
       throw this.handleError(error, context);
     }
   }

@@ -3,7 +3,7 @@
  * 提供各种异常恢复机制和自动修复策略
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import { EventBus } from '../../shared/kernel/EventBus.js';
 
 export class ExceptionRecoveryStrategies {

@@ -3,7 +3,7 @@
  * 统一管理数据库连接、优化、迁移和监控
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import DatabaseConnectionPool from './DatabaseConnectionPool.js';
 import DatabaseOptimizer from './DatabaseOptimizer.js';
 import MigrationManager from './MigrationManager.js';

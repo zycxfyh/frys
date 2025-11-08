@@ -7,7 +7,7 @@ import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
 import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
 import SQLiteInspiredDatabase from '../../src/core/SQLiteInspiredDatabase.js';
-import { logger } from '../../src/utils/logger.js';
+import { logger } from '../../src/shared/utils/logger.js';
 
 // 红客对抗测试框架
 export class RedTeamFramework {

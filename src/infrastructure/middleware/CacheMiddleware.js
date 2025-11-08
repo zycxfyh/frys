@@ -3,7 +3,7 @@
  * 为HTTP请求提供缓存功能
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class CacheMiddleware {
   constructor(cacheService, options = {}) {
@@ -197,7 +197,7 @@ export class CacheMiddleware {
         headers: {
           'content-type': headers['content-type'] || 'application/json',
           'x-cached-at': new Date().toISOString(),
-          'x-cache-ttl': `${this.options.defaultTtl / 1000  }s`,
+          'x-cache-ttl': `${this.options.defaultTtl / 1000}s`,
         },
         body,
         expiry: Date.now() + this.options.defaultTtl,

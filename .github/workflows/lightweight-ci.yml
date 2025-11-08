@@ -1,0 +1,299 @@
+name: 🪶 轻量化CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '部署环境'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  NODE_VERSION: '18'
+  REGISTRY: ghcr.io
+
+# 轻量化并发控制
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # 1️⃣ 轻量化验证
+  light-validate:
+    name: '1️⃣ 轻量化验证'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
+      config-valid: ${{ steps.config-check.outputs.valid }}
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 🟢 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 轻量化依赖缓存
+      id: cache-deps
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm
+          node_modules
+        key: light-${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          light-${{ runner.os }}-node-
+
+    - name: 📦 安装最小依赖
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: npm ci --only=production --no-optional
+
+    - name: ⚙️ 配置验证
+      id: config-check
+      run: |
+        echo "🔍 验证轻量化配置..."
+        node -e "
+        try {
+          const config = require('./config/lightweight.config.js');
+          const validation = config.validateConfig(config.config);
+          console.log('配置验证结果:', validation.valid);
+          if (!validation.valid) {
+            console.error('配置错误:', validation.errors);
+            process.exit(1);
+          }
+        } catch (error) {
+          console.error('配置加载失败:', error);
+          process.exit(1);
+        }
+        "
+        echo "valid=true" >> $GITHUB_OUTPUT
+
+    - name: 📋 项目结构检查
+      run: |
+        echo "📊 项目结构概览:"
+        find . -maxdepth 2 -name "*.js" -o -name "*.json" | wc -l | xargs echo "JavaScript文件数量:"
+        echo "配置大小: $(du -sh . | cut -f1)"
+
+  # 2️⃣ 轻量化测试
+  light-test:
+    name: '2️⃣ 轻量化测试'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    needs: light-validate
+    strategy:
+      matrix:
+        test-type: [unit, integration]
+      fail-fast: false
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🟢 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 🧪 单元测试 (轻量化)
+      if: matrix.test-type == 'unit'
+      run: |
+        echo "🧪 执行轻量化单元测试..."
+        npm run test:ci:unit -- --maxWorkers=2 --reporter=json
+
+    - name: 🔗 集成测试 (轻量化)
+      if: matrix.test-type == 'integration'
+      run: |
+        echo "🔗 执行轻量化集成测试..."
+        npm run test:ci:integration -- --maxWorkers=2 --reporter=json
+
+    - name: 📊 轻量化覆盖率检查
+      if: matrix.test-type == 'unit'
+      run: |
+        echo "📊 检查覆盖率..."
+        if [ -f coverage/coverage-summary.json ]; then
+          COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct // 0')
+          echo "覆盖率: ${COVERAGE}%"
+          if (( $(echo "$COVERAGE < 70" | bc -l) )); then
+            echo "⚠️ 覆盖率偏低但允许继续: ${COVERAGE}%"
+          fi
+        fi
+
+    - name: 📤 上传测试产物
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: light-test-results-${{ matrix.test-type }}
+        path: |
+          test-results/
+          coverage/
+        retention-days: 7
+
+  # 3️⃣ 轻量化构建
+  light-build:
+    name: '3️⃣ 轻量化构建'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    needs: [light-validate, light-test]
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🟢 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 安装依赖
+      run: npm ci
+
+    - name: 🏗️ 轻量化构建
+      run: |
+        echo "🏗️ 执行轻量化构建..."
+        npm run light:build
+
+    - name: 📊 构建产物检查
+      run: |
+        echo "📊 检查构建产物..."
+        if [ -d dist ]; then
+          echo "构建产物大小: $(du -sh dist | cut -f1)"
+          echo "产物文件数: $(find dist -type f | wc -l)"
+        else
+          echo "❌ 构建产物不存在"
+          exit 1
+        fi
+
+    - name: 📤 上传构建产物
+      uses: actions/upload-artifact@v4
+      with:
+        name: light-build-artifacts
+        path: |
+          dist/
+          build-report.json
+        retention-days: 7
+
+  # 4️⃣ 轻量化部署 (仅staging)
+  light-deploy:
+    name: '4️⃣ 轻量化部署'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: light-build
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    environment: staging
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 🔐 下载构建产物
+      uses: actions/download-artifact@v4
+      with:
+        name: light-build-artifacts
+
+    - name: 🚀 轻量化部署
+      run: |
+        echo "🚀 执行轻量化部署..."
+        npm run light:deploy
+
+    - name: 🩺 部署健康检查
+      run: |
+        echo "🩺 执行部署健康检查..."
+        timeout 30 bash -c 'until curl -f http://localhost:3000/health; do sleep 2; done'
+        echo "✅ 部署健康检查通过"
+
+    - name: 📋 生成部署摘要
+      run: |
+        echo "📋 部署摘要:"
+        echo "- 环境: staging"
+        echo "- 提交: ${GITHUB_SHA:0:7}"
+        echo "- 时间: $(date)"
+        echo "- 状态: ✅ 成功"
+
+  # 5️⃣ 轻量化监控
+  light-monitor:
+    name: '5️⃣ 轻量化监控'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    needs: light-deploy
+    if: always()
+
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+
+    - name: 📊 收集轻量化指标
+      run: |
+        echo "📊 收集部署指标..."
+        cat > light-metrics.json << EOF
+        {
+          "timestamp": "$(date -Iseconds)",
+          "workflow": "${{ github.workflow }}",
+          "run_id": "${{ github.run_id }}",
+          "commit": "${{ github.sha }}",
+          "branch": "${{ github.ref }}",
+          "metrics": {
+            "validate_duration": "${{ needs.light-validate.result == 'success' && 'passed' || 'failed' }}",
+            "test_duration": "${{ needs.light-test.result == 'success' && 'passed' || 'failed' }}",
+            "build_duration": "${{ needs.light-build.result == 'success' && 'passed' || 'failed' }}",
+            "deploy_duration": "${{ needs.light-deploy.result == 'success' && 'passed' || 'failed' }}"
+          }
+        }
+        EOF
+
+    - name: 📤 上传监控指标
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: light-metrics
+        path: light-metrics.json
+        retention-days: 30
+
+    - name: 🎯 部署完成通知
+      if: always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const status = '${{ needs.light-deploy.result }}';
+          const message = `🪶 **轻量化部署完成报告**
+
+**状态**: ${status === 'success' ? '✅ 成功' : '❌ 失败'}
+**环境**: staging
+**提交**: \`${context.sha.substring(0, 7)}\`
+**时间**: ${new Date().toISOString()}
+
+### 📊 流水线概览
+- ✅ 轻量化验证: ${{ needs.light-validate.result == 'success' ? '通过' : '失败' }}
+- ✅ 轻量化测试: ${{ needs.light-test.result == 'success' ? '通过' : '失败' }}
+- ✅ 轻量化构建: ${{ needs.light-build.result == 'success' ? '通过' : '失败' }}
+- 🚀 轻量化部署: ${status === 'success' ? '成功' : '失败'}
+
+---
+*自动生成 by 轻量化CI/CD Pipeline*`;
+
+          if (context.issue) {
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+          }

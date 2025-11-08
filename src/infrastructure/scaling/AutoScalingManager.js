@@ -3,7 +3,7 @@
  * 基于指标和策略自动管理服务实例的扩容和缩容
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import { ScalingMetrics } from './ScalingMetrics.js';
 import { ScalingPolicy } from './ScalingPolicy.js';
 import { LoadBalancer } from './LoadBalancer.js';

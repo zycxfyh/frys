@@ -3,7 +3,7 @@
  * 提供通用的资源池化功能和生命周期管理
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class AbstractResourcePool {
   constructor(options = {}) {

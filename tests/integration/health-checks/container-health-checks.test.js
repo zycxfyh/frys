@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 容器健康检查集成测试
  * 测试健康检查器、资源限制和中间件的集成功能
@@ -10,7 +18,7 @@ import { KubernetesHealthChecker } from '../../../src/infrastructure/health-chec
 import { ResourceLimits, ContainerResourceLimits } from '../../../src/infrastructure/health-checks/ResourceLimits.js';
 import { HealthCheckMiddleware } from '../../../src/infrastructure/health-checks/HealthCheckMiddleware.js';
 import { EventBus } from '../../../src/shared/kernel/EventBus.js';
-import { logger } from '../../../src/utils/logger.js';
+import { logger } from '../../../src/shared/utils/logger.js';
 
 // Mock logger
 vi.spyOn(logger, 'info').mockImplementation(() => {});

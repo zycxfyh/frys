@@ -3,7 +3,7 @@
  * 提供轻量级的服务定位和依赖管理
  */
 
-import { logger } from '../utils/logger.js';
+import { logger } from '../shared/utils/logger.js';
 
 /**
  * 轻量级依赖注入容器

@@ -3,7 +3,7 @@
  * 控制哪些请求应该被追踪以平衡性能和可观测性
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class SamplingStrategy {
   constructor(config = {}) {

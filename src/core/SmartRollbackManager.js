@@ -3,7 +3,7 @@
  * 基于监控指标的自动化回退决策和执行
  */
 
-import { logger, logPerformance } from '../utils/logger.js';
+import { logger, logPerformance } from '../shared/utils/logger.js';
 import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -563,7 +563,7 @@ class SmartRollbackManager {
     try {
       // 调用现有的流量切换脚本
       const result = await this.runCommand('./scripts/rollback.sh', [
-        `--env=${  this.options.environment}`,
+        `--env=${this.options.environment}`,
       ]);
 
       if (result.success) {
@@ -616,8 +616,8 @@ class SmartRollbackManager {
 
         // 执行版本回滚
         const result = await this.runCommand('./scripts/deploy.sh', [
-          `--env=${  this.options.environment}`,
-          `--version=${  previousVersion}`,
+          `--env=${this.options.environment}`,
+          `--version=${previousVersion}`,
         ]);
 
         return result.success;
@@ -642,7 +642,7 @@ class SmartRollbackManager {
       await this.runCommand('docker-compose', ['stop'], {
         cwd: path.join(
           process.cwd(),
-          `docker-compose.${  this.options.environment  }.yml`,
+          `docker-compose.${this.options.environment}.yml`,
         ),
       });
 

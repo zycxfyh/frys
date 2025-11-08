@@ -1,11 +1,19 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 性能监控集成测试
  * 验证性能监控、告警和健康检查功能
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import PerformanceMonitoringMiddleware from '../../src/middleware/performance-monitoring.middleware.js';
-import { logger } from '../../src/utils/logger.js';
+import PerformanceMonitoringMiddleware from '../../src/presentation/middleware/performance-monitoring.middleware.js';
+import { logger } from '../../src/shared/utils/logger.js';
 
 describe('性能监控集成测试', () => {
   let monitoringMiddleware;

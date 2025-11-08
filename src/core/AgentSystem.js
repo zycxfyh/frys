@@ -10,7 +10,7 @@
  */
 
 import { EventEmitter } from 'events';
-import { logger } from '../utils/logger.js';
+import { logger } from '../shared/utils/logger.js';
 import { frysError } from './error-handler.js';
 
 class AgentContainer extends EventEmitter {
@@ -22,7 +22,7 @@ class AgentContainer extends EventEmitter {
       timeout: 30000,
       retryAttempts: 3,
       memoryLimit: 100 * 1024 * 1024, // 100MB
-      ...config
+      ...config,
     };
 
     this.state = 'inactive'; // inactive, active, suspended, terminated
@@ -47,16 +47,22 @@ class AgentContainer extends EventEmitter {
     });
 
     this.on('task:complete', (taskId, result) => {
-      logger.debug(`Agent ${this.agentId}: Task ${taskId} completed`, { result });
+      logger.debug(`Agent ${this.agentId}: Task ${taskId} completed`, {
+        result,
+      });
     });
 
     this.on('task:error', (taskId, error) => {
       this.errorCount++;
-      logger.error(`Agent ${this.agentId}: Task ${taskId} failed`, { error: error.message });
+      logger.error(`Agent ${this.agentId}: Task ${taskId} failed`, {
+        error: error.message,
+      });
     });
 
     this.on('state:change', (oldState, newState) => {
-      logger.info(`Agent ${this.agentId}: State changed from ${oldState} to ${newState}`);
+      logger.info(
+        `Agent ${this.agentId}: State changed from ${oldState} to ${newState}`,
+      );
     });
   }
 
@@ -109,7 +115,9 @@ class AgentContainer extends EventEmitter {
     }
 
     if (this.tasks.size >= this.config.maxConcurrency) {
-      throw frysError.system(`Agent ${this.agentId} reached max concurrency limit`);
+      throw frysError.system(
+        `Agent ${this.agentId} reached max concurrency limit`,
+      );
     }
 
     this.emit('task:start', taskId);
@@ -117,7 +125,10 @@ class AgentContainer extends EventEmitter {
     try {
       // 设置超时
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(frysError.system(`Task ${taskId} timeout`)), this.config.timeout);
+        setTimeout(
+          () => reject(frysError.system(`Task ${taskId} timeout`)),
+          this.config.timeout,
+        );
       });
 
       // 执行任务
@@ -126,7 +137,6 @@ class AgentContainer extends EventEmitter {
 
       this.emit('task:complete', taskId, result);
       return result;
-
     } catch (error) {
       this.emit('task:error', taskId, error);
       throw error;
@@ -142,7 +152,7 @@ class AgentContainer extends EventEmitter {
       capabilities: Array.from(this.capabilities),
       permissions: Array.from(this.permissions),
       memory: this.memory,
-      ...context
+      ...context,
     };
 
     return taskFunction(executionContext);
@@ -209,7 +219,7 @@ class AgentContainer extends EventEmitter {
       memoryUsage: this.memory.size,
       createdAt: this.createdAt,
       lastActive: this.lastActive,
-      uptime: this.lastActive ? Date.now() - this.lastActive.getTime() : 0
+      uptime: this.lastActive ? Date.now() - this.lastActive.getTime() : 0,
     };
   }
 }
@@ -226,7 +236,7 @@ export class AIServiceAgent extends AgentContainer {
       requests: 0,
       tokens: 0,
       cost: 0,
-      errors: 0
+      errors: 0,
     };
   }
 
@@ -266,11 +276,10 @@ export class AIServiceAgent extends AgentContainer {
           result: result.choices[0]?.message,
           timestamp: new Date(),
           tokens: result.usage?.total_tokens || 0,
-          cost: result.cost || 0
+          cost: result.cost || 0,
         });
 
         return result;
-
       } catch (error) {
         this.serviceStats.errors++;
         throw error;
@@ -282,8 +291,12 @@ export class AIServiceAgent extends AgentContainer {
     return {
       ...this.getStats(),
       serviceStats: this.serviceStats,
-      successRate: this.serviceStats.requests > 0 ?
-        ((this.serviceStats.requests - this.serviceStats.errors) / this.serviceStats.requests) * 100 : 0
+      successRate:
+        this.serviceStats.requests > 0
+          ? ((this.serviceStats.requests - this.serviceStats.errors) /
+              this.serviceStats.requests) *
+            100
+          : 0,
     };
   }
 }
@@ -313,18 +326,20 @@ export class WorkflowAgent extends AgentContainer {
         definition: workflowDefinition,
         status: 'running',
         startedAt: new Date(),
-        tasks: []
+        tasks: [],
       });
 
       try {
-        const result = await this.workflowEngine.execute(workflowDefinition, inputData);
+        const result = await this.workflowEngine.execute(
+          workflowDefinition,
+          inputData,
+        );
 
         // 更新工作流状态
         this.activeWorkflows.get(workflowId).status = 'completed';
         this.activeWorkflows.get(workflowId).completedAt = new Date();
 
         return result;
-
       } catch (error) {
         // 更新工作流状态
         this.activeWorkflows.get(workflowId).status = 'failed';
@@ -343,7 +358,7 @@ export class WorkflowAgent extends AgentContainer {
       startedAt: workflow.startedAt,
       completedAt: workflow.completedAt,
       failedAt: workflow.failedAt,
-      error: workflow.error
+      error: workflow.error,
     }));
   }
 }
@@ -377,8 +392,8 @@ export class MemoryAgent extends AgentContainer {
           agentId: this.agentId,
           timestamp: new Date(),
           accessCount: 0,
-          lastAccessed: new Date()
-        }
+          lastAccessed: new Date(),
+        },
       };
 
       await this.memoryStore.set(key, memoryEntry);
@@ -416,7 +431,7 @@ export class MemoryAgent extends AgentContainer {
             key,
             data: entry.data,
             score,
-            metadata: entry.metadata
+            metadata: entry.metadata,
           });
         }
       }
@@ -430,7 +445,7 @@ export class MemoryAgent extends AgentContainer {
     const entities = this.extractEntities(data);
     const relations = this.extractRelations(data);
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       if (!this.knowledgeGraph.has(entity)) {
         this.knowledgeGraph.set(entity, new Set());
       }
@@ -438,7 +453,7 @@ export class MemoryAgent extends AgentContainer {
     });
 
     // 存储关系
-    relations.forEach(relation => {
+    relations.forEach((relation) => {
       const relationKey = `${relation.from}_${relation.type}_${relation.to}`;
       this.knowledgeGraph.set(relationKey, new Set([key]));
     });
@@ -468,7 +483,7 @@ export class MemoryAgent extends AgentContainer {
     const queryWords = query.toLowerCase().split(/\s+/);
     const dataWords = data.toLowerCase().split(/\s+/);
 
-    const intersection = queryWords.filter(word => dataWords.includes(word));
+    const intersection = queryWords.filter((word) => dataWords.includes(word));
     const union = new Set([...queryWords, ...dataWords]);
 
     return intersection.length / union.size;
@@ -487,7 +502,7 @@ export class AgentManager {
       totalAgents: 0,
       activeAgents: 0,
       totalTasks: 0,
-      totalErrors: 0
+      totalErrors: 0,
     };
 
     this.registerDefaultAgents();
@@ -596,7 +611,9 @@ export class AgentManager {
     }
 
     if (typeof agent[method] !== 'function') {
-      throw frysError.notFound(`Method '${method}' not found on agent ${agentId}`);
+      throw frysError.notFound(
+        `Method '${method}' not found on agent ${agentId}`,
+      );
     }
 
     this.globalStats.totalTasks++;
@@ -621,18 +638,18 @@ export class AgentManager {
 
     return {
       global: this.globalStats,
-      agents: agentStats
+      agents: agentStats,
     };
   }
 
   getActiveAgents() {
     return Array.from(this.agents.values())
-      .filter(agent => agent.state === 'active')
-      .map(agent => ({
+      .filter((agent) => agent.state === 'active')
+      .map((agent) => ({
         id: agent.agentId,
         type: agent.constructor.name,
         capabilities: Array.from(agent.capabilities),
-        stats: agent.getStats()
+        stats: agent.getStats(),
       }));
   }
 
@@ -656,7 +673,7 @@ export class AgentSystem {
       maxConcurrentAgents: config.maxConcurrentAgents || 10,
       defaultTimeout: config.defaultTimeout || 30000,
       enableMetrics: config.enableMetrics !== false,
-      ...config
+      ...config,
     };
 
     this.agentManager = new AgentManager();
@@ -709,5 +726,5 @@ export default {
   WorkflowAgent,
   MemoryAgent,
   AgentManager,
-  agentManager
+  agentManager,
 };

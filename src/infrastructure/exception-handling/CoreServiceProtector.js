@@ -3,7 +3,7 @@
  * 保护关键服务的可用性，防止级联故障
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import { EventBus } from '../../shared/kernel/EventBus.js';
 
 export class CoreServiceProtector {

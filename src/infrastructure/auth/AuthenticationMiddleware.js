@@ -3,7 +3,7 @@
  * 处理JWT令牌验证和用户身份认证
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class AuthenticationMiddleware {
   constructor(authenticationService, options = {}) {
@@ -116,7 +116,7 @@ export class AuthenticationMiddleware {
   extractToken(req) {
     // 从Authorization头提取
     const authHeader = req.headers[this.options.headerName.toLowerCase()];
-    if (authHeader && authHeader.startsWith(`${this.options.tokenPrefix  } `)) {
+    if (authHeader && authHeader.startsWith(`${this.options.tokenPrefix} `)) {
       return authHeader.substring(this.options.tokenPrefix.length + 1);
     }
 
@@ -306,7 +306,7 @@ export class AuthenticationMiddleware {
     const requests = new Map();
 
     return (req, res, next) => {
-      const key = `${req.ip  }:${  req.user ? req.user.id : 'anonymous'}`;
+      const key = `${req.ip}:${req.user ? req.user.id : 'anonymous'}`;
       const now = Date.now();
       const windowStart = now - config.windowMs;
 

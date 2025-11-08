@@ -3,7 +3,7 @@
  * 借鉴 Prometheus 的指标类型，支持告警和健康检查
  */
 
-import { logger, logPerformance } from '../utils/logger.js';
+import { logger, logPerformance } from '../shared/utils/logger.js';
 
 class PrometheusInspiredMetrics {
   constructor(options = {}) {

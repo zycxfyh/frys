@@ -3,7 +3,7 @@
  * 提供高效的数据库连接管理和连接复用
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import pg from 'pg';
 const { Pool } = pg;
 

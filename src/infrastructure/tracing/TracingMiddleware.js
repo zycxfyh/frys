@@ -3,7 +3,7 @@
  * 自动为HTTP请求创建跨度和注入追踪上下文
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class TracingMiddleware {
   constructor(tracer, config = {}) {
@@ -293,15 +293,17 @@ export class TracingMiddleware {
 
     if (typeof body === 'string') {
       return body.length > this.config.maxBodyLength
-        ? `${body.substring(0, this.config.maxBodyLength)  }...`
+        ? `${body.substring(0, this.config.maxBodyLength)}...`
         : body;
     }
 
     if (typeof body === 'object') {
       const sanitized = this._sanitizeObject(body);
       return JSON.stringify(sanitized).length > this.config.maxBodyLength
-        ? `${JSON.stringify(sanitized).substring(0, this.config.maxBodyLength) 
-            }...`
+        ? `${JSON.stringify(sanitized).substring(
+            0,
+            this.config.maxBodyLength,
+          )}...`
         : sanitized;
     }
 

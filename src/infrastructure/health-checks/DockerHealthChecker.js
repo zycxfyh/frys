@@ -10,7 +10,7 @@ import {
   memoryHealthCheck,
   cpuHealthCheck,
 } from './HealthChecker.js';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import { run_terminal_cmd } from '../../utils/terminal.js';
 
 export class DockerHealthChecker extends HealthChecker {

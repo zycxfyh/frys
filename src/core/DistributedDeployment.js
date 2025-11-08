@@ -11,7 +11,7 @@
  */
 
 import { EventEmitter } from 'events';
-import { logger } from '../utils/logger.js';
+import { logger } from '../shared/utils/logger.js';
 import { frysError } from './error-handler.js';
 import os from 'os';
 import { performance } from 'perf_hooks';
@@ -27,9 +27,9 @@ class NodeInfo {
       resources: {
         cpu: os.cpus().length,
         memory: os.totalmem(),
-        gpu: 0 // 可扩展为GPU数量
+        gpu: 0, // 可扩展为GPU数量
       },
-      ...config
+      ...config,
     };
 
     this.status = 'offline'; // offline, online, busy, maintenance
@@ -41,7 +41,7 @@ class NodeInfo {
       completedTasks: 0,
       failedTasks: 0,
       averageResponseTime: 0,
-      uptime: 0
+      uptime: 0,
     };
 
     this.capabilities = new Set(this.config.capabilities);
@@ -50,7 +50,7 @@ class NodeInfo {
       platform: os.platform(),
       arch: os.arch(),
       hostname: os.hostname(),
-      registeredAt: new Date()
+      registeredAt: new Date(),
     };
   }
 
@@ -73,7 +73,9 @@ class NodeInfo {
     const timeSinceLastHeartbeat = now - this.lastHeartbeat.getTime();
     const heartbeatTimeout = 30000; // 30秒超时
 
-    return timeSinceLastHeartbeat < heartbeatTimeout && this.status !== 'offline';
+    return (
+      timeSinceLastHeartbeat < heartbeatTimeout && this.status !== 'offline'
+    );
   }
 
   getLoadScore() {
@@ -84,9 +86,14 @@ class NodeInfo {
 
     const cpuScore = this.metrics.cpuUsage / 100;
     const memoryScore = this.metrics.memoryUsage / 100;
-    const taskScore = Math.min(this.metrics.activeTasks / this.config.maxConcurrency, 1);
+    const taskScore = Math.min(
+      this.metrics.activeTasks / this.config.maxConcurrency,
+      1,
+    );
 
-    return cpuWeight * cpuScore + memoryWeight * memoryScore + taskWeight * taskScore;
+    return (
+      cpuWeight * cpuScore + memoryWeight * memoryScore + taskWeight * taskScore
+    );
   }
 
   hasCapability(capability) {
@@ -102,7 +109,7 @@ class NodeInfo {
       capabilities: Array.from(this.capabilities),
       metadata: this.metadata,
       lastHeartbeat: this.lastHeartbeat,
-      isHealthy: this.isHealthy()
+      isHealthy: this.isHealthy(),
     };
   }
 }
@@ -113,15 +120,15 @@ class LoadBalancer {
       roundRobin: this.roundRobin.bind(this),
       leastLoaded: this.leastLoaded.bind(this),
       weightedRandom: this.weightedRandom.bind(this),
-      capabilityBased: this.capabilityBased.bind(this)
+      capabilityBased: this.capabilityBased.bind(this),
     };
 
     this.currentIndex = 0;
   }
 
   selectNode(nodes, task, algorithm = 'leastLoaded') {
-    const availableNodes = nodes.filter(node =>
-      node.status === 'online' && node.isHealthy()
+    const availableNodes = nodes.filter(
+      (node) => node.status === 'online' && node.isHealthy(),
     );
 
     if (availableNodes.length === 0) {
@@ -140,17 +147,20 @@ class LoadBalancer {
 
   leastLoaded(nodes, task) {
     return nodes.reduce((least, current) =>
-      current.getLoadScore() < least.getLoadScore() ? current : least
+      current.getLoadScore() < least.getLoadScore() ? current : least,
     );
   }
 
   weightedRandom(nodes, task) {
     // 根据负载评分计算权重（负载越低权重越高）
-    const totalWeight = nodes.reduce((sum, node) => sum + (1 - node.getLoadScore()), 0);
+    const totalWeight = nodes.reduce(
+      (sum, node) => sum + (1 - node.getLoadScore()),
+      0,
+    );
 
     let random = Math.random() * totalWeight;
     for (const node of nodes) {
-      random -= (1 - node.getLoadScore());
+      random -= 1 - node.getLoadScore();
       if (random <= 0) {
         return node;
       }
@@ -163,12 +173,14 @@ class LoadBalancer {
     // 根据任务要求选择有对应能力的节点
     const requiredCapabilities = task.capabilities || [];
 
-    const capableNodes = nodes.filter(node =>
-      requiredCapabilities.every(cap => node.hasCapability(cap))
+    const capableNodes = nodes.filter((node) =>
+      requiredCapabilities.every((cap) => node.hasCapability(cap)),
     );
 
     if (capableNodes.length === 0) {
-      throw frysError.system(`No nodes with required capabilities: ${requiredCapabilities.join(', ')}`);
+      throw frysError.system(
+        `No nodes with required capabilities: ${requiredCapabilities.join(', ')}`,
+      );
     }
 
     // 在有能力的节点中选择负载最小的
@@ -185,9 +197,9 @@ class ResourceMonitor {
       alertThresholds: {
         cpu: 80,
         memory: 85,
-        disk: 90
+        disk: 90,
       },
-      ...config
+      ...config,
     };
 
     this.metrics = {
@@ -195,7 +207,7 @@ class ResourceMonitor {
       memory: [],
       disk: [],
       network: [],
-      tasks: []
+      tasks: [],
     };
 
     this.monitoring = false;
@@ -274,7 +286,11 @@ class ResourceMonitor {
 
   getCpuTimes() {
     const cpus = os.cpus();
-    let user = 0, nice = 0, sys = 0, idle = 0, irq = 0;
+    let user = 0,
+      nice = 0,
+      sys = 0,
+      idle = 0,
+      irq = 0;
 
     for (const cpu of cpus) {
       user += cpu.times.user;
@@ -302,7 +318,8 @@ class ResourceMonitor {
 
   getNetworkStats() {
     const networkInterfaces = os.networkInterfaces();
-    const rxBytes = 0, txBytes = 0;
+    const rxBytes = 0,
+      txBytes = 0;
 
     // 简化实现，实际应该跟踪网络接口统计
     return { rxBytes, txBytes };
@@ -313,7 +330,7 @@ class ResourceMonitor {
     return {
       active: Math.floor(Math.random() * 10),
       queued: Math.floor(Math.random() * 5),
-      completed: Math.floor(Math.random() * 100)
+      completed: Math.floor(Math.random() * 100),
     };
   }
 
@@ -356,7 +373,7 @@ class ResourceMonitor {
       message,
       severity,
       timestamp: new Date(),
-      nodeId: this.nodeId
+      nodeId: this.nodeId,
     };
 
     this.alerts.push(alert);
@@ -366,7 +383,11 @@ class ResourceMonitor {
       this.alerts.shift();
     }
 
-    logger.warn(`Resource alert: ${message}`, { nodeId: this.nodeId, type, severity });
+    logger.warn(`Resource alert: ${message}`, {
+      nodeId: this.nodeId,
+      type,
+      severity,
+    });
   }
 
   getLatestMetrics() {
@@ -374,14 +395,16 @@ class ResourceMonitor {
       cpu: this.metrics.cpu[this.metrics.cpu.length - 1]?.value || 0,
       memory: this.metrics.memory[this.metrics.memory.length - 1]?.value || 0,
       disk: this.metrics.disk[this.metrics.disk.length - 1]?.value || 0,
-      network: this.metrics.network[this.metrics.network.length - 1]?.value || {},
-      tasks: this.metrics.tasks[this.metrics.tasks.length - 1]?.value || {}
+      network:
+        this.metrics.network[this.metrics.network.length - 1]?.value || {},
+      tasks: this.metrics.tasks[this.metrics.tasks.length - 1]?.value || {},
     };
   }
 
-  getMetricsHistory(type, duration = 3600000) { // 默认1小时
+  getMetricsHistory(type, duration = 3600000) {
+    // 默认1小时
     const cutoff = Date.now() - duration;
-    return (this.metrics[type] || []).filter(m => m.timestamp >= cutoff);
+    return (this.metrics[type] || []).filter((m) => m.timestamp >= cutoff);
   }
 
   getStats() {
@@ -390,7 +413,7 @@ class ResourceMonitor {
       monitoring: this.monitoring,
       latestMetrics: this.getLatestMetrics(),
       alerts: this.alerts.slice(-10), // 最近10个告警
-      config: this.config
+      config: this.config,
     };
   }
 }
@@ -408,7 +431,7 @@ class TaskScheduler {
       running: 0,
       completed: 0,
       failed: 0,
-      averageExecutionTime: 0
+      averageExecutionTime: 0,
     };
   }
 
@@ -423,7 +446,7 @@ class TaskScheduler {
       completedAt: null,
       assignedNode: null,
       result: null,
-      error: null
+      error: null,
     };
 
     this.queue.push(taskInfo);
@@ -447,7 +470,10 @@ class TaskScheduler {
       try {
         await this.assignTaskToNode(task, node);
       } catch (error) {
-        logger.error(`Failed to assign task ${task.id} to node ${node.nodeId}`, error);
+        logger.error(
+          `Failed to assign task ${task.id} to node ${node.nodeId}`,
+          error,
+        );
         // 重新放回队列
         this.queue.unshift(task);
         break;
@@ -476,11 +502,15 @@ class TaskScheduler {
     // 简化实现：模拟任务执行
     const executionTime = Math.random() * 5000 + 1000; // 1-6秒
 
-    await new Promise(resolve => setTimeout(resolve, executionTime));
+    await new Promise((resolve) => setTimeout(resolve, executionTime));
 
     // 模拟成功率
-    if (Math.random() < 0.9) { // 90%成功率
-      return { success: true, data: `Task ${task.id} completed on ${node.nodeId}` };
+    if (Math.random() < 0.9) {
+      // 90%成功率
+      return {
+        success: true,
+        data: `Task ${task.id} completed on ${node.nodeId}`,
+      };
     } else {
       throw new Error(`Task ${task.id} failed randomly`);
     }
@@ -505,7 +535,7 @@ class TaskScheduler {
 
     logger.info(`Task ${taskId} completed`, {
       nodeId: task.assignedNode,
-      executionTime
+      executionTime,
     });
   }
 
@@ -525,7 +555,7 @@ class TaskScheduler {
 
     logger.error(`Task ${taskId} failed`, {
       nodeId: task.assignedNode,
-      error: error.message
+      error: error.message,
     });
 
     // 可以实现重试逻辑
@@ -550,14 +580,15 @@ class TaskScheduler {
     }
 
     // 检查队列中任务
-    const queuedTask = this.queue.find(t => t.id === taskId);
+    const queuedTask = this.queue.find((t) => t.id === taskId);
     if (queuedTask) {
       return queuedTask;
     }
 
     // 检查已完成任务
-    const completedTask = this.completed.find(t => t.id === taskId) ||
-                         this.failed.find(t => t.id === taskId);
+    const completedTask =
+      this.completed.find((t) => t.id === taskId) ||
+      this.failed.find((t) => t.id === taskId);
 
     return completedTask || null;
   }
@@ -568,7 +599,7 @@ class TaskScheduler {
       queuedTasks: this.queue.length,
       runningTasks: this.running.size,
       completedTasks: this.completed.length,
-      failedTasks: this.failed.length
+      failedTasks: this.failed.length,
     };
   }
 }
@@ -577,13 +608,13 @@ class AutoScaler {
   constructor(cluster, config = {}) {
     this.cluster = cluster;
     this.config = {
-      scaleUpThreshold: 70,    // CPU使用率超过70%时扩容
-      scaleDownThreshold: 30,  // CPU使用率低于30%时缩容
+      scaleUpThreshold: 70, // CPU使用率超过70%时扩容
+      scaleDownThreshold: 30, // CPU使用率低于30%时缩容
       evaluationInterval: 60000, // 1分钟评估一次
-      cooldownPeriod: 300000,   // 5分钟冷却期
+      cooldownPeriod: 300000, // 5分钟冷却期
       maxNodes: 10,
       minNodes: 1,
-      ...config
+      ...config,
     };
 
     this.scaling = false;
@@ -617,19 +648,29 @@ class AutoScaler {
     }
 
     const nodes = this.cluster.getAllNodes();
-    const onlineNodes = nodes.filter(n => n.status === 'online');
+    const onlineNodes = nodes.filter((n) => n.status === 'online');
 
     if (onlineNodes.length === 0) return;
 
     // 计算平均负载
-    const avgLoad = onlineNodes.reduce((sum, node) => sum + node.getLoadScore(), 0) / onlineNodes.length;
+    const avgLoad =
+      onlineNodes.reduce((sum, node) => sum + node.getLoadScore(), 0) /
+      onlineNodes.length;
     const avgLoadPercent = avgLoad * 100;
 
-    logger.debug(`Auto-scaler evaluation: ${onlineNodes.length} nodes, avg load: ${avgLoadPercent.toFixed(1)}%`);
+    logger.debug(
+      `Auto-scaler evaluation: ${onlineNodes.length} nodes, avg load: ${avgLoadPercent.toFixed(1)}%`,
+    );
 
-    if (avgLoadPercent > this.config.scaleUpThreshold && onlineNodes.length < this.config.maxNodes) {
+    if (
+      avgLoadPercent > this.config.scaleUpThreshold &&
+      onlineNodes.length < this.config.maxNodes
+    ) {
       this.scaleUp(avgLoadPercent);
-    } else if (avgLoadPercent < this.config.scaleDownThreshold && onlineNodes.length > this.config.minNodes) {
+    } else if (
+      avgLoadPercent < this.config.scaleDownThreshold &&
+      onlineNodes.length > this.config.minNodes
+    ) {
       this.scaleDown(avgLoadPercent);
     }
   }
@@ -640,7 +681,9 @@ class AutoScaler {
 
     try {
       const newNodeId = `auto_${Date.now()}`;
-      logger.info(`Scaling up: adding node ${newNodeId} (current load: ${currentLoad.toFixed(1)}%)`);
+      logger.info(
+        `Scaling up: adding node ${newNodeId} (current load: ${currentLoad.toFixed(1)}%)`,
+      );
 
       // 这里应该实际启动新节点
       // 简化实现：模拟添加节点
@@ -648,11 +691,13 @@ class AutoScaler {
         host: 'auto-scaled-host',
         port: 3000 + Math.floor(Math.random() * 1000),
         capabilities: ['ai-service', 'workflow'],
-        maxConcurrency: 10
+        maxConcurrency: 10,
       });
 
-      this.cluster.emit('scaled_up', { nodeId: newNodeId, reason: 'high_load' });
-
+      this.cluster.emit('scaled_up', {
+        nodeId: newNodeId,
+        reason: 'high_load',
+      });
     } catch (error) {
       logger.error('Failed to scale up', error);
     } finally {
@@ -666,20 +711,25 @@ class AutoScaler {
 
     try {
       const nodes = this.cluster.getAllNodes();
-      const idleNodes = nodes.filter(n =>
-        n.status === 'online' &&
-        n.getLoadScore() < 0.2 && // 负载低于20%
-        n.nodeId.startsWith('auto_') // 只缩放自动创建的节点
+      const idleNodes = nodes.filter(
+        (n) =>
+          n.status === 'online' &&
+          n.getLoadScore() < 0.2 && // 负载低于20%
+          n.nodeId.startsWith('auto_'), // 只缩放自动创建的节点
       );
 
       if (idleNodes.length === 0) return;
 
       const nodeToRemove = idleNodes[0]; // 移除最空闲的节点
-      logger.info(`Scaling down: removing node ${nodeToRemove.nodeId} (current load: ${currentLoad.toFixed(1)}%)`);
+      logger.info(
+        `Scaling down: removing node ${nodeToRemove.nodeId} (current load: ${currentLoad.toFixed(1)}%)`,
+      );
 
       await this.cluster.unregisterNode(nodeToRemove.nodeId);
-      this.cluster.emit('scaled_down', { nodeId: nodeToRemove.nodeId, reason: 'low_load' });
-
+      this.cluster.emit('scaled_down', {
+        nodeId: nodeToRemove.nodeId,
+        reason: 'low_load',
+      });
     } catch (error) {
       logger.error('Failed to scale down', error);
     } finally {
@@ -691,7 +741,7 @@ class AutoScaler {
     return {
       scaling: this.scaling,
       lastScaleTime: this.lastScaleTime,
-      config: this.config
+      config: this.config,
     };
   }
 }
@@ -708,7 +758,7 @@ export class DistributedDeployment extends EventEmitter {
       enableAutoScaling: true,
       enableLoadBalancing: true,
       enableMonitoring: true,
-      ...config
+      ...config,
     };
 
     this.nodes = new Map();
@@ -724,7 +774,7 @@ export class DistributedDeployment extends EventEmitter {
       startTime: null,
       totalTasks: 0,
       completedTasks: 0,
-      failedTasks: 0
+      failedTasks: 0,
     };
 
     // 初始化本地节点
@@ -848,7 +898,9 @@ export class DistributedDeployment extends EventEmitter {
   }
 
   sendHeartbeat() {
-    const metrics = this.resourceMonitor ? this.resourceMonitor.getLatestMetrics() : {};
+    const metrics = this.resourceMonitor
+      ? this.resourceMonitor.getLatestMetrics()
+      : {};
 
     this.localNode.updateMetrics({
       cpuUsage: metrics.cpu || 0,
@@ -856,7 +908,7 @@ export class DistributedDeployment extends EventEmitter {
       activeTasks: this.taskScheduler.stats.running,
       completedTasks: this.taskScheduler.stats.completed,
       failedTasks: this.taskScheduler.stats.failed,
-      averageResponseTime: this.taskScheduler.stats.averageExecutionTime
+      averageResponseTime: this.taskScheduler.stats.averageExecutionTime,
     });
 
     // 广播心跳给其他节点
@@ -867,7 +919,7 @@ export class DistributedDeployment extends EventEmitter {
     // 简化实现：记录心跳
     logger.debug(`Heartbeat sent from ${this.config.nodeId}`, {
       status: this.localNode.status,
-      load: this.localNode.getLoadScore()
+      load: this.localNode.getLoadScore(),
     });
   }
 
@@ -876,8 +928,8 @@ export class DistributedDeployment extends EventEmitter {
   }
 
   getAvailableNodes() {
-    return this.getAllNodes().filter(node =>
-      node.status === 'online' && node.isHealthy()
+    return this.getAllNodes().filter(
+      (node) => node.status === 'online' && node.isHealthy(),
     );
   }
 
@@ -914,7 +966,7 @@ export class DistributedDeployment extends EventEmitter {
       availableNodes: this.getAvailableNodes().length,
       scheduler: this.taskScheduler.getStats(),
       monitor: this.resourceMonitor?.getStats(),
-      scaler: this.autoScaler?.getStats()
+      scaler: this.autoScaler?.getStats(),
     };
   }
 
@@ -938,5 +990,5 @@ export default {
   LoadBalancer,
   ResourceMonitor,
   TaskScheduler,
-  AutoScaler
+  AutoScaler,
 };

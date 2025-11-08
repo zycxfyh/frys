@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 自动扩容集成测试
  * 测试自动扩容管理器、负载均衡器和容器编排器的集成功能
@@ -8,7 +16,7 @@ import { AutoScalingManager } from '../../../src/infrastructure/scaling/AutoScal
 import { ScalingMetrics } from '../../../src/infrastructure/scaling/ScalingMetrics.js';
 import { LoadBalancer } from '../../../src/infrastructure/scaling/LoadBalancer.js';
 import { CpuScalingPolicy, MemoryScalingPolicy, CompositeScalingPolicy } from '../../../src/infrastructure/scaling/ScalingPolicy.js';
-import { logger } from '../../../src/utils/logger.js';
+import { logger } from '../../../src/shared/utils/logger.js';
 
 // Mock容器编排器
 const mockOrchestrator = {

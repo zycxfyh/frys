@@ -3,7 +3,7 @@
  * 负责将追踪数据上报到外部系统
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class TracingReporter {
   constructor(config = {}) {

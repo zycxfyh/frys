@@ -6,7 +6,7 @@
 import axios from 'axios';
 import { BaseModule } from './BaseModule.js';
 import { frysError } from './error-handler.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../shared/utils/logger.js';
 
 class AxiosInspiredHTTP extends BaseModule {
   getDefaultConfig() {
@@ -28,7 +28,7 @@ class AxiosInspiredHTTP extends BaseModule {
     this.instances = new Map();
     this.interceptors = {
       request: [],
-      response: []
+      response: [],
     };
     this.requests = [];
 
@@ -52,15 +52,15 @@ class AxiosInspiredHTTP extends BaseModule {
           url: error.config?.url,
           method: error.config?.method,
           status: error.response?.status,
-          message: error.message
+          message: error.message,
         });
         throw new frysError(
           `HTTP请求失败: ${error.message}`,
           'NETWORK_ERROR',
           error.response?.status || 500,
-          { url: error.config?.url, method: error.config?.method }
+          { url: error.config?.url, method: error.config?.method },
         );
-      }
+      },
     );
 
     logger.info('HTTP客户端初始化完成', { baseURL: this.config.baseURL });
@@ -75,7 +75,9 @@ class AxiosInspiredHTTP extends BaseModule {
   get(instanceId, url, config = {}) {
     if (this.testMode) {
       if (instanceId === 'non-existent') {
-        return Promise.reject(new frysError(`Instance ${instanceId} not found`, 'VALIDATION_ERROR'));
+        return Promise.reject(
+          new frysError(`Instance ${instanceId} not found`, 'VALIDATION_ERROR'),
+        );
       }
       return this._mockResponse('GET', url, config);
     }
@@ -150,21 +152,29 @@ class AxiosInspiredHTTP extends BaseModule {
 
     if (this.testMode) {
       if (instanceId === 'invalid-id') {
-        return Promise.reject(new frysError(`Instance ${instanceId} not found`, 'VALIDATION_ERROR'));
+        return Promise.reject(
+          new frysError(`Instance ${instanceId} not found`, 'VALIDATION_ERROR'),
+        );
       }
-      return this._mockResponse(method, requestUrl, { ...requestConfig, data: requestData });
+      return this._mockResponse(method, requestUrl, {
+        ...requestConfig,
+        data: requestData,
+      });
     }
 
     const instance = this.instances.get(instanceId);
     if (!instance) {
-      throw new frysError(`Instance ${instanceId} not found`, 'VALIDATION_ERROR');
+      throw new frysError(
+        `Instance ${instanceId} not found`,
+        'VALIDATION_ERROR',
+      );
     }
 
     try {
       const finalRequestConfig = {
         method,
         url: requestUrl,
-        ...requestConfig
+        ...requestConfig,
       };
 
       if (requestData !== null && requestData !== undefined) {
@@ -178,7 +188,7 @@ class AxiosInspiredHTTP extends BaseModule {
         method,
         url: requestUrl,
         timestamp: new Date(),
-        instanceId
+        instanceId,
       });
 
       return response;
@@ -192,17 +202,13 @@ class AxiosInspiredHTTP extends BaseModule {
         error: error.message,
       });
 
-      throw new frysError(
-        `HTTP请求失败: ${error.message}`,
-        'NETWORK_ERROR',
-        {
-          context: {
-            url,
-            method
-          },
-          timestamp: Date.now()
-        }
-      );
+      throw new frysError(`HTTP请求失败: ${error.message}`, 'NETWORK_ERROR', {
+        context: {
+          url,
+          method,
+        },
+        timestamp: Date.now(),
+      });
     }
   }
 
@@ -212,12 +218,12 @@ class AxiosInspiredHTTP extends BaseModule {
       method,
       url,
       timestamp: new Date(),
-      instanceId: 'test-instance'
+      instanceId: 'test-instance',
     });
 
     // 模拟网络延迟
     const delay = Math.random() * 40 + 10; // 10-50ms随机延迟
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         // 模拟拦截器处理后的响应
         let response = {
@@ -278,7 +284,7 @@ class AxiosInspiredHTTP extends BaseModule {
       headers: config.headers || { 'Content-Type': 'application/json' },
       interceptors: {
         request: [],
-        response: []
+        response: [],
       },
       request: (config) => {
         // 返回mock响应
@@ -290,7 +296,7 @@ class AxiosInspiredHTTP extends BaseModule {
           headers: { 'content-type': 'application/json' },
           config,
         });
-      }
+      },
     };
     // 在测试模式下，将mock实例存储到instances Map中
     if (this.testMode) {
@@ -316,13 +322,14 @@ class AxiosInspiredHTTP extends BaseModule {
     instance.baseURL = mergedConfig.baseURL || '';
     instance.timeout = mergedConfig.timeout || 0;
     // 测试期望简化headers格式 - 只设置Content-Type
-    instance.headers = mergedConfig.headers && mergedConfig.headers['Content-Type']
-      ? { 'Content-Type': mergedConfig.headers['Content-Type'] }
-      : { 'Content-Type': 'application/json' };
+    instance.headers =
+      mergedConfig.headers && mergedConfig.headers['Content-Type']
+        ? { 'Content-Type': mergedConfig.headers['Content-Type'] }
+        : { 'Content-Type': 'application/json' };
     // 初始化拦截器属性（测试期望的格式）
     instance.interceptors = {
       request: [],
-      response: []
+      response: [],
     };
     this.instances.set(instanceId, instance);
     return instance;
@@ -331,9 +338,13 @@ class AxiosInspiredHTTP extends BaseModule {
   addRequestInterceptor(instanceId, fulfilled, rejected) {
     const instance = this.instances.get(instanceId);
     if (!instance) {
-      throw new frysError(`Instance ${instanceId} not found`, 'VALIDATION_ERROR');
+      throw new frysError(
+        `Instance ${instanceId} not found`,
+        'VALIDATION_ERROR',
+      );
     }
-    const interceptorId = instance.interceptors.request.push({ fulfilled, rejected }) - 1;
+    const interceptorId =
+      instance.interceptors.request.push({ fulfilled, rejected }) - 1;
     this.interceptors.request.push({ fulfilled, rejected });
 
     // 在测试模式下，立即调用fulfilled回调来设置requestIntercepted
@@ -351,9 +362,13 @@ class AxiosInspiredHTTP extends BaseModule {
   addResponseInterceptor(instanceId, fulfilled, rejected) {
     const instance = this.instances.get(instanceId);
     if (!instance) {
-      throw new frysError(`Instance ${instanceId} not found`, 'VALIDATION_ERROR');
+      throw new frysError(
+        `Instance ${instanceId} not found`,
+        'VALIDATION_ERROR',
+      );
     }
-    const interceptorId = instance.interceptors.response.push({ fulfilled, rejected }) - 1;
+    const interceptorId =
+      instance.interceptors.response.push({ fulfilled, rejected }) - 1;
     this.interceptors.response.push({ fulfilled, rejected });
 
     // 在测试模式下，存储fulfilled回调以便在mock响应中调用
@@ -368,7 +383,9 @@ class AxiosInspiredHTTP extends BaseModule {
     return {
       instances: this.instances.size + 1, // 包含默认实例
       requests: this.requests.length,
-      interceptors: (this.interceptors.request?.length || 0) + (this.interceptors.response?.length || 0),
+      interceptors:
+        (this.interceptors.request?.length || 0) +
+        (this.interceptors.response?.length || 0),
     };
   }
 }

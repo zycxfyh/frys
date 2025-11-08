@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 分布式追踪集成测试
  * 测试追踪器、跨度、中间件和上下文管理的集成功能
@@ -10,7 +18,7 @@ import { SamplingStrategy, AlwaysOnSampling } from '../../../src/infrastructure/
 import { ConsoleReporter } from '../../../src/infrastructure/tracing/TracingReporter.js';
 import { TracingMiddleware } from '../../../src/infrastructure/tracing/TracingMiddleware.js';
 import { TraceContext, TraceContextManager } from '../../../src/infrastructure/tracing/TraceContext.js';
-import { logger } from '../../../src/utils/logger.js';
+import { logger } from '../../../src/shared/utils/logger.js';
 
 // Mock logger
 vi.spyOn(logger, 'info').mockImplementation(() => {});

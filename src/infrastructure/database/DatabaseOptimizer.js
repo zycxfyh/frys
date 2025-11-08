@@ -3,7 +3,7 @@
  * 提供索引优化、查询分析和性能调优功能
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class DatabaseOptimizer {
   constructor(connectionPool) {

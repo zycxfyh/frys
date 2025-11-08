@@ -4,7 +4,7 @@
  */
 
 import { PerformanceBenchmark } from './PerformanceBenchmark.js';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class LoadTester extends PerformanceBenchmark {
   constructor(options = {}) {

@@ -3,7 +3,7 @@
  * 处理基于角色的访问控制(RBAC)
  */
 
-import { logger } from '../../../utils/logger.js';
+import { logger } from '../../../shared/utils/logger.js';
 
 export class AuthorizationService {
   constructor(options = {}) {

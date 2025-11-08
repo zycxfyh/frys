@@ -1,0 +1,120 @@
+# frys Production - Variables de Entorno
+# Copia este archivo a .env y configura los valores apropiados
+# ⚠️ NUNCA commits archivos .env con valores reales
+
+# === CONFIGURACIÓN DE APLICACIÓN ===
+NODE_ENV=development
+PORT=3000
+LOG_LEVEL=info
+
+# === GESTIÓN DE SECRETOS ===
+# Provider: encrypted-file (desarrollo) | aws-secrets-manager | hashicorp-vault | azure-key-vault
+SECRETS_PROVIDER=encrypted-file
+
+# === CONFIGURACIONES NO SENSIBLES ===
+API_BASE_URL=http://localhost:3000/api
+API_TIMEOUT=30000
+API_RETRIES=3
+
+CORS_ORIGIN=http://localhost:3000
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100
+
+# === BASE DE DATOS ===
+DB_TYPE=sqlite
+DB_HOST=localhost
+DB_PORT=27017
+DB_NAME=frys_prod
+
+# === CACHE ===
+CACHE_TYPE=redis
+CACHE_HOST=localhost
+CACHE_PORT=6379
+CACHE_TTL=3600
+CACHE_MAX_CONNECTIONS=10
+
+# === MESSAGING ===
+NATS_CLUSTER=frys-prod
+MESSAGING_TIMEOUT=5000
+MESSAGING_MAX_CONNECTIONS=10
+
+# === MONITORING ===
+MONITORING_ENABLED=true
+PROMETHEUS_PORT=9090
+PROMETHEUS_PATH=/metrics
+
+# === NOTIFICACIONES ===
+EMAIL_ENABLED=false
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_SECURE=false
+
+SLACK_ENABLED=false
+SLACK_CHANNEL=#frys-notifications
+
+# === AI PROVIDERS ===
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODELS=gpt-4,gpt-4-turbo,gpt-3.5-turbo
+OPENAI_TIMEOUT=30000
+
+CLAUDE_BASE_URL=https://api.anthropic.com
+CLAUDE_MODELS=claude-3-sonnet-20240229,claude-3-haiku-20240307
+CLAUDE_TIMEOUT=30000
+
+GEMINI_BASE_URL=https://generativelanguage.googleapis.com
+GEMINI_MODELS=gemini-pro,gemini-pro-vision
+GEMINI_TIMEOUT=30000
+
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODELS=deepseek-chat,deepseek-coder
+DEEPSEEK_TIMEOUT=30000
+
+ALIBABA_BASE_URL=https://dashscope.aliyuncs.com/api/v1
+ALIBABA_MODELS=qwen-turbo,qwen-plus,qwen-max
+ALIBABA_TIMEOUT=30000
+
+COGNEE_BASE_URL=https://api.cognee.ai
+COGNEE_TIMEOUT=30000
+
+# === WORKFLOWS ===
+MAX_CONCURRENT_WORKFLOWS=50
+MAX_TASKS_PER_WORKFLOW=100
+DEFAULT_WORKFLOW_TIMEOUT=3600000
+WORKFLOW_RETRY_ATTEMPTS=3
+WORKFLOW_RETRY_DELAY=5000
+
+# === CONVERSATION AI ===
+CONVERSATION_MAX_HISTORY=50
+CONVERSATION_DEFAULT_MODEL=openai
+CONVERSATION_PERSIST_MEMORY=true
+CONVERSATION_TIMEOUT=30000
+
+# === MEMORY ===
+MEMORY_ENABLED=true
+MEMORY_TYPE=cognee
+MEMORY_MAX_CONTEXT_LENGTH=4000
+
+# === LOGGING ===
+LOG_FORMAT=json
+LOG_CONSOLE_ENABLED=true
+LOG_FILE_ENABLED=true
+LOG_FILE_PATH=./logs/frys.log
+LOG_FILE_MAX_SIZE=10m
+LOG_FILE_MAX_FILES=5
+
+# === SEGURIDAD ===
+JWT_EXPIRES_IN=24h
+JWT_REFRESH_EXPIRES_IN=7d
+JWT_ISSUER=frys-production
+JWT_AUDIENCE=frys-users
+
+# === AWS (solo si usas AWS Secrets Manager) ===
+# AWS_REGION=us-east-1
+
+# === HASHICORP VAULT (solo si usas Vault) ===
+# VAULT_ADDR=https://vault.example.com:8200
+
+# === AZURE (solo si usas Azure Key Vault) ===
+# AZURE_CLIENT_ID=your-client-id
+# AZURE_TENANT_ID=your-tenant-id
+# AZURE_KEYVAULT_NAME=your-keyvault-name

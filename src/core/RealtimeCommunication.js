@@ -11,7 +11,7 @@
  */
 
 import { EventEmitter } from 'events';
-import { logger } from '../utils/logger.js';
+import { logger } from '../shared/utils/logger.js';
 import { frysError } from './error-handler.js';
 import WebSocket from 'ws';
 import fs from 'fs/promises';
@@ -28,7 +28,7 @@ class WebSocketManager extends EventEmitter {
       reconnectAttempts: 5,
       reconnectDelay: 1000,
       maxConnections: 1000,
-      ...config
+      ...config,
     };
 
     this.wss = null;
@@ -42,7 +42,7 @@ class WebSocketManager extends EventEmitter {
       activeConnections: 0,
       messagesSent: 0,
       messagesReceived: 0,
-      errors: 0
+      errors: 0,
     };
   }
 
@@ -54,7 +54,7 @@ class WebSocketManager extends EventEmitter {
         port: this.config.port,
         host: this.config.host,
         path: this.config.path,
-        maxPayload: 50 * 1024 * 1024 // 50MB
+        maxPayload: 50 * 1024 * 1024, // 50MB
       });
 
       this.wss.on('connection', this.handleConnection.bind(this));
@@ -68,7 +68,9 @@ class WebSocketManager extends EventEmitter {
       this.startHeartbeat();
       this.emit('started', { port: this.config.port, host: this.config.host });
 
-      logger.info(`WebSocket server started on ${this.config.host}:${this.config.port}${this.config.path}`);
+      logger.info(
+        `WebSocket server started on ${this.config.host}:${this.config.port}${this.config.path}`,
+      );
     } catch (error) {
       logger.error('Failed to start WebSocket server', error);
       throw error;
@@ -123,18 +125,22 @@ class WebSocketManager extends EventEmitter {
       rooms: new Set(),
       authenticated: false,
       userId: null,
-      metadata: {}
+      metadata: {},
     };
 
     this.connections.set(clientId, connection);
     this.stats.totalConnections++;
     this.stats.activeConnections++;
 
-    logger.info(`WebSocket client connected: ${clientId} from ${connection.ip}`);
+    logger.info(
+      `WebSocket client connected: ${clientId} from ${connection.ip}`,
+    );
 
     // 设置连接事件处理器
     ws.on('message', (data) => this.handleMessage(clientId, data));
-    ws.on('close', (code, reason) => this.handleDisconnection(clientId, code, reason));
+    ws.on('close', (code, reason) =>
+      this.handleDisconnection(clientId, code, reason),
+    );
     ws.on('error', (error) => this.handleError(clientId, error));
     ws.on('pong', () => this.handlePong(clientId));
 
@@ -142,7 +148,7 @@ class WebSocketManager extends EventEmitter {
     this.sendToClient(clientId, {
       type: 'welcome',
       clientId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     this.emit('connection', { clientId, connection });
@@ -174,20 +180,22 @@ class WebSocketManager extends EventEmitter {
           this.handleLeaveRoom(clientId, message);
           break;
         case 'ping':
-          this.sendToClient(clientId, { type: 'pong', timestamp: new Date().toISOString() });
+          this.sendToClient(clientId, {
+            type: 'pong',
+            timestamp: new Date().toISOString(),
+          });
           break;
         default:
           // 转发给房间或其他处理器
           this.routeMessage(clientId, message);
       }
-
     } catch (error) {
       logger.error(`Error handling WebSocket message from ${clientId}`, error);
       this.stats.errors++;
       this.sendToClient(clientId, {
         type: 'error',
         error: 'Invalid message format',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
   }
@@ -204,7 +212,7 @@ class WebSocketManager extends EventEmitter {
       this.sendToClient(clientId, {
         type: 'auth_success',
         userId: connection.userId,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       this.emit('authenticated', { clientId, userId: connection.userId });
@@ -213,7 +221,7 @@ class WebSocketManager extends EventEmitter {
       this.sendToClient(clientId, {
         type: 'auth_failed',
         error: 'Invalid credentials',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
   }
@@ -237,16 +245,20 @@ class WebSocketManager extends EventEmitter {
       type: 'joined_room',
       roomId,
       memberCount: room.size,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     // 广播加入消息
-    this.broadcastToRoom(roomId, {
-      type: 'user_joined',
-      userId: connection.userId || clientId,
+    this.broadcastToRoom(
       roomId,
-      timestamp: new Date().toISOString()
-    }, [clientId]); // 排除自己
+      {
+        type: 'user_joined',
+        userId: connection.userId || clientId,
+        roomId,
+        timestamp: new Date().toISOString(),
+      },
+      [clientId],
+    ); // 排除自己
 
     this.emit('room_joined', { clientId, roomId });
     logger.debug(`Client ${clientId} joined room ${roomId}`);
@@ -271,7 +283,7 @@ class WebSocketManager extends EventEmitter {
       this.sendToClient(clientId, {
         type: 'left_room',
         roomId,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       // 广播离开消息
@@ -279,7 +291,7 @@ class WebSocketManager extends EventEmitter {
         type: 'user_left',
         userId: connection.userId || clientId,
         roomId,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -291,7 +303,9 @@ class WebSocketManager extends EventEmitter {
     const connection = this.connections.get(clientId);
     if (!connection) return;
 
-    logger.info(`WebSocket client disconnected: ${clientId}, code: ${code}, reason: ${reason}`);
+    logger.info(
+      `WebSocket client disconnected: ${clientId}, code: ${code}, reason: ${reason}`,
+    );
 
     // 离开所有房间
     for (const roomId of connection.rooms) {
@@ -307,7 +321,7 @@ class WebSocketManager extends EventEmitter {
           type: 'user_left',
           userId: connection.userId || clientId,
           roomId,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     }
@@ -327,7 +341,7 @@ class WebSocketManager extends EventEmitter {
       this.sendToClient(clientId, {
         type: 'error',
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
   }
@@ -345,11 +359,15 @@ class WebSocketManager extends EventEmitter {
 
     // 如果消息指定了房间，发送到房间
     if (message.roomId) {
-      this.broadcastToRoom(message.roomId, {
-        ...message,
-        from: connection.userId || clientId,
-        timestamp: new Date().toISOString()
-      }, message.excludeSelf ? [clientId] : []);
+      this.broadcastToRoom(
+        message.roomId,
+        {
+          ...message,
+          from: connection.userId || clientId,
+          timestamp: new Date().toISOString(),
+        },
+        message.excludeSelf ? [clientId] : [],
+      );
     } else {
       // 全局广播或转发给特定处理器
       this.emit('routed_message', { clientId, message, connection });
@@ -389,7 +407,9 @@ class WebSocketManager extends EventEmitter {
       }
     }
 
-    logger.debug(`Broadcasted to room ${roomId}: ${message.type}, sent to ${sentCount} clients`);
+    logger.debug(
+      `Broadcasted to room ${roomId}: ${message.type}, sent to ${sentCount} clients`,
+    );
     return sentCount;
   }
 
@@ -403,7 +423,9 @@ class WebSocketManager extends EventEmitter {
       }
     }
 
-    logger.debug(`Broadcasted globally: ${message.type}, sent to ${sentCount} clients`);
+    logger.debug(
+      `Broadcasted globally: ${message.type}, sent to ${sentCount} clients`,
+    );
     return sentCount;
   }
 
@@ -415,7 +437,9 @@ class WebSocketManager extends EventEmitter {
       // 检查超时连接
       for (const [clientId, connection] of this.connections) {
         if (now - connection.lastActivity.getTime() > timeoutThreshold) {
-          logger.warn(`Client ${clientId} heartbeat timeout, closing connection`);
+          logger.warn(
+            `Client ${clientId} heartbeat timeout, closing connection`,
+          );
           try {
             connection.ws.close(1008, 'Heartbeat timeout');
           } catch (error) {
@@ -443,7 +467,7 @@ class WebSocketManager extends EventEmitter {
       ...this.stats,
       rooms: roomStats,
       isRunning: this.isRunning,
-      config: this.config
+      config: this.config,
     };
   }
 }
@@ -455,9 +479,16 @@ class WebDAVServer {
       host: 'localhost',
       rootPath: './webdav',
       maxFileSize: 100 * 1024 * 1024, // 100MB
-      allowedMethods: ['GET', 'PUT', 'DELETE', 'MKCOL', 'PROPFIND', 'PROPPATCH'],
+      allowedMethods: [
+        'GET',
+        'PUT',
+        'DELETE',
+        'MKCOL',
+        'PROPFIND',
+        'PROPPATCH',
+      ],
       authentication: true,
-      ...config
+      ...config,
     };
 
     this.server = null;
@@ -470,7 +501,7 @@ class WebDAVServer {
       downloads: 0,
       errors: 0,
       totalBytesUploaded: 0,
-      totalBytesDownloaded: 0
+      totalBytesDownloaded: 0,
     };
   }
 
@@ -488,7 +519,9 @@ class WebDAVServer {
       this.server.listen(this.config.port, this.config.host);
 
       this.isRunning = true;
-      logger.info(`WebDAV server started on ${this.config.host}:${this.config.port}, root: ${this.config.rootPath}`);
+      logger.info(
+        `WebDAV server started on ${this.config.host}:${this.config.port}, root: ${this.config.rootPath}`,
+      );
     } catch (error) {
       logger.error('Failed to start WebDAV server', error);
       throw error;
@@ -518,7 +551,10 @@ class WebDAVServer {
 
     try {
       const url = new URL(req.url, `http://${req.headers.host}`);
-      const filePath = path.join(this.config.rootPath, decodeURIComponent(url.pathname));
+      const filePath = path.join(
+        this.config.rootPath,
+        decodeURIComponent(url.pathname),
+      );
 
       // 安全检查：防止目录遍历
       const resolvedPath = path.resolve(filePath);
@@ -556,7 +592,6 @@ class WebDAVServer {
         default:
           this.sendError(res, 405, 'Method not allowed');
       }
-
     } catch (error) {
       logger.error('WebDAV request error', error);
       this.stats.errors++;
@@ -722,7 +757,7 @@ class WebDAVServer {
     return {
       ...this.stats,
       isRunning: this.isRunning,
-      config: this.config
+      config: this.config,
     };
   }
 }
@@ -736,7 +771,7 @@ export class RealtimeCommunication extends EventEmitter {
     this.config = {
       enableWebSocket: true,
       enableWebDAV: true,
-      ...config
+      ...config,
     };
 
     this.webSocketManager = null;
@@ -747,7 +782,7 @@ export class RealtimeCommunication extends EventEmitter {
       startTime: null,
       totalMessages: 0,
       totalConnections: 0,
-      totalFiles: 0
+      totalFiles: 0,
     };
   }
 
@@ -764,17 +799,25 @@ export class RealtimeCommunication extends EventEmitter {
 
       // 启动WebSocket服务器
       if (this.config.enableWebSocket) {
-        this.webSocketManager = new WebSocketManager(this.config.webSocket || {});
+        this.webSocketManager = new WebSocketManager(
+          this.config.webSocket || {},
+        );
         await this.webSocketManager.start();
 
         // 转发WebSocket事件
-        this.webSocketManager.on('connection', (data) => this.emit('ws:connection', data));
-        this.webSocketManager.on('disconnection', (data) => this.emit('ws:disconnection', data));
+        this.webSocketManager.on('connection', (data) =>
+          this.emit('ws:connection', data),
+        );
+        this.webSocketManager.on('disconnection', (data) =>
+          this.emit('ws:disconnection', data),
+        );
         this.webSocketManager.on('message', (data) => {
           this.stats.totalMessages++;
           this.emit('ws:message', data);
         });
-        this.webSocketManager.on('error', (error) => this.emit('ws:error', error));
+        this.webSocketManager.on('error', (error) =>
+          this.emit('ws:error', error),
+        );
       }
 
       // 启动WebDAV服务器
@@ -788,7 +831,7 @@ export class RealtimeCommunication extends EventEmitter {
       this.isRunning = true;
       this.emit('started', {
         webSocket: this.config.enableWebSocket,
-        webDAV: this.config.enableWebDAV
+        webDAV: this.config.enableWebDAV,
       });
 
       logger.info('Realtime communication system started');
@@ -841,7 +884,11 @@ export class RealtimeCommunication extends EventEmitter {
     if (!this.webSocketManager) {
       throw frysError.system('WebSocket manager not available');
     }
-    return this.webSocketManager.broadcastToRoom(roomId, message, excludeClients);
+    return this.webSocketManager.broadcastToRoom(
+      roomId,
+      message,
+      excludeClients,
+    );
   }
 
   broadcast(message, excludeClients = []) {
@@ -864,7 +911,7 @@ export class RealtimeCommunication extends EventEmitter {
       ...this.stats,
       isRunning: this.isRunning,
       webSocket: this.getWebSocketStats(),
-      webDAV: this.getWebDAVStats()
+      webDAV: this.getWebDAVStats(),
     };
   }
 
@@ -881,5 +928,5 @@ export default {
   RealtimeCommunication,
   realtimeCommunication,
   WebSocketManager,
-  WebDAVServer
+  WebDAVServer,
 };

@@ -5,24 +5,25 @@
  * 企业级工作流管理系统 (基于开源项目重构)
  */
 
-import { logger } from './utils/logger.js';
-import { config } from './utils/config.js';
+import { logger } from './shared/utils/logger.js';
+import { config } from './shared/utils/config.js';
 import { pathToFileURL } from 'url';
 
 // 导入新的开源组件
 import { getContainer, registerValue } from './core/container.js';
 import { startServer, stopServer } from './core/server.js';
 import { getQueue, createWorker, closeAllQueues } from './core/queue.js';
-import { eventSystem } from './core/events.js';
-import { errorHandler } from './core/error-handler.js';
-import { pluginManager } from './core/plugin-system.js';
+import { eventSystem } from './core/event/EventBus.js';
+import { errorHandler } from './core/ErrorHandlerConfig.js';
+import { pluginManager } from './core/PluginSystem.js';
 
 // 导入业务服务
-import { WorkflowEngine } from './services/WorkflowEngine.js';
-import { UserService } from './services/UserService.js';
+import { WorkflowEngine } from './application/services/WorkflowEngine.js';
+import { UserService } from './shared/services/UserService.js';
 
 // 获取依赖注入容器
 const container = await getContainer();
+
 
 // 注册全局值
 registerValue('eventSystem', eventSystem);
@@ -63,14 +64,14 @@ class frysProduction {
       // 6. 更新系统状态
       const state = container.resolve('state');
       if (state && typeof state.setState === 'function') {
-      state.setState((currentState) => ({
-        system: {
-          ...currentState.system,
-          status: 'ready',
+        state.setState((currentState) => ({
+          system: {
+            ...currentState.system,
+            status: 'ready',
             version: '3.0.0-open-source',
             architecture: 'open-source-based',
-        },
-      }));
+          },
+        }));
       }
 
       this.initialized = true;
@@ -83,6 +84,7 @@ class frysProduction {
 
   async initializeCoreServices() {
     logger.debug('初始化核心服务...');
+
 
     // 初始化 HTTP 客户端
     const http = container.resolve('http');
@@ -128,7 +130,7 @@ class frysProduction {
       logger.info('新用户创建', { userId: user.id, username: user.username });
       // 发布到消息队列
       const userCreatedQueue = getQueue('user-events');
-      userCreatedQueue.add('user.created', user).catch(error => {
+      userCreatedQueue.add('user.created', user).catch((error) => {
         logger.error('发布用户创建事件失败', error);
       });
     });
@@ -140,7 +142,7 @@ class frysProduction {
       });
       // 发布到消息队列
       const workflowQueue = getQueue('workflow-events');
-      workflowQueue.add('workflow.started', workflow).catch(error => {
+      workflowQueue.add('workflow.started', workflow).catch((error) => {
         logger.error('发布工作流启动事件失败', error);
       });
     });
@@ -149,7 +151,7 @@ class frysProduction {
       logger.info('任务完成', { taskId: task.id, workflowId: task.workflowId });
       // 发布到消息队列
       const taskQueue = getQueue('task-events');
-      taskQueue.add('task.completed', task).catch(error => {
+      taskQueue.add('task.completed', task).catch((error) => {
         logger.error('发布任务完成事件失败', error);
       });
     });
@@ -176,59 +178,83 @@ class frysProduction {
     const userService = container.resolve('userService');
 
     // 创建用户事件处理器
-    this.workers.set('user-events', createWorker('user-events', async (job) => {
-      const { name, data } = job;
-      logger.debug(`处理用户事件: ${name}`, { userId: data.id });
+    this.workers.set(
+      'user-events',
+      createWorker('user-events', async (job) => {
+        const { name, data } = job;
+        logger.debug(`处理用户事件: ${name}`, { userId: data.id });
 
-      // 这里可以添加用户事件的具体处理逻辑
-      // 例如：发送欢迎邮件、更新统计信息等
-    }));
+        // 这里可以添加用户事件的具体处理逻辑
+        // 例如：发送欢迎邮件、更新统计信息等
+      }),
+    );
 
     // 创建工作流事件处理器
-    this.workers.set('workflow-events', createWorker('workflow-events', async (job) => {
-      const { name, data } = job;
-      logger.debug(`处理工作流事件: ${name}`, { workflowId: data.id });
+    this.workers.set(
+      'workflow-events',
+      createWorker('workflow-events', async (job) => {
+        const { name, data } = job;
+        logger.debug(`处理工作流事件: ${name}`, { workflowId: data.id });
 
-      if (name === 'workflow.started') {
-        // 工作流启动后的处理逻辑
-        // 例如：通知相关人员、初始化监控等
-      }
-    }));
+        if (name === 'workflow.started') {
+          // 工作流启动后的处理逻辑
+          // 例如：通知相关人员、初始化监控等
+        }
+      }),
+    );
 
     // 创建任务事件处理器
-    this.workers.set('task-events', createWorker('task-events', async (job) => {
-      const { name, data } = job;
-      logger.debug(`处理任务事件: ${name}`, { taskId: data.id, workflowId: data.workflowId });
+    this.workers.set(
+      'task-events',
+      createWorker('task-events', async (job) => {
+        const { name, data } = job;
+        logger.debug(`处理任务事件: ${name}`, {
+          taskId: data.id,
+          workflowId: data.workflowId,
+        });
 
-      if (name === 'task.completed') {
-        // 任务完成后的处理逻辑
-        // 例如：检查工作流是否完成、触发下一个任务等
-        if (workflowEngine && typeof workflowEngine.onTaskCompleted === 'function') {
-          await workflowEngine.onTaskCompleted(data);
-        }
-      }
-    }));
-
-    // 创建失败任务重试处理器
-    this.workers.set('retry-queue', createWorker('retry-queue', async (job) => {
-      const { name, data } = job;
-      logger.debug(`处理重试任务: ${name}`, { attempts: job.attemptsMade });
-
-      try {
-        if (name === 'retry-workflow') {
-          if (workflowEngine && typeof workflowEngine.retryWorkflow === 'function') {
-            await workflowEngine.retryWorkflow(data.workflowId, data.context);
-        }
-        } else if (name === 'retry-user-operation') {
-          if (userService && typeof userService.retryOperation === 'function') {
-            await userService.retryOperation(data.operation, data.params);
+        if (name === 'task.completed') {
+          // 任务完成后的处理逻辑
+          // 例如：检查工作流是否完成、触发下一个任务等
+          if (
+            workflowEngine &&
+            typeof workflowEngine.onTaskCompleted === 'function'
+          ) {
+            await workflowEngine.onTaskCompleted(data);
           }
         }
-      } catch (error) {
-        logger.error(`重试任务失败: ${name}`, error);
-        throw error; // 让 Bull.js 处理重试逻辑
-      }
-    }));
+      }),
+    );
+
+    // 创建失败任务重试处理器
+    this.workers.set(
+      'retry-queue',
+      createWorker('retry-queue', async (job) => {
+        const { name, data } = job;
+        logger.debug(`处理重试任务: ${name}`, { attempts: job.attemptsMade });
+
+        try {
+          if (name === 'retry-workflow') {
+            if (
+              workflowEngine &&
+              typeof workflowEngine.retryWorkflow === 'function'
+            ) {
+              await workflowEngine.retryWorkflow(data.workflowId, data.context);
+            }
+          } else if (name === 'retry-user-operation') {
+            if (
+              userService &&
+              typeof userService.retryOperation === 'function'
+            ) {
+              await userService.retryOperation(data.operation, data.params);
+            }
+          }
+        } catch (error) {
+          logger.error(`重试任务失败: ${name}`, error);
+          throw error; // 让 Bull.js 处理重试逻辑
+        }
+      }),
+    );
 
     logger.info('消息队列处理器设置完成');
   }
@@ -246,19 +272,22 @@ class frysProduction {
 
       // 启动业务服务（允许失败）
       try {
-      const workflowEngine = container.resolve('workflowEngine');
-      if (workflowEngine && typeof workflowEngine.start === 'function') {
-        await workflowEngine.start();
-        logger.debug('工作流引擎已启动');
-      }
+        const workflowEngine = container.resolve('workflowEngine');
+        if (workflowEngine && typeof workflowEngine.start === 'function') {
+          await workflowEngine.start();
+          logger.debug('工作流引擎已启动');
+        }
 
-      const userService = container.resolve('userService');
-      if (userService && typeof userService.start === 'function') {
-        await userService.start();
-        logger.debug('用户服务已启动');
+        const userService = container.resolve('userService');
+        if (userService && typeof userService.start === 'function') {
+          await userService.start();
+          logger.debug('用户服务已启动');
         }
       } catch (serviceError) {
-        logger.warn('业务服务启动失败，但服务器将继续运行', serviceError.message);
+        logger.warn(
+          '业务服务启动失败，但服务器将继续运行',
+          serviceError.message,
+        );
         // 不抛出错误，让服务器继续运行
       }
 
@@ -329,11 +358,11 @@ class frysProduction {
       for (const serviceName of serviceNames) {
         try {
           const service = container.resolve(serviceName);
-        if (service && typeof service.healthCheck === 'function') {
-          checks.services[serviceName] = await service.healthCheck();
-        } else {
-          checks.services[serviceName] = service ? 'healthy' : 'unhealthy';
-        }
+          if (service && typeof service.healthCheck === 'function') {
+            checks.services[serviceName] = await service.healthCheck();
+          } else {
+            checks.services[serviceName] = service ? 'healthy' : 'unhealthy';
+          }
         } catch (error) {
           checks.services[serviceName] = 'error';
         }
@@ -350,21 +379,25 @@ class frysProduction {
 
       // 检查系统状态
       const state = container.resolve('state');
-      const systemState = state && typeof state.getState === 'function' ? state.getState() : {};
+      const systemState =
+        state && typeof state.getState === 'function' ? state.getState() : {};
       checks.services.system =
         systemState.system?.status === 'ready' ? 'healthy' : 'unhealthy';
 
       // 检查错误处理器
-      checks.services.errorHandler = errorHandler ? await errorHandler.healthCheck() : 'unhealthy';
+      checks.services.errorHandler = errorHandler
+        ? await errorHandler.healthCheck()
+        : 'unhealthy';
 
       // 总体健康状态
       const serviceStatuses = Object.values(checks.services);
       const queueHealthy = !checks.queues.error;
-      checks.healthy = serviceStatuses.every(
-        (status) =>
-          status === 'healthy' ||
-          (typeof status === 'object' && status.healthy !== false),
-      ) && queueHealthy;
+      checks.healthy =
+        serviceStatuses.every(
+          (status) =>
+            status === 'healthy' ||
+            (typeof status === 'object' && status.healthy !== false),
+        ) && queueHealthy;
 
       checks.architecture = 'open-source-based';
       checks.version = '3.0.0';
@@ -406,7 +439,7 @@ class frysProduction {
       if (userService && typeof userService.stop === 'function') {
         await userService.stop();
         logger.debug('用户服务已停止');
-          }
+      }
 
       // 停止消息队列工作进程和队列
       await closeAllQueues();
@@ -416,7 +449,7 @@ class frysProduction {
       if (errorHandler && typeof errorHandler.destroy === 'function') {
         await errorHandler.destroy();
         logger.debug('错误处理器已停止');
-        }
+      }
 
       logger.info('✅ 系统优雅关闭完成 (开源项目重构)');
       process.exit(0);

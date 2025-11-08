@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 异常处理集成测试
  * 测试全局异常处理器、优雅关闭管理器、资源清理器等组件的集成功能
@@ -10,7 +18,7 @@ import { ResourceCleaner } from '../../../src/infrastructure/exception-handling/
 import { CoreServiceProtector } from '../../../src/infrastructure/exception-handling/CoreServiceProtector.js';
 import { ExceptionRecoveryStrategies } from '../../../src/infrastructure/exception-handling/ExceptionRecoveryStrategies.js';
 import { EventBus } from '../../../src/shared/kernel/EventBus.js';
-import { logger } from '../../../src/utils/logger.js';
+import { logger } from '../../../src/shared/utils/logger.js';
 
 // Mock logger
 vi.spyOn(logger, 'info').mockImplementation(() => {});

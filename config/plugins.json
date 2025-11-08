@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    {
+      "name": "ai-plugin",
+      "path": "./plugins/ai-plugin/index.js",
+      "enabled": false,
+      "description": "AI多供应商集成插件",
+      "dependencies": ["@lineai/cognee-api", "openai", "axios"]
+    }
+  ],
+  "autoLoad": false,
+  "pluginDir": "./plugins"
+}

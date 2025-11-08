@@ -38,16 +38,131 @@
 
 <table>
   <tr>
-    <td align="center" width="33%">
-      <h3>🎯 轻量化设计</h3>
-      <p>精简内核 + 插件扩展，5分钟快速部署</p>
+    <td align="center" width="25%">
+      <h3>🪶 轻量化设计</h3>
+      <p>模块化 + 可配置，资源占用最小化</p>
     </td>
-    <td align="center" width="33%">
-      <h3>🏗️ 企业级架构</h3>
-      <p>基于Fastify + Awilix，支持高并发处理</p>
+    <td align="center" width="25%">
+      <h3>🔄 可迁移性</h3>
+      <p>容器化 + 标准化，环境间无缝迁移</p>
     </td>
-    <td align="center" width="33%">
-      <h3>🚀 现代化工具链</h3>
+    <td align="center" width="25%">
+      <h3>🎛️ 高度适配</h3>
+      <p>功能开关 + 插件系统，灵活适配需求</p>
+    </td>
+    <td align="center" width="25%">
+      <h3>📦 模块化架构</h3>
+      <p>微服务化 + 组件化，易于维护扩展</p>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+## 🪶 轻量化功能特性
+
+### ⚡ 轻量化启动模式
+
+frys提供了多种启动模式，支持不同场景的资源优化：
+
+```bash
+# 完整模式 - 全部功能启用
+npm run light:start
+
+# 微服务模式 - 最小化依赖，快速启动
+LIGHT_MODE=micro npm run light:start
+
+# 最小化模式 - 禁用非必要功能
+LIGHT_MODE=minimal npm run light:start
+```
+
+### 🏗️ 轻量化构建系统
+
+基于esbuild的现代化构建，支持多目标编译：
+
+```bash
+# Node.js构建
+npm run light:build
+
+# 浏览器构建
+BUILD_TARGET=browser npm run light:build
+
+# 多目标构建
+BUILD_TARGET=both npm run light:build
+```
+
+### 🧪 智能测试策略
+
+根据环境和需求选择合适的测试策略：
+
+```bash
+# 智能测试 - 根据变更自动选择测试范围
+npm run light:test
+
+# 快速测试 - 只运行关键测试
+TEST_MODE=fast npm run light:test
+
+# 完整测试 - 运行所有测试类型
+TEST_MODE=full npm run light:test
+```
+
+### 🚀 零停机部署
+
+支持多种部署策略，确保服务连续性：
+
+```bash
+# 滚动部署
+npm run light:deploy
+
+# 蓝绿部署
+DEPLOY_STRATEGY=blue-green npm run light:deploy
+
+# 金丝雀部署
+DEPLOY_STRATEGY=canary npm run light:deploy
+```
+
+### 🔍 模块化健康检查
+
+全面的系统健康监控和诊断：
+
+```bash
+# 完整健康检查
+npm run module:check
+
+# 快速健康检查
+npm run quality:quick
+
+# 开发环境监控
+npm run test:stability
+```
+
+## 📋 轻量化配置系统
+
+### 环境自适应配置
+
+```javascript
+// config/lightweight.config.js
+import { generateLightweightConfig } from './config/lightweight.config.js';
+
+const config = generateLightweightConfig();
+
+// 自动适配不同环境
+console.log(config.environment); // { env: 'development', isDev: true, ... }
+console.log(config.adapters);    // { database: 'sqlite', cache: 'memory', ... }
+```
+
+### 功能开关控制
+
+```javascript
+// 按需启用功能
+const features = {
+  ai: process.env.ENABLE_AI !== 'false',
+  monitoring: process.env.ENABLE_MONITORING !== 'false',
+  security: process.env.ENABLE_SECURITY !== 'false'
+};
+```
+
+## 🏗️ 企业级架构
       <p>完整的DevOps流程，99.9%可用性保障</p>
     </td>
   </tr>

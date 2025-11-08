@@ -3,12 +3,11 @@
  * 提供多轮对话管理、上下文保持和记忆集成
  */
 
-import { LangChainService } from './ai/LangChainService.js';
-import { CogneeMemoryService } from './ai/CogneeMemoryService.js';
-import { logger } from '../../utils/logger.js';
-import { config } from '../../utils/config.js';
-import { errorHandler } from '../../core/error-handler.js';
-import { eventSystem } from '../../core/events.js';
+// AI服务将在运行时通过插件系统注入
+import { logger } from '../../shared/utils/logger.js';
+import { config } from '../../shared/utils/config.js';
+import { errorHandler } from '../../core/ErrorHandlerConfig.js';
+import { eventSystem } from '../../core/event/EventBus.js';
 
 export class ConversationManager {
   constructor(options = {}) {
@@ -29,7 +28,7 @@ export class ConversationManager {
       messagesProcessed: 0,
       averageResponseTime: 0,
       totalTokens: 0,
-      errors: 0
+      errors: 0,
     };
 
     this.initializeServices(options);
@@ -47,17 +46,20 @@ export class ConversationManager {
         openai: !!config.ai.providers.openai?.apiKey,
         claude: !!config.ai.providers.claude?.apiKey,
         gemini: !!config.ai.providers.gemini?.apiKey,
-        openaiKey: `${config.ai.providers.openai?.apiKey?.substring(0, 10)  }...`
+        openaiKey: `${config.ai.providers.openai?.apiKey?.substring(0, 10)}...`,
       });
 
       // 初始化LangChain服务 - 在测试模式下总是初始化
-      const isTestMode = config.ai.providers.openai?.apiKey === 'test-openai-key' ||
-                        config.ai.providers.openai?.apiKey?.startsWith('test-');
+      const isTestMode =
+        config.ai.providers.openai?.apiKey === 'test-openai-key' ||
+        config.ai.providers.openai?.apiKey?.startsWith('test-');
 
-      if (config.ai.providers.openai?.apiKey ||
-          config.ai.providers.claude?.apiKey ||
-          config.ai.providers.gemini?.apiKey ||
-          isTestMode) {
+      if (
+        config.ai.providers.openai?.apiKey ||
+        config.ai.providers.claude?.apiKey ||
+        config.ai.providers.gemini?.apiKey ||
+        isTestMode
+      ) {
         this.langChainService = new LangChainService(options.langChain);
         logger.info('LangChain服务集成成功');
       }
@@ -67,7 +69,6 @@ export class ConversationManager {
         this.cogneeService = new CogneeMemoryService(options.cognee);
         logger.info('Cognee记忆服务集成成功');
       }
-
     } catch (error) {
       logger.error('对话管理服务初始化失败', { error: error.message });
       // 不抛出错误，允许部分服务不可用
@@ -88,20 +89,24 @@ export class ConversationManager {
         persistMemory = true,
         context = {},
         systemPrompt,
-        maxHistory = 50
+        maxHistory = 50,
       } = conversationConfig;
 
-      const id = conversationId || `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const id =
+        conversationId ||
+        `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       // 创建LangChain对话链（如果可用）
       let chainId = null;
       if (this.langChainService) {
-        const chainResult = await this.langChainService.createConversationChain({
-          model,
-          memoryType: memory ? 'buffer' : null,
-          promptTemplate: systemPrompt,
-          chainId: `${id}_chain`
-        });
+        const chainResult = await this.langChainService.createConversationChain(
+          {
+            model,
+            memoryType: memory ? 'buffer' : null,
+            promptTemplate: systemPrompt,
+            chainId: `${id}_chain`,
+          },
+        );
         chainId = chainResult.chainId;
       }
 
@@ -118,7 +123,7 @@ export class ConversationManager {
         chainId,
         createdAt: new Date().toISOString(),
         lastActivity: new Date().toISOString(),
-        status: 'active'
+        status: 'active',
       };
 
       this.conversations.set(id, conversation);
@@ -132,7 +137,7 @@ export class ConversationManager {
         sessionId,
         model,
         hasChain: !!chainId,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       logger.info('对话创建成功', {
@@ -140,7 +145,7 @@ export class ConversationManager {
         userId,
         sessionId,
         model,
-        hasChain: !!chainId
+        hasChain: !!chainId,
       });
 
       return {
@@ -149,20 +154,25 @@ export class ConversationManager {
         model,
         hasChain: !!chainId,
         hasMemory: !!this.cogneeService && persistMemory,
-        createdAt: conversation.createdAt
+        createdAt: conversation.createdAt,
       };
-
     } catch (error) {
       this.stats.errors++;
-      logger.error('创建对话失败', { error: error.message, conversationConfig });
+      logger.error('创建对话失败', {
+        error: error.message,
+        conversationConfig,
+      });
 
       eventSystem.emit('conversation:error', {
         operation: 'create',
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
-      throw errorHandler.createError('CONVERSATION_CREATION_FAILED', error.message);
+      throw errorHandler.createError(
+        'CONVERSATION_CREATION_FAILED',
+        error.message,
+      );
     }
   }
 
@@ -187,7 +197,7 @@ export class ConversationManager {
         userId = conversation.userId,
         sessionId = conversation.sessionId,
         stream = false,
-        timeout = 30000
+        timeout = 30000,
       } = options;
 
       // 创建消息对象
@@ -195,7 +205,7 @@ export class ConversationManager {
         role: 'user',
         content: message,
         timestamp: new Date().toISOString(),
-        messageId: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        messageId: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       };
 
       // 添加到对话历史
@@ -203,7 +213,9 @@ export class ConversationManager {
 
       // 限制历史长度
       if (conversation.messages.length > conversation.maxHistory) {
-        conversation.messages = conversation.messages.slice(-conversation.maxHistory);
+        conversation.messages = conversation.messages.slice(
+          -conversation.maxHistory,
+        );
       }
 
       let response = null;
@@ -214,7 +226,7 @@ export class ConversationManager {
         const chainResult = await this.langChainService.runConversation(
           conversation.chainId,
           message,
-          { timeout }
+          { timeout },
         );
 
         response = chainResult.response;
@@ -232,7 +244,7 @@ export class ConversationManager {
         timestamp: new Date().toISOString(),
         messageId: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         responseTime,
-        model: conversation.model
+        model: conversation.model,
       };
 
       // 添加到对话历史
@@ -244,11 +256,14 @@ export class ConversationManager {
       // 持久化记忆（如果启用）
       if (conversation.persistMemory && this.cogneeService) {
         try {
-          await this.persistConversationMemory(conversation, [userMessage, assistantMessage]);
+          await this.persistConversationMemory(conversation, [
+            userMessage,
+            assistantMessage,
+          ]);
         } catch (memoryError) {
           logger.warn('对话记忆持久化失败', {
             conversationId,
-            error: memoryError.message
+            error: memoryError.message,
           });
           // 不影响主要功能
         }
@@ -264,7 +279,7 @@ export class ConversationManager {
         responseTime,
         model: conversation.model,
         messageCount: conversation.messages.length,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       logger.info('消息处理完成', {
@@ -272,7 +287,7 @@ export class ConversationManager {
         userId,
         sessionId,
         responseTime,
-        messageCount: conversation.messages.length
+        messageCount: conversation.messages.length,
       });
 
       return {
@@ -281,10 +296,9 @@ export class ConversationManager {
         message: assistantMessage,
         conversation: {
           totalMessages: conversation.messages.length,
-          lastActivity: conversation.lastActivity
-        }
+          lastActivity: conversation.lastActivity,
+        },
       };
-
     } catch (error) {
       this.stats.errors++;
       logger.error('消息处理失败', { conversationId, error: error.message });
@@ -293,10 +307,13 @@ export class ConversationManager {
         operation: 'send_message',
         conversationId,
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
-      throw errorHandler.createError('CONVERSATION_MESSAGE_FAILED', error.message);
+      throw errorHandler.createError(
+        'CONVERSATION_MESSAGE_FAILED',
+        error.message,
+      );
     }
   }
 
@@ -322,7 +339,7 @@ export class ConversationManager {
     // 基于上下文的简单回复
     if (conversation.messages.length > 2) {
       const lastUserMessage = conversation.messages
-        .filter(m => m.role === 'user')
+        .filter((m) => m.role === 'user')
         .slice(-2)[0]; // 获取倒数第二个用户消息
 
       if (lastUserMessage) {
@@ -347,13 +364,12 @@ export class ConversationManager {
         messages,
         userId: conversation.userId,
         sessionId: conversation.sessionId,
-        context: conversation.context
+        context: conversation.context,
       });
-
     } catch (error) {
       logger.warn('对话记忆持久化失败', {
         conversationId: conversation.id,
-        error: error.message
+        error: error.message,
       });
       // 不抛出错误，避免影响主要功能
     }
@@ -382,13 +398,18 @@ export class ConversationManager {
         conversationId,
         messages,
         totalMessages: conversation.messages.length,
-        hasMore: limit ? (offset + limit) < conversation.messages.length : false,
-        lastActivity: conversation.lastActivity
+        hasMore: limit ? offset + limit < conversation.messages.length : false,
+        lastActivity: conversation.lastActivity,
       };
-
     } catch (error) {
-      logger.error('获取对话历史失败', { conversationId, error: error.message });
-      throw errorHandler.createError('CONVERSATION_HISTORY_FAILED', error.message);
+      logger.error('获取对话历史失败', {
+        conversationId,
+        error: error.message,
+      });
+      throw errorHandler.createError(
+        'CONVERSATION_HISTORY_FAILED',
+        error.message,
+      );
     }
   }
 
@@ -407,7 +428,7 @@ export class ConversationManager {
           success: true,
           conversationId,
           relevantMemories: [],
-          message: 'Cognee记忆服务不可用'
+          message: 'Cognee记忆服务不可用',
         };
       }
 
@@ -417,20 +438,26 @@ export class ConversationManager {
         {
           userId: conversation.userId,
           sessionId: conversation.sessionId,
-          ...options
-        }
+          ...options,
+        },
       );
 
       return {
         success: true,
         conversationId,
         relevantMemories: memoryResult.relevantMessages || [],
-        totalMemories: memoryResult.results?.length || 0
+        totalMemories: memoryResult.results?.length || 0,
       };
-
     } catch (error) {
-      logger.error('检索相关记忆失败', { conversationId, query, error: error.message });
-      throw errorHandler.createError('CONVERSATION_MEMORY_RETRIEVAL_FAILED', error.message);
+      logger.error('检索相关记忆失败', {
+        conversationId,
+        query,
+        error: error.message,
+      });
+      throw errorHandler.createError(
+        'CONVERSATION_MEMORY_RETRIEVAL_FAILED',
+        error.message,
+      );
     }
   }
 
@@ -446,24 +473,29 @@ export class ConversationManager {
 
       conversation.context = {
         ...conversation.context,
-        ...context
+        ...context,
       };
 
       logger.info('对话上下文更新成功', {
         conversationId,
-        contextKeys: Object.keys(context)
+        contextKeys: Object.keys(context),
       });
 
       return {
         success: true,
         conversationId,
         context: conversation.context,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
-
     } catch (error) {
-      logger.error('更新对话上下文失败', { conversationId, error: error.message });
-      throw errorHandler.createError('CONVERSATION_CONTEXT_UPDATE_FAILED', error.message);
+      logger.error('更新对话上下文失败', {
+        conversationId,
+        error: error.message,
+      });
+      throw errorHandler.createError(
+        'CONVERSATION_CONTEXT_UPDATE_FAILED',
+        error.message,
+      );
     }
   }
 
@@ -491,7 +523,7 @@ export class ConversationManager {
           logger.warn('清理对话链失败', {
             conversationId,
             chainId: conversation.chainId,
-            error: chainError.message
+            error: chainError.message,
           });
         }
       }
@@ -502,22 +534,21 @@ export class ConversationManager {
         userId: conversation.userId,
         sessionId: conversation.sessionId,
         duration: conversation.messages.length,
-        endedAt: conversation.endedAt
+        endedAt: conversation.endedAt,
       });
 
       logger.info('对话结束成功', {
         conversationId,
         messageCount: conversation.messages.length,
-        duration: Date.now() - new Date(conversation.createdAt).getTime()
+        duration: Date.now() - new Date(conversation.createdAt).getTime(),
       });
 
       return {
         success: true,
         conversationId,
         messageCount: conversation.messages.length,
-        endedAt: conversation.endedAt
+        endedAt: conversation.endedAt,
       };
-
     } catch (error) {
       logger.error('结束对话失败', { conversationId, error: error.message });
       throw errorHandler.createError('CONVERSATION_END_FAILED', error.message);
@@ -534,8 +565,12 @@ export class ConversationManager {
         throw new Error(`对话 ${conversationId} 不存在`);
       }
 
-      const userMessages = conversation.messages.filter(m => m.role === 'user');
-      const assistantMessages = conversation.messages.filter(m => m.role === 'assistant');
+      const userMessages = conversation.messages.filter(
+        (m) => m.role === 'user',
+      );
+      const assistantMessages = conversation.messages.filter(
+        (m) => m.role === 'assistant',
+      );
 
       return {
         success: true,
@@ -543,23 +578,36 @@ export class ConversationManager {
         totalMessages: conversation.messages.length,
         userMessages: userMessages.length,
         assistantMessages: assistantMessages.length,
-        averageUserMessageLength: userMessages.length > 0
-          ? userMessages.reduce((sum, m) => sum + m.content.length, 0) / userMessages.length
-          : 0,
-        averageAssistantMessageLength: assistantMessages.length > 0
-          ? assistantMessages.reduce((sum, m) => sum + m.content.length, 0) / assistantMessages.length
-          : 0,
-        averageResponseTime: assistantMessages.length > 0
-          ? assistantMessages.reduce((sum, m) => sum + (m.responseTime || 0), 0) / assistantMessages.length
-          : 0,
+        averageUserMessageLength:
+          userMessages.length > 0
+            ? userMessages.reduce((sum, m) => sum + m.content.length, 0) /
+              userMessages.length
+            : 0,
+        averageAssistantMessageLength:
+          assistantMessages.length > 0
+            ? assistantMessages.reduce((sum, m) => sum + m.content.length, 0) /
+              assistantMessages.length
+            : 0,
+        averageResponseTime:
+          assistantMessages.length > 0
+            ? assistantMessages.reduce(
+                (sum, m) => sum + (m.responseTime || 0),
+                0,
+              ) / assistantMessages.length
+            : 0,
         createdAt: conversation.createdAt,
         lastActivity: conversation.lastActivity,
-        status: conversation.status
+        status: conversation.status,
       };
-
     } catch (error) {
-      logger.error('获取对话统计失败', { conversationId, error: error.message });
-      throw errorHandler.createError('CONVERSATION_STATS_FAILED', error.message);
+      logger.error('获取对话统计失败', {
+        conversationId,
+        error: error.message,
+      });
+      throw errorHandler.createError(
+        'CONVERSATION_STATS_FAILED',
+        error.message,
+      );
     }
   }
 
@@ -570,17 +618,17 @@ export class ConversationManager {
     const conversations = Array.from(this.activeConversations.values());
 
     const filtered = userId
-      ? conversations.filter(conv => conv.userId === userId)
+      ? conversations.filter((conv) => conv.userId === userId)
       : conversations;
 
-    return filtered.map(conv => ({
+    return filtered.map((conv) => ({
       conversationId: conv.id,
       userId: conv.userId,
       sessionId: conv.sessionId,
       model: conv.model,
       messageCount: conv.messages.length,
       lastActivity: conv.lastActivity,
-      createdAt: conv.createdAt
+      createdAt: conv.createdAt,
     }));
   }
 
@@ -598,13 +646,16 @@ export class ConversationManager {
       averageResponseTime: this.stats.averageResponseTime,
       totalTokens: this.stats.totalTokens,
       errors: this.stats.errors,
-      errorRate: this.stats.messagesProcessed > 0 ? this.stats.errors / this.stats.messagesProcessed : 0,
+      errorRate:
+        this.stats.messagesProcessed > 0
+          ? this.stats.errors / this.stats.messagesProcessed
+          : 0,
       services: {
         langChain: !!this.langChainService,
-        cognee: !!this.cogneeService
+        cognee: !!this.cogneeService,
       },
       uptime: process.uptime(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -617,7 +668,7 @@ export class ConversationManager {
       messagesProcessed: 0,
       averageResponseTime: 0,
       totalTokens: 0,
-      errors: 0
+      errors: 0,
     };
     logger.info('对话管理系统统计信息已重置');
   }

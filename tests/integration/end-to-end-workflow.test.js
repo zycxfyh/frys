@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 端到端工作流测试
  * 测试完整的用户工作流程：认证 -> 数据处理 -> 状态管理 -> 消息传递

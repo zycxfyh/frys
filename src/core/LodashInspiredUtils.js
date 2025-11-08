@@ -6,7 +6,7 @@
 import { BaseModule } from './BaseModule.js';
 import { frysError } from './error-handler.js';
 import { pipe, curry, memoize, compose } from './FunctionalUtils.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../shared/utils/logger.js';
 
 class LodashInspiredUtils extends BaseModule {
   getDefaultConfig() {

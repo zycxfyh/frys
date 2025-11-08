@@ -5,7 +5,7 @@
 
 import { BaseController } from '../../shared/kernel/BaseController.js';
 import { Success, Failure } from '../../shared/kernel/Result.js';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class AuthController extends BaseController {
   constructor(authenticationService, authorizationService) {
@@ -551,7 +551,7 @@ export class AuthController extends BaseController {
       // 并激活用户邮箱
 
       logger.info('Email verification attempted', {
-        token: `${token.substring(0, 10)  }...`,
+        token: `${token.substring(0, 10)}...`,
         ip: req.ip,
       });
 

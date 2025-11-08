@@ -3,10 +3,8 @@
  * 借鉴 Zod 的核心理念，增强输入验证和安全防护
  * 重构版本：应用SOLID原则，单一职责和开闭原则
  */
-import {
-  sanitizeInput,
-} from '../utils/type-guards.js';
-import { logger } from '../utils/logger.js';
+import { sanitizeInput } from '../shared/utils/type-guards.js';
+import { logger } from '../shared/utils/logger.js';
 
 // 验证器接口 - 依赖倒置原则
 class BaseValidator {
@@ -18,12 +16,20 @@ class BaseValidator {
 // 基础类型验证器
 class TypeValidator extends BaseValidator {
   validate(data, schema, context) {
-    if (schema.required && (data === null || data === undefined || data === '')) {
+    if (
+      schema.required &&
+      (data === null || data === undefined || data === '')
+    ) {
       context.errors.push('Required field is missing');
       return false;
     }
 
-    if (schema.type && typeof data !== schema.type && data !== null && data !== undefined) {
+    if (
+      schema.type &&
+      typeof data !== schema.type &&
+      data !== null &&
+      data !== undefined
+    ) {
       context.errors.push(`Expected type ${schema.type}, got ${typeof data}`);
       return false;
     }
@@ -40,12 +46,16 @@ class StringValidator extends BaseValidator {
     }
 
     if (schema.minLength && data.length < schema.minLength) {
-      context.errors.push(`String too short, minimum length is ${schema.minLength}`);
+      context.errors.push(
+        `String too short, minimum length is ${schema.minLength}`,
+      );
       return false;
     }
 
     if (schema.maxLength && data.length > schema.maxLength) {
-      context.errors.push(`String too long, maximum length is ${schema.maxLength}`);
+      context.errors.push(
+        `String too long, maximum length is ${schema.maxLength}`,
+      );
       return false;
     }
 
@@ -87,12 +97,16 @@ class ArrayValidator extends BaseValidator {
     }
 
     if (schema.minItems !== undefined && data.length < schema.minItems) {
-      context.errors.push(`Array too short, minimum items is ${schema.minItems}`);
+      context.errors.push(
+        `Array too short, minimum items is ${schema.minItems}`,
+      );
       return false;
     }
 
     if (schema.maxItems !== undefined && data.length > schema.maxItems) {
-      context.errors.push(`Array too long, maximum items is ${schema.maxItems}`);
+      context.errors.push(
+        `Array too long, maximum items is ${schema.maxItems}`,
+      );
       return false;
     }
 
@@ -112,13 +126,19 @@ class ObjectValidator extends BaseValidator {
         if (data.hasOwnProperty(prop)) {
           // 递归验证嵌套属性
           const nestedContext = { errors: [], warnings: [] };
-          const validators = [new TypeValidator(), new StringValidator(), new NumberValidator()];
+          const validators = [
+            new TypeValidator(),
+            new StringValidator(),
+            new NumberValidator(),
+          ];
           for (const validator of validators) {
             if (!validator.validate(data[prop], propSchema, nestedContext)) {
               break;
             }
           }
-          context.errors.push(...nestedContext.errors.map(err => `${prop}: ${err}`));
+          context.errors.push(
+            ...nestedContext.errors.map((err) => `${prop}: ${err}`),
+          );
         } else if (propSchema.required) {
           context.errors.push(`Missing required property: ${prop}`);
         }
@@ -167,7 +187,7 @@ class ZodInspiredValidation {
       new NumberValidator(),
       new ArrayValidator(),
       new ObjectValidator(),
-      new CustomValidator()
+      new CustomValidator(),
     ];
 
     this.initializeSecurityRules();
@@ -189,7 +209,9 @@ class ZodInspiredValidation {
    * @param {Function} validatorClass - 验证器类
    */
   removeValidator(validatorClass) {
-    this.validators = this.validators.filter(v => !(v instanceof validatorClass));
+    this.validators = this.validators.filter(
+      (v) => !(v instanceof validatorClass),
+    );
   }
 
   /**
@@ -221,7 +243,8 @@ class ZodInspiredValidation {
 
     // 路径遍历防护规则
     this.securityRules.set('path_traversal', {
-      pattern: /(\.\.[/\\]|\.\.[/\\]|\/etc\/|\/bin\/|\/usr\/|\/var\/|\/home\/|\/root\/|\/boot\/|windows\/|system32\/)/gi,
+      pattern:
+        /(\.\.[/\\]|\.\.[/\\]|\/etc\/|\/bin\/|\/usr\/|\/var\/|\/home\/|\/root\/|\/boot\/|windows\/|system32\/)/gi,
       severity: 'high',
       message: '检测到潜在的路径遍历攻击',
     });
@@ -353,7 +376,7 @@ class ZodInspiredValidation {
               (this.validations.filter((v) => v.result).length /
                 this.validations.length) *
               100
-            ).toFixed(2)  }%`
+            ).toFixed(2)}%`
           : '0%',
     };
   }

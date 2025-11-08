@@ -7,7 +7,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { User, Email, Username } from '../../entities/auth/User.js';
 import { JWTPayload, TokenPair, Session } from '../../entities/auth/Token.js';
-import { logger } from '../../../utils/logger.js';
+import { logger } from '../../../shared/utils/logger.js';
 import UUIDInspiredId from '../../../core/UUIDInspiredId.js';
 
 export class AuthenticationService {

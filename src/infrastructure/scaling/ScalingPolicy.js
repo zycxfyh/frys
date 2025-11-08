@@ -3,7 +3,7 @@
  * 定义不同的自动扩容策略和决策逻辑
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class ScalingPolicy {
   constructor(config = {}) {

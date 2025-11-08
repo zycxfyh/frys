@@ -1,3 +1,11 @@
+import {
+  setupStrictTestEnvironment,
+  createStrictTestCleanup,
+  strictAssert,
+  withTimeout,
+  createDetailedErrorReporter
+} from './test-helpers.js';
+
 /**
  * 系统集成测试
  * 验证整个frys系统的集成功能
@@ -11,7 +19,7 @@ const AxiosInspiredHTTP = (await import('../../../src/core/AxiosInspiredHTTP.js'
 const JWTInspiredAuth = (await import('../../../src/core/JWTInspiredAuth.js')).default;
 const ZustandInspiredState = (await import('../../../src/core/ZustandInspiredState.js')).default;
 const LodashInspiredUtils = (await import('../../../src/core/LodashInspiredUtils.js')).default;
-const { errorHandler } = await import('../../../src/core/UnifiedErrorHandler.js');
+const { errorHandler } = await import('../../../src/core/ErrorHandlerConfig.js');
 
 describe('系统集成测试', () => {
   let container;

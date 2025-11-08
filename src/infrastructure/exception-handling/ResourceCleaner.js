@@ -3,7 +3,7 @@
  * 管理系统中各种资源的注册、跟踪和清理
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class ResourceCleaner {
   constructor() {

@@ -5,7 +5,7 @@
 
 import { BaseUseCase } from '../../shared/kernel/BaseUseCase.js';
 import { Success, Failure } from '../../shared/kernel/Result.js';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class CacheManagementUseCase extends BaseUseCase {
   constructor(cacheService) {

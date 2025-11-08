@@ -3,7 +3,7 @@
  * 实时监控数据库性能指标和健康状态
  */
 
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class DatabaseMonitor {
   constructor(connectionPool, optimizer) {
@@ -391,8 +391,7 @@ export class DatabaseMonitor {
 
       trends.queryPerformance = {
         current: avgQueryTime,
-        change:
-          `${(((avgQueryTime - earlierAvg) / earlierAvg) * 100).toFixed(2)  }%`,
+        change: `${(((avgQueryTime - earlierAvg) / earlierAvg) * 100).toFixed(2)}%`,
         trend: avgQueryTime > earlierAvg ? 'worsening' : 'improving',
       };
     }

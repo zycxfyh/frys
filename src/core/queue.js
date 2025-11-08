@@ -6,8 +6,8 @@
 import Queue from 'bull';
 import Redis from 'ioredis';
 import { resolve } from './container.js';
-import { logger } from '../utils/logger.js';
-import { config } from '../utils/config.js';
+import { logger } from '../shared/utils/logger.js';
+import { config } from '../shared/utils/config.js';
 
 // 队列配置
 const QUEUE_CONFIG = {
@@ -18,12 +18,12 @@ const QUEUE_CONFIG = {
     db: config.redis?.db || 0,
   },
   defaultJobOptions: {
-    removeOnComplete: 50,    // 完成任务保留数量
-    removeOnFail: 100,      // 失败任务保留数量
-    attempts: 3,            // 重试次数
+    removeOnComplete: 50, // 完成任务保留数量
+    removeOnFail: 100, // 失败任务保留数量
+    attempts: 3, // 重试次数
     backoff: {
       type: 'exponential',
-      delay: 2000,          // 初始延迟2秒
+      delay: 2000, // 初始延迟2秒
     },
   },
 };
@@ -66,13 +66,16 @@ function setupQueueEvents(queue, queueName) {
 
   queue.on('error', (error) => {
     // 在开发/测试环境中，如果是Redis连接错误，只显示一次警告
-    if (error.code === 'ECONNREFUSED' && (config.env === 'development' || config.env === 'test')) {
+    if (
+      error.code === 'ECONNREFUSED' &&
+      (config.env === 'development' || config.env === 'test')
+    ) {
       if (!queue.redisConnectionWarned) {
         logger.warn(`📋 Redis未连接 [${queueName}] - 队列功能将被禁用`);
         queue.redisConnectionWarned = true;
       }
     } else {
-    logger.error(`📋 队列错误 [${queueName}]`, error);
+      logger.error(`📋 队列错误 [${queueName}]`, error);
     }
   });
 
@@ -124,7 +127,7 @@ export function createWorker(queueName, processor, options = {}) {
   const workerOptions = {
     concurrency: options.concurrency || 5, // 并发数
     limiter: options.limiter || {
-      max: 1000,     // 每 duration 毫秒最多处理的任务数
+      max: 1000, // 每 duration 毫秒最多处理的任务数
       duration: 5000,
     },
     ...options,
@@ -292,7 +295,7 @@ export async function healthCheck() {
   try {
     const statuses = await getAllQueuesStatus();
     const hasErrors = Object.values(statuses.queues).some(
-      (status) => !status || status.failed > 100 // 失败任务过多视为不健康
+      (status) => !status || status.failed > 100, // 失败任务过多视为不健康
     );
 
     return {

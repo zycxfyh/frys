@@ -4,7 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class PerformanceBenchmark extends EventEmitter {
   constructor(options = {}) {

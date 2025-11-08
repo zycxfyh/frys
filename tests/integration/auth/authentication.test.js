@@ -1,10 +1,38 @@
-/**
- * 认证服务集成测试
- */
+// Authentication Service Integration Tests
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+/**
+ * Tests for user authentication, registration, and token management
+ */
+import jwt from 'jsonwebtoken';
 import { AuthenticationService } from '../../../src/domain/services/auth/AuthenticationService.js';
 import { User } from '../../../src/domain/entities/auth/User.js';
+import {
+  setupStrictTestEnvironment,
+  withTimeout
+} from './test-helpers.js';
+
+/**
+ * Test fixtures and helpers
+ */
+const createTestUser = (overrides = {}) => {
+  return new User({
+    id: 'user-123',
+    username: 'testuser',
+    email: 'test@example.com',
+    roles: ['user'],
+    profile: { firstName: 'Test', lastName: 'User' },
+    ...overrides
+  });
+};
+
+const createTestCredentials = (overrides = {}) => ({
+  username: 'testuser',
+  password: 'password123',
+  ipAddress: '127.0.0.1',
+  userAgent: 'Test Browser',
+  ...overrides
+});
 
 // Mock repositories
 const mockUserRepository = {
@@ -26,10 +54,38 @@ const mockSessionRepository = {
   save: vi.fn()
 };
 
-// Import jwt for spying
-import jwt from 'jsonwebtoken';
 
-describe('认证服务集成测试', () => {
+describe('Authentication Service Integration', () => {
+  let authService;
+  let jwtVerifySpy;
+
+  beforeAll(() => {
+    // Setup test environment
+  });
+
+  afterAll(() => {
+    // Cleanup test environment
+  });
+
+  beforeEach(() => {
+    // Reset all mocks before each test
+    vi.clearAllMocks();
+
+    // Create fresh service instance
+    authService = new AuthenticationService({
+      jwtSecret: 'test-secret-key',
+      jwtIssuer: 'test-issuer'
+    });
+
+    // Setup JWT spy for verification tests
+    jwtVerifySpy = vi.spyOn(jwt, 'verify');
+  });
+
+  afterEach(() => {
+    authService = null;
+  });
+
+  describe('User Registration', () => {
   let authService;
   let jwtVerifySpy;
 
@@ -201,9 +257,15 @@ describe('认证服务集成测试', () => {
 
       // Assert
       expect(tokenPair).toBeDefined();
-      expect(tokenPair.accessToken).toBe('mock.jwt.token');
-      expect(tokenPair.refreshToken).toBe('mock.jwt.token');
+      expect(tokenPair.accessToken).toBeDefined();
+      expect(tokenPair.refreshToken).toBeDefined();
       expect(tokenPair.expiresIn).toBeGreaterThan(0);
+
+      // Verify JWT token structure (not mock values)
+      expect(typeof tokenPair.accessToken).toBe('string');
+      expect(tokenPair.accessToken.split('.')).toHaveLength(3); // JWT has 3 parts
+      expect(typeof tokenPair.refreshToken).toBe('string');
+      expect(tokenPair.refreshToken.split('.')).toHaveLength(3);
     });
 
     it('应该验证访问令牌', async () => {

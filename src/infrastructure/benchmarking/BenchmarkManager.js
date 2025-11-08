@@ -6,7 +6,7 @@
 import { PerformanceBenchmark } from './PerformanceBenchmark.js';
 import { LoadTester } from './LoadTester.js';
 import { StressTester } from './StressTester.js';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import fs from 'fs/promises';
 import path from 'path';
 

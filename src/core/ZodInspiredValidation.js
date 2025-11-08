@@ -6,6 +6,7 @@
 import {
   sanitizeInput,
 } from '../utils/type-guards.js';
+import { logger } from '../utils/logger.js';
 
 // 验证器接口 - 依赖倒置原则
 class BaseValidator {
@@ -233,7 +234,7 @@ class ZodInspiredValidation {
    */
   schema(name, definition) {
     this.schemas.set(name, definition);
-    console.log(`📋 Schema已创建: ${name}`);
+    logger.info(`Schema已创建: ${name}`, { schemaName: name });
   }
 
   /**

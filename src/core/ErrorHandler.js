@@ -4,6 +4,7 @@
  */
 
 import frysError from './frysError.js';
+import { logger } from '../utils/logger.js';
 
 class ErrorHandler {
   constructor(options = {}) {
@@ -76,11 +77,11 @@ class ErrorHandler {
   }
 
   logError(error, context) {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] ❌ 错误: ${error.module} - ${error.message}`);
-    if (context.operation) {
-      console.log(`   �� 操作: ${context.operation}`);
-    }
+    logger.error(`错误: ${error.module} - ${error.message}`, {
+      module: error.module,
+      operation: context.operation,
+      timestamp: new Date().toISOString()
+    });
   }
 
   getStats() {

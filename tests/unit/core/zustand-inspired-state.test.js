@@ -154,7 +154,7 @@ describe('ZustandInspiredState', () => {
     });
 
     it('应该支持复杂的状态更新', () => {
-      const todoStore = zustand.create((set, get) => ({
+      const todoStore = zustand.create((set) => ({
         todos: [],
         addTodo: (text) => set(state => ({
           todos: [...state.todos, { id: Date.now(), text, completed: false }]
@@ -197,7 +197,7 @@ describe('ZustandInspiredState', () => {
       let callCount = 0;
       let lastState = null;
 
-      const unsubscribe = counterStore.subscribe((newState, oldState) => {
+      const unsubscribe = counterStore.subscribe((newState) => {
         callCount++;
         lastState = newState;
       });
@@ -220,7 +220,7 @@ describe('ZustandInspiredState', () => {
       let callCount2 = 0;
 
       const unsubscribe1 = counterStore.subscribe(() => callCount1++);
-      const unsubscribe2 = counterStore.subscribe(() => callCount2++);
+      counterStore.subscribe(() => callCount2++);
 
       counterStore.increment();
       expect(callCount1).toBe(1);
@@ -286,7 +286,7 @@ describe('ZustandInspiredState', () => {
     });
 
     it('应该处理异步错误', async () => {
-      const asyncStore = zustand.create((set, get) => ({
+      const asyncStore = zustand.create((set) => ({
         loading: false,
         data: null,
         error: null,
@@ -366,9 +366,25 @@ describe('ZustandInspiredState', () => {
     });
   });
 
+  });
+
   describe('性能测试', () => {
+    let perfZustand;
+
+    beforeEach(async () => {
+      perfZustand = new ZustandInspiredState();
+      await perfZustand.initialize();
+    });
+
+    afterEach(async () => {
+      if (perfZustand) {
+        await perfZustand.destroy();
+      }
+      perfZustand = null;
+    });
+
     it('应该能高效处理大量状态更新', () => {
-      const perfStore = zustand.create((set) => ({
+      const perfStore = perfZustand.create((set) => ({
         counter: 0,
         increment: () => set(state => ({ counter: state.counter + 1 }))
       }));
@@ -387,7 +403,7 @@ describe('ZustandInspiredState', () => {
     });
 
     it('应该能处理大量订阅者', () => {
-      const perfStore = zustand.create((set) => ({
+      const perfStore = perfZustand.create((set) => ({
         value: 0,
         update: (val) => set({ value: val })
       }));
@@ -414,7 +430,7 @@ describe('ZustandInspiredState', () => {
     });
 
     it('应该能处理并发状态更新', async () => {
-      const concurrentStore = zustand.create((set) => ({
+      const concurrentStore = perfZustand.create((set) => ({
         counters: [0, 0, 0],
         increment: (index) => set(state => ({
           counters: state.counters.map((c, i) => i === index ? c + 1 : c)
@@ -435,53 +451,70 @@ describe('ZustandInspiredState', () => {
   });
 
   describe('错误处理', () => {
-    it('应该处理无效的创建函数', () => {
-      expect(() => zustand.create(null)).toThrow();
-      expect(() => zustand.create(undefined)).toThrow();
-      expect(() => zustand.create('not a function')).toThrow();
+    let errorZustand;
+
+    beforeEach(async () => {
+      errorZustand = new ZustandInspiredState();
+      await errorZustand.initialize();
     });
 
-    it('应该处理无效的状态更新', () => {
-      const store = zustand.create(() => ({ count: 0 }));
-
-      expect(() => store.setState(null)).toThrow();
-      expect(() => store.setState(undefined)).toThrow();
+    afterEach(async () => {
+      if (errorZustand) {
+        await errorZustand.destroy();
+      }
+      errorZustand = null;
     });
 
-    it('应该处理订阅无效的监听器', () => {
-      const store = zustand.create(() => ({ count: 0 }));
+    describe('创建函数验证', () => {
+      it('应该处理无效的创建函数', () => {
+        expect(() => errorZustand.create(null)).toThrow();
+        expect(() => errorZustand.create(undefined)).toThrow();
+        expect(() => errorZustand.create('not a function')).toThrow();
+      });
 
-      expect(() => store.subscribe(null)).toThrow();
-      expect(() => store.subscribe('not a function')).toThrow();
+      it('应该处理无效的状态更新', () => {
+        const store = errorZustand.create(() => ({ count: 0 }));
+
+        expect(() => store.setState(null)).toThrow();
+        expect(() => store.setState(undefined)).toThrow();
+      });
+
+      it('应该处理订阅无效的监听器', () => {
+        const store = errorZustand.create(() => ({ count: 0 }));
+
+        expect(() => store.subscribe(null)).toThrow();
+        expect(() => store.subscribe('not a function')).toThrow();
+      });
+    });
+
+    describe('内存管理', () => {
+      describe('订阅者清理', () => {
+        it('应该正确清理订阅者', () => {
+          const store = errorZustand.create(() => ({ count: 0 }));
+
+          const unsubscribe1 = store.subscribe(() => {});
+          const unsubscribe2 = store.subscribe(() => {});
+
+          expect(errorZustand.getStats().subscribers).toBe(2); // 有两个订阅者
+
+          unsubscribe1();
+          // 订阅者数组中还有一个监听器
+
+          unsubscribe2();
+          // 现在订阅者数组为空
+        });
+
+        it('应该处理循环引用', () => {
+          const store = errorZustand.create((set) => ({
+            self: null,
+            setSelf: () => set({ self: store }) // 直接引用store对象
+          }));
+
+          // 这应该不会导致内存泄漏
+          store.setSelf();
+          expect(store.state.self).toBeDefined();
+          expect(store.state.self).toBe(store); // 应该引用自身
+        });
+      });
     });
   });
-
-  describe('内存管理', () => {
-    it('应该正确清理订阅者', () => {
-      const store = zustand.create(() => ({ count: 0 }));
-
-      const unsubscribe1 = store.subscribe(() => {});
-      const unsubscribe2 = store.subscribe(() => {});
-
-      expect(zustand.getStats().subscribers).toBe(2); // 有两个订阅者
-
-      unsubscribe1();
-      // 订阅者数组中还有一个监听器
-
-      unsubscribe2();
-      // 现在订阅者数组为空
-    });
-
-    it('应该处理循环引用', () => {
-      const store = zustand.create((set, get) => ({
-        self: null,
-        setSelf: () => set({ self: store }) // 直接引用store对象
-      }));
-
-      // 这应该不会导致内存泄漏
-      store.setSelf();
-      expect(store.state.self).toBeDefined();
-      expect(store.state.self).toBe(store); // 应该引用自身
-    });
-  });
-});

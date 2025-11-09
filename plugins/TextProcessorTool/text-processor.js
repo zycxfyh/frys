@@ -30,9 +30,14 @@ function processText(text, operation) {
 
 function getTextStats(text) {
   const chars = text.length;
-  const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  const words = text
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
   const lines = text.split('\n').length;
-  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+  const sentences = text
+    .split(/[.!?]+/)
+    .filter((s) => s.trim().length > 0).length;
 
   return `文本统计：
 📊 字符数：${chars}
@@ -59,7 +64,7 @@ function main() {
       if (!params.text) {
         const errorResult = {
           status: 'error',
-          error: '缺少必需参数：text'
+          error: '缺少必需参数：text',
         };
         console.log(JSON.stringify(errorResult));
         process.exit(1);
@@ -68,7 +73,7 @@ function main() {
       if (!params.operation) {
         const errorResult = {
           status: 'error',
-          error: '缺少必需参数：operation'
+          error: '缺少必需参数：operation',
         };
         console.log(JSON.stringify(errorResult));
         process.exit(1);
@@ -79,17 +84,18 @@ function main() {
       const successResult = {
         status: 'success',
         result: result,
-        text: params.text.substring(0, 100) + (params.text.length > 100 ? '...' : ''),
-        operation: params.operation
+        text:
+          params.text.substring(0, 100) +
+          (params.text.length > 100 ? '...' : ''),
+        operation: params.operation,
       };
 
       console.log(JSON.stringify(successResult));
       process.exit(0);
-
     } catch (error) {
       const errorResult = {
         status: 'error',
-        error: `处理请求失败：${error.message}`
+        error: `处理请求失败：${error.message}`,
       };
 
       console.log(JSON.stringify(errorResult));
@@ -100,7 +106,7 @@ function main() {
   setTimeout(() => {
     const timeoutResult = {
       status: 'error',
-      error: '请求处理超时'
+      error: '请求处理超时',
     };
     console.log(JSON.stringify(timeoutResult));
     process.exit(1);

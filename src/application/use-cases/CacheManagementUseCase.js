@@ -4,7 +4,7 @@
  */
 
 import { BaseUseCase } from '../../shared/kernel/BaseUseCase.js';
-import { Success, Failure } from '../../shared/kernel/Result.js';
+import { Failure, Success } from '../../shared/kernel/Result.js';
 import { logger } from '../../shared/utils/logger.js';
 
 export class CacheManagementUseCase extends BaseUseCase {
@@ -389,7 +389,7 @@ export class CacheManagementUseCase extends BaseUseCase {
           await this.cacheService.cacheManager.cleanup();
           return Success({ operation: 'cleanup', message: '缓存清理完成' });
 
-        case 'optimize':
+        case 'optimize': {
           // 执行优化
           const analysis = await this.optimizeCachePerformance({});
           return Success({
@@ -397,8 +397,9 @@ export class CacheManagementUseCase extends BaseUseCase {
             analysis,
             message: '缓存优化完成',
           });
+        }
 
-        case 'warmup':
+        case 'warmup': {
           // 执行预热
           const warmupResult = await this.warmupCache(input.warmupConfig || {});
           return Success({
@@ -406,6 +407,7 @@ export class CacheManagementUseCase extends BaseUseCase {
             result: warmupResult.data,
             message: '缓存预热完成',
           });
+        }
 
         default:
           return Failure(`未知维护操作: ${operation}`);

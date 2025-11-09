@@ -3,10 +3,10 @@
  * 应用层的缓存管理服务
  */
 
-import { logger } from '../../shared/utils/logger.js';
 import CacheManager from '../../infrastructure/persistence/CacheManager.js';
 import CacheStrategies from '../../infrastructure/persistence/CacheStrategies.js';
 import { BaseApplicationService } from '../../shared/kernel/BaseApplicationService.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class CacheService extends BaseApplicationService {
   constructor(options = {}) {

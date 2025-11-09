@@ -3,8 +3,8 @@
  * 管理系统资源限制和配额
  */
 
-import { logger } from '../../shared/utils/logger.js';
 import { EventBus } from '../../shared/kernel/EventBus.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class ResourceLimits {
   constructor(config = {}) {

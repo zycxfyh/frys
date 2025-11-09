@@ -16,20 +16,20 @@
 
 ### 按复杂度分类
 
-| 复杂度 | 适用场景 | 示例数量 | 推荐顺序 |
-|--------|----------|----------|----------|
-| **🟢 入门级** | 新手学习 | 3个 | 1-3 |
-| **🟡 中级** | 功能集成 | 4个 | 4-7 |
-| **🔴 高级** | 生产应用 | 3个 | 8-10 |
+| 复杂度        | 适用场景 | 示例数量 | 推荐顺序 |
+| ------------- | -------- | -------- | -------- |
+| **🟢 入门级** | 新手学习 | 3个      | 1-3      |
+| **🟡 中级**   | 功能集成 | 4个      | 4-7      |
+| **🔴 高级**   | 生产应用 | 3个      | 8-10     |
 
 ### 按功能分类
 
-| 功能领域 | 示例文件 | 说明 |
-|----------|----------|------|
-| **🤖 AI 集成** | `ai-*.js/html` | AI 供应商集成和使用 |
-| **⚙️ 工作流** | `workflow-*.js` | 工作流创建和执行 |
-| **🔧 系统集成** | `*-integration.js` | 第三方服务集成 |
-| **🎨 前端演示** | `*.html` | Web 界面演示 |
+| 功能领域        | 示例文件           | 说明                |
+| --------------- | ------------------ | ------------------- |
+| **🤖 AI 集成**  | `ai-*.js/html`     | AI 供应商集成和使用 |
+| **⚙️ 工作流**   | `workflow-*.js`    | 工作流创建和执行    |
+| **🔧 系统集成** | `*-integration.js` | 第三方服务集成      |
+| **🎨 前端演示** | `*.html`           | Web 界面演示        |
 
 ---
 
@@ -54,10 +54,10 @@ const simpleWorkflow = {
       name: '发送问候',
       type: 'log',
       config: {
-        message: 'Hello, frys!'
-      }
-    }
-  ]
+        message: 'Hello, frys!',
+      },
+    },
+  ],
 };
 
 // 注册并执行工作流
@@ -81,13 +81,13 @@ const authService = new AuthService();
 const user = await userService.createUser({
   email: 'user@example.com',
   password: 'securePassword123!',
-  name: '示例用户'
+  name: '示例用户',
 });
 
 // 用户登录
 const tokens = await authService.login({
   email: 'user@example.com',
-  password: 'securePassword123!'
+  password: 'securePassword123!',
 });
 
 console.log('登录成功:', tokens);
@@ -102,7 +102,7 @@ import axios from 'axios';
 // 配置 API 客户端
 const api = axios.create({
   baseURL: 'http://localhost:3000/api/v1',
-  timeout: 10000
+  timeout: 10000,
 });
 
 // 获取工作流列表
@@ -129,7 +129,7 @@ async function createWorkflow(workflowData) {
 async function executeWorkflow(workflowId, input) {
   try {
     const response = await api.post(`/workflows/${workflowId}/execute`, {
-      input
+      input,
     });
     return response.data.data;
   } catch (error) {
@@ -147,6 +147,7 @@ export { getWorkflows, createWorkflow, executeWorkflow };
 ### 🤖 AI 相关示例
 
 #### 1. `ai-api-usage-examples.js`
+
 **AI API 基础使用示例**
 
 ```javascript
@@ -159,26 +160,27 @@ const aiManager = new AIProviderManager();
 await aiManager.registerProvider({
   id: 'openai',
   type: 'openai',
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 await aiManager.registerProvider({
   id: 'claude',
   type: 'anthropic',
-  apiKey: process.env.ANTHROPIC_API_KEY
+  apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
 // 智能路由调用
 const response = await aiManager.route({
   model: 'gpt-4',
   messages: [{ role: 'user', content: '解释什么是机器学习' }],
-  strategy: 'cost-effective'  // 自动选择最便宜的供应商
+  strategy: 'cost-effective', // 自动选择最便宜的供应商
 });
 
 console.log('AI 回复:', response.choices[0].message.content);
 ```
 
 #### 2. `ai-provider-integration.js`
+
 **AI 供应商集成示例**
 
 ```javascript
@@ -188,10 +190,10 @@ import { AIProviderManager } from 'frys';
 class EnterpriseAIService {
   constructor() {
     this.aiManager = new AIProviderManager({
-      cacheTTL: 3600000,      // 1小时缓存
-      maxRetries: 3,          // 最大重试3次
-      timeout: 30000,         // 30秒超时
-      healthCheckInterval: 300000  // 5分钟健康检查
+      cacheTTL: 3600000, // 1小时缓存
+      maxRetries: 3, // 最大重试3次
+      timeout: 30000, // 30秒超时
+      healthCheckInterval: 300000, // 5分钟健康检查
     });
   }
 
@@ -202,20 +204,20 @@ class EnterpriseAIService {
         id: 'openai-primary',
         type: 'openai',
         apiKey: process.env.OPENAI_API_KEY,
-        priority: 1
+        priority: 1,
       },
       {
         id: 'claude-backup',
         type: 'anthropic',
         apiKey: process.env.ANTHROPIC_API_KEY,
-        priority: 2
+        priority: 2,
       },
       {
         id: 'deepseek-fallback',
         type: 'deepseek',
         apiKey: process.env.DEEPSEEK_API_KEY,
-        priority: 3
-      }
+        priority: 3,
+      },
     ];
 
     for (const provider of providers) {
@@ -229,7 +231,7 @@ class EnterpriseAIService {
       messages: [{ role: 'user', content: userRequest }],
       strategy: options.urgent ? 'fastest' : 'cost-effective',
       fallback: true,
-      temperature: 0.7
+      temperature: 0.7,
     });
   }
 }
@@ -238,92 +240,118 @@ export default EnterpriseAIService;
 ```
 
 #### 3. `ai-provider-demo.html`
+
 **AI 供应商 Web 演示界面**
 
 ```html
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>frys AI 演示</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .chat-container { max-width: 800px; margin: 0 auto; }
-        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
-        .user { background: #007bff; color: white; margin-left: 100px; }
-        .ai { background: #f8f9fa; margin-right: 100px; }
-        #input { width: 100%; padding: 10px; margin-top: 10px; }
-        button { padding: 10px 20px; margin-top: 10px; }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .chat-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .user {
+        background: #007bff;
+        color: white;
+        margin-left: 100px;
+      }
+      .ai {
+        background: #f8f9fa;
+        margin-right: 100px;
+      }
+      #input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+      }
+      button {
+        padding: 10px 20px;
+        margin-top: 10px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="chat-container">
-        <h1>frys AI 聊天演示</h1>
-        <div id="chat"></div>
-        <input type="text" id="input" placeholder="输入您的问题...">
-        <button onclick="sendMessage()">发送</button>
-        <select id="strategy">
-            <option value="cost-effective">成本优化</option>
-            <option value="fastest">速度优先</option>
-            <option value="most-reliable">可靠性优先</option>
-        </select>
+      <h1>frys AI 聊天演示</h1>
+      <div id="chat"></div>
+      <input type="text" id="input" placeholder="输入您的问题..." />
+      <button onclick="sendMessage()">发送</button>
+      <select id="strategy">
+        <option value="cost-effective">成本优化</option>
+        <option value="fastest">速度优先</option>
+        <option value="most-reliable">可靠性优先</option>
+      </select>
     </div>
 
     <script>
-        const chat = document.getElementById('chat');
-        const input = document.getElementById('input');
-        const strategy = document.getElementById('strategy');
+      const chat = document.getElementById('chat');
+      const input = document.getElementById('input');
+      const strategy = document.getElementById('strategy');
 
-        async function sendMessage() {
-            const message = input.value.trim();
-            if (!message) return;
+      async function sendMessage() {
+        const message = input.value.trim();
+        if (!message) return;
 
-            // 显示用户消息
-            addMessage(message, 'user');
-            input.value = '';
+        // 显示用户消息
+        addMessage(message, 'user');
+        input.value = '';
 
-            try {
-                const response = await fetch('/api/ai/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: message,
-                        strategy: strategy.value
-                    })
-                });
+        try {
+          const response = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: message,
+              strategy: strategy.value,
+            }),
+          });
 
-                const data = await response.json();
-                addMessage(data.response, 'ai');
-            } catch (error) {
-                addMessage('抱歉，发生了错误，请稍后再试。', 'ai');
-            }
+          const data = await response.json();
+          addMessage(data.response, 'ai');
+        } catch (error) {
+          addMessage('抱歉，发生了错误，请稍后再试。', 'ai');
         }
+      }
 
-        function addMessage(text, type) {
-            const div = document.createElement('div');
-            div.className = `message ${type}`;
-            div.textContent = text;
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
+      function addMessage(text, type) {
+        const div = document.createElement('div');
+        div.className = `message ${type}`;
+        div.textContent = text;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      // 回车发送消息
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          sendMessage();
         }
-
-        // 回车发送消息
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+      });
     </script>
-</body>
+  </body>
 </html>
 ```
 
 ### ⚙️ 工作流示例
 
 #### 4. `workflow-advanced.js`
+
 **高级工作流示例**
 
 ```javascript
@@ -349,9 +377,9 @@ const orderProcessingWorkflow = {
           orderId: 'required|string',
           customerId: 'required|string',
           items: 'required|array|min:1',
-          total: 'required|number|min:0'
-        }
-      }
+          total: 'required|number|min:0',
+        },
+      },
     },
 
     // 2. 库存检查
@@ -370,13 +398,13 @@ const orderProcessingWorkflow = {
               method: 'checkStock',
               parameters: {
                 itemId: '${input.items[0].id}',
-                quantity: '${input.items[0].quantity}'
-              }
-            }
-          }
+                quantity: '${input.items[0].quantity}',
+              },
+            },
+          },
           // 为每个商品项创建库存检查步骤...
-        ]
-      }
+        ],
+      },
     },
 
     // 3. 支付处理
@@ -390,9 +418,9 @@ const orderProcessingWorkflow = {
         parameters: {
           amount: '${input.total}',
           currency: 'CNY',
-          orderId: '${input.orderId}'
-        }
-      }
+          orderId: '${input.orderId}',
+        },
+      },
     },
 
     // 4. 物流安排
@@ -403,8 +431,8 @@ const orderProcessingWorkflow = {
       config: {
         expression: '${input.shippingMethod} === "express"',
         trueStep: 'express-shipping',
-        falseStep: 'standard-shipping'
-      }
+        falseStep: 'standard-shipping',
+      },
     },
 
     // 5. 发送通知
@@ -424,9 +452,9 @@ const orderProcessingWorkflow = {
               parameters: {
                 to: '${customer.email}',
                 orderId: '${input.orderId}',
-                items: '${input.items}'
-              }
-            }
+                items: '${input.items}',
+              },
+            },
           },
           {
             id: 'sms-notification',
@@ -437,13 +465,13 @@ const orderProcessingWorkflow = {
               method: 'sendOrderNotification',
               parameters: {
                 phone: '${customer.phone}',
-                orderId: '${input.orderId}'
-              }
-            }
-          }
-        ]
-      }
-    }
+                orderId: '${input.orderId}',
+              },
+            },
+          },
+        ],
+      },
+    },
   ],
 
   // 错误处理
@@ -452,21 +480,21 @@ const orderProcessingWorkflow = {
     retryPolicy: {
       maxAttempts: 3,
       backoff: 'exponential',
-      initialDelay: '1s'
-    }
+      initialDelay: '1s',
+    },
   },
 
   // 补偿逻辑
   compensation: {
     'process-payment': {
       action: 'refund',
-      service: 'paymentService.refund'
+      service: 'paymentService.refund',
     },
     'arrange-shipping': {
       action: 'cancel-shipment',
-      service: 'shippingService.cancel'
-    }
-  }
+      service: 'shippingService.cancel',
+    },
+  },
 };
 
 // 注册工作流
@@ -478,10 +506,10 @@ const result = await engine.executeWorkflow('order-processing', {
   customerId: 'CUSTOMER-123',
   items: [
     { id: 'ITEM-001', name: 'iPhone 15', quantity: 1, price: 5999 },
-    { id: 'ITEM-002', name: '保护壳', quantity: 1, price: 99 }
+    { id: 'ITEM-002', name: '保护壳', quantity: 1, price: 99 },
   ],
   total: 6098,
-  shippingMethod: 'express'
+  shippingMethod: 'express',
 });
 
 console.log('订单处理完成:', result);
@@ -490,6 +518,7 @@ console.log('订单处理完成:', result);
 ### 🔧 系统集成示例
 
 #### 5. `auto-scaling-integration.js`
+
 **自动扩缩容集成示例**
 
 ```javascript
@@ -504,7 +533,7 @@ class CloudAutoScalingIntegration {
       minInstances: 2,
       maxInstances: 20,
       targetCPUUtilization: 70,
-      targetMemoryUtilization: 80
+      targetMemoryUtilization: 80,
     });
 
     this.monitoring = new MonitoringService();
@@ -527,18 +556,18 @@ class CloudAutoScalingIntegration {
       {
         name: 'CPUUtilization',
         namespace: 'AWS/EC2',
-        dimensions: [{ name: 'AutoScalingGroupName', value: 'frys-asg' }]
+        dimensions: [{ name: 'AutoScalingGroupName', value: 'frys-asg' }],
       },
       {
         name: 'MemoryUtilization',
         namespace: 'System/Linux',
-        dimensions: [{ name: 'InstanceId', value: '*' }]
+        dimensions: [{ name: 'InstanceId', value: '*' }],
       },
       {
         name: 'RequestCount',
         namespace: 'frys/Application',
-        dimensions: [{ name: 'Service', value: 'api' }]
-      }
+        dimensions: [{ name: 'Service', value: 'api' }],
+      },
     ]);
   }
 
@@ -548,7 +577,7 @@ class CloudAutoScalingIntegration {
         name: 'cpu-scaling-policy',
         type: 'TargetTrackingScaling',
         targetValue: 70,
-        predefinedMetricType: 'ASGAverageCPUUtilization'
+        predefinedMetricType: 'ASGAverageCPUUtilization',
       },
       {
         name: 'memory-scaling-policy',
@@ -557,8 +586,8 @@ class CloudAutoScalingIntegration {
         customizedMetricSpecification: {
           metricName: 'MemoryUtilization',
           namespace: 'System/Linux',
-          statistic: 'Average'
-        }
+          statistic: 'Average',
+        },
       },
       {
         name: 'request-scaling-policy',
@@ -567,9 +596,9 @@ class CloudAutoScalingIntegration {
         customizedMetricSpecification: {
           metricName: 'RequestCountPerTarget',
           namespace: 'AWS/ApplicationELB',
-          statistic: 'Sum'
-        }
-      }
+          statistic: 'Sum',
+        },
+      },
     ];
 
     for (const policy of policies) {
@@ -600,7 +629,7 @@ class CloudAutoScalingIntegration {
     return {
       metrics,
       scaling: scalingStatus,
-      recommendations: await this.generateRecommendations(metrics)
+      recommendations: await this.generateRecommendations(metrics),
     };
   }
 
@@ -611,7 +640,7 @@ class CloudAutoScalingIntegration {
       recommendations.push({
         type: 'scale-out',
         reason: 'CPU 使用率过高',
-        suggestedCapacity: Math.ceil(metrics.currentCapacity * 1.5)
+        suggestedCapacity: Math.ceil(metrics.currentCapacity * 1.5),
       });
     }
 
@@ -619,7 +648,7 @@ class CloudAutoScalingIntegration {
       recommendations.push({
         type: 'scale-out',
         reason: '内存使用率过高',
-        suggestedCapacity: Math.ceil(metrics.currentCapacity * 1.3)
+        suggestedCapacity: Math.ceil(metrics.currentCapacity * 1.3),
       });
     }
 
@@ -627,7 +656,10 @@ class CloudAutoScalingIntegration {
       recommendations.push({
         type: 'scale-in',
         reason: '资源利用率低',
-        suggestedCapacity: Math.max(2, Math.floor(metrics.currentCapacity * 0.8))
+        suggestedCapacity: Math.max(
+          2,
+          Math.floor(metrics.currentCapacity * 0.8),
+        ),
       });
     }
 
@@ -780,13 +812,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
 ## 📊 示例统计
 
-| 分类 | 文件数量 | 代码行数 | 覆盖功能 |
-|------|----------|----------|----------|
-| **AI 集成** | 4 | ~800 | OpenAI, Claude, 路由策略 |
-| **工作流** | 2 | ~400 | 基础/高级工作流 |
-| **系统集成** | 2 | ~600 | 扩缩容、监控 |
-| **演示界面** | 2 | ~300 | Web 界面 |
-| **工具脚本** | 1 | ~200 | 开发工具 |
+| 分类         | 文件数量 | 代码行数 | 覆盖功能                 |
+| ------------ | -------- | -------- | ------------------------ |
+| **AI 集成**  | 4        | ~800     | OpenAI, Claude, 路由策略 |
+| **工作流**   | 2        | ~400     | 基础/高级工作流          |
+| **系统集成** | 2        | ~600     | 扩缩容、监控             |
+| **演示界面** | 2        | ~300     | Web 界面                 |
+| **工具脚本** | 1        | ~200     | 开发工具                 |
 
 ---
 
@@ -809,6 +841,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
 ---
 
-*最后更新: 2025年11月7日*
+_最后更新: 2025年11月7日_
 
 </div>

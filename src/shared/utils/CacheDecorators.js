@@ -9,7 +9,7 @@ import { logger } from '../logger.js';
  * 方法缓存装饰器
  */
 export function Cached(options = {}) {
-  return function (target, propertyKey, descriptor) {
+  return (target, propertyKey, descriptor) => {
     const originalMethod = descriptor.value;
     const cacheKeyPrefix =
       options.keyPrefix || `${target.constructor.name}.${propertyKey}`;
@@ -76,7 +76,7 @@ export function Cached(options = {}) {
  * 条件缓存装饰器
  */
 export function ConditionalCache(conditionFn, options = {}) {
-  return function (target, propertyKey, descriptor) {
+  return (target, propertyKey, descriptor) => {
     const originalMethod = descriptor.value;
     const cachedDecorator = Cached(options);
 
@@ -104,7 +104,7 @@ export function ConditionalCache(conditionFn, options = {}) {
  * 缓存失效装饰器
  */
 export function CacheInvalidate(pattern, options = {}) {
-  return function (target, propertyKey, descriptor) {
+  return (target, propertyKey, descriptor) => {
     const originalMethod = descriptor.value;
 
     descriptor.value = async function (...args) {
@@ -146,7 +146,7 @@ export function CacheInvalidate(pattern, options = {}) {
  * 类级缓存装饰器
  */
 export function Cacheable(options = {}) {
-  return function (target) {
+  return (target) => {
     // 为类添加缓存管理方法
     target.prototype.clearCache = function (pattern = null) {
       if (!this._cacheStore) return;
@@ -184,7 +184,7 @@ export function Cacheable(options = {}) {
  * 缓存预热装饰器
  */
 export function CacheWarmup(keysGenerator, options = {}) {
-  return function (target, propertyKey, descriptor) {
+  return (target, propertyKey, descriptor) => {
     const originalMethod = descriptor.value;
 
     // 添加预热方法

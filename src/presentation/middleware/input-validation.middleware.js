@@ -3,16 +3,16 @@
  * 提供全面的输入验证和安全防护
  */
 
-import ZodInspiredValidation from '../core/ZodInspiredValidation.js';
+import { frysError } from '../../core/ErrorHandlerConfig.js';
 import {
-  sanitizeInput,
-  validateObject,
   createTypeGuard,
   isValidEmail,
   isValidUrl,
   isValidUUID,
+  sanitizeInput,
+  validateObject,
 } from '../../shared/utils/type-guards.js';
-import { frysError } from '../../core/ErrorHandlerConfig.js';
+import ZodInspiredValidation from '../core/ZodInspiredValidation.js';
 
 class InputValidationMiddleware {
   constructor(options = {}) {
@@ -105,7 +105,7 @@ class InputValidationMiddleware {
           type: 'string',
           required: true,
           maxLength: 255,
-          pattern: /^[^\/\\<>:*?"|]+\.[a-zA-Z0-9]+$/,
+          pattern: /^[^/\\<>:*?"|]+\.[a-zA-Z0-9]+$/,
         },
         mimetype: {
           type: 'string',
@@ -183,7 +183,7 @@ class InputValidationMiddleware {
           required: true,
           maxLength: 1000,
           // 只允许安全的命令
-          pattern: /^[a-zA-Z0-9_\-\/\.\s]+$/,
+          pattern: /^[a-zA-Z0-9_\-/.\s]+$/,
         },
         args: {
           type: 'array',
@@ -510,8 +510,8 @@ class InputValidationMiddleware {
 
     const sqlPatterns = [
       /(\bUNION\b|\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b)/i,
-      /('|(\\x27)|(\\x2D\\x2D)|(\\#)|(\%27)|(\%23))/,
-      /(\;|\-\-|\#|\/\*|\*\/)/,
+      /('|(\\x27)|(\\x2D\\x2D)|(\\#)|(%27)|(%23))/,
+      /(;|--|#|\/\*|\*\/)/,
     ];
 
     return sqlPatterns.some((pattern) => pattern.test(value));
@@ -524,7 +524,7 @@ class InputValidationMiddleware {
     if (typeof value !== 'string') return false;
 
     const traversalPatterns = [
-      /\.\.[\/\\]/,
+      /\.\.[/\\]/,
       /\/etc\//,
       /\/bin\//,
       /\/usr\//,

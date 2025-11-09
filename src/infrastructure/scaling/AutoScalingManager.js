@@ -4,9 +4,9 @@
  */
 
 import { logger } from '../../shared/utils/logger.js';
+import { LoadBalancer } from './LoadBalancer.js';
 import { ScalingMetrics } from './ScalingMetrics.js';
 import { ScalingPolicy } from './ScalingPolicy.js';
-import { LoadBalancer } from './LoadBalancer.js';
 
 export class AutoScalingManager {
   constructor(config = {}) {

@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,16 +11,16 @@ import {
  * 验证连接池、查询优化、索引管理和监控功能
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import DatabaseService from '../../src/infrastructure/database/DatabaseService.js';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import DatabaseManagementService from '../../src/application/services/DatabaseManagementService.js';
+import DatabaseService from '../../src/infrastructure/database/DatabaseService.js';
 
 // Mock pg module for testing
 vi.mock('pg', () => {
   const mockPool = vi.fn().mockImplementation(() => ({
     connect: vi.fn().mockResolvedValue({
       query: vi.fn(),
-      release: vi.fn()
+      release: vi.fn(),
     }),
     query: vi.fn().mockResolvedValue({ rows: [] }),
     end: vi.fn().mockResolvedValue(),
@@ -28,15 +28,15 @@ vi.mock('pg', () => {
     idleCount: 3,
     waitingCount: 0,
     on: vi.fn(),
-    removeListener: vi.fn()
+    removeListener: vi.fn(),
   }));
 
   return {
     __esModule: true,
     default: {
-      Pool: mockPool
+      Pool: mockPool,
     },
-    Pool: mockPool
+    Pool: mockPool,
   };
 });
 
@@ -57,7 +57,7 @@ describe('数据库优化集成测试', () => {
       enableOptimizer: true,
       enableMigrations: true,
       enableMonitoring: true,
-      migrationsPath: './test_migrations'
+      migrationsPath: './test_migrations',
     });
 
     // Mock the pool methods
@@ -72,18 +72,18 @@ describe('数据库优化集成测试', () => {
         status: 'connected',
         totalCount: 2,
         idleCount: 1,
-        waitingCount: 0
+        waitingCount: 0,
       }),
       getMetrics: vi.fn().mockReturnValue({
         queries: { total: 100, failed: 2 },
-        performance: { avgQueryTime: 45 }
+        performance: { avgQueryTime: 45 },
       }),
       healthCheck: vi.fn().mockResolvedValue({
         status: 'healthy',
         pool: { totalCount: 2 },
-        metrics: { queries: { total: 100 } }
+        metrics: { queries: { total: 100 } },
       }),
-      close: vi.fn().mockResolvedValue()
+      close: vi.fn().mockResolvedValue(),
     };
 
     // Mock initialization
@@ -93,23 +93,23 @@ describe('数据库优化集成测试', () => {
     databaseService.optimizer = {
       analyzeQuery: vi.fn().mockResolvedValue({
         executionTime: 50,
-        plan: [{ 'Node Type': 'Index Scan' }]
+        plan: [{ 'Node Type': 'Index Scan' }],
       }),
       getOptimizationRecommendations: vi.fn().mockResolvedValue([
         {
           type: 'slow_queries',
           priority: 'high',
           message: '发现慢查询',
-          details: []
-        }
+          details: [],
+        },
       ]),
       performAutoOptimization: vi.fn().mockResolvedValue({
         optimizations: [],
-        errors: []
+        errors: [],
       }),
       generateOptimizationReport: vi.fn().mockResolvedValue({
-        recommendations: []
-      })
+        recommendations: [],
+      }),
     };
 
     // Mock migrations
@@ -118,12 +118,12 @@ describe('数据库优化集成测试', () => {
       getStatus: vi.fn().mockReturnValue({
         currentVersion: '1',
         pendingCount: 0,
-        executedCount: 1
+        executedCount: 1,
       }),
       verifyIntegrity: vi.fn().mockResolvedValue({
         valid: true,
-        issues: []
-      })
+        issues: [],
+      }),
     };
 
     // Mock monitor
@@ -132,21 +132,21 @@ describe('数据库优化集成测试', () => {
       stopMonitoring: vi.fn().mockResolvedValue(),
       getStatus: vi.fn().mockReturnValue({
         isMonitoring: true,
-        latestMetrics: {}
+        latestMetrics: {},
       }),
       getMetricsHistory: vi.fn().mockReturnValue({
         connections: [],
         queries: [],
-        performance: []
+        performance: [],
       }),
       generateReport: vi.fn().mockResolvedValue({
         summary: { totalQueries: 100 },
-        recommendations: []
+        recommendations: [],
       }),
       assessHealth: vi.fn().mockResolvedValue({
         status: 'healthy',
-        score: 95
-      })
+        score: 95,
+      }),
     };
 
     // 初始化管理服务
@@ -181,13 +181,16 @@ describe('数据库优化集成测试', () => {
 
   describe('数据库优化功能', () => {
     it('应该分析查询性能', async () => {
-      const analysis = await databaseService.analyzeQuery('SELECT * FROM users');
+      const analysis = await databaseService.analyzeQuery(
+        'SELECT * FROM users',
+      );
       expect(analysis).toHaveProperty('executionTime');
       expect(analysis).toHaveProperty('plan');
     });
 
     it('应该提供优化建议', async () => {
-      const recommendations = await databaseService.getOptimizationRecommendations();
+      const recommendations =
+        await databaseService.getOptimizationRecommendations();
       expect(Array.isArray(recommendations)).toBe(true);
       expect(recommendations.length).toBeGreaterThan(0);
     });
@@ -250,7 +253,9 @@ describe('数据库优化集成测试', () => {
     });
 
     it('应该管理迁移', async () => {
-      const result = await managementService.manageMigrations({ action: 'status' });
+      const result = await managementService.manageMigrations({
+        action: 'status',
+      });
       expect(result.isSuccess).toBe(true);
       expect(result.data).toHaveProperty('action');
       expect(result.data).toHaveProperty('result');
@@ -270,7 +275,7 @@ describe('数据库优化集成测试', () => {
 
     it('应该分析查询性能', async () => {
       const result = await managementService.analyzeQueryPerformance({
-        query: 'SELECT * FROM users'
+        query: 'SELECT * FROM users',
       });
       expect(result.isSuccess).toBe(true);
       expect(result.data).toHaveProperty('query');
@@ -309,9 +314,9 @@ describe('数据库优化集成测试', () => {
     });
 
     it('应该处理并发查询', async () => {
-      const queries = Array(5).fill().map((_, i) =>
-        databaseService.query(`SELECT ${i}`)
-      );
+      const queries = Array(5)
+        .fill()
+        .map((_, i) => databaseService.query(`SELECT ${i}`));
 
       const results = await Promise.all(queries);
       expect(results).toHaveLength(5);
@@ -321,19 +326,23 @@ describe('数据库优化集成测试', () => {
   describe('错误处理', () => {
     it('应该处理无效查询', async () => {
       // Mock a failed query
-      databaseService.pool.query.mockRejectedValueOnce(new Error('Invalid query'));
+      databaseService.pool.query.mockRejectedValueOnce(
+        new Error('Invalid query'),
+      );
 
       await expect(databaseService.query('INVALID QUERY')).rejects.toThrow();
     });
 
     it('应该处理事务回滚', async () => {
       // Mock a transaction failure
-      databaseService.pool.transaction.mockRejectedValueOnce(new Error('Transaction failed'));
+      databaseService.pool.transaction.mockRejectedValueOnce(
+        new Error('Transaction failed'),
+      );
 
       await expect(
         databaseService.transaction(async () => {
           throw new Error('Transaction failed');
-        })
+        }),
       ).rejects.toThrow();
     });
 
@@ -341,7 +350,7 @@ describe('数据库优化集成测试', () => {
       // Mock pool stats error
       databaseService.pool.getPoolStats.mockReturnValueOnce({
         status: 'error',
-        error: 'Connection failed'
+        error: 'Connection failed',
       });
 
       const stats = databaseService.getPoolStats();
@@ -366,8 +375,11 @@ describe('数据库优化集成测试', () => {
 
     it('应该处理超时查询', async () => {
       // Mock timeout
-      databaseService.pool.query.mockImplementationOnce(() =>
-        new Promise(resolve => setTimeout(() => resolve({ rows: [] }), 100))
+      databaseService.pool.query.mockImplementationOnce(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ rows: [] }), 100),
+          ),
       );
 
       const startTime = Date.now();
@@ -408,7 +420,7 @@ describe('数据库优化集成测试', () => {
     it('应该检测慢查询', async () => {
       // Mock slow query
       databaseService.pool.query.mockImplementationOnce(async () => {
-        await new Promise(resolve => setTimeout(resolve, 150)); // 150ms delay
+        await new Promise((resolve) => setTimeout(resolve, 150)); // 150ms delay
         return { rows: [{ result: 'slow' }] };
       });
 

@@ -3,47 +3,39 @@
  * 精简后的25个核心开源项目理念融合
  */
 
-// === 核心基础设施模块 ===
-import NATS from './src/core/NATSInspiredMessaging.js';
 import AxiosInspiredHTTP from './src/core/AxiosInspiredHTTP.js';
-import DayJSInspiredDate from './src/core/DayJSInspiredDate.js';
-import UUIDInspiredId from './src/core/UUIDInspiredId.js';
-import { globalErrorHandler } from './src/core/ErrorHandler.js';
-
-// === 轻量数据库模块 ===
-import SQLiteInspiredDatabase from './src/core/SQLiteInspiredDatabase.js';
-import PrismaInspiredORM from './src/core/PrismaInspiredORM.js';
-
-// === 前端技术栈模块 ===
-import ZustandInspiredState from './src/core/ZustandInspiredState.js';
-import VitestInspiredTesting from './src/core/VitestInspiredTesting.js';
-
-// === 后端技术栈模块 ===
-import FastifyInspiredFramework from './src/core/FastifyInspiredFramework.js';
-import JWTInspiredAuth from './src/core/JWTInspiredAuth.js';
-import OpenAPIInspiredDocs from './src/core/OpenAPIInspiredDocs.js';
-
-// === 开发工具链模块 ===
-import ESLintInspiredLinting from './src/core/ESLintInspiredLinting.js';
-import PrettierInspiredFormatting from './src/core/PrettierInspiredFormatting.js';
-import HuskyInspiredHooks from './src/core/HuskyInspiredHooks.js';
-import LernaInspiredMonorepo from './src/core/LernaInspiredMonorepo.js';
-
-// === 可观测性模块 ===
-import PrometheusInspiredMetrics from './src/core/PrometheusInspiredMetrics.js';
-import JaegerInspiredTracing from './src/core/JaegerInspiredTracing.js';
-import FluentdInspiredLogging from './src/core/FluentdInspiredLogging.js';
-
-// === 数据处理模块 ===
-import LodashInspiredUtils from './src/core/LodashInspiredUtils.js';
-import ZodInspiredValidation from './src/core/ZodInspiredValidation.js';
-import ProtocolBuffersInspiredSerialization from './src/core/ProtocolBuffersInspiredSerialization.js';
-
 // === 部署运维模块 ===
 import ConsulInspiredDiscovery from './src/core/ConsulInspiredDiscovery.js';
-
 // === 开发体验模块 ===
 import D3InspiredVisualization from './src/core/D3InspiredVisualization.js';
+import DayJSInspiredDate from './src/core/DayJSInspiredDate.js';
+import { globalErrorHandler } from './src/core/ErrorHandler.js';
+// === 开发工具链模块 ===
+import ESLintInspiredLinting from './src/core/ESLintInspiredLinting.js';
+// === 后端技术栈模块 ===
+import FastifyInspiredFramework from './src/core/FastifyInspiredFramework.js';
+import FluentdInspiredLogging from './src/core/FluentdInspiredLogging.js';
+import HuskyInspiredHooks from './src/core/HuskyInspiredHooks.js';
+import JaegerInspiredTracing from './src/core/JaegerInspiredTracing.js';
+import JWTInspiredAuth from './src/core/JWTInspiredAuth.js';
+import LernaInspiredMonorepo from './src/core/LernaInspiredMonorepo.js';
+// === 数据处理模块 ===
+import LodashInspiredUtils from './src/core/LodashInspiredUtils.js';
+// === 核心基础设施模块 ===
+import NATS from './src/core/NATSInspiredMessaging.js';
+import OpenAPIInspiredDocs from './src/core/OpenAPIInspiredDocs.js';
+import PrettierInspiredFormatting from './src/core/PrettierInspiredFormatting.js';
+import PrismaInspiredORM from './src/core/PrismaInspiredORM.js';
+// === 可观测性模块 ===
+import PrometheusInspiredMetrics from './src/core/PrometheusInspiredMetrics.js';
+import ProtocolBuffersInspiredSerialization from './src/core/ProtocolBuffersInspiredSerialization.js';
+// === 轻量数据库模块 ===
+import SQLiteInspiredDatabase from './src/core/SQLiteInspiredDatabase.js';
+import UUIDInspiredId from './src/core/UUIDInspiredId.js';
+import VitestInspiredTesting from './src/core/VitestInspiredTesting.js';
+import ZodInspiredValidation from './src/core/ZodInspiredValidation.js';
+// === 前端技术栈模块 ===
+import ZustandInspiredState from './src/core/ZustandInspiredState.js';
 
 async function lightweightIntegrationDemo() {
   console.log('🚀 frys 轻量化集成演示 - 25个核心开源项目理念融合\n');
@@ -58,7 +50,9 @@ async function lightweightIntegrationDemo() {
   console.log('🛠️  数据处理 (3个): Lodash, Zod, Protocol Buffers');
   console.log('☸️  部署运维 (1个): Consul');
   console.log('🎨 开发体验 (1个): D3.js');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n',
+  );
 
   const results = {};
 
@@ -69,14 +63,22 @@ async function lightweightIntegrationDemo() {
   console.log('✅ NATS - 轻量消息队列');
   const nats = new NATS();
   const natsConnection = await nats.connect('workflow-cluster');
-  await nats.publish('workflow.events', { type: 'workflow.started', id: 'wf-1' });
-  await nats.subscribe('workflow.events', (msg) => console.log(`    📨 收到消息: ${msg.type}`));
+  await nats.publish('workflow.events', {
+    type: 'workflow.started',
+    id: 'wf-1',
+  });
+  await nats.subscribe('workflow.events', (msg) =>
+    console.log(`    📨 收到消息: ${msg.type}`),
+  );
   results.nats = nats.getStats();
 
   // Axios HTTP客户端
   console.log('✅ Axios - HTTP客户端');
   const axios = new AxiosInspiredHTTP();
-  const axiosInstance = axios.create({ baseURL: 'https://api.workflow.local', timeout: 5000 });
+  const axiosInstance = axios.create({
+    baseURL: 'https://api.workflow.local',
+    timeout: 5000,
+  });
   axios.addRequestInterceptor(axiosInstance.id, (config) => {
     console.log(`    🔧 请求拦截: ${config.method} ${config.url}`);
     config.headers['Authorization'] = 'Bearer token';
@@ -101,7 +103,10 @@ async function lightweightIntegrationDemo() {
   const uuid = new UUIDInspiredId();
   const uuidV4 = uuid.v4();
   const uuidV1 = uuid.v1();
-  uuid.registerNamespace('workflow-namespace', '6ba7b810-9dad-11d1-80b4-00c04fd430c8');
+  uuid.registerNamespace(
+    'workflow-namespace',
+    '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
+  );
   const uuidV5 = uuid.v5('workflow-namespace', 'workflow-1');
   const uuidIsValid = uuid.validate(uuidV4);
   results.uuid = uuid.getStats();
@@ -116,8 +121,8 @@ async function lightweightIntegrationDemo() {
     columns: [
       { name: 'id', type: 'INTEGER', primaryKey: true },
       { name: 'name', type: 'TEXT' },
-      { name: 'status', type: 'TEXT' }
-    ]
+      { name: 'status', type: 'TEXT' },
+    ],
   });
   await sqlite.insert('workflows', { name: 'workflow-1', status: 'running' });
   const sqliteWorkflows = await sqlite.select('workflows');
@@ -126,9 +131,16 @@ async function lightweightIntegrationDemo() {
   // Prisma ORM
   console.log('✅ Prisma - 现代ORM');
   const prisma = new PrismaInspiredORM();
-  prisma.defineModel('Workflow', { id: 'Int', name: 'String', status: 'String' });
+  prisma.defineModel('Workflow', {
+    id: 'Int',
+    name: 'String',
+    status: 'String',
+  });
   const prismaSchema = prisma.createSchema('workflow_schema');
-  const prismaClient = prisma.createClient('workflow_db', { provider: 'sqlite', url: 'file:./dev.db' });
+  const prismaClient = prisma.createClient('workflow_db', {
+    provider: 'sqlite',
+    url: 'file:./dev.db',
+  });
   await prisma.connect('workflow_db');
   await prisma.create('Workflow', { name: 'workflow-1', status: 'running' });
   const prismaWorkflows = await prisma.findMany('Workflow');
@@ -143,7 +155,7 @@ async function lightweightIntegrationDemo() {
   const zustandStore = zustand.create((set, get) => ({
     count: 0,
     increment: () => set((state) => ({ count: state.count + 1 })),
-    getCount: () => get().count
+    getCount: () => get().count,
   }));
   // 调用actions (直接通过store对象)
   zustandStore.increment();
@@ -177,18 +189,25 @@ async function lightweightIntegrationDemo() {
   console.log('✅ JWT - 身份认证');
   const jwt = new JWTInspiredAuth();
   jwt.setSecret('workflow-secret', 'my-secret-key', 'HS256');
-  const jwtToken = await jwt.sign('workflow-secret', { userId: 'user-1', role: 'admin' }, { expiresIn: 3600 });
+  const jwtToken = await jwt.sign(
+    'workflow-secret',
+    { userId: 'user-1', role: 'admin' },
+    { expiresIn: 3600 },
+  );
   const jwtPayload = await jwt.verify(jwtToken, 'workflow-secret');
   results.jwt = jwt.getStats();
 
   // OpenAPI API文档
   console.log('✅ OpenAPI - API文档标准');
   const openapi = new OpenAPIInspiredDocs();
-  const openapiSpec = openapi.createSpec('workflow-api', { title: 'Workflow API', version: '1.0.0' });
+  const openapiSpec = openapi.createSpec('workflow-api', {
+    title: 'Workflow API',
+    version: '1.0.0',
+  });
   openapi.addServer('workflow-api', 'https://api.workflow.local');
   openapi.definePath('workflow-api', '/api/workflows', 'get', {
     summary: 'Get workflows',
-    responses: { 200: { description: 'Success' } }
+    responses: { 200: { description: 'Success' } },
   });
   openapi.validateSpec('workflow-api');
   results.openapi = openapi.getStats();
@@ -199,15 +218,23 @@ async function lightweightIntegrationDemo() {
   // ESLint 代码检查
   console.log('✅ ESLint - 代码检查');
   const eslint = new ESLintInspiredLinting();
-  const eslintConfig = eslint.createConfig({ env: { node: true, es2022: true } });
+  const eslintConfig = eslint.createConfig({
+    env: { node: true, es2022: true },
+  });
   // ESLint 核心功能演示（简化）
   results.eslint = eslint.getStats();
 
   // Prettier 代码格式化
   console.log('✅ Prettier - 代码格式化');
   const prettier = new PrettierInspiredFormatting();
-  const prettierConfig = prettier.createConfig({ semi: true, singleQuote: true });
-  const prettierFormatted = prettier.format('const  x={a:1,b:2};', prettierConfig);
+  const prettierConfig = prettier.createConfig({
+    semi: true,
+    singleQuote: true,
+  });
+  const prettierFormatted = prettier.format(
+    'const  x={a:1,b:2};',
+    prettierConfig,
+  );
   results.prettier = prettier.getStats();
 
   // Husky Git钩子
@@ -286,29 +313,69 @@ async function lightweightIntegrationDemo() {
   // === 最终统计 ===
   console.log('\n📊 轻量化集成统计总结:');
   console.log('━'.repeat(70));
-  console.log(`NATS:              ${results.nats.totalConnections} 个连接, ${results.nats.totalMessages} 条消息`);
-  console.log(`Axios:             ${results.axios.totalInstances} 个实例, ${results.axios.successfulRequests} 个成功请求`);
-  console.log(`Day.js:            ${results.dayjs.totalPlugins} 个插件, ${results.dayjs.totalFormats} 个格式`);
-  console.log(`UUID:              ${results.uuid.totalGenerated} 个生成, ${results.uuid.totalNamespaces} 个命名空间`);
-  console.log(`SQLite:            ${results.sqlite.totalTables} 个表, ${results.sqlite.totalRows} 行数据`);
-  console.log(`Prisma:            ${results.prisma.totalModels} 个模型, ${results.prisma.totalQueries} 个查询`);
-  console.log(`Zustand:           ${results.zustand.totalStores} 个存储, ${results.zustand.totalSubscribers} 个订阅`);
-  console.log(`Vitest:            ${results.vitest.totalSuites} 个套件, ${results.vitest.totalPassed} 个通过`);
-  console.log(`Fastify:           ${results.fastify.totalApps} 个应用, ${results.fastify.totalRoutes} 个路由`);
-  console.log(`JWT:               ${results.jwt.totalSecrets} 个密钥, ${results.jwt.totalTokens} 个令牌`);
-  console.log(`OpenAPI:           ${results.openapi.totalSpecs} 个规范, ${results.openapi.totalPaths} 个路径`);
-  console.log(`ESLint:            ${results.eslint.totalConfigs} 个配置, ${results.eslint.totalRules} 个规则`);
-  console.log(`Prettier:          ${results.prettier.totalConfigs} 个配置, ${results.prettier.totalFormatted} 个已格式化`);
-  console.log(`Husky:             ${results.husky.totalHooks} 个钩子, ${results.husky.successfulExecutions} 个成功执行`);
-  console.log(`Lerna:             ${results.lerna.totalPackages} 个包, ${results.lerna.totalPublications} 个发布`);
+  console.log(
+    `NATS:              ${results.nats.totalConnections} 个连接, ${results.nats.totalMessages} 条消息`,
+  );
+  console.log(
+    `Axios:             ${results.axios.totalInstances} 个实例, ${results.axios.successfulRequests} 个成功请求`,
+  );
+  console.log(
+    `Day.js:            ${results.dayjs.totalPlugins} 个插件, ${results.dayjs.totalFormats} 个格式`,
+  );
+  console.log(
+    `UUID:              ${results.uuid.totalGenerated} 个生成, ${results.uuid.totalNamespaces} 个命名空间`,
+  );
+  console.log(
+    `SQLite:            ${results.sqlite.totalTables} 个表, ${results.sqlite.totalRows} 行数据`,
+  );
+  console.log(
+    `Prisma:            ${results.prisma.totalModels} 个模型, ${results.prisma.totalQueries} 个查询`,
+  );
+  console.log(
+    `Zustand:           ${results.zustand.totalStores} 个存储, ${results.zustand.totalSubscribers} 个订阅`,
+  );
+  console.log(
+    `Vitest:            ${results.vitest.totalSuites} 个套件, ${results.vitest.totalPassed} 个通过`,
+  );
+  console.log(
+    `Fastify:           ${results.fastify.totalApps} 个应用, ${results.fastify.totalRoutes} 个路由`,
+  );
+  console.log(
+    `JWT:               ${results.jwt.totalSecrets} 个密钥, ${results.jwt.totalTokens} 个令牌`,
+  );
+  console.log(
+    `OpenAPI:           ${results.openapi.totalSpecs} 个规范, ${results.openapi.totalPaths} 个路径`,
+  );
+  console.log(
+    `ESLint:            ${results.eslint.totalConfigs} 个配置, ${results.eslint.totalRules} 个规则`,
+  );
+  console.log(
+    `Prettier:          ${results.prettier.totalConfigs} 个配置, ${results.prettier.totalFormatted} 个已格式化`,
+  );
+  console.log(
+    `Husky:             ${results.husky.totalHooks} 个钩子, ${results.husky.successfulExecutions} 个成功执行`,
+  );
+  console.log(
+    `Lerna:             ${results.lerna.totalPackages} 个包, ${results.lerna.totalPublications} 个发布`,
+  );
   console.log(`Prometheus:        指标收集系统 (核心功能)`);
   console.log(`Jaeger:            分布式追踪系统 (核心功能)`);
   console.log(`Fluentd:           日志收集系统 (核心功能)`);
-  console.log(`Lodash:            ${results.lodash.totalFunctions} 个函数, ${results.lodash.totalOperations} 个操作`);
-  console.log(`Zod:               ${results.zod.totalValidations} 个验证, ${results.zod.successfulValidations} 个成功`);
-  console.log(`Protocol Buffers:  ${results.protobuf.totalMessages} 个消息, ${results.protobuf.totalEncoded} 个已编码`);
-  console.log(`Consul:            ${results.consul.totalServices} 个服务, ${results.consul.totalChecks} 个检查`);
-  console.log(`D3.js:             ${results.d3.totalSelections} 个选择器, ${results.d3.totalScales} 个比例尺`);
+  console.log(
+    `Lodash:            ${results.lodash.totalFunctions} 个函数, ${results.lodash.totalOperations} 个操作`,
+  );
+  console.log(
+    `Zod:               ${results.zod.totalValidations} 个验证, ${results.zod.successfulValidations} 个成功`,
+  );
+  console.log(
+    `Protocol Buffers:  ${results.protobuf.totalMessages} 个消息, ${results.protobuf.totalEncoded} 个已编码`,
+  );
+  console.log(
+    `Consul:            ${results.consul.totalServices} 个服务, ${results.consul.totalChecks} 个检查`,
+  );
+  console.log(
+    `D3.js:             ${results.d3.totalSelections} 个选择器, ${results.d3.totalScales} 个比例尺`,
+  );
   console.log('━'.repeat(70));
 
   // 错误统计信息
@@ -338,11 +405,13 @@ async function lightweightIntegrationDemo() {
 }
 
 // 运行演示
-lightweightIntegrationDemo().then(() => {
-  console.log('\n✨ frys - 轻量而强大的现代化工作流系统！');
-  console.log('\n🎊 轻量化改造完成！从79个项目精简到25个核心项目！');
-  process.exit(0);
-}).catch(error => {
-  console.error('❌ 演示执行失败:', error.message);
-  process.exit(1);
-});
+lightweightIntegrationDemo()
+  .then(() => {
+    console.log('\n✨ frys - 轻量而强大的现代化工作流系统！');
+    console.log('\n🎊 轻量化改造完成！从79个项目精简到25个核心项目！');
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('❌ 演示执行失败:', error.message);
+    process.exit(1);
+  });

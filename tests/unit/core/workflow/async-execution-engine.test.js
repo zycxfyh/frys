@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from '../../../test-helpers.js';
 
 /**
@@ -19,7 +19,7 @@ describe('AsyncExecutionEngine', () => {
     engine = new AsyncExecutionEngine({
       maxConcurrency: 5,
       resourcePoolSize: 10,
-      monitoring: false // 测试时关闭监控
+      monitoring: false, // 测试时关闭监控
     });
   });
 
@@ -31,7 +31,7 @@ describe('AsyncExecutionEngine', () => {
     const tasks = [
       { id: 'task1', action: 'delay', delay: 100 },
       { id: 'task2', action: 'delay', delay: 100 },
-      { id: 'task3', action: 'delay', delay: 100 }
+      { id: 'task3', action: 'delay', delay: 100 },
     ];
 
     const startTime = Date.now();
@@ -40,7 +40,7 @@ describe('AsyncExecutionEngine', () => {
 
     expect(results).toHaveLength(3);
     expect(duration).toBeLessThan(200); // 并发执行应该很快完成
-    results.forEach(result => {
+    results.forEach((result) => {
       expect(result.success).toBe(true);
       expect(result.executionTime).toBeGreaterThan(90);
     });
@@ -50,7 +50,7 @@ describe('AsyncExecutionEngine', () => {
     const tasks = [
       { id: 'task1', action: 'delay', delay: 100 },
       { id: 'task2', action: 'delay', delay: 100 },
-      { id: 'task3', action: 'delay', delay: 100 }
+      { id: 'task3', action: 'delay', delay: 100 },
     ];
 
     const startTime = Date.now();
@@ -59,7 +59,7 @@ describe('AsyncExecutionEngine', () => {
 
     expect(results).toHaveLength(3);
     expect(duration).toBeGreaterThan(250); // 串行执行应该较慢
-    results.forEach(result => {
+    results.forEach((result) => {
       expect(result.success).toBe(true);
     });
   });
@@ -71,15 +71,15 @@ describe('AsyncExecutionEngine', () => {
         id: 'task2',
         execute: async () => {
           throw new Error('Task failed');
-        }
+        },
       },
-      { id: 'task3', action: 'delay', delay: 50 }
+      { id: 'task3', action: 'delay', delay: 50 },
     ];
 
     const results = await engine.executeTasks(tasks);
     expect(results).toHaveLength(3);
 
-    const failedTask = results.find(r => r.taskId === 'task2');
+    const failedTask = results.find((r) => r.taskId === 'task2');
     expect(failedTask.success).toBe(false);
     expect(failedTask.error).toBe('Task failed');
   });
@@ -88,7 +88,7 @@ describe('AsyncExecutionEngine', () => {
     engine = new AsyncExecutionEngine({
       maxConcurrency: 2,
       resourcePoolSize: 10,
-      monitoring: false
+      monitoring: false,
     });
 
     let runningCount = 0;
@@ -99,10 +99,10 @@ describe('AsyncExecutionEngine', () => {
       execute: async () => {
         runningCount++;
         maxRunning = Math.max(maxRunning, runningCount);
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
         runningCount--;
         return `result${i}`;
-      }
+      },
     }));
 
     const results = await engine.executeTasks(tasks);
@@ -114,12 +114,12 @@ describe('AsyncExecutionEngine', () => {
     const tasks = [
       { id: 'task1', action: 'delay', delay: 50 },
       { id: 'task2', action: 'delay', delay: 50 },
-      { id: 'task3', action: 'delay', delay: 50 }
+      { id: 'task3', action: 'delay', delay: 50 },
     ];
 
     const results = await engine.executeTasks(tasks, { strategy: 'adaptive' });
     expect(results).toHaveLength(3);
-    results.forEach(result => {
+    results.forEach((result) => {
       expect(result.success).toBe(true);
     });
   });
@@ -129,10 +129,10 @@ describe('AsyncExecutionEngine', () => {
       {
         id: 'slow-task',
         execute: async () => {
-          await new Promise(resolve => setTimeout(resolve, 200));
+          await new Promise((resolve) => setTimeout(resolve, 200));
           return 'completed';
-        }
-      }
+        },
+      },
     ];
 
     const results = await engine.executeTasks(tasks, { timeout: 100 });

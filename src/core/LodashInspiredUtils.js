@@ -3,10 +3,10 @@
  * 借鉴 Lodash 的函数式编程和性能优化理念
  */
 
+import { logger } from '../shared/utils/logger.js';
 import { BaseModule } from './BaseModule.js';
 import { frysError } from './error-handler.js';
-import { pipe, curry, memoize, compose } from './FunctionalUtils.js';
-import { logger } from '../shared/utils/logger.js';
+import { compose, curry, memoize, pipe } from './FunctionalUtils.js';
 
 class LodashInspiredUtils extends BaseModule {
   getDefaultConfig() {
@@ -31,7 +31,7 @@ class LodashInspiredUtils extends BaseModule {
     };
   }
 
-  async onInitialize() {
+  onInitialize() {
     this.operations = [];
     this.cache = new Map();
     this.performanceStats = {
@@ -51,7 +51,7 @@ class LodashInspiredUtils extends BaseModule {
     logger.info('函数式工具库已初始化');
   }
 
-  async onDestroy() {
+  onDestroy() {
     this.operations = [];
     this.cache.clear();
     this.performanceStats = {};
@@ -361,7 +361,7 @@ class LodashInspiredUtils extends BaseModule {
   /**
    * 健康检查
    */
-  async onHealthCheck() {
+  onHealthCheck() {
     const operationCount = this.operations.length;
     const cacheSize = this.cache.size;
     const avgExecutionTime = this.performanceStats.avgExecutionTime;

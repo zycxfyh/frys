@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from '../test-helpers.js';
 
 /**
@@ -11,12 +11,12 @@ import {
  * 验证轻量化重构后的系统稳定性
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { LightweightContainer } from '../../src/core/LightweightContainer.js';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
 import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
-import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
+import { LightweightContainer } from '../../src/core/LightweightContainer.js';
 import LodashInspiredUtils from '../../src/core/LodashInspiredUtils.js';
+import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
 
 describe('回归测试矩阵', () => {
   let container;
@@ -58,7 +58,9 @@ describe('回归测试矩阵', () => {
       const result = utils.uniq(array);
       expect(result).toEqual([1, 2, 3, 4]);
 
-      const grouped = utils.groupBy([1, 2, 3, 4, 5], x => x % 2 === 0 ? 'even' : 'odd');
+      const grouped = utils.groupBy([1, 2, 3, 4, 5], (x) =>
+        x % 2 === 0 ? 'even' : 'odd',
+      );
       expect(grouped.even).toEqual([2, 4]);
       expect(grouped.odd).toEqual([1, 3, 5]);
     });
@@ -66,8 +68,8 @@ describe('回归测试矩阵', () => {
     it('应该保持状态管理的功能', () => {
       const store = state.create((set) => ({
         count: 0,
-        increment: () => set(state => ({ count: state.count + 1 })),
-        decrement: () => set(state => ({ count: state.count - 1 })),
+        increment: () => set((state) => ({ count: state.count + 1 })),
+        decrement: () => set((state) => ({ count: state.count - 1 })),
       }));
 
       expect(store.getState().count).toBe(0);
@@ -89,7 +91,9 @@ describe('回归测试矩阵', () => {
 
     it('应该保持HTTP客户端的基本功能', async () => {
       // 测试实例创建
-      const instance = httpClient.createInstance({ baseURL: 'https://api.test.com' });
+      const instance = httpClient.createInstance({
+        baseURL: 'https://api.test.com',
+      });
       expect(instance).toBeDefined();
       expect(instance.baseURL).toBe('https://api.test.com');
     });
@@ -97,7 +101,9 @@ describe('回归测试矩阵', () => {
 
   describe('性能回归测试', () => {
     it('应该保持工具函数的性能', () => {
-      const largeArray = Array.from({ length: 1000 }, (_, i) => Math.floor(Math.random() * 100));
+      const largeArray = Array.from({ length: 1000 }, (_, i) =>
+        Math.floor(Math.random() * 100),
+      );
 
       const startTime = Date.now();
       const result = utils.uniq(largeArray);
@@ -110,7 +116,7 @@ describe('回归测试矩阵', () => {
     it('应该保持状态管理的性能', () => {
       const store = state.create((set) => ({
         items: [],
-        addItem: (item) => set(state => ({ items: [...state.items, item] })),
+        addItem: (item) => set((state) => ({ items: [...state.items, item] })),
       }));
 
       const startTime = Date.now();
@@ -150,11 +156,15 @@ describe('回归测试矩阵', () => {
       // 创建一个完整的用户管理场景
       const userStore = state.create((set, get) => ({
         users: [],
-        addUser: (user) => set(state => ({ users: [...state.users, user] })),
-        findUser: (id) => get().users.find(u => u.id === id),
+        addUser: (user) => set((state) => ({ users: [...state.users, user] })),
+        findUser: (id) => get().users.find((u) => u.id === id),
       }));
 
-      const user = { id: 'user-1', name: 'Test User', email: 'test@example.com' };
+      const user = {
+        id: 'user-1',
+        name: 'Test User',
+        email: 'test@example.com',
+      };
       userStore.addUser(user);
 
       const foundUser = userStore.findUser('user-1');
@@ -199,10 +209,13 @@ describe('回归测试矩阵', () => {
     });
 
     it('应该处理大量数据', () => {
-      const largeData = Array.from({ length: 10000 }, (_, i) => ({ id: i, value: Math.random() }));
+      const largeData = Array.from({ length: 10000 }, (_, i) => ({
+        id: i,
+        value: Math.random(),
+      }));
 
       const startTime = Date.now();
-      const grouped = utils.groupBy(largeData, item => item.id % 10);
+      const grouped = utils.groupBy(largeData, (item) => item.id % 10);
       const endTime = Date.now();
 
       expect(endTime - startTime).toBeLessThan(500); // 应该在500ms内完成

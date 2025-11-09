@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * Husky 风格的Git钩子
  * 借鉴 Husky 的Git钩子管理和自动化执行理念
@@ -10,7 +12,7 @@ class HuskyInspiredHooks {
   }
 
   install() {
-    console.log(`�� Git钩子已安装`);
+    logger.info(`�� Git钩子已安装`);
     return { installed: true };
   }
 
@@ -20,21 +22,21 @@ class HuskyInspiredHooks {
     }
 
     this.hooks.get(hookName).push(command);
-    console.log(`��� Git钩子已添加: ${hookName}`);
+    logger.info(`��� Git钩子已添加: ${hookName}`);
   }
 
-  async runHook(hookName, _env = {}) {
+  async runHook(hookName) {
     const commands = this.hooks.get(hookName) || [];
 
-    console.log(`��� 执行Git钩子: ${hookName} (${commands.length} 个命令)`);
+    logger.info(`��� 执行Git钩子: ${hookName} (${commands.length} 个命令)`);
 
     for (const command of commands) {
-      console.log(`  ��� 执行命令: ${command}`);
+      logger.info(`  ��� 执行命令: ${command}`);
       // 模拟命令执行
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
-    console.log(`  ✅ 钩子执行成功: ${hookName}`);
+    logger.info(`  ✅ 钩子执行成功: ${hookName}`);
     return { success: true, commands: commands.length };
   }
 

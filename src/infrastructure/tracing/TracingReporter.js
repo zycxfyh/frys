@@ -178,7 +178,7 @@ export class TracingReporter {
         if (attempt < this.maxRetries) {
           // 指数退避
           await new Promise((resolve) =>
-            setTimeout(resolve, Math.pow(2, attempt) * 1000),
+            setTimeout(resolve, 2 ** attempt * 1000),
           );
         }
       }

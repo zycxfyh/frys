@@ -3,17 +3,15 @@
  * 支持JSON格式、分布式追踪、性能监控
  */
 
-import { createWriteStream } from 'fs';
+import { randomUUID } from 'crypto';
+import { createWriteStream, mkdirSync } from 'fs';
+import os from 'os';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { mkdirSync } from 'fs';
-import { randomUUID } from 'crypto';
-import os from 'os';
 
 import { config } from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // 日志级别定义
 const LOG_LEVELS = {
@@ -161,7 +159,7 @@ class StructuredLogFormatter {
 
     // 添加错误信息（如果有）
     if (meta.error) {
-      logEntry.error = this.formatError(meta.error);
+      logEntry.error = StructuredLogFormatter.formatError(meta.error);
     }
 
     // 格式化输出
@@ -169,12 +167,12 @@ class StructuredLogFormatter {
       return JSON.stringify(logEntry);
     } else {
       // 美化控制台输出
-      return this.formatConsole(level, message, logEntry);
+      return StructuredLogFormatter.formatConsole(level, message, logEntry);
     }
   }
 
   static formatConsole(level, message, logEntry) {
-    const color = this.getColor(level);
+    const color = StructuredLogFormatter.getColor(level);
     const timestamp = new Date(logEntry.timestamp).toLocaleString();
 
     let output = `${color}[${timestamp}] ${level.toUpperCase()}${colors.reset} ${message}`;

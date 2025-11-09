@@ -3,9 +3,8 @@
  * 提供向后兼容的接口，让现有代码可以平滑过渡到新的Bull.js消息队列
  */
 
-import { resolve } from './container.js';
-import { eventSystem } from './event/EventBus.js';
 import { logger } from '../shared/utils/logger.js';
+import { eventSystem } from './event/EventBus.js';
 
 /**
  * 消息适配器类

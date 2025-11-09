@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,13 +11,28 @@ import {
  * 测试追踪器、跨度、中间件和上下文管理的集成功能
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi, beforeEach, afterEach } from 'vitest';
-import { Tracer } from '../../../src/infrastructure/tracing/Tracer.js';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
+import {
+  AlwaysOnSampling,
+  SamplingStrategy,
+} from '../../../src/infrastructure/tracing/SamplingStrategy.js';
 import { Span } from '../../../src/infrastructure/tracing/Span.js';
-import { SamplingStrategy, AlwaysOnSampling } from '../../../src/infrastructure/tracing/SamplingStrategy.js';
-import { ConsoleReporter } from '../../../src/infrastructure/tracing/TracingReporter.js';
+import {
+  TraceContext,
+  TraceContextManager,
+} from '../../../src/infrastructure/tracing/TraceContext.js';
+import { Tracer } from '../../../src/infrastructure/tracing/Tracer.js';
 import { TracingMiddleware } from '../../../src/infrastructure/tracing/TracingMiddleware.js';
-import { TraceContext, TraceContextManager } from '../../../src/infrastructure/tracing/TraceContext.js';
+import { ConsoleReporter } from '../../../src/infrastructure/tracing/TracingReporter.js';
 import { logger } from '../../../src/shared/utils/logger.js';
 
 // Mock logger
@@ -37,7 +52,7 @@ describe('分布式追踪集成测试', () => {
     // Mock fetch
     global.fetch.mockResolvedValue({
       ok: true,
-      json: async () => ({})
+      json: async () => ({}),
     });
   });
 
@@ -45,7 +60,7 @@ describe('分布式追踪集成测试', () => {
     mockReporter = {
       report: vi.fn().mockResolvedValue(true),
       start: vi.fn().mockResolvedValue(true),
-      stop: vi.fn().mockResolvedValue(true)
+      stop: vi.fn().mockResolvedValue(true),
     };
 
     tracer = new Tracer({
@@ -53,7 +68,7 @@ describe('分布式追踪集成测试', () => {
       serviceVersion: '1.0.0',
       samplingStrategy: new AlwaysOnSampling(), // 总是采样以便测试
       reporter: mockReporter,
-      reportInterval: 1000 // 1秒上报间隔，用于测试
+      reportInterval: 1000, // 1秒上报间隔，用于测试
     });
   });
 
@@ -69,7 +84,7 @@ describe('分布式追踪集成测试', () => {
 
       const span = tracer.createSpan('test_operation', {
         component: 'test',
-        'test.key': 'test_value'
+        'test.key': 'test_value',
       });
 
       expect(span).toBeTruthy();
@@ -81,7 +96,7 @@ describe('分布式追踪集成测试', () => {
       span.finish();
 
       // 等待上报
-      await new Promise(resolve => setTimeout(resolve, 1100));
+      await new Promise((resolve) => setTimeout(resolve, 1100));
 
       expect(mockReporter.report).toHaveBeenCalled();
       const reportedSpans = mockReporter.report.mock.calls[0][0];
@@ -103,14 +118,18 @@ describe('分布式追踪集成测试', () => {
       parentSpan.finish();
 
       // 等待上报
-      await new Promise(resolve => setTimeout(resolve, 1100));
+      await new Promise((resolve) => setTimeout(resolve, 1100));
 
       expect(mockReporter.report).toHaveBeenCalled();
       const reportedSpans = mockReporter.report.mock.calls[0][0];
       expect(reportedSpans).toHaveLength(2);
 
-      const parentReported = reportedSpans.find(s => s.name === 'parent_operation');
-      const childReported = reportedSpans.find(s => s.name === 'child_operation');
+      const parentReported = reportedSpans.find(
+        (s) => s.name === 'parent_operation',
+      );
+      const childReported = reportedSpans.find(
+        (s) => s.name === 'child_operation',
+      );
 
       expect(parentReported).toBeTruthy();
       expect(childReported).toBeTruthy();
@@ -124,12 +143,14 @@ describe('分布式追踪集成测试', () => {
         return `result_${param}`;
       };
 
-      const result = await tracer.traceFunction('wrapped_function', () => testFunction('test'));
+      const result = await tracer.traceFunction('wrapped_function', () =>
+        testFunction('test'),
+      );
 
       expect(result).toBe('result_test');
 
       // 等待上报
-      await new Promise(resolve => setTimeout(resolve, 1100));
+      await new Promise((resolve) => setTimeout(resolve, 1100));
 
       expect(mockReporter.report).toHaveBeenCalled();
       const reportedSpans = mockReporter.report.mock.calls[0][0];
@@ -207,7 +228,7 @@ describe('分布式追踪集成测试', () => {
 
       // 由于是概率采样，我们运行多次来验证
       let sampled = 0;
-      let total = 1000;
+      const total = 1000;
 
       for (let i = 0; i < total; i++) {
         if (strategy.shouldSample('test')) {
@@ -234,9 +255,9 @@ describe('分布式追踪集成测试', () => {
         type: 'rules_based',
         rules: [
           { operationPattern: 'error_.*', sample: true },
-          { operationPattern: 'normal_.*', sample: false }
+          { operationPattern: 'normal_.*', sample: false },
         ],
-        samplingRate: 1.0 // 确保默认采样率为100%
+        samplingRate: 1.0, // 确保默认采样率为100%
       });
 
       expect(strategy.shouldSample('error_operation')).toBe(true);
@@ -252,7 +273,7 @@ describe('分布式追踪集成测试', () => {
       middleware = new TracingMiddleware(tracer, {
         includeHeaders: true,
         includeQuery: true,
-        excludePaths: ['/health']
+        excludePaths: ['/health'],
       });
     });
 
@@ -271,10 +292,10 @@ describe('分布式追踪集成测试', () => {
         }),
         headers: {
           'x-trace-id': 'test-trace-id',
-          'x-span-id': 'test-span-id'
+          'x-span-id': 'test-span-id',
         },
         query: { param: 'value' },
-        socket: { remoteAddress: '127.0.0.1', remotePort: 12345 }
+        socket: { remoteAddress: '127.0.0.1', remotePort: 12345 },
       };
 
       const mockRes = {
@@ -282,11 +303,13 @@ describe('分布式追踪集成测试', () => {
         setHeader: vi.fn(),
         end: vi.fn(),
         statusCode: 200,
-        getHeader: vi.fn(() => '123')
+        getHeader: vi.fn(() => '123'),
       };
 
       let nextCalled = false;
-      const next = () => { nextCalled = true; };
+      const next = () => {
+        nextCalled = true;
+      };
 
       // 执行中间件
       await middleware.middleware(mockReq, mockRes, next);
@@ -299,7 +322,7 @@ describe('分布式追踪集成测试', () => {
       expect(mockReq.tracingSpan.name).toBe('GET /api/test');
 
       // 等待上报
-      await new Promise(resolve => setTimeout(resolve, 1100));
+      await new Promise((resolve) => setTimeout(resolve, 1100));
       expect(mockReporter.report).toHaveBeenCalled();
     });
 
@@ -311,18 +334,20 @@ describe('分布式追踪集成测试', () => {
         protocol: 'http',
         get: vi.fn(() => 'localhost:3000'),
         headers: {},
-        query: {}
+        query: {},
       };
 
       const mockRes = {
         writeHead: vi.fn(),
         setHeader: vi.fn(),
         end: vi.fn(),
-        statusCode: 200
+        statusCode: 200,
       };
 
       let nextCalled = false;
-      const next = () => { nextCalled = true; };
+      const next = () => {
+        nextCalled = true;
+      };
 
       await middleware.middleware()(mockReq, mockRes, next);
 
@@ -357,7 +382,9 @@ describe('分布式追踪集成测试', () => {
       const childContext = { spanId: 'child-span' };
 
       await contextManager.withContext(rootContext, async () => {
-        expect(contextManager.traceContext.getCurrent().traceId).toBe('root-trace');
+        expect(contextManager.traceContext.getCurrent().traceId).toBe(
+          'root-trace',
+        );
 
         await contextManager.withChildContext(childContext, async () => {
           const current = contextManager.traceContext.getCurrent();
@@ -367,7 +394,9 @@ describe('分布式追踪集成测试', () => {
         });
 
         // 回到父上下文
-        expect(contextManager.traceContext.getCurrent().spanId).toBe('root-span');
+        expect(contextManager.traceContext.getCurrent().spanId).toBe(
+          'root-span',
+        );
       });
     });
 
@@ -375,7 +404,7 @@ describe('分布式追踪集成测试', () => {
       const context = {
         traceId: 'inject-trace',
         spanId: 'inject-span',
-        baggage: new Map([['user', 'test-user']])
+        baggage: new Map([['user', 'test-user']]),
       };
 
       const carrier = {};
@@ -400,25 +429,25 @@ describe('分布式追踪集成测试', () => {
       const rootSpan = tracer.createSpan('http_request', {
         'http.method': 'GET',
         'http.url': '/api/users',
-        component: 'http'
+        component: 'http',
       });
 
       // 2. 在根跨度上下文中执行数据库查询
       await tracer.context.run({ activeSpan: rootSpan }, async () => {
         await tracer.traceFunction('db_query', async () => {
-        // 模拟数据库查询
-        await new Promise(resolve => setTimeout(resolve, 10));
+          // 模拟数据库查询
+          await new Promise((resolve) => setTimeout(resolve, 10));
 
-        // 创建子跨度（模拟缓存查询）
-        const cacheSpan = tracer.createChildSpan(rootSpan, 'cache_get', {
-          component: 'redis',
-          'cache.key': 'users:list'
-        });
+          // 创建子跨度（模拟缓存查询）
+          const cacheSpan = tracer.createChildSpan(rootSpan, 'cache_get', {
+            component: 'redis',
+            'cache.key': 'users:list',
+          });
 
-        cacheSpan.log('cache_miss');
-        cacheSpan.finish();
+          cacheSpan.log('cache_miss');
+          cacheSpan.finish();
 
-        return { users: [] };
+          return { users: [] };
         });
       });
 
@@ -426,7 +455,7 @@ describe('分布式追踪集成测试', () => {
       const apiSpan = tracer.createChildSpan(rootSpan, 'external_api_call', {
         component: 'http_client',
         'http.method': 'GET',
-        'http.url': 'https://api.example.com/data'
+        'http.url': 'https://api.example.com/data',
       });
 
       apiSpan.setTag('http.status_code', 200);
@@ -437,7 +466,7 @@ describe('分布式追踪集成测试', () => {
       rootSpan.finish();
 
       // 等待上报
-      await new Promise(resolve => setTimeout(resolve, 1100));
+      await new Promise((resolve) => setTimeout(resolve, 1100));
 
       expect(mockReporter.report).toHaveBeenCalled();
       const reportedSpans = mockReporter.report.mock.calls[0][0];
@@ -446,10 +475,12 @@ describe('分布式追踪集成测试', () => {
       expect(reportedSpans).toHaveLength(4);
 
       // 验证跨度关系
-      const rootReported = reportedSpans.find(s => s.name === 'http_request');
-      const dbReported = reportedSpans.find(s => s.name === 'db_query');
-      const cacheReported = reportedSpans.find(s => s.name === 'cache_get');
-      const apiReported = reportedSpans.find(s => s.name === 'external_api_call');
+      const rootReported = reportedSpans.find((s) => s.name === 'http_request');
+      const dbReported = reportedSpans.find((s) => s.name === 'db_query');
+      const cacheReported = reportedSpans.find((s) => s.name === 'cache_get');
+      const apiReported = reportedSpans.find(
+        (s) => s.name === 'external_api_call',
+      );
 
       expect(rootReported).toBeTruthy();
       expect(dbReported.parentSpanId).toBe(rootReported.spanId);
@@ -459,7 +490,9 @@ describe('分布式追踪集成测试', () => {
       // 验证标签和日志
       expect(rootReported.tags['http.method']).toBe('GET');
       expect(apiReported.tags['http.status_code']).toBe(200);
-      expect(cacheReported.logs.some(log => log.event === 'cache_miss')).toBe(true);
+      expect(cacheReported.logs.some((log) => log.event === 'cache_miss')).toBe(
+        true,
+      );
     });
 
     it('应该处理错误场景', async () => {
@@ -477,7 +510,7 @@ describe('分布式追踪集成测试', () => {
       }
 
       // 等待上报
-      await new Promise(resolve => setTimeout(resolve, 1100));
+      await new Promise((resolve) => setTimeout(resolve, 1100));
 
       expect(mockReporter.report).toHaveBeenCalled();
       const reportedSpans = mockReporter.report.mock.calls[0][0];
@@ -495,7 +528,7 @@ describe('分布式追踪集成测试', () => {
       const limitedTracer = new Tracer({
         maxActiveSpans: 2,
         samplingStrategy: new AlwaysOnSampling(),
-        reporter: mockReporter
+        reporter: mockReporter,
       });
 
       await limitedTracer.start();
@@ -527,7 +560,7 @@ describe('分布式追踪集成测试', () => {
       }
 
       // 等待上报
-      await new Promise(resolve => setTimeout(resolve, 1100));
+      await new Promise((resolve) => setTimeout(resolve, 1100));
 
       expect(mockReporter.report).toHaveBeenCalled();
       const reportedSpans = mockReporter.report.mock.calls[0][0];

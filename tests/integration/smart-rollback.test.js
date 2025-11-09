@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,7 +11,7 @@ import {
  * 验证自动化回退策略和验证机制
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import SmartRollbackManager from '../../src/core/SmartRollbackManager.js';
 
 // Mock fetch for testing
@@ -24,16 +24,17 @@ describe('智能回退系统集成测试', () => {
     // Mock successful health check
     global.fetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        status: 'healthy',
-        timestamp: new Date().toISOString()
-      })
+      json: () =>
+        Promise.resolve({
+          status: 'healthy',
+          timestamp: new Date().toISOString(),
+        }),
     });
 
     rollbackManager = new SmartRollbackManager({
       environment: 'test',
       enableAutoRollback: false, // Disable auto rollback for testing
-      healthCheckInterval: 1000 // Faster for testing
+      healthCheckInterval: 1000, // Faster for testing
     });
   });
 
@@ -76,10 +77,11 @@ describe('智能回退系统集成测试', () => {
       // Mock healthy response
       global.fetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          status: 'healthy',
-          timestamp: new Date().toISOString()
-        })
+        json: () =>
+          Promise.resolve({
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+          }),
       });
 
       await rollbackManager.performHealthAssessment();
@@ -93,7 +95,7 @@ describe('智能回退系统集成测试', () => {
       // Mock unhealthy response
       global.fetch.mockResolvedValueOnce({
         ok: false,
-        status: 500
+        status: 500,
       });
 
       // Temporarily enable auto rollback for testing
@@ -113,14 +115,20 @@ describe('智能回退系统集成测试', () => {
       rollbackManager.consecutiveFailures = 5; // Trigger threshold
 
       // Mock the rollback execution
-      const executeRollbackSpy = vi.spyOn(rollbackManager, 'executeRollbackStrategy')
+      const executeRollbackSpy = vi
+        .spyOn(rollbackManager, 'executeRollbackStrategy')
         .mockResolvedValue(true);
 
-      await rollbackManager.handleCriticalIssues([{
-        type: 'test_failure',
-        severity: 'critical',
-        message: 'Test failure'
-      }], { issues: [] });
+      await rollbackManager.handleCriticalIssues(
+        [
+          {
+            type: 'test_failure',
+            severity: 'critical',
+            message: 'Test failure',
+          },
+        ],
+        { issues: [] },
+      );
 
       // Note: Auto rollback is disabled by default, so this method won't be called
       // expect(executeRollbackSpy).toHaveBeenCalled();
@@ -131,27 +139,37 @@ describe('智能回退系统集成测试', () => {
 
   describe('回退策略测试', () => {
     it('应该执行环境切换策略', async () => {
-      const runCommandSpy = vi.spyOn(rollbackManager, 'runCommand')
+      const runCommandSpy = vi
+        .spyOn(rollbackManager, 'runCommand')
         .mockResolvedValue({ success: true });
 
-      const result = await rollbackManager.executeRollbackStrategy('traffic_shifting', [], {});
+      const result = await rollbackManager.executeRollbackStrategy(
+        'traffic_shifting',
+        [],
+        {},
+      );
 
       expect(result).toBe(true);
-      expect(runCommandSpy).toHaveBeenCalledWith(
-        './scripts/rollback.sh',
-        ['--env=test']
-      );
+      expect(runCommandSpy).toHaveBeenCalledWith('./scripts/rollback.sh', [
+        '--env=test',
+      ]);
 
       runCommandSpy.mockRestore();
     });
 
     it('应该执行版本回滚策略', async () => {
-      const findVersionSpy = vi.spyOn(rollbackManager, 'findPreviousStableVersion')
+      const findVersionSpy = vi
+        .spyOn(rollbackManager, 'findPreviousStableVersion')
         .mockResolvedValue('v0.9.5');
-      const runCommandSpy = vi.spyOn(rollbackManager, 'runCommand')
+      const runCommandSpy = vi
+        .spyOn(rollbackManager, 'runCommand')
         .mockResolvedValue({ success: true });
 
-      const result = await rollbackManager.executeRollbackStrategy('version_rollback', [], {});
+      const result = await rollbackManager.executeRollbackStrategy(
+        'version_rollback',
+        [],
+        {},
+      );
 
       expect(result).toBe(true);
       expect(findVersionSpy).toHaveBeenCalled();
@@ -165,19 +183,22 @@ describe('智能回退系统集成测试', () => {
       const degradationSpies = [
         vi.spyOn(rollbackManager, 'degradeResponseTimeHandling'),
         vi.spyOn(rollbackManager, 'degradeMemoryHandling'),
-        vi.spyOn(rollbackManager, 'degradeCacheHandling')
+        vi.spyOn(rollbackManager, 'degradeCacheHandling'),
       ];
 
       // Mock all degradation methods
-      degradationSpies.forEach(spy => spy.mockResolvedValue());
+      degradationSpies.forEach((spy) => spy.mockResolvedValue());
 
-      await rollbackManager.executeDegradationStrategy([
-        { type: 'response_time', severity: 'warning' },
-        { type: 'memory_usage', severity: 'warning' },
-        { type: 'cache', severity: 'warning' }
-      ], {});
+      await rollbackManager.executeDegradationStrategy(
+        [
+          { type: 'response_time', severity: 'warning' },
+          { type: 'memory_usage', severity: 'warning' },
+          { type: 'cache', severity: 'warning' },
+        ],
+        {},
+      );
 
-      degradationSpies.forEach(spy => {
+      degradationSpies.forEach((spy) => {
         expect(spy).toHaveBeenCalled();
         spy.mockRestore();
       });
@@ -191,7 +212,7 @@ describe('智能回退系统集成测试', () => {
       rollbackManager.rollbackHistory.push({
         timestamp: new Date().toISOString(),
         type: 'test',
-        reason: 'unit test'
+        reason: 'unit test',
       });
 
       const history = rollbackManager.getRollbackHistory();
@@ -205,9 +226,15 @@ describe('智能回退系统集成测试', () => {
       rollbackManager.updateRollbackStats(true, 5000);
       rollbackManager.updateRollbackStats(false, 3000);
 
-      expect(rollbackManager.rollbackStats.totalRollbacks).toBe(initialStats.totalRollbacks + 2);
-      expect(rollbackManager.rollbackStats.successfulRollbacks).toBe(initialStats.successfulRollbacks + 1);
-      expect(rollbackManager.rollbackStats.failedRollbacks).toBe(initialStats.failedRollbacks + 1);
+      expect(rollbackManager.rollbackStats.totalRollbacks).toBe(
+        initialStats.totalRollbacks + 2,
+      );
+      expect(rollbackManager.rollbackStats.successfulRollbacks).toBe(
+        initialStats.successfulRollbacks + 1,
+      );
+      expect(rollbackManager.rollbackStats.failedRollbacks).toBe(
+        initialStats.failedRollbacks + 1,
+      );
     });
 
     it('应该生成回退报告', () => {
@@ -224,27 +251,38 @@ describe('智能回退系统集成测试', () => {
 
   describe('手动回退测试', () => {
     it('应该执行手动回退', async () => {
-      const executeStrategySpy = vi.spyOn(rollbackManager, 'executeRollbackStrategy')
+      const executeStrategySpy = vi
+        .spyOn(rollbackManager, 'executeRollbackStrategy')
         .mockResolvedValue(true);
 
-      const result = await rollbackManager.manualRollback('environment_switch', 'manual test');
+      const result = await rollbackManager.manualRollback(
+        'environment_switch',
+        'manual test',
+      );
 
       expect(result).toBe(true);
-      expect(executeStrategySpy).toHaveBeenCalledWith('environment_switch', [{
-        type: 'manual',
-        severity: 'warning',
-        message: '手动触发回退: manual test'
-      }], expect.any(Object));
+      expect(executeStrategySpy).toHaveBeenCalledWith(
+        'environment_switch',
+        [
+          {
+            type: 'manual',
+            severity: 'warning',
+            message: '手动触发回退: manual test',
+          },
+        ],
+        expect.any(Object),
+      );
 
       executeStrategySpy.mockRestore();
     });
 
     it('应该触发紧急回退', async () => {
-      const emergencyRollbackSpy = vi.spyOn(rollbackManager, 'executeEmergencyShutdown')
+      const emergencyRollbackSpy = vi
+        .spyOn(rollbackManager, 'executeEmergencyShutdown')
         .mockResolvedValue();
 
       await rollbackManager.triggerEmergencyRollback('test emergency', {
-        triggeredBy: 'test'
+        triggeredBy: 'test',
       });
 
       expect(emergencyRollbackSpy).toHaveBeenCalled();
@@ -267,16 +305,17 @@ describe('智能回退系统集成测试', () => {
       const testManager = new SmartRollbackManager({
         environment: 'test',
         healthCheckInterval: 100, // Very short for testing
-        enableAutoRollback: false
+        enableAutoRollback: false,
       });
 
-      const healthAssessmentSpy = vi.spyOn(testManager, 'performHealthAssessment')
+      const healthAssessmentSpy = vi
+        .spyOn(testManager, 'performHealthAssessment')
         .mockResolvedValue();
 
       testManager.startMonitoring();
 
       // Wait for at least one assessment
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 150));
 
       expect(healthAssessmentSpy).toHaveBeenCalled();
 
@@ -300,12 +339,16 @@ describe('智能回退系统集成测试', () => {
     it('应该处理无效的回退策略', async () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      const result = await rollbackManager.executeRollbackStrategy('invalid_strategy', [], {});
+      const result = await rollbackManager.executeRollbackStrategy(
+        'invalid_strategy',
+        [],
+        {},
+      );
 
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('未知回退策略'),
-        'invalid_strategy'
+        'invalid_strategy',
       );
 
       consoleSpy.mockRestore();
@@ -324,9 +367,9 @@ describe('智能回退系统集成测试', () => {
       const customManager = new SmartRollbackManager({
         alertThresholds: {
           responseTime: 1000, // Custom threshold
-          errorRate: 0.01,    // Custom threshold
-          memoryUsage: 0.8    // Custom threshold
-        }
+          errorRate: 0.01, // Custom threshold
+          memoryUsage: 0.8, // Custom threshold
+        },
       });
 
       expect(customManager.options.alertThresholds.responseTime).toBe(1000);
@@ -336,7 +379,7 @@ describe('智能回退系统集成测试', () => {
 
     it('应该禁用自动回退', () => {
       const noAutoManager = new SmartRollbackManager({
-        enableAutoRollback: false
+        enableAutoRollback: false,
       });
 
       expect(noAutoManager.options.enableAutoRollback).toBe(false);
@@ -345,11 +388,11 @@ describe('智能回退系统集成测试', () => {
     it('应该验证健康状态阈值', () => {
       const metrics = {
         responseTime: 6000, // Above threshold
-        errorRate: 0.1,     // Above threshold
-        memoryUsage: 0.95,  // Above threshold
-        cpuUsage: 0.95,     // Above threshold
+        errorRate: 0.1, // Above threshold
+        memoryUsage: 0.95, // Above threshold
+        cpuUsage: 0.95, // Above threshold
         databaseConnections: { status: 'healthy' },
-        cacheHealth: { status: 'healthy' }
+        cacheHealth: { status: 'healthy' },
       };
 
       const assessment = rollbackManager.assessHealthStatus(metrics);

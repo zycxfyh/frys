@@ -1,10 +1,9 @@
 ---
 name: 功能请求
 about: 为这个项目提出一个想法或功能
-title: "[FEATURE] 功能名称"
+title: '[FEATURE] 功能名称'
 labels: enhancement
 assignees: ''
-
 ---
 
 ## ✨ 功能描述

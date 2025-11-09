@@ -20,7 +20,7 @@ export default defineConfig({
     ['html'],
     ['json', { outputFile: 'test-results/playwright-results.json' }],
     ['junit', { outputFile: 'test-results/playwright-junit.xml' }],
-    ['github']
+    ['github'],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -48,42 +48,46 @@ export default defineConfig({
   /* Configure projects for major browsers - CI环境优化 */
   projects: [
     // CI环境只运行Chromium以提高速度
-    ...(process.env.CI ? [
-      {
-        name: 'chromium',
-        use: { ...devices['Desktop Chrome'] },
-      }
-    ] : [
-      {
-        name: 'chromium',
-        use: { ...devices['Desktop Chrome'] },
-      },
-      {
-        name: 'firefox',
-        use: { ...devices['Desktop Firefox'] },
-      },
-      {
-        name: 'webkit',
-        use: { ...devices['Desktop Safari'] },
-      },
-      /* Test against mobile viewports. */
-      {
-        name: 'Mobile Chrome',
-        use: { ...devices['Pixel 5'] },
-      },
-      {
-        name: 'Mobile Safari',
-        use: { ...devices['iPhone 12'] },
-      },
-    ]),
+    ...(process.env.CI
+      ? [
+          {
+            name: 'chromium',
+            use: { ...devices['Desktop Chrome'] },
+          },
+        ]
+      : [
+          {
+            name: 'chromium',
+            use: { ...devices['Desktop Chrome'] },
+          },
+          {
+            name: 'firefox',
+            use: { ...devices['Desktop Firefox'] },
+          },
+          {
+            name: 'webkit',
+            use: { ...devices['Desktop Safari'] },
+          },
+          /* Test against mobile viewports. */
+          {
+            name: 'Mobile Chrome',
+            use: { ...devices['Pixel 5'] },
+          },
+          {
+            name: 'Mobile Safari',
+            use: { ...devices['iPhone 12'] },
+          },
+        ]),
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: process.env.CI ? undefined : {
-    command: 'npm run dev',
-    port: 3000,
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: process.env.CI
+    ? undefined
+    : {
+        command: 'npm run dev',
+        port: 3000,
+        reuseExistingServer: !process.env.CI,
+      },
 
   /* Global Setup */
   globalSetup: require.resolve('./tests/e2e-ui/global-setup'),

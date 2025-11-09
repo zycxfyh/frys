@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * Jaeger 风格的分布式追踪
  * 借鉴 Jaeger 的追踪和可视化理念
@@ -17,7 +19,7 @@ class JaegerInspiredTracing {
     };
 
     this.traces.set(traceId, trace);
-    console.log(`��� 追踪已创建: ${traceId}`);
+    logger.info(`��� 追踪已创建: ${traceId}`);
     return trace;
   }
 
@@ -38,7 +40,7 @@ class JaegerInspiredTracing {
     }
 
     this.spans.set(span.id, span);
-    console.log(`  ��� Span已创建: ${operationName}`);
+    logger.info(`  ��� Span已创建: ${operationName}`);
     return span;
   }
 
@@ -47,7 +49,7 @@ class JaegerInspiredTracing {
     if (span) {
       span.finishedAt = Date.now();
       span.duration = span.finishedAt - span.startedAt;
-      console.log(
+      logger.info(
         `  ✅ Span已完成: ${span.operationName} (${span.duration}ms)`,
       );
     }

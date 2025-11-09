@@ -4,11 +4,11 @@
  */
 
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -31,7 +31,7 @@ export function createStrictTestSuite(suiteName, testSuite, options = {}) {
       const env = setupStrictTestEnvironment({
         timeout: testTimeout,
         testName: suiteName,
-        ...options
+        ...options,
       });
       monitor = env.monitor;
       cleanup = env.cleanup;
@@ -57,7 +57,11 @@ export async function strictAsyncTest(testFn, options = {}) {
   const isCI = process.env.CI === 'true';
   const timeout = options.timeout || (isCI ? 2000 : 5000);
 
-  return withTimeout(testFn(), timeout, options.operationName || 'test operation');
+  return withTimeout(
+    testFn(),
+    timeout,
+    options.operationName || 'test operation',
+  );
 }
 
 /**

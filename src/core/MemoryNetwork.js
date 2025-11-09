@@ -64,7 +64,7 @@ class MemoryNode {
     this.metadata.updatedAt = new Date();
   }
 
-  calculateRelevance(query, options = {}) {
+  calculateRelevance(query) {
     let score = 0;
 
     // 关键词匹配
@@ -232,7 +232,7 @@ class KnowledgeGraph {
       if (depth > maxDepth || visited.has(currentId)) return;
       visited.add(currentId);
 
-      for (const [edgeKey, edge] of this.edges) {
+      for (const [, edge] of this.edges) {
         if (edge.sourceId === currentId || edge.targetId === currentId) {
           if (relationTypes && !relationTypes.includes(edge.type)) continue;
 
@@ -295,17 +295,17 @@ class VectorStore {
     this.index = null; // 向量索引（可扩展为ANN索引）
   }
 
-  async storeVector(nodeId, vector) {
+  storeVector(nodeId, vector) {
     this.vectors.set(nodeId, vector);
     // 这里可以添加向量索引更新逻辑
     logger.debug(`Stored vector for node ${nodeId}`);
   }
 
-  async getVector(nodeId) {
+  getVector(nodeId) {
     return this.vectors.get(nodeId);
   }
 
-  async findSimilarVectors(queryVector, topK = 5, threshold = 0.7) {
+  findSimilarVectors(queryVector, topK = 5, threshold = 0.7) {
     const similarities = [];
 
     for (const [nodeId, vector] of this.vectors) {
@@ -341,7 +341,7 @@ class VectorStore {
     return dotProduct / (normA * normB);
   }
 
-  async removeVector(nodeId) {
+  removeVector(nodeId) {
     this.vectors.delete(nodeId);
     logger.debug(`Removed vector for node ${nodeId}`);
   }
@@ -388,7 +388,7 @@ export class MemoryNetwork extends EventEmitter {
     this.startMaintenanceTasks();
   }
 
-  async initialize() {
+  initialize() {
     // 初始化记忆网络
     logger.debug('MemoryNetwork initialized');
   }
@@ -451,82 +451,103 @@ export class MemoryNetwork extends EventEmitter {
     return nodeId;
   }
 
-  async retrieveMemory(sessionId, query, options = {}) {
-    const startTime = Date.now();
-    this.stats.searchQueries++;
+  /**
+   * 解析检索选项
+   * @private
+   */
+  _parseRetrievalOptions(options) {
+    return {
+      limit: options.limit || 10,
+      type: options.type || null,
+      tags: options.tags || [],
+      useVector: options.useVector !== false,
+      minRelevance: options.minRelevance || 0.1,
+    };
+  }
 
-    const {
-      limit = 10,
-      type = null,
-      tags = [],
-      useVector = true,
-      minRelevance = 0.1,
-    } = options;
-
-    let candidates = [];
-
-    // 1. 基于会话的初步筛选
+  /**
+   * 获取会话候选节点
+   * @private
+   */
+  _getSessionCandidates(sessionId) {
     const sessionNodes = this.sessions.get(sessionId) || new Set();
-    candidates = Array.from(sessionNodes)
+    return Array.from(sessionNodes)
       .map((nodeId) => this.memoryNodes.get(nodeId))
       .filter(Boolean);
+  }
 
-    // 2. 类型筛选
-    if (type) {
-      candidates = candidates.filter((node) => node.type === type);
-    }
+  /**
+   * 按类型筛选候选节点
+   * @private
+   */
+  _filterCandidatesByType(candidates, type) {
+    return type ? candidates.filter((node) => node.type === type) : candidates;
+  }
 
-    // 3. 标签筛选
-    if (tags.length > 0) {
-      candidates = candidates.filter((node) =>
-        tags.some((tag) => node.metadata.tags?.includes(tag)),
-      );
-    }
+  /**
+   * 按标签筛选候选节点
+   * @private
+   */
+  _filterCandidatesByTags(candidates, tags) {
+    if (!tags.length) return candidates;
+    return candidates.filter((node) =>
+      tags.some((tag) => node.metadata.tags?.includes(tag)),
+    );
+  }
 
-    // 4. 相关性计算
+  /**
+   * 计算文本相关性
+   * @private
+   */
+  _calculateTextRelevance(candidates, query, minRelevance) {
     const results = [];
     for (const node of candidates) {
       const relevance = node.calculateRelevance(query);
-
       if (relevance >= minRelevance) {
+        results.push({ node, relevance, vectorSimilarity: 0 });
+      }
+    }
+    return results;
+  }
+
+  /**
+   * 合并向量搜索结果
+   * @private
+   */
+  async _mergeVectorResults(results, query, config) {
+    const queryVector = await this.generateVector(query);
+    const vectorResults = await this.vectorStore.findSimilarVectors(
+      queryVector,
+      config.limit,
+      config.minRelevance,
+    );
+
+    for (const { nodeId, similarity } of vectorResults) {
+      const node = this.memoryNodes.get(nodeId);
+      if (!node) continue;
+
+      const existing = results.find((r) => r.node.id === nodeId);
+      if (existing) {
+        existing.vectorSimilarity = similarity;
+        existing.relevance = Math.max(existing.relevance, similarity);
+      } else {
         results.push({
           node,
-          relevance,
-          vectorSimilarity: 0,
+          relevance: similarity,
+          vectorSimilarity: similarity,
         });
       }
     }
 
-    // 5. 向量相似性搜索
-    if (useVector && this.options.enableVectorization) {
-      const queryVector = await this.generateVector(query);
-      const vectorResults = await this.vectorStore.findSimilarVectors(
-        queryVector,
-        limit,
-        minRelevance,
-      );
+    return results;
+  }
 
-      // 合并结果
-      for (const { nodeId, similarity } of vectorResults) {
-        const node = this.memoryNodes.get(nodeId);
-        if (node) {
-          const existing = results.find((r) => r.node.id === nodeId);
-          if (existing) {
-            existing.vectorSimilarity = similarity;
-            existing.relevance = Math.max(existing.relevance, similarity);
-          } else {
-            results.push({
-              node,
-              relevance: similarity,
-              vectorSimilarity: similarity,
-            });
-          }
-        }
-      }
-    }
-
-    // 6. 排序和限制结果
-    const sortedResults = results
+  /**
+   * 格式化和排序结果
+   * @private
+   */
+  _formatAndSortResults(results, limit) {
+    return results
       .sort((a, b) => b.relevance - a.relevance)
       .slice(0, limit)
       .map((result) => ({
@@ -537,6 +558,29 @@ export class MemoryNetwork extends EventEmitter {
         vectorSimilarity: result.vectorSimilarity,
         metadata: result.node.metadata,
       }));
+  }
+
+  async retrieveMemory(sessionId, query, options = {}) {
+    const startTime = Date.now();
+    this.stats.searchQueries++;
+
+    const config = this._parseRetrievalOptions(options);
+    let candidates = this._getSessionCandidates(sessionId);
+
+    candidates = this._filterCandidatesByType(candidates, config.type);
+    candidates = this._filterCandidatesByTags(candidates, config.tags);
+
+    let results = this._calculateTextRelevance(
+      candidates,
+      query,
+      config.minRelevance,
+    );
+
+    if (config.useVector && this.options.enableVectorization) {
+      results = await this._mergeVectorResults(results, query, config);
+    }
+
+    const sortedResults = this._formatAndSortResults(results, config.limit);
 
     const responseTime = Date.now() - startTime;
     this.updateResponseTime(responseTime);
@@ -614,7 +658,7 @@ export class MemoryNetwork extends EventEmitter {
     return true;
   }
 
-  async generateVector(content) {
+  generateVector(content) {
     // 简化的向量生成（实际应调用embedding模型）
     if (typeof content !== 'string') {
       content = JSON.stringify(content);
@@ -769,7 +813,7 @@ export class MemoryNetwork extends EventEmitter {
     }
   }
 
-  async generateSummary(content) {
+  generateSummary(content) {
     // 简化的摘要生成（实际应调用AI模型）
     if (typeof content !== 'string') return content;
 
@@ -823,7 +867,7 @@ export class MemoryNetwork extends EventEmitter {
     return totalSize;
   }
 
-  async cleanup() {
+  cleanup() {
     // 清理资源
     this.memoryNodes.clear();
     this.sessions.clear();
@@ -836,7 +880,7 @@ export class MemoryNetwork extends EventEmitter {
   /**
    * 关闭记忆网络，清理资源
    */
-  async shutdown() {
+  shutdown() {
     try {
       // 清理所有记忆节点
       this.memoryNodes.clear();

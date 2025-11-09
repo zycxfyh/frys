@@ -94,7 +94,7 @@ class PrometheusInspiredMetrics {
   initializeAlertRules() {
     // 内存使用告警
     this.addAlertRule('high_memory_usage', {
-      condition: (metrics) => {
+      condition: () => {
         const memoryUsage = this.getMetricValue('process_memory_usage_bytes', {
           type: 'heapUsed',
         });
@@ -109,7 +109,7 @@ class PrometheusInspiredMetrics {
 
     // 高错误率告警
     this.addAlertRule('high_error_rate', {
-      condition: (metrics) => {
+      condition: () => {
         const totalRequests = this.getMetricValue('http_requests_total');
         const errorRequests = this.getMetricValue('http_requests_total', {
           status: '5xx',
@@ -128,7 +128,7 @@ class PrometheusInspiredMetrics {
 
     // 响应时间告警
     this.addAlertRule('slow_response_time', {
-      condition: (metrics) => {
+      condition: () => {
         const avgResponseTime = this.calculateAverageResponseTime();
         return avgResponseTime > 5000; // 5秒平均响应时间
       },
@@ -140,7 +140,7 @@ class PrometheusInspiredMetrics {
 
     // 系统负载告警
     this.addAlertRule('high_system_load', {
-      condition: (metrics) => {
+      condition: () => {
         const cpuUsage = this.getMetricValue('process_cpu_usage_percent');
         return cpuUsage && cpuUsage > 90; // 90% CPU 使用率
       },
@@ -629,14 +629,14 @@ class PrometheusInspiredMetrics {
     metric.values.set(key, value);
   }
 
-  observeHistogram(name, value, _labels = {}) {
+  observeHistogram(name, value) {
     const metric = this.metrics.get(name);
     if (!metric || metric.type !== 'histogram') {
       throw new Error(`Histogram metric ${name} not found`);
     }
 
     // 简化的直方图逻辑
-    console.log(`��� 观察直方图: ${name} = ${value}`);
+    logger.info(`��� 观察直方图: ${name} = ${value}`);
   }
 
   getLabelKey(labels, expectedLabels) {
@@ -659,22 +659,52 @@ class PrometheusInspiredMetrics {
       output += `\n# HELP ${name} ${metric.help}\n`;
       output += `# TYPE ${name} ${metric.type}\n`;
 
-      for (const [labelKey, value] of metric.values) {
-        if (metric.type === 'histogram') {
-          // 直方图的特殊处理
-          output += `${name}_sum${labelKey} ${value.sum || 0}\n`;
-          output += `${name}_count${labelKey} ${value.count || 0}\n`;
+      output += this.formatMetricValues(name, metric);
+    }
 
-          // 桶
-          if (value.buckets) {
-            for (const [bucket, count] of Object.entries(value.buckets)) {
-              output += `${name}_bucket{le="${bucket}"}${labelKey.replace('{', '').replace('}', '')} ${count}\n`;
-            }
-          }
-        } else {
-          output += `${name}${labelKey} ${value}\n`;
-        }
+    return output;
+  }
+
+  /**
+   * 格式化指标值
+   */
+  formatMetricValues(name, metric) {
+    let output = '';
+
+    for (const [labelKey, value] of metric.values) {
+      if (metric.type === 'histogram') {
+        output += this.formatHistogramMetric(name, labelKey, value);
+      } else {
+        output += `${name}${labelKey} ${value}\n`;
       }
+    }
+
+    return output;
+  }
+
+  /**
+   * 格式化直方图指标
+   */
+  formatHistogramMetric(name, labelKey, value) {
+    let output = `${name}_sum${labelKey} ${value.sum || 0}\n`;
+    output += `${name}_count${labelKey} ${value.count || 0}\n`;
+
+    if (value.buckets) {
+      output += this.formatHistogramBuckets(name, labelKey, value.buckets);
+    }
+
+    return output;
+  }
+
+  /**
+   * 格式化直方图桶
+   */
+  formatHistogramBuckets(name, labelKey, buckets) {
+    let output = '';
+    const labelSuffix = labelKey.replace('{', '').replace('}', '');
+
+    for (const [bucket, count] of Object.entries(buckets)) {
+      output += `${name}_bucket{le="${bucket}"}${labelSuffix} ${count}\n`;
     }
 
     return output;

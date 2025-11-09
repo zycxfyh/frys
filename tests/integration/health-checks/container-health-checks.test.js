@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,12 +11,29 @@ import {
  * 测试健康检查器、资源限制和中间件的集成功能
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi, beforeEach, afterEach } from 'vitest';
-import { HealthChecker, databaseHealthCheck, memoryHealthCheck, cpuHealthCheck } from '../../../src/infrastructure/health-checks/HealthChecker.js';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { DockerHealthChecker } from '../../../src/infrastructure/health-checks/DockerHealthChecker.js';
-import { KubernetesHealthChecker } from '../../../src/infrastructure/health-checks/KubernetesHealthChecker.js';
-import { ResourceLimits, ContainerResourceLimits } from '../../../src/infrastructure/health-checks/ResourceLimits.js';
+import {
+  cpuHealthCheck,
+  databaseHealthCheck,
+  HealthChecker,
+  memoryHealthCheck,
+} from '../../../src/infrastructure/health-checks/HealthChecker.js';
 import { HealthCheckMiddleware } from '../../../src/infrastructure/health-checks/HealthCheckMiddleware.js';
+import { KubernetesHealthChecker } from '../../../src/infrastructure/health-checks/KubernetesHealthChecker.js';
+import {
+  ContainerResourceLimits,
+  ResourceLimits,
+} from '../../../src/infrastructure/health-checks/ResourceLimits.js';
 import { EventBus } from '../../../src/shared/kernel/EventBus.js';
 import { logger } from '../../../src/shared/utils/logger.js';
 
@@ -31,7 +48,7 @@ global.fetch = vi.fn();
 
 // Mock terminal commands for Docker/Kubernetes
 vi.mock('../../../src/utils/terminal.js', () => ({
-  run_terminal_cmd: vi.fn()
+  run_terminal_cmd: vi.fn(),
 }));
 
 describe('容器健康检查集成测试', () => {
@@ -40,7 +57,9 @@ describe('容器健康检查集成测试', () => {
 
   beforeAll(() => {
     eventBus = new EventBus();
-    mockTerminalCmd = vi.mocked(require('../../../src/utils/terminal.js').run_terminal_cmd);
+    mockTerminalCmd = vi.mocked(
+      require('../../../src/utils/terminal.js').run_terminal_cmd,
+    );
   });
 
   describe('基础健康检查器', () => {
@@ -50,7 +69,7 @@ describe('容器健康检查集成测试', () => {
       healthChecker = new HealthChecker({
         eventBus,
         checkInterval: 1000, // 1秒用于测试
-        timeout: 1000
+        timeout: 1000,
       });
     });
 
@@ -66,13 +85,13 @@ describe('容器健康检查集成测试', () => {
           checkExecuted = true;
           return { status: 'ok' };
         },
-        critical: true
+        critical: true,
       });
 
       await healthChecker.start();
 
       // 等待检查执行
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       expect(checkExecuted).toBe(true);
 
@@ -84,13 +103,13 @@ describe('容器健康检查集成测试', () => {
       healthChecker.registerCheck('failing_check', {
         check: async () => {
           throw new Error('Check failed');
-        }
+        },
       });
 
       await healthChecker.start();
 
       // 等待检查执行
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const health = healthChecker.getHealthSummary();
       expect(health.summary.unhealthy).toBe(1);
@@ -103,20 +122,20 @@ describe('容器健康检查集成测试', () => {
       process.memoryUsage = vi.fn().mockReturnValue({
         heapUsed: 100 * 1024 * 1024, // 100MB
         heapTotal: 200 * 1024 * 1024, // 200MB
-        external: 50 * 1024 * 1024     // 50MB
+        external: 50 * 1024 * 1024, // 50MB
       });
 
       healthChecker.registerCheck('memory', {
         check: memoryHealthCheck({
           heapUsed: 150 * 1024 * 1024, // 150MB limit
-          heapTotal: 300 * 1024 * 1024  // 300MB limit
-        })
+          heapTotal: 300 * 1024 * 1024, // 300MB limit
+        }),
       });
 
       await healthChecker.start();
 
       // 等待检查执行
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const health = healthChecker.getHealthSummary();
       expect(health.summary.healthy).toBe(1); // Should pass since usage is below limits
@@ -134,13 +153,13 @@ describe('容器健康检查集成测试', () => {
         eventBus,
         containerName: 'test-container',
         serviceName: 'test-service',
-        checkInterval: 1000
+        checkInterval: 1000,
       });
 
       // Mock terminal commands
       mockTerminalCmd.mockResolvedValue({
         code: 0,
-        stdout: 'container_id\ncontainer_name\nrunning\ntcp_port\n'
+        stdout: 'container_id\ncontainer_name\nrunning\ntcp_port\n',
       });
     });
 
@@ -151,13 +170,13 @@ describe('容器健康检查集成测试', () => {
     it('应该检查Docker daemon连接', async () => {
       mockTerminalCmd.mockResolvedValueOnce({
         code: 0,
-        stdout: '{"Version":"20.10.0","ApiVersion":"1.41"}'
+        stdout: '{"Version":"20.10.0","ApiVersion":"1.41"}',
       });
 
       await dockerChecker.start();
 
       // 等待检查执行
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const health = dockerChecker.getHealthSummary();
       expect(health.summary.healthy).toBeGreaterThan(0);
@@ -170,23 +189,23 @@ describe('容器健康检查集成测试', () => {
         stdout: JSON.stringify({
           State: {
             Status: 'running',
-            Health: { Status: 'healthy' }
+            Health: { Status: 'healthy' },
           },
           Config: { Image: 'test:latest' },
-          RestartCount: 0
-        })
+          RestartCount: 0,
+        }),
       });
 
       // Mock health endpoint check
       global.fetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ status: 'healthy' })
+        json: async () => ({ status: 'healthy' }),
       });
 
       await dockerChecker.start();
 
       // 等待检查执行
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const health = dockerChecker.getHealthSummary();
       expect(health.summary.healthy).toBeGreaterThan(0);
@@ -199,20 +218,20 @@ describe('容器健康检查集成测试', () => {
         stdout: JSON.stringify({
           memory_stats: {
             usage: 100 * 1024 * 1024,
-            limit: 512 * 1024 * 1024
+            limit: 512 * 1024 * 1024,
           },
           cpu_stats: {
             cpu_usage: { total_usage: 1000000000 },
             system_cpu_usage: 2000000000,
-            online_cpus: 2
-          }
-        })
+            online_cpus: 2,
+          },
+        }),
       });
 
       await dockerChecker.start();
 
       // 等待检查执行
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const health = dockerChecker.getHealthSummary();
       expect(health.summary.healthy).toBeGreaterThan(0);
@@ -228,27 +247,30 @@ describe('容器健康检查集成测试', () => {
         namespace: 'test-ns',
         podName: 'test-pod',
         serviceName: 'test-service',
-        checkInterval: 1000
+        checkInterval: 1000,
       });
 
       // Mock kubectl commands
       mockTerminalCmd.mockImplementation((cmd) => {
         if (cmd.command.includes('cluster-info')) {
-          return Promise.resolve({ code: 0, stdout: 'Kubernetes control plane is running' });
+          return Promise.resolve({
+            code: 0,
+            stdout: 'Kubernetes control plane is running',
+          });
         }
         if (cmd.command.includes('get pod')) {
           return Promise.resolve({
             code: 0,
             stdout: JSON.stringify({
               status: { phase: 'Running' },
-              spec: { containers: [{ name: 'app' }] }
-            })
+              spec: { containers: [{ name: 'app' }] },
+            }),
           });
         }
         if (cmd.command.includes('get nodes')) {
           return Promise.resolve({
             code: 0,
-            stdout: 'node1 Ready\nnode2 Ready\n'
+            stdout: 'node1 Ready\nnode2 Ready\n',
           });
         }
         return Promise.resolve({ code: 0, stdout: '' });
@@ -262,13 +284,13 @@ describe('容器健康检查集成测试', () => {
     it('应该检查Kubernetes API连接', async () => {
       mockTerminalCmd.mockResolvedValueOnce({
         code: 0,
-        stdout: 'Client Version: v1.24.0\nServer Version: v1.24.0'
+        stdout: 'Client Version: v1.24.0\nServer Version: v1.24.0',
       });
 
       await k8sChecker.start();
 
       // 等待检查执行
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const health = k8sChecker.getHealthSummary();
       expect(health.summary.healthy).toBeGreaterThan(0);
@@ -278,7 +300,7 @@ describe('容器健康检查集成测试', () => {
       await k8sChecker.start();
 
       // 等待检查执行
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const health = k8sChecker.getHealthSummary();
       expect(health.summary.healthy).toBeGreaterThan(0);
@@ -288,7 +310,7 @@ describe('容器健康检查集成测试', () => {
       await k8sChecker.start();
 
       // 等待检查执行
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const health = k8sChecker.getHealthSummary();
       expect(health.summary.healthy).toBeGreaterThan(0);
@@ -301,7 +323,7 @@ describe('容器健康检查集成测试', () => {
     beforeEach(() => {
       resourceLimits = new ResourceLimits({
         eventBus,
-        enforcementEnabled: true
+        enforcementEnabled: true,
       });
     });
 
@@ -309,7 +331,7 @@ describe('容器健康检查集成测试', () => {
       const mockMemoryUsage = {
         heapUsed: 400 * 1024 * 1024, // 400MB
         heapTotal: 600 * 1024 * 1024, // 600MB
-        external: 100 * 1024 * 1024   // 100MB
+        external: 100 * 1024 * 1024, // 100MB
       };
 
       const result = resourceLimits.checkLimit('memory', mockMemoryUsage);
@@ -323,7 +345,7 @@ describe('容器健康检查集成测试', () => {
       const mockCpuUsage = {
         user: 800000, // 800ms
         system: 200000, // 200ms
-        usagePercent: 0.85 // 85%
+        usagePercent: 0.85, // 85%
       };
 
       const result = resourceLimits.checkLimit('cpu', mockCpuUsage);
@@ -336,7 +358,7 @@ describe('容器健康检查集成测试', () => {
       const mockMemoryUsage = {
         heapUsed: 600 * 1024 * 1024, // 600MB (超过512MB限制)
         heapTotal: 700 * 1024 * 1024,
-        external: 50 * 1024 * 1024
+        external: 50 * 1024 * 1024,
       };
 
       // Mock global.gc
@@ -353,8 +375,8 @@ describe('容器健康检查集成测试', () => {
         type: 'docker',
         memory: {
           limit: 256 * 1024 * 1024, // 256MB
-          reservation: 128 * 1024 * 1024
-        }
+          reservation: 128 * 1024 * 1024,
+        },
       });
 
       const dockerConfig = containerLimits.generateContainerConfig();
@@ -375,7 +397,7 @@ describe('容器健康检查集成测试', () => {
       // Mock response
       global.fetch.mockResolvedValue({
         ok: true,
-        json: async () => ({ status: 'healthy' })
+        json: async () => ({ status: 'healthy' }),
       });
     });
 
@@ -387,10 +409,12 @@ describe('容器健康检查集成测试', () => {
       const mockReq = { url: '/health' };
       const mockRes = {
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       };
       let nextCalled = false;
-      const next = () => { nextCalled = true };
+      const next = () => {
+        nextCalled = true;
+      };
 
       await middleware._handleHealthRequest(mockReq, mockRes, next);
 
@@ -403,7 +427,7 @@ describe('容器健康检查集成测试', () => {
       const mockReq = { url: '/health/detailed' };
       const mockRes = {
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       };
       const next = vi.fn();
 
@@ -417,7 +441,7 @@ describe('容器健康检查集成测试', () => {
       const mockReq = { url: '/health/liveness' };
       const mockRes = {
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       };
       const next = vi.fn();
 
@@ -434,7 +458,7 @@ describe('容器健康检查集成测试', () => {
       const mockReq = { url: '/health/readiness' };
       const mockRes = {
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       };
       const next = vi.fn();
 
@@ -459,7 +483,7 @@ describe('容器健康检查集成测试', () => {
     it('应该生成Kubernetes探针配置', () => {
       const probes = HealthCheckMiddleware.createKubernetesProbes({
         port: 8080,
-        endpoint: '/health/ready'
+        endpoint: '/health/ready',
       });
 
       expect(probes.livenessProbe.httpGet.path).toBe('/health/liveness');
@@ -470,10 +494,15 @@ describe('容器健康检查集成测试', () => {
     it('应该生成Docker健康检查配置', () => {
       const healthCheck = HealthCheckMiddleware.createDockerHealthCheck({
         port: 8080,
-        endpoint: '/health'
+        endpoint: '/health',
       });
 
-      expect(healthCheck.test).toEqual(['CMD', 'curl', '-f', 'http://localhost:8080/health']);
+      expect(healthCheck.test).toEqual([
+        'CMD',
+        'curl',
+        '-f',
+        'http://localhost:8080/health',
+      ]);
       expect(healthCheck.interval).toBe(30000000000);
       expect(healthCheck.timeout).toBe(10000000000);
     });
@@ -485,7 +514,7 @@ describe('容器健康检查集成测试', () => {
       const dockerChecker = new DockerHealthChecker({
         eventBus,
         containerName: 'frys-app',
-        checkInterval: 500 // 快速检查用于测试
+        checkInterval: 500, // 快速检查用于测试
       });
 
       // Mock Docker commands
@@ -493,7 +522,7 @@ describe('容器健康检查集成测试', () => {
         if (cmd.command.includes('version')) {
           return Promise.resolve({
             code: 0,
-            stdout: '{"Version":"20.10.0","ApiVersion":"1.41"}'
+            stdout: '{"Version":"20.10.0","ApiVersion":"1.41"}',
           });
         }
         if (cmd.command.includes('inspect')) {
@@ -502,11 +531,11 @@ describe('容器健康检查集成测试', () => {
             stdout: JSON.stringify({
               State: {
                 Status: 'running',
-                Health: { Status: 'healthy' }
+                Health: { Status: 'healthy' },
               },
               Config: { Image: 'frys:latest' },
-              RestartCount: 0
-            })
+              RestartCount: 0,
+            }),
           });
         }
         return Promise.resolve({ code: 0, stdout: '' });
@@ -515,14 +544,14 @@ describe('容器健康检查集成测试', () => {
       // Mock health endpoint
       global.fetch.mockResolvedValue({
         ok: true,
-        json: async () => ({ status: 'healthy', uptime: 3600 })
+        json: async () => ({ status: 'healthy', uptime: 3600 }),
       });
 
       // 启动健康检查
       await dockerChecker.start();
 
       // 等待所有检查完成
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // 验证健康状态
       const health = dockerChecker.getHealthSummary();
@@ -543,14 +572,14 @@ describe('容器健康检查集成测试', () => {
       const resourceLimits = new ContainerResourceLimits({
         type: 'kubernetes',
         memory: { limit: 512 * 1024 * 1024 },
-        cpu: { cpus: 2 }
+        cpu: { cpus: 2 },
       });
 
       // 模拟正常使用
       const normalUsage = {
         heapUsed: 200 * 1024 * 1024, // 200MB
         heapTotal: 300 * 1024 * 1024,
-        external: 50 * 1024 * 1024
+        external: 50 * 1024 * 1024,
       };
 
       let result = resourceLimits.checkLimit('memory', normalUsage);
@@ -560,7 +589,7 @@ describe('容器健康检查集成测试', () => {
       const highUsage = {
         heapUsed: 600 * 1024 * 1024, // 600MB (超过512MB限制)
         heapTotal: 700 * 1024 * 1024,
-        external: 100 * 1024 * 1024
+        external: 100 * 1024 * 1024,
       };
 
       // Mock garbage collection
@@ -579,7 +608,7 @@ describe('容器健康检查集成测试', () => {
     it('应该处理健康检查失败和恢复', async () => {
       const healthChecker = new HealthChecker({
         eventBus,
-        checkInterval: 500
+        checkInterval: 500,
       });
 
       let shouldFail = true;
@@ -590,13 +619,13 @@ describe('容器健康检查集成测试', () => {
             throw new Error('Temporary failure');
           }
           return { status: 'recovered' };
-        }
+        },
       });
 
       await healthChecker.start();
 
       // 等待第一次失败
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 600));
       let health = healthChecker.getHealthSummary();
       expect(health.summary.unhealthy).toBe(1);
 
@@ -604,7 +633,7 @@ describe('容器健康检查集成测试', () => {
       shouldFail = false;
 
       // 等待恢复
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 600));
       health = healthChecker.getHealthSummary();
       expect(health.summary.healthy).toBe(1);
 
@@ -620,13 +649,13 @@ describe('容器健康检查集成测试', () => {
       });
 
       healthChecker.registerCheck('event_test', {
-        check: async () => ({ status: 'ok' })
+        check: async () => ({ status: 'ok' }),
       });
 
       await healthChecker.start();
 
       // 等待健康检查完成
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       expect(events.length).toBeGreaterThan(0);
       expect(events[0]).toHaveProperty('overallHealth');

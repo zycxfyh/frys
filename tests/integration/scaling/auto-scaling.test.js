@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,11 +11,24 @@ import {
  * 测试自动扩容管理器、负载均衡器和容器编排器的集成功能
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi, beforeEach, afterEach } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { AutoScalingManager } from '../../../src/infrastructure/scaling/AutoScalingManager.js';
-import { ScalingMetrics } from '../../../src/infrastructure/scaling/ScalingMetrics.js';
 import { LoadBalancer } from '../../../src/infrastructure/scaling/LoadBalancer.js';
-import { CpuScalingPolicy, MemoryScalingPolicy, CompositeScalingPolicy } from '../../../src/infrastructure/scaling/ScalingPolicy.js';
+import { ScalingMetrics } from '../../../src/infrastructure/scaling/ScalingMetrics.js';
+import {
+  CompositeScalingPolicy,
+  CpuScalingPolicy,
+  MemoryScalingPolicy,
+} from '../../../src/infrastructure/scaling/ScalingPolicy.js';
 import { logger } from '../../../src/shared/utils/logger.js';
 
 // Mock容器编排器
@@ -24,12 +37,12 @@ const mockOrchestrator = {
   stopInstance: vi.fn(),
   getRunningInstances: vi.fn(),
   getInstanceDetails: vi.fn(),
-  healthCheck: vi.fn()
+  healthCheck: vi.fn(),
 };
 
 // Mock run_terminal_cmd
 vi.mock('../../../src/utils/terminal.js', () => ({
-  run_terminal_cmd: vi.fn()
+  run_terminal_cmd: vi.fn(),
 }));
 
 describe('自动扩容集成测试', () => {
@@ -43,7 +56,9 @@ describe('自动扩容集成测试', () => {
     vi.spyOn(logger, 'error').mockImplementation(() => {});
     vi.spyOn(logger, 'debug').mockImplementation(() => {});
 
-    mockTerminalCmd = vi.mocked(require('../../../src/utils/terminal.js').run_terminal_cmd);
+    mockTerminalCmd = vi.mocked(
+      require('../../../src/utils/terminal.js').run_terminal_cmd,
+    );
   });
 
   afterAll(() => {
@@ -64,7 +79,7 @@ describe('自动扩容集成测试', () => {
       status: 'running',
       healthy: true,
       weight: 1,
-      metadata: { image: 'test:latest' }
+      metadata: { image: 'test:latest' },
     });
     mockOrchestrator.stopInstance.mockResolvedValue(true);
     mockOrchestrator.healthCheck.mockResolvedValue({ status: 'healthy' });
@@ -79,7 +94,7 @@ describe('自动扩容集成测试', () => {
       policies: [new CpuScalingPolicy()],
       orchestrator: mockOrchestrator,
       metricsInterval: 1000, // 1秒，用于测试
-      healthCheckInterval: 1000
+      healthCheckInterval: 1000,
     });
   });
 
@@ -101,7 +116,9 @@ describe('自动扩容集成测试', () => {
       await autoScalingManager.start();
 
       expect(autoScalingManager.isRunning).toBe(true);
-      expect(mockOrchestrator.getRunningInstances).toHaveBeenCalledWith('test-service');
+      expect(mockOrchestrator.getRunningInstances).toHaveBeenCalledWith(
+        'test-service',
+      );
     });
 
     it('应该在没有运行实例时启动初始实例', async () => {
@@ -109,13 +126,26 @@ describe('自动扩容集成测试', () => {
 
       await autoScalingManager.start();
 
-      expect(mockOrchestrator.startInstance).toHaveBeenCalledWith('test-service', { index: 0 });
+      expect(mockOrchestrator.startInstance).toHaveBeenCalledWith(
+        'test-service',
+        { index: 0 },
+      );
     });
 
     it('应该同步现有运行实例', async () => {
       const existingInstances = [
-        { id: 'existing-1', url: 'http://localhost:3000', weight: 1, metadata: {} },
-        { id: 'existing-2', url: 'http://localhost:3001', weight: 1, metadata: {} }
+        {
+          id: 'existing-1',
+          url: 'http://localhost:3000',
+          weight: 1,
+          metadata: {},
+        },
+        {
+          id: 'existing-2',
+          url: 'http://localhost:3001',
+          weight: 1,
+          metadata: {},
+        },
       ];
       mockOrchestrator.getRunningInstances.mockResolvedValue(existingInstances);
 
@@ -134,11 +164,11 @@ describe('自动扩容集成测试', () => {
     it('应该在CPU使用率高时触发扩容', async () => {
       // 模拟高CPU使用率
       autoScalingManager.metrics.recordCustomMetric('cpuUsage', 0.85);
-      autoScalingManager.metrics.recordCustomMetric('cpuUsage', 0.90);
+      autoScalingManager.metrics.recordCustomMetric('cpuUsage', 0.9);
       autoScalingManager.metrics.recordCustomMetric('cpuUsage', 0.88);
 
       // 等待扩容检查
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // 验证扩容决策
       const stats = autoScalingManager.getStats();
@@ -156,7 +186,7 @@ describe('自动扩容集成测试', () => {
       autoScalingManager.metrics.recordCustomMetric('memoryUsage', 0.89);
 
       // 等待扩容检查
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       expect(mockOrchestrator.startInstance).toHaveBeenCalled();
     });
@@ -165,7 +195,7 @@ describe('自动扩容集成测试', () => {
       // 使用复合策略
       const compositePolicy = new CompositeScalingPolicy([
         new CpuScalingPolicy({ scaleUpThreshold: 0.8 }),
-        new MemoryScalingPolicy({ scaleUpThreshold: 0.8 })
+        new MemoryScalingPolicy({ scaleUpThreshold: 0.8 }),
       ]);
       autoScalingManager.policies = [compositePolicy];
 
@@ -174,7 +204,7 @@ describe('自动扩容集成测试', () => {
       autoScalingManager.metrics.recordCustomMetric('memoryUsage', 0.87);
 
       // 等待扩容检查
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       expect(mockOrchestrator.startInstance).toHaveBeenCalled();
     });
@@ -186,7 +216,7 @@ describe('自动扩容集成测试', () => {
       autoScalingManager.metrics.recordCustomMetric('cpuUsage', 0.95);
 
       // 等待扩容检查
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       expect(mockOrchestrator.startInstance).not.toHaveBeenCalled();
     });
@@ -206,7 +236,7 @@ describe('自动扩容集成测试', () => {
       autoScalingManager.metrics.recordCustomMetric('cpuUsage', 0.18);
 
       // 等待缩容检查
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       expect(mockOrchestrator.stopInstance).toHaveBeenCalled();
     });
@@ -218,7 +248,7 @@ describe('自动扩容集成测试', () => {
       autoScalingManager.metrics.recordCustomMetric('cpuUsage', 0.1);
 
       // 等待缩容检查
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       expect(mockOrchestrator.stopInstance).not.toHaveBeenCalled();
     });
@@ -283,24 +313,36 @@ describe('自动扩容集成测试', () => {
     });
 
     it('应该处理容器启动失败', async () => {
-      mockOrchestrator.startInstance.mockRejectedValue(new Error('容器启动失败'));
+      mockOrchestrator.startInstance.mockRejectedValue(
+        new Error('容器启动失败'),
+      );
 
-      await expect(autoScalingManager.manualScale(2)).rejects.toThrow('容器启动失败');
+      await expect(autoScalingManager.manualScale(2)).rejects.toThrow(
+        '容器启动失败',
+      );
 
       // 验证告警生成
       const alerts = autoScalingManager.getActiveAlerts();
-      expect(alerts.some(alert => alert.type === 'scale_up_failed')).toBe(true);
+      expect(alerts.some((alert) => alert.type === 'scale_up_failed')).toBe(
+        true,
+      );
     });
 
     it('应该处理容器停止失败', async () => {
-      mockOrchestrator.stopInstance.mockRejectedValue(new Error('容器停止失败'));
+      mockOrchestrator.stopInstance.mockRejectedValue(
+        new Error('容器停止失败'),
+      );
 
       await autoScalingManager.manualScale(3); // 先扩容
-      await expect(autoScalingManager.manualScale(1)).rejects.toThrow('容器停止失败');
+      await expect(autoScalingManager.manualScale(1)).rejects.toThrow(
+        '容器停止失败',
+      );
 
       // 验证告警生成
       const alerts = autoScalingManager.getActiveAlerts();
-      expect(alerts.some(alert => alert.type === 'scale_down_failed')).toBe(true);
+      expect(alerts.some((alert) => alert.type === 'scale_down_failed')).toBe(
+        true,
+      );
     });
 
     it('应该检测到系统异常并生成告警', async () => {
@@ -308,10 +350,12 @@ describe('自动扩容集成测试', () => {
       autoScalingManager.metrics.recordCustomMetric('cpuUsage', 0.98);
 
       // 等待异常检测
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const alerts = autoScalingManager.getActiveAlerts();
-      expect(alerts.some(alert => alert.type === 'system_anomaly')).toBe(true);
+      expect(alerts.some((alert) => alert.type === 'system_anomaly')).toBe(
+        true,
+      );
     });
   });
 
@@ -352,7 +396,7 @@ describe('自动扩容集成测试', () => {
           fromInstances: 1,
           toInstances: 2,
           reason: `test event ${i}`,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       }
 
@@ -365,7 +409,7 @@ describe('自动扩容集成测试', () => {
     it('应该允许更新配置', () => {
       autoScalingManager.updateConfig({
         maxInstances: 10,
-        minInstances: 2
+        minInstances: 2,
       });
 
       expect(autoScalingManager.maxInstances).toBe(10);

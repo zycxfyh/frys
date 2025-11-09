@@ -28,7 +28,7 @@ class TestPerformanceMonitor {
 
   // 清理所有超时
   clearAllTimeouts() {
-    this.timeouts.forEach(id => clearTimeout(id));
+    this.timeouts.forEach((id) => clearTimeout(id));
     this.timeouts.clear();
   }
 
@@ -120,7 +120,7 @@ export function setupStrictTestEnvironment(options = {}) {
 
       monitor.clearAllTimeouts();
       monitor.checkMemoryLeak();
-    }
+    },
   };
 }
 
@@ -148,10 +148,10 @@ export function createStrictTestCleanup(monitor) {
 
       // 性能报告
       const report = monitor.getReport();
-      if (report.duration > 1000) { // 超过1秒的测试发出警告
+      if (report.duration > 1000) {
+        // 超过1秒的测试发出警告
         logger.warn('🐌 慢测试检测', report);
       }
-
     } catch (error) {
       logger.error('🧹 测试清理失败', { error: error.message });
       throw error;
@@ -187,11 +187,11 @@ export function withTimeout(promise, timeoutMs, operationName = 'operation') {
     }, timeoutMs);
 
     promise
-      .then(result => {
+      .then((result) => {
         clearTimeout(timeoutId);
         resolve(result);
       })
-      .catch(error => {
+      .catch((error) => {
         clearTimeout(timeoutId);
         reject(error);
       });
@@ -226,16 +226,20 @@ export class ResourceLeakDetector {
     const leaks = [];
 
     // 检查事件监听器泄漏
-    Object.keys(currentResources.listeners).forEach(event => {
-      const diff = currentResources.listeners[event] - this.initialResources.listeners[event];
+    Object.keys(currentResources.listeners).forEach((event) => {
+      const diff =
+        currentResources.listeners[event] -
+        this.initialResources.listeners[event];
       if (diff > 0) {
         leaks.push(`${event} listeners: +${diff}`);
       }
     });
 
     // 检查内存使用异常
-    const memoryDiff = currentResources.memory.heapUsed - this.initialResources.memory.heapUsed;
-    if (memoryDiff > 10 * 1024 * 1024) { // 10MB
+    const memoryDiff =
+      currentResources.memory.heapUsed - this.initialResources.memory.heapUsed;
+    if (memoryDiff > 10 * 1024 * 1024) {
+      // 10MB
       leaks.push(`内存泄漏: +${(memoryDiff / 1024 / 1024).toFixed(2)}MB`);
     }
 
@@ -288,7 +292,9 @@ export function createFastFailTest(testFn, options = {}) {
   return async () => {
     const { monitor, cleanup } = setupStrictTestEnvironment(options);
     const leakDetector = new ResourceLeakDetector();
-    const errorReporter = createDetailedErrorReporter(options.testName || 'unknown');
+    const errorReporter = createDetailedErrorReporter(
+      options.testName || 'unknown',
+    );
 
     try {
       // 执行测试
@@ -301,14 +307,12 @@ export function createFastFailTest(testFn, options = {}) {
       }
 
       return result;
-
     } catch (error) {
       // 详细错误报告
       errorReporter(error);
 
       // 重新抛出以触发vitest的失败处理
       throw error;
-
     } finally {
       // 确保清理
       await cleanup();

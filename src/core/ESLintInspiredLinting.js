@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * ESLint 风格的代码检查
  * 借鉴 ESLint 的规则引擎、配置系统和自动修复理念
@@ -22,13 +24,13 @@ class ESLintInspiredLinting {
     };
 
     this.configs.set(configId, lintConfig);
-    console.log(`��� ESLint配置已创建: ${configId}`);
+    logger.info(`��� ESLint配置已创建: ${configId}`);
     return lintConfig;
   }
 
   addRule(ruleName, ruleFn) {
     this.rules.set(ruleName, ruleFn);
-    console.log(`��� 规则已添加: ${ruleName}`);
+    logger.info(`��� 规则已添加: ${ruleName}`);
   }
 
   lint(code, configId) {
@@ -56,7 +58,7 @@ class ESLintInspiredLinting {
       timestamp: Date.now(),
     });
 
-    console.log(`��� 代码检查完成: 发现 ${issues.length} 个问题`);
+    logger.info(`��� 代码检查完成: 发现 ${issues.length} 个问题`);
     return issues;
   }
 

@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from '../test-helpers.js';
 
 /**
@@ -11,13 +11,13 @@ import {
  * 测试各个模块在高负载下的性能表现
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import NATSInspiredMessaging from '../../src/core/NATSInspiredMessaging.js';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
 import DayJSInspiredDate from '../../src/core/DayJSInspiredDate.js';
-import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
-import LodashInspiredUtils from '../../src/core/LodashInspiredUtils.js';
 import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
+import LodashInspiredUtils from '../../src/core/LodashInspiredUtils.js';
+import NATSInspiredMessaging from '../../src/core/NATSInspiredMessaging.js';
+import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
 
 describe('核心模块性能测试', () => {
   let messaging, http, date, state, utils, jwt;
@@ -62,27 +62,33 @@ describe('核心模块性能测试', () => {
       const publishPromises = [];
       for (let i = 0; i < messageCount; i++) {
         publishPromises.push(
-          messaging.publish(topic, JSON.stringify({
-            id: `msg_${i}`,
-            data: `Message ${i}`,
-            timestamp: Date.now()
-          }), connection.id)
+          messaging.publish(
+            topic,
+            JSON.stringify({
+              id: `msg_${i}`,
+              data: `Message ${i}`,
+              timestamp: Date.now(),
+            }),
+            connection.id,
+          ),
         );
       }
 
       await Promise.all(publishPromises);
 
       // 等待所有消息处理
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const perfResult = global.performanceMonitor.end(startTime);
 
-      console.log(`消息队列性能: ${messageCount}消息, 耗时${perfResult.formatted}`);
+      console.log(
+        `消息队列性能: ${messageCount}消息, 耗时${perfResult.formatted}`,
+      );
 
       // 验证性能指标
       expect(messages.length).toBe(messageCount);
       expect(perfResult.duration).toBeLessThan(1500); // 1.5秒内完成（考虑到异步处理）
-      expect(messages.every(msg => msg.id)).toBe(true);
+      expect(messages.every((msg) => msg.id)).toBe(true);
 
       // 清理
       messaging.unsubscribe(connection.id, subscription.id);
@@ -114,34 +120,40 @@ describe('核心模块性能测试', () => {
       const publishPromises = [];
       for (let i = 0; i < messageCount; i++) {
         publishPromises.push(
-          messaging.publish(topic, JSON.stringify({
-            broadcastId: `broadcast_${i}`,
-            content: `Broadcast message ${i}`,
-            timestamp: Date.now()
-          }), connection.id)
+          messaging.publish(
+            topic,
+            JSON.stringify({
+              broadcastId: `broadcast_${i}`,
+              content: `Broadcast message ${i}`,
+              timestamp: Date.now(),
+            }),
+            connection.id,
+          ),
         );
       }
 
       await Promise.all(publishPromises);
 
       // 等待消息传播
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const perfResult = global.performanceMonitor.end(startTime);
 
-      console.log(`广播性能: ${subscriberCount}订阅者 x ${messageCount}消息, 耗时${perfResult.formatted}`);
+      console.log(
+        `广播性能: ${subscriberCount}订阅者 x ${messageCount}消息, 耗时${perfResult.formatted}`,
+      );
 
       // 验证所有订阅者都收到了消息
       expect(receivedMessages.size).toBe(subscriberCount);
       for (const [subId, messages] of receivedMessages) {
         expect(messages.length).toBe(messageCount);
-        expect(messages.every(msg => msg.broadcastId)).toBe(true);
+        expect(messages.every((msg) => msg.broadcastId)).toBe(true);
       }
 
       expect(perfResult.duration).toBeLessThan(1500); // 1.5秒内完成（考虑到异步处理）
 
       // 清理
-      subscriptions.forEach(sub => {
+      subscriptions.forEach((sub) => {
         messaging.unsubscribe(connection.id, sub.id);
       });
     });
@@ -151,7 +163,7 @@ describe('核心模块性能测试', () => {
     it('应该处理并发HTTP请求', async () => {
       const instance = http.create({
         baseURL: 'https://api.workflow.local',
-        testMode: true // 使用测试模式避免真实网络请求
+        testMode: true, // 使用测试模式避免真实网络请求
       });
 
       const requestCount = 100;
@@ -163,39 +175,45 @@ describe('核心模块性能测试', () => {
       const promises = [];
       for (let i = 0; i < requestCount; i++) {
         promises.push(
-          instance.request({
-            method: 'GET',
-            url: `/api/data/${i}`,
-            headers: {
-              'X-Request-ID': `req_${i}`,
-              'X-Timestamp': Date.now().toString()
-            }
-          }).then(response => {
-            responses.push(response);
-            return response;
-          })
+          instance
+            .request({
+              method: 'GET',
+              url: `/api/data/${i}`,
+              headers: {
+                'X-Request-ID': `req_${i}`,
+                'X-Timestamp': Date.now().toString(),
+              },
+            })
+            .then((response) => {
+              responses.push(response);
+              return response;
+            }),
         );
       }
 
       await Promise.all(promises);
       const perfResult = global.performanceMonitor.end(startTime);
 
-      console.log(`HTTP并发性能: ${requestCount}请求, 耗时${perfResult.formatted}`);
+      console.log(
+        `HTTP并发性能: ${requestCount}请求, 耗时${perfResult.formatted}`,
+      );
 
       // 验证响应
       expect(responses.length).toBe(requestCount);
-      expect(responses.every(r => r.success)).toBe(true);
+      expect(responses.every((r) => r.success)).toBe(true);
       expect(perfResult.duration).toBeLessThan(2000); // 2秒内完成
 
       // 验证内存使用
       const memoryUsage = process.memoryUsage();
-      console.log(`内存使用: RSS=${(memoryUsage.rss / 1024 / 1024).toFixed(2)}MB, Heap=${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `内存使用: RSS=${(memoryUsage.rss / 1024 / 1024).toFixed(2)}MB, Heap=${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`,
+      );
     });
 
     it('应该处理大数据传输', async () => {
       const instance = http.create({
         baseURL: 'https://api.workflow.local',
-        testMode: true // 使用测试模式避免真实网络请求
+        testMode: true, // 使用测试模式避免真实网络请求
       });
 
       // 创建大数据payload
@@ -204,13 +222,13 @@ describe('核心模块性能测试', () => {
           id: i,
           data: `Item ${i}`.repeat(10), // 创建较大字符串
           timestamp: Date.now(),
-          metadata: { size: Math.random() * 1000, category: i % 10 }
+          metadata: { size: Math.random() * 1000, category: i % 10 },
         })),
         summary: {
           totalItems: 10000,
           categories: 10,
-          generatedAt: Date.now()
-        }
+          generatedAt: Date.now(),
+        },
       };
 
       const startTime = global.performanceMonitor.start();
@@ -220,14 +238,16 @@ describe('核心模块性能测试', () => {
         url: '/api/bulk-upload',
         headers: {
           'Content-Type': 'application/json',
-          'X-Data-Size': JSON.stringify(largeData).length.toString()
+          'X-Data-Size': JSON.stringify(largeData).length.toString(),
         },
-        data: largeData
+        data: largeData,
       });
 
       const perfResult = global.performanceMonitor.end(startTime);
 
-      console.log(`大数据传输性能: ${JSON.stringify(largeData).length}字节, 耗时${perfResult.formatted}`);
+      console.log(
+        `大数据传输性能: ${JSON.stringify(largeData).length}字节, 耗时${perfResult.formatted}`,
+      );
 
       expect(response.success).toBe(true);
       expect(perfResult.duration).toBeLessThan(500); // 500ms内完成
@@ -247,16 +267,22 @@ describe('核心模块性能测试', () => {
         dates.push({
           formatted: dateObj.format('YYYY-MM-DD'),
           timestamp: dateObj.valueOf(),
-          isValid: dateObj.isValid()
+          isValid: dateObj.isValid(),
         });
       }
 
       const perfResult = global.performanceMonitor.end(startTime);
 
-      console.log(`日期处理性能: ${operationCount}操作, 耗时${perfResult.formatted}`);
+      console.log(
+        `日期处理性能: ${operationCount}操作, 耗时${perfResult.formatted}`,
+      );
 
       expect(dates.length).toBe(operationCount);
-      expect(dates.every(d => d.formatted && d.timestamp && d.isValid !== undefined)).toBe(true);
+      expect(
+        dates.every(
+          (d) => d.formatted && d.timestamp && d.isValid !== undefined,
+        ),
+      ).toBe(true);
       expect(perfResult.duration).toBeLessThan(600); // 600ms内完成
 
       // 验证日期统计
@@ -279,16 +305,18 @@ describe('核心模块性能测试', () => {
           base: baseDate.format('YYYY-MM-DD'),
           future: futureDate.format('YYYY-MM-DD'),
           past: pastDate.format('YYYY-MM-DD'),
-          diff: date.diffDate(futureDate._date, pastDate._date, 'days')
+          diff: date.diffDate(futureDate._date, pastDate._date, 'days'),
         });
       }
 
       const perfResult = global.performanceMonitor.end(startTime);
 
-      console.log(`复杂日期计算性能: ${testCases}计算, 耗时${perfResult.formatted}`);
+      console.log(
+        `复杂日期计算性能: ${testCases}计算, 耗时${perfResult.formatted}`,
+      );
 
       expect(results.length).toBe(testCases);
-      expect(results.every(r => r.diff >= 0)).toBe(true);
+      expect(results.every((r) => r.diff >= 0)).toBe(true);
       expect(perfResult.duration).toBeLessThan(200); // 200ms内完成
     });
   });
@@ -298,10 +326,11 @@ describe('核心模块性能测试', () => {
       const store = state.create((set) => ({
         counter: 0,
         updates: 0,
-        increment: () => set(state => ({
-          counter: state.counter + 1,
-          updates: state.updates + 1
-        }))
+        increment: () =>
+          set((state) => ({
+            counter: state.counter + 1,
+            updates: state.updates + 1,
+          })),
       }));
 
       const updateCount = 10000;
@@ -314,7 +343,9 @@ describe('核心模块性能测试', () => {
 
       const perfResult = global.performanceMonitor.end(startTime);
 
-      console.log(`状态更新性能: ${updateCount}更新, 耗时${perfResult.formatted}`);
+      console.log(
+        `状态更新性能: ${updateCount}更新, 耗时${perfResult.formatted}`,
+      );
 
       expect(store.state.counter).toBe(updateCount);
       expect(store.state.updates).toBe(updateCount);
@@ -324,9 +355,10 @@ describe('核心模块性能测试', () => {
     it('应该处理复杂状态对象', () => {
       const store = state.create((set) => ({
         data: {},
-        setComplexData: (key, value) => set(state => ({
-          data: { ...state.data, [key]: value }
-        }))
+        setComplexData: (key, value) =>
+          set((state) => ({
+            data: { ...state.data, [key]: value },
+          })),
       }));
 
       const dataPoints = 1000;
@@ -343,11 +375,11 @@ describe('核心模块性能测试', () => {
             nested: {
               level1: {
                 level2: {
-                  data: `Nested data ${i}`
-                }
-              }
-            }
-          }
+                  data: `Nested data ${i}`,
+                },
+              },
+            },
+          },
         };
       }
 
@@ -360,14 +392,18 @@ describe('核心模块性能测试', () => {
 
       const perfResult = global.performanceMonitor.end(startTime);
 
-      console.log(`复杂状态性能: ${dataPoints}数据点, 耗时${perfResult.formatted}`);
+      console.log(
+        `复杂状态性能: ${dataPoints}数据点, 耗时${perfResult.formatted}`,
+      );
 
       expect(Object.keys(store.state.data)).toHaveLength(dataPoints);
       expect(perfResult.duration).toBeLessThan(1000); // 1000ms内完成
 
       // 验证内存使用
       const memoryUsage = process.memoryUsage();
-      console.log(`状态对象内存: ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `状态对象内存: ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`,
+      );
     });
   });
 
@@ -378,7 +414,7 @@ describe('核心模块性能测试', () => {
         id: i,
         category: `cat${i % 10}`,
         value: Math.random(),
-        active: i % 2 === 0
+        active: i % 2 === 0,
       }));
 
       const startTime = global.performanceMonitor.start();
@@ -386,12 +422,14 @@ describe('核心模块性能测试', () => {
       // 执行多种操作
       const unique = utils.uniq(largeArray);
       const grouped = utils.groupBy(unique, 'category');
-      const activeItems = unique.filter(item => item.active);
+      const activeItems = unique.filter((item) => item.active);
       const cloned = utils.cloneDeep(grouped);
 
       const perfResult = global.performanceMonitor.end(startTime);
 
-      console.log(`工具函数大数据性能: ${largeArray.length}项, 耗时${perfResult.formatted}`);
+      console.log(
+        `工具函数大数据性能: ${largeArray.length}项, 耗时${perfResult.formatted}`,
+      );
 
       expect(unique.length).toBe(largeArray.length); // 所有项都是唯一的
       expect(Object.keys(grouped)).toHaveLength(10); // 10个类别
@@ -420,16 +458,16 @@ describe('核心模块性能测试', () => {
             nested: {
               level1: {
                 level2: {
-                  value: Math.random()
-                }
-              }
-            }
+                  value: Math.random(),
+                },
+              },
+            },
           })),
           metadata: {
             iteration: i,
             timestamp: Date.now(),
-            size: 1000
-          }
+            size: 1000,
+          },
         };
 
         // 执行深度克隆
@@ -448,8 +486,12 @@ describe('核心模块性能测试', () => {
       const perfResult = global.performanceMonitor.end(startTime);
       const finalMemory = process.memoryUsage().heapUsed;
 
-      console.log(`内存密集操作性能: ${iterations}迭代, 耗时${perfResult.formatted}`);
-      console.log(`内存变化: ${(initialMemory / 1024 / 1024).toFixed(2)}MB → ${(finalMemory / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `内存密集操作性能: ${iterations}迭代, 耗时${perfResult.formatted}`,
+      );
+      console.log(
+        `内存变化: ${(initialMemory / 1024 / 1024).toFixed(2)}MB → ${(finalMemory / 1024 / 1024).toFixed(2)}MB`,
+      );
 
       expect(results.length).toBe(iterations);
       expect(perfResult.duration).toBeLessThan(4500); // 4.5秒内完成
@@ -460,27 +502,37 @@ describe('核心模块性能测试', () => {
     it('应该高效处理令牌生成和验证', () => {
       const tokenCount = 1000;
       const tokens = [];
-      const userData = { userId: 123, role: 'user', permissions: ['read', 'write'] };
+      const userData = {
+        userId: 123,
+        role: 'user',
+        permissions: ['read', 'write'],
+      };
 
       const startTime = global.performanceMonitor.start();
 
       // 批量生成令牌
       for (let i = 0; i < tokenCount; i++) {
-        const token = jwt.generateToken({
-          ...userData,
-          sessionId: `session_${i}`
-        }, 'perf-key', { expiresIn: 3600 });
+        const token = jwt.generateToken(
+          {
+            ...userData,
+            sessionId: `session_${i}`,
+          },
+          'perf-key',
+          { expiresIn: 3600 },
+        );
         tokens.push(token);
       }
 
       const generateTime = global.performanceMonitor.end(startTime);
 
-      console.log(`JWT生成性能: ${tokenCount}令牌, 耗时${generateTime.formatted}`);
+      console.log(
+        `JWT生成性能: ${tokenCount}令牌, 耗时${generateTime.formatted}`,
+      );
 
       // 验证令牌
       const verifyStartTime = global.performanceMonitor.start();
 
-      const verifiedTokens = tokens.map(token => {
+      const verifiedTokens = tokens.map((token) => {
         try {
           return jwt.verifyToken(token, 'perf-key');
         } catch (error) {
@@ -490,11 +542,13 @@ describe('核心模块性能测试', () => {
 
       const verifyTime = global.performanceMonitor.end(verifyStartTime);
 
-      console.log(`JWT验证性能: ${tokenCount}令牌, 耗时${verifyTime.formatted}`);
+      console.log(
+        `JWT验证性能: ${tokenCount}令牌, 耗时${verifyTime.formatted}`,
+      );
 
       // 验证结果
       expect(tokens.length).toBe(tokenCount);
-      expect(verifiedTokens.filter(v => v !== null)).toHaveLength(tokenCount);
+      expect(verifiedTokens.filter((v) => v !== null)).toHaveLength(tokenCount);
       expect(generateTime.duration).toBeLessThan(1000); // 1000ms内完成
       expect(verifyTime.duration).toBeLessThan(1500); // 1500ms内完成
 
@@ -512,31 +566,37 @@ describe('核心模块性能测试', () => {
       // 并发执行认证流程
       for (let i = 0; i < concurrentUsers; i++) {
         authPromises.push(
-          new Promise(resolve => {
+          new Promise((resolve) => {
             setTimeout(() => {
               // 生成令牌
-              const token = jwt.generateToken({
-                userId: i + 1,
-                username: `user${i + 1}`,
-                role: 'user'
-              }, 'perf-key', { expiresIn: 3600 });
+              const token = jwt.generateToken(
+                {
+                  userId: i + 1,
+                  username: `user${i + 1}`,
+                  role: 'user',
+                },
+                'perf-key',
+                { expiresIn: 3600 },
+              );
 
               // 验证令牌
               const verified = jwt.verifyToken(token, 'perf-key');
               resolve({ token, verified });
             }, Math.random() * 50); // 随机延迟模拟真实场景
-          })
+          }),
         );
       }
 
       const results = await Promise.all(authPromises);
       const perfResult = global.performanceMonitor.end(startTime);
 
-      console.log(`并发认证性能: ${concurrentUsers}用户, 耗时${perfResult.formatted}`);
+      console.log(
+        `并发认证性能: ${concurrentUsers}用户, 耗时${perfResult.formatted}`,
+      );
 
       // 验证结果
       expect(results.length).toBe(concurrentUsers);
-      expect(results.every(r => r.verified && r.token)).toBe(true);
+      expect(results.every((r) => r.verified && r.token)).toBe(true);
       expect(perfResult.duration).toBeLessThan(500); // 500ms内完成
 
       // 验证统计信息
@@ -552,7 +612,7 @@ describe('核心模块性能测试', () => {
         httpRequests: 200,
         stateUpdates: 1000,
         jwtTokens: 100,
-        dataProcessing: 10000
+        dataProcessing: 10000,
       };
 
       const startTime = global.performanceMonitor.start();
@@ -562,33 +622,40 @@ describe('核心模块性能测试', () => {
       const msgPromises = [];
       for (let i = 0; i < workload.messages; i++) {
         msgPromises.push(
-          messaging.publish('perf.load', JSON.stringify({ id: i, data: `msg${i}` }), connection.id)
+          messaging.publish(
+            'perf.load',
+            JSON.stringify({ id: i, data: `msg${i}` }),
+            connection.id,
+          ),
         );
       }
 
       // 2. HTTP请求负载
-      const httpInstance = http.create({ baseURL: 'https://api.workflow.local', testMode: true });
+      const httpInstance = http.create({
+        baseURL: 'https://api.workflow.local',
+        testMode: true,
+      });
       const httpPromises = [];
       for (let i = 0; i < workload.httpRequests; i++) {
         httpPromises.push(
           httpInstance.request({
             method: 'GET',
-            url: `/api/load/${i}`
-          })
+            url: `/api/load/${i}`,
+          }),
         );
       }
 
       // 3. 状态更新负载
       const store = state.create((set) => ({
         counter: 0,
-        increment: () => set(state => ({ counter: state.counter + 1 }))
+        increment: () => set((state) => ({ counter: state.counter + 1 })),
       }));
 
       // 4. JWT令牌负载
       const jwtPromises = [];
       for (let i = 0; i < workload.jwtTokens; i++) {
         jwtPromises.push(
-          Promise.resolve(jwt.generateToken({ id: i }, 'perf-key'))
+          Promise.resolve(jwt.generateToken({ id: i }, 'perf-key')),
         );
       }
 
@@ -596,15 +663,11 @@ describe('核心模块性能测试', () => {
       const data = Array.from({ length: workload.dataProcessing }, (_, i) => ({
         id: i,
         value: Math.random(),
-        category: `cat${i % 10}`
+        category: `cat${i % 10}`,
       }));
 
       // 执行所有负载
-      await Promise.all([
-        ...msgPromises,
-        ...httpPromises,
-        ...jwtPromises
-      ]);
+      await Promise.all([...msgPromises, ...httpPromises, ...jwtPromises]);
 
       // 执行状态更新和数据处理
       for (let i = 0; i < workload.stateUpdates; i++) {
@@ -615,7 +678,9 @@ describe('核心模块性能测试', () => {
 
       const perfResult = global.performanceMonitor.end(startTime);
 
-      console.log(`综合负载性能: 消息${workload.messages}, HTTP${workload.httpRequests}, 状态${workload.stateUpdates}, JWT${workload.jwtTokens}, 数据${workload.dataProcessing}`);
+      console.log(
+        `综合负载性能: 消息${workload.messages}, HTTP${workload.httpRequests}, 状态${workload.stateUpdates}, JWT${workload.jwtTokens}, 数据${workload.dataProcessing}`,
+      );
       console.log(`总耗时: ${perfResult.formatted}`);
 
       // 验证结果
@@ -630,7 +695,9 @@ describe('核心模块性能测试', () => {
 
       // 验证内存使用
       const memoryUsage = process.memoryUsage();
-      console.log(`综合负载内存使用: RSS=${(memoryUsage.rss / 1024 / 1024).toFixed(2)}MB, Heap=${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `综合负载内存使用: RSS=${(memoryUsage.rss / 1024 / 1024).toFixed(2)}MB, Heap=${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`,
+      );
 
       expect(memoryUsage.heapUsed / 1024 / 1024).toBeLessThan(100); // 内存使用不超过100MB
     });

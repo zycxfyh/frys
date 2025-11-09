@@ -5,12 +5,14 @@
 **构建丰富、实用的第三方集成示例，展示frys工作流系统与主流工具和平台的无缝集成能力，降低用户集成门槛，加速业务流程自动化。**
 
 ### 核心价值
+
 - **即插即用**：开箱可用的集成模板
 - **场景覆盖**：覆盖主流业务场景
 - **最佳实践**：集成行业标准和优化方案
 - **快速验证**：快速验证集成效果和价值
 
 ### 成功标准
+
 - 集成示例覆盖率>70% (主流工具)
 - 示例部署成功率>95%
 - 用户集成时间减少60%
@@ -23,12 +25,15 @@
 ### 1.5.3.1 集成框架设计 (2周)
 
 #### 目标
+
 设计标准化、可扩展的集成框架。
 
 #### 具体任务
 
 **1.5.3.1.1 集成适配器架构**
+
 - **适配器设计模式**：
+
   ```typescript
   interface IntegrationAdapter {
     readonly name: string;
@@ -45,7 +50,9 @@
     // 核心功能
     executeAction(action: string, params: any): Promise<ExecutionResult>;
     getData(query: DataQuery): Promise<DataResult>;
-    subscribeToEvents(config: EventSubscriptionConfig): Promise<EventSubscription>;
+    subscribeToEvents(
+      config: EventSubscriptionConfig,
+    ): Promise<EventSubscription>;
     unsubscribeFromEvents(subscriptionId: string): Promise<void>;
   }
 
@@ -59,7 +66,7 @@
     COMMUNICATION = 'communication',
     PAYMENT = 'payment',
     ANALYTICS = 'analytics',
-    CUSTOM = 'custom'
+    CUSTOM = 'custom',
   }
 
   interface IntegrationCapability {
@@ -76,25 +83,33 @@
     BASIC_AUTH = 'basic_auth',
     JWT = 'jwt',
     CERTIFICATE = 'certificate',
-    NONE = 'none'
+    NONE = 'none',
   }
   ```
 
 **1.5.3.1.2 集成配置管理系统**
+
 - **配置管理**：
+
   ```typescript
   class IntegrationConfigManager {
     private configs: Map<string, IntegrationConfig> = new Map();
     private validators: Map<string, ConfigValidator> = new Map();
     private encryptor: DataEncryptor;
 
-    async saveConfig(integrationId: string, config: IntegrationConfig): Promise<void> {
+    async saveConfig(
+      integrationId: string,
+      config: IntegrationConfig,
+    ): Promise<void> {
       // 验证配置
       const validator = this.validators.get(config.type);
       if (validator) {
         const validationResult = await validator.validate(config);
         if (!validationResult.isValid) {
-          throw new ValidationError('Configuration validation failed', validationResult.errors);
+          throw new ValidationError(
+            'Configuration validation failed',
+            validationResult.errors,
+          );
         }
       }
 
@@ -111,14 +126,18 @@
     async getConfig(integrationId: string): Promise<IntegrationConfig> {
       const encryptedConfig = this.configs.get(integrationId);
       if (!encryptedConfig) {
-        throw new NotFoundError(`Integration config not found: ${integrationId}`);
+        throw new NotFoundError(
+          `Integration config not found: ${integrationId}`,
+        );
       }
 
       // 解密敏感数据
       return await this.decryptSensitiveData(encryptedConfig);
     }
 
-    private async encryptSensitiveData(config: IntegrationConfig): Promise<IntegrationConfig> {
+    private async encryptSensitiveData(
+      config: IntegrationConfig,
+    ): Promise<IntegrationConfig> {
       const encrypted = { ...config };
 
       // 递归加密敏感字段
@@ -127,7 +146,11 @@
       return encrypted;
     }
 
-    private async traverseAndEncrypt(obj: any, schema: JSONSchema, path: string = ''): Promise<void> {
+    private async traverseAndEncrypt(
+      obj: any,
+      schema: JSONSchema,
+      path: string = '',
+    ): Promise<void> {
       if (!obj || typeof obj !== 'object') return;
 
       for (const [key, value] of Object.entries(obj)) {
@@ -151,13 +174,13 @@
         return {
           success: true,
           responseTime: result.responseTime,
-          details: result.details
+          details: result.details,
         };
       } catch (error) {
         return {
           success: false,
           error: error.message,
-          details: error.details
+          details: error.details,
         };
       }
     }
@@ -165,27 +188,40 @@
   ```
 
 **1.5.3.1.3 集成模板系统**
+
 - **模板生成器**：
+
   ```typescript
   class IntegrationTemplateGenerator {
     private templates: Map<string, IntegrationTemplate> = new Map();
 
-    async generateTemplate(integrationType: string, scenario: IntegrationScenario): Promise<WorkflowTemplate> {
+    async generateTemplate(
+      integrationType: string,
+      scenario: IntegrationScenario,
+    ): Promise<WorkflowTemplate> {
       const template = this.templates.get(integrationType);
       if (!template) {
-        throw new Error(`Template not found for integration type: ${integrationType}`);
+        throw new Error(
+          `Template not found for integration type: ${integrationType}`,
+        );
       }
 
       // 自定义模板以适应具体场景
       return await this.customizeTemplate(template, scenario);
     }
 
-    private async customizeTemplate(template: IntegrationTemplate, scenario: IntegrationScenario): Promise<WorkflowTemplate> {
+    private async customizeTemplate(
+      template: IntegrationTemplate,
+      scenario: IntegrationScenario,
+    ): Promise<WorkflowTemplate> {
       const customized: WorkflowTemplate = {
         name: this.interpolateString(template.name, scenario.variables),
-        description: this.interpolateString(template.description, scenario.variables),
+        description: this.interpolateString(
+          template.description,
+          scenario.variables,
+        ),
         nodes: [],
-        connections: []
+        connections: [],
       };
 
       // 自定义节点
@@ -195,7 +231,10 @@
       }
 
       // 生成连接
-      customized.connections = this.generateConnections(template.connectionPattern, customized.nodes);
+      customized.connections = this.generateConnections(
+        template.connectionPattern,
+        customized.nodes,
+      );
 
       // 添加场景特定的节点
       const scenarioNodes = await this.addScenarioSpecificNodes(scenario);
@@ -204,17 +243,23 @@
       return customized;
     }
 
-    private async customizeNode(nodeTemplate: NodeTemplate, scenario: IntegrationScenario): Promise<WorkflowNode> {
+    private async customizeNode(
+      nodeTemplate: NodeTemplate,
+      scenario: IntegrationScenario,
+    ): Promise<WorkflowNode> {
       return {
         id: generateNodeId(),
         type: nodeTemplate.type,
         name: this.interpolateString(nodeTemplate.name, scenario.variables),
         config: await this.customizeNodeConfig(nodeTemplate.config, scenario),
-        position: nodeTemplate.position
+        position: nodeTemplate.position,
       };
     }
 
-    private async customizeNodeConfig(config: any, scenario: IntegrationScenario): Promise<any> {
+    private async customizeNodeConfig(
+      config: any,
+      scenario: IntegrationScenario,
+    ): Promise<any> {
       const customized = { ...config };
 
       // 替换变量
@@ -228,7 +273,10 @@
       return customized;
     }
 
-    private interpolateString(template: string, variables: Record<string, any>): string {
+    private interpolateString(
+      template: string,
+      variables: Record<string, any>,
+    ): string {
       return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
         const value = variables[key];
         return value !== undefined ? String(value) : match;
@@ -248,6 +296,7 @@
   ```
 
 #### 验收标准
+
 - ✅ 集成适配器架构完整可扩展
 - ✅ 配置管理系统安全可靠
 - ✅ 模板生成器自动化程度高
@@ -258,76 +307,79 @@
 ### 1.5.3.2 核心集成示例开发 (4周)
 
 #### 目标
+
 开发覆盖主流场景的核心集成示例。
 
 #### 具体任务
 
 **1.5.3.2.1 数据库集成示例**
+
 - **PostgreSQL集成**：
+
   ```yaml
   integration:
-    name: "PostgreSQL 数据库集成"
-    type: "database"
-    description: "与 PostgreSQL 数据库的完整集成示例"
-    version: "1.0.0"
+    name: 'PostgreSQL 数据库集成'
+    type: 'database'
+    description: '与 PostgreSQL 数据库的完整集成示例'
+    version: '1.0.0'
 
   configuration:
-    host: "${DB_HOST}"
-    port: "${DB_PORT:-5432}"
-    database: "${DB_NAME}"
-    username: "${DB_USER}"
-    password: "${DB_PASSWORD}"
-    ssl: "${DB_SSL:-false}"
+    host: '${DB_HOST}'
+    port: '${DB_PORT:-5432}'
+    database: '${DB_NAME}'
+    username: '${DB_USER}'
+    password: '${DB_PASSWORD}'
+    ssl: '${DB_SSL:-false}'
     connectionPool:
       min: 2
       max: 10
       idleTimeoutMillis: 30000
 
   capabilities:
-    - name: "query"
-      description: "执行 SQL 查询"
+    - name: 'query'
+      description: '执行 SQL 查询'
       input:
         type: object
         properties:
           sql:
             type: string
-            description: "SQL 查询语句"
+            description: 'SQL 查询语句'
           parameters:
             type: array
-            description: "查询参数"
+            description: '查询参数'
           timeout:
             type: number
-            description: "查询超时时间 (毫秒)"
+            description: '查询超时时间 (毫秒)'
             default: 30000
 
-    - name: "insert"
-      description: "插入数据"
+    - name: 'insert'
+      description: '插入数据'
       input:
         type: object
         properties:
           table:
             type: string
-            description: "目标表名"
+            description: '目标表名'
           data:
             type: array
-            description: "要插入的数据"
+            description: '要插入的数据'
           onConflict:
             type: object
-            description: "冲突处理策略"
+            description: '冲突处理策略'
 
-  example_workflow: "数据库同步流程"
+  example_workflow: '数据库同步流程'
   workflow_template:
-    name: "数据库数据同步"
-    description: "定期从源数据库同步数据到目标数据库"
+    name: '数据库数据同步'
+    description: '定期从源数据库同步数据到目标数据库'
     triggers:
-      - type: "schedule"
-        cron: "0 */6 * * *"  # 每6小时执行
+      - type: 'schedule'
+        cron: '0 */6 * * *' # 每6小时执行
     nodes:
-      - id: "source_query"
-        type: "postgresql_query"
-        name: "查询源数据"
+      - id: 'source_query'
+        type: 'postgresql_query'
+        name: '查询源数据'
         config:
-          connection: "source_db"
+          connection: 'source_db'
           sql: |
             SELECT * FROM users
             WHERE updated_at > (
@@ -337,338 +389,343 @@
             )
           parameters: []
 
-      - id: "transform_data"
-        type: "data_transform"
-        name: "转换数据格式"
+      - id: 'transform_data'
+        type: 'data_transform'
+        name: '转换数据格式'
         config:
           mappings:
-            - source: "full_name"
-              target: "display_name"
-              transform: "split_and_join"
-              params: { separator: " ", joinWith: " " }
-            - source: "birth_date"
-              target: "age"
-              transform: "calculate_age"
-            - source: "country_code"
-              target: "region"
-              transform: "country_to_region"
+            - source: 'full_name'
+              target: 'display_name'
+              transform: 'split_and_join'
+              params: { separator: ' ', joinWith: ' ' }
+            - source: 'birth_date'
+              target: 'age'
+              transform: 'calculate_age'
+            - source: 'country_code'
+              target: 'region'
+              transform: 'country_to_region'
 
-      - id: "target_insert"
-        type: "postgresql_insert"
-        name: "插入目标数据库"
+      - id: 'target_insert'
+        type: 'postgresql_insert'
+        name: '插入目标数据库'
         config:
-          connection: "target_db"
-          table: "user_dimensions"
-          data: "{{transform_data.output}}"
+          connection: 'target_db'
+          table: 'user_dimensions'
+          data: '{{transform_data.output}}'
           onConflict:
-            action: "update"
-            conflictFields: ["user_id"]
+            action: 'update'
+            conflictFields: ['user_id']
 
-      - id: "update_sync_metadata"
-        type: "postgresql_query"
-        name: "更新同步元数据"
+      - id: 'update_sync_metadata'
+        type: 'postgresql_query'
+        name: '更新同步元数据'
         config:
-          connection: "target_db"
-          sql: "INSERT INTO sync_metadata (table_name, last_sync) VALUES (?, NOW()) ON CONFLICT (table_name) DO UPDATE SET last_sync = EXCLUDED.last_sync"
-          parameters: ["users"]
+          connection: 'target_db'
+          sql: 'INSERT INTO sync_metadata (table_name, last_sync) VALUES (?, NOW()) ON CONFLICT (table_name) DO UPDATE SET last_sync = EXCLUDED.last_sync'
+          parameters: ['users']
   ```
 
 **1.5.3.2.2 API集成示例**
+
 - **REST API集成**：
+
   ```yaml
   integration:
-    name: "REST API 集成"
-    type: "api"
-    description: "与 REST API 的通用集成示例"
-    version: "1.0.0"
+    name: 'REST API 集成'
+    type: 'api'
+    description: '与 REST API 的通用集成示例'
+    version: '1.0.0'
 
   configuration:
-    baseUrl: "${API_BASE_URL}"
-    timeout: "${API_TIMEOUT:-30000}"
-    retries: "${API_RETRIES:-3}"
+    baseUrl: '${API_BASE_URL}'
+    timeout: '${API_TIMEOUT:-30000}'
+    retries: '${API_RETRIES:-3}'
     authentication:
-      type: "${API_AUTH_TYPE:-api_key}"  # api_key, oauth2, basic, jwt
-      apiKey: "${API_KEY}"
-      username: "${API_USERNAME}"
-      password: "${API_PASSWORD}"
-      tokenUrl: "${OAUTH_TOKEN_URL}"
-      clientId: "${OAUTH_CLIENT_ID}"
-      clientSecret: "${OAUTH_CLIENT_SECRET}"
+      type: '${API_AUTH_TYPE:-api_key}' # api_key, oauth2, basic, jwt
+      apiKey: '${API_KEY}'
+      username: '${API_USERNAME}'
+      password: '${API_PASSWORD}'
+      tokenUrl: '${OAUTH_TOKEN_URL}'
+      clientId: '${OAUTH_CLIENT_ID}'
+      clientSecret: '${OAUTH_CLIENT_SECRET}'
 
   capabilities:
-    - name: "http_request"
-      description: "发送 HTTP 请求"
+    - name: 'http_request'
+      description: '发送 HTTP 请求'
       input:
         type: object
         properties:
           method:
             type: string
-            enum: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+            enum: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
           path:
             type: string
-            description: "API 路径"
+            description: 'API 路径'
           headers:
             type: object
-            description: "请求头"
+            description: '请求头'
           body:
-            description: "请求体"
+            description: '请求体'
           query:
             type: object
-            description: "查询参数"
+            description: '查询参数'
 
-    - name: "webhook_handler"
-      description: "处理 Webhook 请求"
+    - name: 'webhook_handler'
+      description: '处理 Webhook 请求'
       input:
         type: object
         properties:
           path:
             type: string
-            description: "Webhook 路径"
+            description: 'Webhook 路径'
           method:
             type: string
-            enum: ["POST", "PUT"]
+            enum: ['POST', 'PUT']
           validation:
             type: object
-            description: "请求验证配置"
+            description: '请求验证配置'
 
-  example_workflow: "API 数据同步"
+  example_workflow: 'API 数据同步'
   workflow_template:
-    name: "API 数据同步工作流"
-    description: "从第三方 API 获取数据并处理"
+    name: 'API 数据同步工作流'
+    description: '从第三方 API 获取数据并处理'
     triggers:
-      - type: "webhook"
-        path: "/webhooks/api-sync"
-        method: "POST"
+      - type: 'webhook'
+        path: '/webhooks/api-sync'
+        method: 'POST'
     nodes:
-      - id: "parse_webhook"
-        type: "json_parse"
-        name: "解析 Webhook 数据"
+      - id: 'parse_webhook'
+        type: 'json_parse'
+        name: '解析 Webhook 数据'
         config:
-          input: "{{webhook.body}}"
+          input: '{{webhook.body}}'
 
-      - id: "validate_request"
-        type: "data_validate"
-        name: "验证请求数据"
+      - id: 'validate_request'
+        type: 'data_validate'
+        name: '验证请求数据'
         config:
           schema:
             type: object
-            required: ["action", "data"]
+            required: ['action', 'data']
             properties:
               action:
                 type: string
-                enum: ["sync", "update", "delete"]
+                enum: ['sync', 'update', 'delete']
               data:
                 type: object
 
-      - id: "api_request"
-        type: "http_request"
-        name: "调用目标 API"
+      - id: 'api_request'
+        type: 'http_request'
+        name: '调用目标 API'
         config:
-          method: "POST"
-          url: "{{integrations.target_api.baseUrl}}/sync"
+          method: 'POST'
+          url: '{{integrations.target_api.baseUrl}}/sync'
           headers:
-            "Content-Type": "application/json"
-            "Authorization": "Bearer {{integrations.target_api.apiKey}}"
-          body: "{{validate_request.output.data}}"
+            'Content-Type': 'application/json'
+            'Authorization': 'Bearer {{integrations.target_api.apiKey}}'
+          body: '{{validate_request.output.data}}'
 
-      - id: "handle_response"
-        type: "condition_branch"
-        name: "处理 API 响应"
+      - id: 'handle_response'
+        type: 'condition_branch'
+        name: '处理 API 响应'
         config:
           conditions:
-            - expression: "{{api_request.output.status}} >= 200 and {{api_request.output.status}} < 300"
-              nextNode: "process_success"
-            - expression: "{{api_request.output.status}} >= 400 and {{api_request.output.status}} < 500"
-              nextNode: "handle_client_error"
-            - expression: "{{api_request.output.status}} >= 500"
-              nextNode: "handle_server_error"
+            - expression: '{{api_request.output.status}} >= 200 and {{api_request.output.status}} < 300'
+              nextNode: 'process_success'
+            - expression: '{{api_request.output.status}} >= 400 and {{api_request.output.status}} < 500'
+              nextNode: 'handle_client_error'
+            - expression: '{{api_request.output.status}} >= 500'
+              nextNode: 'handle_server_error'
 
-      - id: "process_success"
-        type: "data_transform"
-        name: "处理成功响应"
+      - id: 'process_success'
+        type: 'data_transform'
+        name: '处理成功响应'
         config:
-          input: "{{api_request.output.body}}"
+          input: '{{api_request.output.body}}'
           transformations:
-            - type: "add_field"
-              name: "sync_status"
-              value: "success"
-            - type: "add_field"
-              name: "sync_time"
-              value: "{{currentTimestamp()}}"
+            - type: 'add_field'
+              name: 'sync_status'
+              value: 'success'
+            - type: 'add_field'
+              name: 'sync_time'
+              value: '{{currentTimestamp()}}'
 
-      - id: "send_notification"
-        type: "email_send"
-        name: "发送同步通知"
+      - id: 'send_notification'
+        type: 'email_send'
+        name: '发送同步通知'
         config:
-          to: "{{parse_webhook.output.notification_email}}"
-          subject: "数据同步完成"
-          template: "sync_completed"
+          to: '{{parse_webhook.output.notification_email}}'
+          subject: '数据同步完成'
+          template: 'sync_completed'
           variables:
-            recordCount: "{{process_success.output.count}}"
-            syncTime: "{{process_success.output.sync_time}}"
+            recordCount: '{{process_success.output.count}}'
+            syncTime: '{{process_success.output.sync_time}}'
   ```
 
 **1.5.3.2.3 消息队列集成示例**
+
 - **Apache Kafka集成**：
+
   ```yaml
   integration:
-    name: "Apache Kafka 集成"
-    type: "message_queue"
-    description: "与 Apache Kafka 消息队列的集成示例"
-    version: "1.0.0"
+    name: 'Apache Kafka 集成'
+    type: 'message_queue'
+    description: '与 Apache Kafka 消息队列的集成示例'
+    version: '1.0.0'
 
   configuration:
-    brokers: "${KAFKA_BROKERS}"  # 逗号分隔的 broker 列表
-    clientId: "${KAFKA_CLIENT_ID:-frys-integration}"
-    groupId: "${KAFKA_GROUP_ID:-frys-group}"
+    brokers: '${KAFKA_BROKERS}' # 逗号分隔的 broker 列表
+    clientId: '${KAFKA_CLIENT_ID:-frys-integration}'
+    groupId: '${KAFKA_GROUP_ID:-frys-group}'
     ssl:
-      enabled: "${KAFKA_SSL_ENABLED:-false}"
-      ca: "${KAFKA_SSL_CA}"
-      cert: "${KAFKA_SSL_CERT}"
-      key: "${KAFKA_SSL_KEY}"
+      enabled: '${KAFKA_SSL_ENABLED:-false}'
+      ca: '${KAFKA_SSL_CA}'
+      cert: '${KAFKA_SSL_CERT}'
+      key: '${KAFKA_SSL_KEY}'
     sasl:
-      mechanism: "${KAFKA_SASL_MECHANISM}"
-      username: "${KAFKA_SASL_USERNAME}"
-      password: "${KAFKA_SASL_PASSWORD}"
+      mechanism: '${KAFKA_SASL_MECHANISM}'
+      username: '${KAFKA_SASL_USERNAME}'
+      password: '${KAFKA_SASL_PASSWORD}'
 
   capabilities:
-    - name: "publish_message"
-      description: "发布消息到 Kafka 主题"
+    - name: 'publish_message'
+      description: '发布消息到 Kafka 主题'
       input:
         type: object
         properties:
           topic:
             type: string
-            description: "目标主题"
+            description: '目标主题'
           key:
-            description: "消息键"
+            description: '消息键'
           value:
-            description: "消息值"
+            description: '消息值'
           headers:
             type: object
-            description: "消息头"
+            description: '消息头'
           partition:
             type: number
-            description: "指定分区"
+            description: '指定分区'
 
-    - name: "consume_messages"
-      description: "从 Kafka 主题消费消息"
+    - name: 'consume_messages'
+      description: '从 Kafka 主题消费消息'
       input:
         type: object
         properties:
           topics:
             type: array
             items: { type: string }
-            description: "要订阅的主题列表"
+            description: '要订阅的主题列表'
           fromBeginning:
             type: boolean
-            description: "是否从头开始消费"
+            description: '是否从头开始消费'
           autoCommit:
             type: boolean
-            description: "是否自动提交偏移量"
+            description: '是否自动提交偏移量'
 
-  example_workflow: "实时数据处理管道"
+  example_workflow: '实时数据处理管道'
   workflow_template:
-    name: "Kafka 数据处理管道"
-    description: "从 Kafka 消费数据，处理后发布到另一个主题"
+    name: 'Kafka 数据处理管道'
+    description: '从 Kafka 消费数据，处理后发布到另一个主题'
     triggers:
-      - type: "kafka_consumer"
-        topics: ["user-events", "order-events"]
-        groupId: "data-processing-group"
+      - type: 'kafka_consumer'
+        topics: ['user-events', 'order-events']
+        groupId: 'data-processing-group'
     nodes:
-      - id: "parse_message"
-        type: "json_parse"
-        name: "解析消息内容"
+      - id: 'parse_message'
+        type: 'json_parse'
+        name: '解析消息内容'
         config:
-          input: "{{kafka_message.value}}"
+          input: '{{kafka_message.value}}'
 
-      - id: "enrich_data"
-        type: "data_enrich"
-        name: "数据丰富"
+      - id: 'enrich_data'
+        type: 'data_enrich'
+        name: '数据丰富'
         config:
           enrichments:
-            - type: "lookup"
-              source: "user_profile"
-              key: "{{parse_message.output.userId}}"
-              fields: ["name", "email", "segment"]
-            - type: "lookup"
-              source: "product_catalog"
-              key: "{{parse_message.output.productId}}"
-              fields: ["category", "price"]
+            - type: 'lookup'
+              source: 'user_profile'
+              key: '{{parse_message.output.userId}}'
+              fields: ['name', 'email', 'segment']
+            - type: 'lookup'
+              source: 'product_catalog'
+              key: '{{parse_message.output.productId}}'
+              fields: ['category', 'price']
 
-      - id: "apply_rules"
-        type: "rule_engine"
-        name: "应用业务规则"
+      - id: 'apply_rules'
+        type: 'rule_engine'
+        name: '应用业务规则'
         config:
           rules:
             - condition: "{{enrich_data.output.userSegment}} == 'premium'"
               actions:
-                - type: "set_field"
-                  field: "priority"
-                  value: "high"
-                - type: "set_field"
-                  field: "sla_hours"
+                - type: 'set_field'
+                  field: 'priority'
+                  value: 'high'
+                - type: 'set_field'
+                  field: 'sla_hours'
                   value: 2
             - condition: "{{parse_message.output.eventType}} == 'purchase'"
               actions:
-                - type: "set_field"
-                  field: "category"
-                  value: "sales"
-                - type: "calculate"
-                  field: "revenue_impact"
-                  expression: "{{enrich_data.output.price}} * {{parse_message.output.quantity}}"
+                - type: 'set_field'
+                  field: 'category'
+                  value: 'sales'
+                - type: 'calculate'
+                  field: 'revenue_impact'
+                  expression: '{{enrich_data.output.price}} * {{parse_message.output.quantity}}'
 
-      - id: "filter_messages"
-        type: "condition_filter"
-        name: "过滤消息"
+      - id: 'filter_messages'
+        type: 'condition_filter'
+        name: '过滤消息'
         config:
           conditions:
-            - "{{apply_rules.output.revenue_impact}} > 1000"
+            - '{{apply_rules.output.revenue_impact}} > 1000'
             - "{{parse_message.output.eventType}} in ['purchase', 'refund']"
 
-      - id: "transform_output"
-        type: "data_transform"
-        name: "转换输出格式"
+      - id: 'transform_output'
+        type: 'data_transform'
+        name: '转换输出格式'
         config:
-          outputFormat: "json"
+          outputFormat: 'json'
           mappings:
-            - source: "eventId"
-              target: "id"
-            - source: "eventType"
-              target: "type"
-            - source: "enrich_data.output"
-              target: "context"
-            - source: "apply_rules.output"
-              target: "analysis"
-            - source: "currentTimestamp()"
-              target: "processed_at"
+            - source: 'eventId'
+              target: 'id'
+            - source: 'eventType'
+              target: 'type'
+            - source: 'enrich_data.output'
+              target: 'context'
+            - source: 'apply_rules.output'
+              target: 'analysis'
+            - source: 'currentTimestamp()'
+              target: 'processed_at'
 
-      - id: "publish_result"
-        type: "kafka_publish"
-        name: "发布处理结果"
+      - id: 'publish_result'
+        type: 'kafka_publish'
+        name: '发布处理结果'
         config:
-          topic: "processed-events"
-          key: "{{transform_output.output.id}}"
-          value: "{{transform_output.output}}"
+          topic: 'processed-events'
+          key: '{{transform_output.output.id}}'
+          value: '{{transform_output.output}}'
           headers:
-            source: "frys-workflow"
-            version: "1.0.0"
+            source: 'frys-workflow'
+            version: '1.0.0'
 
-      - id: "handle_errors"
-        type: "error_handler"
-        name: "错误处理"
+      - id: 'handle_errors'
+        type: 'error_handler'
+        name: '错误处理'
         config:
-          onError: "log_and_continue"
+          onError: 'log_and_continue'
           retry:
             count: 3
             delay: 1000
-            backoff: "exponential"
+            backoff: 'exponential'
           fallback:
-            topic: "error-events"
-            message: "{{error.message}}"
+            topic: 'error-events'
+            message: '{{error.message}}'
   ```
 
 #### 验收标准
+
 - ✅ 核心集成场景覆盖率>70%
 - ✅ 集成示例功能完整可用
 - ✅ 示例配置简单明了
@@ -679,12 +736,15 @@
 ### 1.5.3.3 集成文档和测试平台 (2周)
 
 #### 目标
+
 构建集成示例的展示和测试平台。
 
 #### 具体任务
 
 **1.5.3.3.1 集成示例库**
+
 - **示例浏览器**：
+
   ```typescript
   interface IntegrationExampleBrowserProps {
     category?: IntegrationCategory;
@@ -823,23 +883,34 @@
   ```
 
 **1.5.3.3.2 在线测试环境**
+
 - **交互式测试平台**：
+
   ```typescript
   class IntegrationTestEnvironment {
     private containers: Map<string, ContainerInstance> = new Map();
     private networks: Map<string, NetworkInstance> = new Map();
 
-    async createTestEnvironment(example: IntegrationExample): Promise<TestEnvironment> {
+    async createTestEnvironment(
+      example: IntegrationExample,
+    ): Promise<TestEnvironment> {
       const environmentId = generateEnvironmentId();
 
       // 创建网络
       const network = await this.createNetwork(environmentId);
 
       // 启动 frys 容器
-      const frysContainer = await this.startFrysContainer(environmentId, network);
+      const frysContainer = await this.startFrysContainer(
+        environmentId,
+        network,
+      );
 
       // 启动集成服务容器
-      const integrationContainers = await this.startIntegrationContainers(example, environmentId, network);
+      const integrationContainers = await this.startIntegrationContainers(
+        example,
+        environmentId,
+        network,
+      );
 
       // 配置集成
       await this.configureIntegrations(example, frysContainer);
@@ -852,11 +923,13 @@
         frysUrl: `http://localhost:${frysContainer.port}`,
         status: 'running',
         expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2小时后过期
-        containers: [frysContainer, ...integrationContainers]
+        containers: [frysContainer, ...integrationContainers],
       };
     }
 
-    private async createNetwork(environmentId: string): Promise<NetworkInstance> {
+    private async createNetwork(
+      environmentId: string,
+    ): Promise<NetworkInstance> {
       const networkName = `test_${environmentId}`;
 
       await execAsync(`docker network create ${networkName}`);
@@ -864,14 +937,17 @@
       const network: NetworkInstance = {
         id: networkName,
         name: networkName,
-        driver: 'bridge'
+        driver: 'bridge',
       };
 
       this.networks.set(environmentId, network);
       return network;
     }
 
-    private async startFrysContainer(environmentId: string, network: NetworkInstance): Promise<ContainerInstance> {
+    private async startFrysContainer(
+      environmentId: string,
+      network: NetworkInstance,
+    ): Promise<ContainerInstance> {
       const containerName = `frys_${environmentId}`;
       const port = await this.findAvailablePort(3000, 4000);
 
@@ -893,19 +969,23 @@
         name: containerName,
         image: 'frys/test:latest',
         port,
-        status: 'running'
+        status: 'running',
       };
     }
 
     private async startIntegrationContainers(
       example: IntegrationExample,
       environmentId: string,
-      network: NetworkInstance
+      network: NetworkInstance,
     ): Promise<ContainerInstance[]> {
       const containers: ContainerInstance[] = [];
 
       for (const integration of example.integrations) {
-        const container = await this.startIntegrationContainer(integration, environmentId, network);
+        const container = await this.startIntegrationContainer(
+          integration,
+          environmentId,
+          network,
+        );
         containers.push(container);
       }
 
@@ -915,7 +995,7 @@
     private async startIntegrationContainer(
       integration: string,
       environmentId: string,
-      network: NetworkInstance
+      network: NetworkInstance,
     ): Promise<ContainerInstance> {
       const containerName = `${integration}_${environmentId}`;
       const config = this.getIntegrationContainerConfig(integration);
@@ -924,8 +1004,8 @@
         docker run -d
         --name ${containerName}
         --network ${network.name}
-        ${config.ports ? config.ports.map(p => `-p ${p}`).join(' ') : ''}
-        ${config.environment ? config.environment.map(e => `-e ${e}`).join(' ') : ''}
+        ${config.ports ? config.ports.map((p) => `-p ${p}`).join(' ') : ''}
+        ${config.environment ? config.environment.map((e) => `-e ${e}`).join(' ') : ''}
         ${config.image}
       `);
 
@@ -939,11 +1019,14 @@
         name: containerName,
         image: config.image,
         port: config.ports?.[0]?.split(':')?.[0],
-        status: 'running'
+        status: 'running',
       };
     }
 
-    async runTestScenario(environment: TestEnvironment, scenario: TestScenario): Promise<TestResult> {
+    async runTestScenario(
+      environment: TestEnvironment,
+      scenario: TestScenario,
+    ): Promise<TestResult> {
       const frysClient = new FrysClient(environment.frysUrl);
 
       try {
@@ -953,21 +1036,23 @@
         }
 
         // 验证结果
-        const validationResults = await this.validateTestResults(scenario, frysClient);
+        const validationResults = await this.validateTestResults(
+          scenario,
+          frysClient,
+        );
 
         return {
-          success: validationResults.every(r => r.passed),
+          success: validationResults.every((r) => r.passed),
           duration: Date.now() - Date.now(), // 计算执行时间
           steps: scenario.steps.length,
-          validations: validationResults
+          validations: validationResults,
         };
-
       } catch (error) {
         return {
           success: false,
           error: error.message,
           duration: Date.now() - Date.now(),
-          steps: scenario.steps.length
+          steps: scenario.steps.length,
         };
       }
     }
@@ -991,12 +1076,17 @@
   ```
 
 **1.5.3.3.3 集成监控和分析**
+
 - **使用情况统计**：
+
   ```typescript
   class IntegrationAnalytics {
     private usageStore: UsageDataStore;
 
-    async trackIntegrationUsage(integrationId: string, event: IntegrationUsageEvent): Promise<void> {
+    async trackIntegrationUsage(
+      integrationId: string,
+      event: IntegrationUsageEvent,
+    ): Promise<void> {
       const usageRecord = {
         integrationId,
         eventType: event.type,
@@ -1006,7 +1096,7 @@
         metadata: event.metadata,
         duration: event.duration,
         success: event.success,
-        error: event.error
+        error: event.error,
       };
 
       await this.usageStore.save(usageRecord);
@@ -1015,31 +1105,38 @@
       await this.updateIntegrationStats(integrationId, usageRecord);
     }
 
-    async getIntegrationStats(integrationId: string, timeRange: TimeRange): Promise<IntegrationStats> {
+    async getIntegrationStats(
+      integrationId: string,
+      timeRange: TimeRange,
+    ): Promise<IntegrationStats> {
       const usages = await this.usageStore.getUsages(integrationId, timeRange);
 
       return {
         totalUsages: usages.length,
-        successfulUsages: usages.filter(u => u.success).length,
-        failedUsages: usages.filter(u => !u.success).length,
+        successfulUsages: usages.filter((u) => u.success).length,
+        failedUsages: usages.filter((u) => !u.success).length,
         averageDuration: this.calculateAverageDuration(usages),
-        errorRate: usages.filter(u => !u.success).length / usages.length,
+        errorRate: usages.filter((u) => !u.success).length / usages.length,
         usageByWorkflow: this.groupByWorkflow(usages),
         usageByUser: this.groupByUser(usages),
         usageTrend: this.calculateUsageTrend(usages, timeRange),
-        topErrors: this.getTopErrors(usages)
+        topErrors: this.getTopErrors(usages),
       };
     }
 
-    async getIntegrationHealth(integrationId: string): Promise<IntegrationHealth> {
+    async getIntegrationHealth(
+      integrationId: string,
+    ): Promise<IntegrationHealth> {
       const recentUsages = await this.usageStore.getUsages(integrationId, {
         start: new Date(Date.now() - 24 * 60 * 60 * 1000), // 过去24小时
-        end: new Date()
+        end: new Date(),
       });
 
       const totalRequests = recentUsages.length;
-      const failedRequests = recentUsages.filter(u => !u.success).length;
-      const averageResponseTime = this.calculateAverageDuration(recentUsages.filter(u => u.success));
+      const failedRequests = recentUsages.filter((u) => !u.success).length;
+      const averageResponseTime = this.calculateAverageDuration(
+        recentUsages.filter((u) => u.success),
+      );
 
       // 计算健康分数 (0-100)
       let healthScore = 100;
@@ -1062,9 +1159,9 @@
           totalRequests,
           failedRequests,
           averageResponseTime,
-          uptime: this.calculateUptime(recentUsages)
+          uptime: this.calculateUptime(recentUsages),
         },
-        issues: await this.identifyHealthIssues(recentUsages)
+        issues: await this.identifyHealthIssues(recentUsages),
       };
     }
 
@@ -1076,32 +1173,37 @@
       return 'critical';
     }
 
-    private async identifyHealthIssues(usages: UsageRecord[]): Promise<HealthIssue[]> {
+    private async identifyHealthIssues(
+      usages: UsageRecord[],
+    ): Promise<HealthIssue[]> {
       const issues: HealthIssue[] = [];
 
       // 检查错误模式
       const errorGroups = this.groupErrorsByType(usages);
       for (const [errorType, count] of errorGroups) {
-        if (count > usages.length * 0.1) { // 超过10%的请求失败
+        if (count > usages.length * 0.1) {
+          // 超过10%的请求失败
           issues.push({
             type: 'high_error_rate',
             severity: 'high',
             description: `错误类型 "${errorType}" 的失败率过高`,
             count,
-            percentage: (count / usages.length) * 100
+            percentage: (count / usages.length) * 100,
           });
         }
       }
 
       // 检查响应时间
-      const slowRequests = usages.filter(u => u.duration && u.duration > 10000);
+      const slowRequests = usages.filter(
+        (u) => u.duration && u.duration > 10000,
+      );
       if (slowRequests.length > usages.length * 0.05) {
         issues.push({
           type: 'slow_response',
           severity: 'medium',
           description: '响应时间过长的请求过多',
           count: slowRequests.length,
-          percentage: (slowRequests.length / usages.length) * 100
+          percentage: (slowRequests.length / usages.length) * 100,
         });
       }
 
@@ -1111,6 +1213,7 @@
   ```
 
 #### 验收标准
+
 - ✅ 集成示例库功能完善
 - ✅ 在线测试环境稳定可用
 - ✅ 集成监控数据准确
@@ -1123,6 +1226,7 @@
 ### 架构设计
 
 #### 集成示例平台架构
+
 ```
 集成适配器注册表 → 适配器工厂 → 适配器实例 → 集成服务
     ↓              ↓            ↓          ↓
@@ -1138,17 +1242,27 @@ interface IntegrationManager {
   getAdapter(type: string): IntegrationAdapter;
   listAdapters(): IntegrationAdapter[];
   testConnection(integrationId: string): Promise<ConnectionTestResult>;
-  executeIntegration(integrationId: string, action: string, params: any): Promise<ExecutionResult>;
+  executeIntegration(
+    integrationId: string,
+    action: string,
+    params: any,
+  ): Promise<ExecutionResult>;
 }
 
 // 示例管理器接口
 interface ExampleManager {
   createExample(example: CreateExampleRequest): Promise<IntegrationExample>;
-  updateExample(id: string, updates: UpdateExampleRequest): Promise<IntegrationExample>;
+  updateExample(
+    id: string,
+    updates: UpdateExampleRequest,
+  ): Promise<IntegrationExample>;
   deleteExample(id: string): Promise<void>;
   getExample(id: string): Promise<IntegrationExample>;
   listExamples(filter?: ExampleFilter): Promise<IntegrationExample[]>;
-  deployExample(exampleId: string, environment: TestEnvironment): Promise<DeploymentResult>;
+  deployExample(
+    exampleId: string,
+    environment: TestEnvironment,
+  ): Promise<DeploymentResult>;
 }
 
 // 测试环境管理器接口
@@ -1156,7 +1270,10 @@ interface TestEnvironmentManager {
   createEnvironment(example: IntegrationExample): Promise<TestEnvironment>;
   getEnvironment(id: string): Promise<TestEnvironment>;
   listEnvironments(filter?: EnvironmentFilter): Promise<TestEnvironment[]>;
-  runTestScenario(environmentId: string, scenario: TestScenario): Promise<TestResult>;
+  runTestScenario(
+    environmentId: string,
+    scenario: TestScenario,
+  ): Promise<TestResult>;
   cleanupEnvironment(id: string): Promise<void>;
 }
 ```
@@ -1164,6 +1281,7 @@ interface TestEnvironmentManager {
 ### 集成适配器开发框架
 
 #### 适配器开发模板
+
 ```typescript
 abstract class BaseIntegrationAdapter implements IntegrationAdapter {
   abstract readonly name: string;
@@ -1188,7 +1306,7 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
       if (!this.getNestedValue(config, field)) {
         errors.push({
           field,
-          message: `字段 "${field}" 是必需的`
+          message: `字段 "${field}" 是必需的`,
         });
       }
     }
@@ -1199,11 +1317,13 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
-  async testConnection(config: IntegrationConfig): Promise<ConnectionTestResult> {
+  async testConnection(
+    config: IntegrationConfig,
+  ): Promise<ConnectionTestResult> {
     const startTime = Date.now();
 
     try {
@@ -1213,25 +1333,29 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
       return {
         success: true,
         responseTime: Date.now() - startTime,
-        message: '连接测试成功'
+        message: '连接测试成功',
       };
     } catch (error) {
       return {
         success: false,
         responseTime: Date.now() - startTime,
-        error: error.message
+        error: error.message,
       };
     }
   }
 
   async executeAction(action: string, params: any): Promise<ExecutionResult> {
-    const capability = this.capabilities.find(cap => cap.name === action);
+    const capability = this.capabilities.find((cap) => cap.name === action);
     if (!capability) {
       throw new Error(`不支持的操作: ${action}`);
     }
 
     // 验证输入参数
-    const validation = await this.validateActionInput(action, params, capability.inputSchema);
+    const validation = await this.validateActionInput(
+      action,
+      params,
+      capability.inputSchema,
+    );
     if (!validation.isValid) {
       throw new ValidationError('输入参数验证失败', validation.errors);
     }
@@ -1241,7 +1365,10 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
       const result = await this.performAction(action, params);
 
       // 验证输出
-      const outputValidation = await this.validateActionOutput(result, capability.outputSchema);
+      const outputValidation = await this.validateActionOutput(
+        result,
+        capability.outputSchema,
+      );
 
       return {
         success: true,
@@ -1250,8 +1377,8 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
           action,
           executionTime: Date.now(),
           inputValidation: validation,
-          outputValidation
-        }
+          outputValidation,
+        },
       };
     } catch (error) {
       return {
@@ -1259,8 +1386,8 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
         error: error.message,
         metadata: {
           action,
-          executionTime: Date.now()
-        }
+          executionTime: Date.now(),
+        },
       };
     }
   }
@@ -1268,8 +1395,12 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
   // 抽象方法，由具体适配器实现
   protected abstract setupClient(config: IntegrationConfig): Promise<void>;
   protected abstract getRequiredFields(): string[];
-  protected abstract validateFieldFormats(config: IntegrationConfig): Promise<ValidationError[]>;
-  protected abstract performConnectionTest(config: IntegrationConfig): Promise<void>;
+  protected abstract validateFieldFormats(
+    config: IntegrationConfig,
+  ): Promise<ValidationError[]>;
+  protected abstract performConnectionTest(
+    config: IntegrationConfig,
+  ): Promise<void>;
   protected abstract performAction(action: string, params: any): Promise<any>;
 
   // 工具方法
@@ -1277,7 +1408,11 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
     return path.split('.').reduce((current, key) => current?.[key], obj);
   }
 
-  protected async validateActionInput(action: string, params: any, schema: JSONSchema): Promise<ValidationResult> {
+  protected async validateActionInput(
+    action: string,
+    params: any,
+    schema: JSONSchema,
+  ): Promise<ValidationResult> {
     // 使用 JSON Schema 验证器验证输入
     const validator = new SchemaValidator(schema);
     return validator.validate(params);
@@ -1290,18 +1425,21 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
 ## 📅 时间安排
 
 ### Week 1-2: 集成框架设计
+
 - 集成适配器架构设计和实现
 - 集成配置管理系统开发
 - 集成模板系统构建
 - 基础测试和验证
 
 ### Week 3-6: 核心集成示例开发
+
 - 数据库集成示例开发
 - API集成示例实现
 - 消息队列集成示例构建
 - 其他集成示例扩展
 
 ### Week 7-8: 集成文档和测试平台
+
 - 集成示例库平台开发
 - 在线测试环境实现
 - 集成监控和分析系统
@@ -1312,24 +1450,28 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
 ## 🎯 验收标准
 
 ### 功能验收
+
 - [ ] 集成框架完整可扩展
 - [ ] 核心集成示例功能完整
 - [ ] 测试平台稳定可用
 - [ ] 文档和示例完善
 
 ### 性能验收
+
 - [ ] 集成响应时间<2秒
 - [ ] 测试环境启动时间<5分钟
 - [ ] 并发测试支持>50用户
 - [ ] 资源使用控制合理
 
 ### 质量验收
+
 - [ ] 集成成功率>95%
 - [ ] 示例代码可运行性>98%
 - [ ] 错误处理覆盖率>90%
 - [ ] 安全漏洞扫描通过
 
 ### 用户验收
+
 - [ ] 集成配置时间<10分钟
 - [ ] 用户满意度>4.5/5
 - [ ] 学习曲线<30分钟
@@ -1342,6 +1484,7 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
 ### 技术风险
 
 **1. 第三方服务兼容性问题**
+
 - **风险等级**：高
 - **影响**：集成无法正常工作，用户体验差
 - **应对策略**：
@@ -1351,6 +1494,7 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
   - 持续监控和更新适配器
 
 **2. 集成安全风险**
+
 - **风险等级**：高
 - **影响**：敏感数据泄露或安全漏洞
 - **应对策略**：
@@ -1360,6 +1504,7 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
   - 提供安全最佳实践指南
 
 **3. 性能和稳定性问题**
+
 - **风险等级**：中
 - **影响**：集成响应慢或不稳定
 - **应对策略**：
@@ -1371,6 +1516,7 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
 ### 业务风险
 
 **1. 集成需求多样化**
+
 - **风险等级**：中
 - **影响**：无法满足所有用户需求
 - **应对策略**：
@@ -1380,6 +1526,7 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
   - 社区贡献和扩展机制
 
 **2. 第三方服务变化**
+
 - **风险等级**：中
 - **影响**：集成因API变化而失效
 - **应对策略**：
@@ -1393,12 +1540,14 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
 ## 👥 团队配置
 
 ### 核心团队 (5人)
+
 - **后端工程师**：2人 (适配器开发，集成服务)
 - **前端工程师**：1人 (测试平台界面)
 - **DevOps工程师**：1人 (环境管理，部署)
 - **产品经理**：1人 (需求分析，产品规划)
 
 ### 外部支持
+
 - **安全专家**：集成安全评估和审查
 - **集成专家**：第三方服务集成咨询
 - **测试工程师**：集成测试和验证
@@ -1408,6 +1557,7 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
 ## 💰 预算规划
 
 ### 人力成本 (8周)
+
 - 后端工程师：2人 × ¥28,000/月 × 2个月 = ¥112,000
 - 前端工程师：1人 × ¥25,000/月 × 2个月 = ¥50,000
 - DevOps工程师：1人 × ¥28,000/月 × 2个月 = ¥56,000
@@ -1415,6 +1565,7 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
 - **人力小计**：¥262,000
 
 ### 技术成本
+
 - 云服务资源：¥100,000 (测试环境，第三方服务)
 - 开发工具：¥30,000 (集成开发工具，测试环境)
 - 第三方服务：¥50,000 (API访问，服务集成)
@@ -1422,6 +1573,7 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
 - **技术小计**：¥205,000
 
 ### 其他成本
+
 - 内容制作：¥20,000 (集成文档，示例代码)
 - 安全评估：¥15,000 (安全审计，渗透测试)
 - 法律合规：¥10,000 (API使用协议，合规检查)
@@ -1434,24 +1586,28 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
 ## 📈 关键指标
 
 ### 功能完整性指标
+
 - **集成覆盖率**：主流第三方服务集成覆盖>70%
 - **示例完整性**：每个集成提供完整的使用示例
 - **文档准确性**：集成文档准确率>98%
 - **测试覆盖率**：集成测试覆盖率>90%
 
 ### 性能稳定性指标
+
 - **集成响应**：平均集成响应时间<2秒，95分位<5秒
 - **成功率**：集成调用成功率>95%
 - **稳定性**：集成服务正常运行时间>99.5%
 - **扩展性**：支持同时运行集成实例>1000个
 
 ### 用户体验指标
+
 - **易用性**：配置和使用集成的时间<10分钟
 - **可靠性**：集成工作正常率>95%
 - **学习成本**：掌握集成使用的时间<30分钟
 - **满意度**：用户对集成功能的满意度>4.5/5
 
 ### 业务价值指标
+
 - **用户增长**：集成功能带来的用户增长>25%
 - **功能使用**：活跃用户使用集成功能的比例>40%
 - **效率提升**：用户完成自动化流程的时间减少>60%
@@ -1462,17 +1618,20 @@ abstract class BaseIntegrationAdapter implements IntegrationAdapter {
 ## 🎯 后续规划
 
 ### Phase 1.5.4 衔接
+
 - 基于集成示例，收集用户反馈
 - 利用测试平台数据，完善社区互动
 - 通过集成监控，优化用户支持流程
 
 ### 持续优化计划
+
 1. **集成扩展**：支持更多第三方服务和自定义集成
 2. **智能化配置**：AI辅助的集成配置和优化建议
 3. **性能优化**：集成性能监控和自动优化
 4. **生态建设**：建立集成开发者和贡献者社区
 
 ### 长期演进
+
 - **企业集成**：支持复杂的企业级集成场景
 - **实时集成**：毫秒级实时数据集成和处理
 - **AI增强**：AI驱动的智能集成和自动化决策

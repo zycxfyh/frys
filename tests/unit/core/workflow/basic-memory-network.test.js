@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from '../../../test-helpers.js';
 
 /**
@@ -17,9 +17,9 @@ describe('BasicMemoryNetwork', () => {
 
   beforeEach(() => {
     memory = new BasicMemoryNetwork({
-      maxMemoryMB: 10,     // 小内存限制便于测试
-      defaultTTL: 5000,    // 5秒默认TTL
-      enableLogging: false // 测试时关闭日志
+      maxMemoryMB: 10, // 小内存限制便于测试
+      defaultTTL: 5000, // 5秒默认TTL
+      enableLogging: false, // 测试时关闭日志
     });
   });
 
@@ -45,7 +45,7 @@ describe('BasicMemoryNetwork', () => {
       { key: 'array', value: [1, 2, 3, 'test'] },
       { key: 'object', value: { nested: { value: 'deep' } } },
       { key: 'null', value: null },
-      { key: 'undefined', value: undefined }
+      { key: 'undefined', value: undefined },
     ];
 
     for (const { key, value } of testData) {
@@ -85,7 +85,7 @@ describe('BasicMemoryNetwork', () => {
     expect(retrieved).toBe(value);
 
     // 等待过期
-    await new Promise(resolve => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     // 再次获取应该返回null
     retrieved = await memory.get(key);
@@ -125,7 +125,7 @@ describe('BasicMemoryNetwork', () => {
     // 使用模式匹配
     const filteredKeys = await memory.keys({
       namespace,
-      pattern: 'key*'
+      pattern: 'key*',
     });
     expect(filteredKeys).toHaveLength(3);
     expect(filteredKeys).toContain('key1');
@@ -165,7 +165,7 @@ describe('BasicMemoryNetwork', () => {
     expect(ttl).toBeLessThanOrEqual(200);
 
     // 等待过期
-    await new Promise(resolve => setTimeout(resolve, 250));
+    await new Promise((resolve) => setTimeout(resolve, 250));
 
     // 检查是否过期
     const ttlAfter = await memory.ttl(key);
@@ -175,13 +175,13 @@ describe('BasicMemoryNetwork', () => {
   test('should handle memory limits', async () => {
     memory = new BasicMemoryNetwork({
       maxMemoryMB: 0.001, // 非常小的内存限制 ~1KB
-      enableLogging: false
+      enableLogging: false,
     });
 
     // 存储大对象
     const largeObject = {
       data: 'x'.repeat(1000), // ~1KB数据
-      metadata: { large: 'x'.repeat(500) }
+      metadata: { large: 'x'.repeat(500) },
     };
 
     await memory.set('large-key', largeObject);
@@ -234,7 +234,9 @@ describe('BasicMemoryNetwork', () => {
 
     // 验证数据
     expect(await newMemory.get('key1', { namespace })).toBe('value1');
-    expect(await newMemory.get('key2', { namespace })).toEqual({ complex: 'object' });
+    expect(await newMemory.get('key2', { namespace })).toEqual({
+      complex: 'object',
+    });
 
     await newMemory.shutdown();
   });
@@ -288,7 +290,7 @@ describe('BasicMemoryNetwork', () => {
     // 测试不同模式
     const userKeys = await memory.keys({
       namespace,
-      pattern: 'user:*'
+      pattern: 'user:*',
     });
     expect(userKeys).toHaveLength(2);
     expect(userKeys).toContain('user:123');
@@ -296,7 +298,7 @@ describe('BasicMemoryNetwork', () => {
 
     const allKeys = await memory.keys({
       namespace,
-      pattern: '*'
+      pattern: '*',
     });
     expect(allKeys).toHaveLength(4);
   });

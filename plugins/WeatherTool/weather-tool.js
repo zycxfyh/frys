@@ -7,55 +7,55 @@
 
 // 模拟天气数据
 const weatherData = {
-  '北京': {
+  北京: {
     temperature: 22,
     humidity: 45,
     windSpeed: 12,
     description: '晴朗',
-    feelsLike: 24
+    feelsLike: 24,
   },
-  '上海': {
+  上海: {
     temperature: 25,
     humidity: 70,
     windSpeed: 8,
     description: '多云',
-    feelsLike: 28
+    feelsLike: 28,
   },
-  '广州': {
+  广州: {
     temperature: 28,
     humidity: 80,
     windSpeed: 15,
     description: '阴天',
-    feelsLike: 32
+    feelsLike: 32,
   },
-  '深圳': {
+  深圳: {
     temperature: 27,
     humidity: 75,
     windSpeed: 10,
     description: '小雨',
-    feelsLike: 30
+    feelsLike: 30,
   },
   'New York': {
     temperature: 18,
     humidity: 60,
     windSpeed: 20,
     description: 'Clear',
-    feelsLike: 16
+    feelsLike: 16,
   },
-  'London': {
+  London: {
     temperature: 15,
     humidity: 85,
     windSpeed: 25,
     description: 'Cloudy',
-    feelsLike: 13
+    feelsLike: 13,
   },
-  'Tokyo': {
+  Tokyo: {
     temperature: 23,
     humidity: 65,
     windSpeed: 5,
     description: 'Sunny',
-    feelsLike: 25
-  }
+    feelsLike: 25,
+  },
 };
 
 // 默认天气数据（用于未知城市）
@@ -64,7 +64,7 @@ const defaultWeather = {
   humidity: 50,
   windSpeed: 10,
   description: '未知',
-  feelsLike: 20
+  feelsLike: 20,
 };
 
 function getWeatherData(city) {
@@ -114,7 +114,7 @@ function main() {
       if (!params.city) {
         const errorResult = {
           status: 'error',
-          error: '缺少必需参数：city'
+          error: '缺少必需参数：city',
         };
         console.log(JSON.stringify(errorResult));
         process.exit(1);
@@ -128,17 +128,16 @@ function main() {
         status: 'success',
         result: result,
         city: params.city,
-        format: params.format || 'simple'
+        format: params.format || 'simple',
       };
 
       console.log(JSON.stringify(successResult));
       process.exit(0);
-
     } catch (error) {
       // 返回错误结果
       const errorResult = {
         status: 'error',
-        error: `处理请求失败：${error.message}`
+        error: `处理请求失败：${error.message}`,
       };
 
       console.log(JSON.stringify(errorResult));
@@ -150,7 +149,7 @@ function main() {
   setTimeout(() => {
     const timeoutResult = {
       status: 'error',
-      error: '请求处理超时'
+      error: '请求处理超时',
     };
     console.log(JSON.stringify(timeoutResult));
     process.exit(1);

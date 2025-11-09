@@ -3,7 +3,7 @@
  * 用例代表应用层的业务逻辑
  */
 
-import { Result, Success, Failure } from './Result.js';
+import { Failure, Result, Success } from './Result.js';
 
 export class BaseUseCase {
   constructor() {

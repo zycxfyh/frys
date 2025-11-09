@@ -3,7 +3,7 @@ name: 📊 Status Badges Update
 # 仅在主分支推送时运行
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - '.github/workflows/**'
       - 'README.md'
@@ -17,47 +17,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: 🔍 读取当前README
-      id: read-readme
-      run: |
-        content=$(cat README.md)
-        echo "readme_content<<EOF" >> $GITHUB_OUTPUT
-        echo "$content" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+      - name: 🔍 读取当前README
+        id: read-readme
+        run: |
+          content=$(cat README.md)
+          echo "readme_content<<EOF" >> $GITHUB_OUTPUT
+          echo "$content" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-    - name: 📊 生成状态徽章
-      id: badges
-      run: |
-        # CI/CD 流水线状态徽章
-        ci_badge="[![CI/CD Pipeline](https://img.shields.io/github/actions/workflow/status/${{ github.repository }}/ci-cd-pipeline.yml?branch=main&style=flat-square&logo=github)](https://github.com/${{ github.repository }}/actions/workflows/ci-cd-pipeline.yml)"
+      - name: 📊 生成状态徽章
+        id: badges
+        run: |
+          # CI/CD 流水线状态徽章
+          ci_badge="[![CI/CD Pipeline](https://img.shields.io/github/actions/workflow/status/${{ github.repository }}/ci-cd-pipeline.yml?branch=main&style=flat-square&logo=github)](https://github.com/${{ github.repository }}/actions/workflows/ci-cd-pipeline.yml)"
 
-        # 代码覆盖率徽章 (如果配置了Codecov)
-        coverage_badge="[![Code Coverage](https://img.shields.io/codecov/c/github/${{ github.repository }}?style=flat-square&logo=codecov)](https://codecov.io/gh/${{ github.repository }})"
+          # 代码覆盖率徽章 (如果配置了Codecov)
+          coverage_badge="[![Code Coverage](https://img.shields.io/codecov/c/github/${{ github.repository }}?style=flat-square&logo=codecov)](https://codecov.io/gh/${{ github.repository }})"
 
-        # 最后提交时间
-        last_commit_badge="[![Last Commit](https://img.shields.io/github/last-commit/${{ github.repository }}/main?style=flat-square&logo=github)](https://github.com/${{ github.repository }}/commits/main)"
+          # 最后提交时间
+          last_commit_badge="[![Last Commit](https://img.shields.io/github/last-commit/${{ github.repository }}/main?style=flat-square&logo=github)](https://github.com/${{ github.repository }}/commits/main)"
 
-        # 输出所有徽章
-        echo "ci_badge=$ci_badge" >> $GITHUB_OUTPUT
-        echo "coverage_badge=$coverage_badge" >> $GITHUB_OUTPUT
-        echo "last_commit_badge=$last_commit_badge" >> $GITHUB_OUTPUT
+          # 输出所有徽章
+          echo "ci_badge=$ci_badge" >> $GITHUB_OUTPUT
+          echo "coverage_badge=$coverage_badge" >> $GITHUB_OUTPUT
+          echo "last_commit_badge=$last_commit_badge" >> $GITHUB_OUTPUT
 
-    - name: 📝 更新README徽章
-      run: |
-        # 这里可以实现自动更新README中的徽章
-        # 暂时只输出信息
-        echo "CI/CD 徽章: ${{ steps.badges.outputs.ci_badge }}"
-        echo "覆盖率徽章: ${{ steps.badges.outputs.coverage_badge }}"
-        echo "最后提交徽章: ${{ steps.badges.outputs.last_commit_badge }}"
+      - name: 📝 更新README徽章
+        run: |
+          # 这里可以实现自动更新README中的徽章
+          # 暂时只输出信息
+          echo "CI/CD 徽章: ${{ steps.badges.outputs.ci_badge }}"
+          echo "覆盖率徽章: ${{ steps.badges.outputs.coverage_badge }}"
+          echo "最后提交徽章: ${{ steps.badges.outputs.last_commit_badge }}"
 
-        echo "## 📊 工作流状态" >> $GITHUB_STEP_SUMMARY
-        echo "${{ steps.badges.outputs.ci_badge }}" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "${{ steps.badges.outputs.coverage_badge }}" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "${{ steps.badges.outputs.last_commit_badge }}" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 工作流状态" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.badges.outputs.ci_badge }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.badges.outputs.coverage_badge }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.badges.outputs.last_commit_badge }}" >> $GITHUB_STEP_SUMMARY

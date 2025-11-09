@@ -3,9 +3,9 @@
  * 基于事件驱动的工作流执行系统，支持并发控制和错误处理
  */
 
-import { BaseModule } from './BaseModule.js';
-import { logger } from '../shared/utils/logger.js';
 import { EventEmitter } from 'events';
+import { logger } from '../shared/utils/logger.js';
+import { BaseModule } from './BaseModule.js';
 
 export class AsyncWorkflowExecutor extends BaseModule {
   constructor(options = {}) {
@@ -15,7 +15,7 @@ export class AsyncWorkflowExecutor extends BaseModule {
       enableTracing: options.enableTracing || false,
       timeout: options.timeout || 30000,
       retryAttempts: options.retryAttempts || 3,
-      ...options
+      ...options,
     };
 
     this.eventEmitter = new EventEmitter();
@@ -25,7 +25,7 @@ export class AsyncWorkflowExecutor extends BaseModule {
 
     logger.info('AsyncWorkflowExecutor initialized', {
       maxParallelTasks: this.options.maxParallelTasks,
-      enableTracing: this.options.enableTracing
+      enableTracing: this.options.enableTracing,
     });
   }
 
@@ -35,7 +35,7 @@ export class AsyncWorkflowExecutor extends BaseModule {
       maxParallelTasks: 5,
       enableTracing: false,
       timeout: 30000,
-      retryAttempts: 3
+      retryAttempts: 3,
     };
   }
 
@@ -51,7 +51,7 @@ export class AsyncWorkflowExecutor extends BaseModule {
     logger.info('Starting workflow execution', {
       workflowId,
       taskCount: tasks.length,
-      options
+      options,
     });
 
     this.emit('workflow:start', { workflowId, tasks, options });
@@ -62,13 +62,16 @@ export class AsyncWorkflowExecutor extends BaseModule {
 
       logger.info('Workflow execution completed', {
         workflowId,
-        resultsCount: results.length
+        resultsCount: results.length,
       });
 
       return results;
     } catch (error) {
       this.emit('workflow:error', { workflowId, error });
-      logger.error('Workflow execution failed', { workflowId, error: error.message });
+      logger.error('Workflow execution failed', {
+        workflowId,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -101,29 +104,56 @@ export class AsyncWorkflowExecutor extends BaseModule {
   }
 
   /**
+   * 生成任务ID
+   * @param {Object} task - 任务对象
+   * @returns {string} 任务ID
+   */
+  generateTaskId(task) {
+    return (
+      task.id || `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    );
+  }
+
+  /**
+   * 初始化任务执行
+   * @param {string} taskId - 任务ID
+   * @param {Object} task - 任务对象
+   */
+  initializeTaskExecution(taskId, task) {
+    this.runningTasks.set(taskId, task);
+    this.emit('task:start', { taskId, task });
+    logger.debug('Executing task', { taskId, task: task.name || task.id });
+  }
+
+  /**
    * 执行单个任务
    * @param {Object} task - 任务对象
    * @param {Object} options - 执行选项
    * @returns {Promise} 任务结果
    */
   async executeSingleTask(task, options = {}) {
-    const taskId = task.id || `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const taskId = this.generateTaskId(task);
     const startTime = Date.now();
 
-    this.runningTasks.set(taskId, task);
-    this.emit('task:start', { taskId, task });
-
-    logger.debug('Executing task', { taskId, task: task.name || task.id });
+    this.initializeTaskExecution(taskId, task);
 
     try {
       let result;
 
       if (typeof task.execute === 'function') {
-        result = await this.executeWithTimeout(task.execute, options.timeout || this.options.timeout);
+        result = await this.executeWithTimeout(
+          task.execute,
+          options.timeout || this.options.timeout,
+        );
       } else if (typeof task === 'function') {
-        result = await this.executeWithTimeout(task, options.timeout || this.options.timeout);
+        result = await this.executeWithTimeout(
+          task,
+          options.timeout || this.options.timeout,
+        );
       } else {
-        throw new Error('Task must have an execute function or be a function itself');
+        throw new Error(
+          'Task must have an execute function or be a function itself',
+        );
       }
 
       const executionTime = Date.now() - startTime;
@@ -142,7 +172,11 @@ export class AsyncWorkflowExecutor extends BaseModule {
 
       this.emit('task:error', { taskId, error, executionTime });
 
-      logger.error('Task failed', { taskId, error: error.message, executionTime });
+      logger.error('Task failed', {
+        taskId,
+        error: error.message,
+        executionTime,
+      });
 
       // 如果启用了重试，尝试重试
       if (options.retryAttempts > 0) {
@@ -164,13 +198,13 @@ export class AsyncWorkflowExecutor extends BaseModule {
     logger.warn('Retrying task', {
       taskId: task.id,
       remainingAttempts,
-      originalError: task.lastError?.message
+      originalError: task.lastError?.message,
     });
 
     try {
       return await this.executeSingleTask(task, {
         ...options,
-        retryAttempts: remainingAttempts
+        retryAttempts: remainingAttempts,
       });
     } catch (error) {
       if (remainingAttempts > 0) {
@@ -186,18 +220,18 @@ export class AsyncWorkflowExecutor extends BaseModule {
    * @param {number} timeout - 超时时间（毫秒）
    * @returns {Promise} 执行结果
    */
-  async executeWithTimeout(fn, timeout) {
+  executeWithTimeout(fn, timeout) {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         reject(new Error(`Task execution timeout after ${timeout}ms`));
       }, timeout);
 
       fn()
-        .then(result => {
+        .then((result) => {
           clearTimeout(timer);
           resolve(result);
         })
-        .catch(error => {
+        .catch((error) => {
           clearTimeout(timer);
           reject(error);
         });
@@ -213,18 +247,18 @@ export class AsyncWorkflowExecutor extends BaseModule {
       runningTasks: this.runningTasks.size,
       completedTasks: this.completedTasks.size,
       failedTasks: this.failedTasks.size,
-      isRunning: this.runningTasks.size > 0
+      isRunning: this.runningTasks.size > 0,
     };
   }
 
   /**
    * 停止所有任务
    */
-  async stop() {
+  stop() {
     logger.info('Stopping AsyncWorkflowExecutor');
 
     // 取消所有正在运行的任务
-    for (const [taskId, task] of this.runningTasks) {
+    for (const [taskId] of this.runningTasks) {
       this.emit('task:cancelled', { taskId });
       logger.debug('Task cancelled', { taskId });
     }

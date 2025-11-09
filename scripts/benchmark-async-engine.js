@@ -4,8 +4,8 @@
  * 对比原生Promise.all和VCP异步执行引擎的性能差异
  */
 
-import { AsyncExecutionEngine } from '../src/core/workflow/AsyncExecutionEngine.js';
 import { performance } from 'perf_hooks';
+import { AsyncExecutionEngine } from '../src/core/workflow/AsyncExecutionEngine.js';
 
 // 测试任务：模拟不同复杂度的异步操作
 function createTestTasks(count, complexity = 'simple') {
@@ -18,9 +18,11 @@ function createTestTasks(count, complexity = 'simple') {
           id: `task-${i}`,
           execute: async () => {
             // 简单的延迟操作
-            await new Promise(resolve => setTimeout(resolve, Math.random() * 10 + 5));
+            await new Promise((resolve) =>
+              setTimeout(resolve, Math.random() * 10 + 5),
+            );
             return `result-${i}`;
-          }
+          },
         });
         break;
 
@@ -34,9 +36,11 @@ function createTestTasks(count, complexity = 'simple') {
             for (let j = 0; j < iterations; j++) {
               result += Math.sin(j) * Math.cos(j);
             }
-            await new Promise(resolve => setTimeout(resolve, Math.random() * 5 + 1));
+            await new Promise((resolve) =>
+              setTimeout(resolve, Math.random() * 5 + 1),
+            );
             return result;
-          }
+          },
         });
         break;
 
@@ -47,11 +51,15 @@ function createTestTasks(count, complexity = 'simple') {
             // 模拟I/O密集型操作
             const buffers = [];
             for (let j = 0; j < 10; j++) {
-              buffers.push(Buffer.alloc(Math.floor(Math.random() * 1024) + 512));
+              buffers.push(
+                Buffer.alloc(Math.floor(Math.random() * 1024) + 512),
+              );
             }
-            await new Promise(resolve => setTimeout(resolve, Math.random() * 20 + 10));
+            await new Promise((resolve) =>
+              setTimeout(resolve, Math.random() * 20 + 10),
+            );
             return buffers.length;
-          }
+          },
         });
         break;
     }
@@ -73,16 +81,16 @@ async function benchmark(name, tasks, options = {}) {
     if (name.includes('VCP')) {
       const engine = new AsyncExecutionEngine({
         maxConcurrency: options.maxConcurrency || 10,
-        monitoring: false
+        monitoring: false,
       });
 
       results = await engine.executeTasks(tasks, {
-        strategy: options.strategy || 'parallel'
+        strategy: options.strategy || 'parallel',
       });
 
       engine.cleanup();
     } else if (name.includes('Promise.all')) {
-      results = await Promise.all(tasks.map(task => task.execute()));
+      results = await Promise.all(tasks.map((task) => task.execute()));
     } else if (name.includes('Sequential')) {
       results = [];
       for (const task of tasks) {
@@ -96,16 +104,17 @@ async function benchmark(name, tasks, options = {}) {
 
     console.log(`✅ 完成时间: ${duration.toFixed(2)}ms`);
     console.log(`🚀 平均任务时间: ${(duration / tasks.length).toFixed(2)}ms`);
-    console.log(`📈 吞吐量: ${(tasks.length / (duration / 1000)).toFixed(2)} tasks/sec`);
+    console.log(
+      `📈 吞吐量: ${(tasks.length / (duration / 1000)).toFixed(2)} tasks/sec`,
+    );
 
     return {
       name,
       duration,
       throughput: tasks.length / (duration / 1000),
       avgTaskTime: duration / tasks.length,
-      success: true
+      success: true,
     };
-
   } catch (error) {
     const endTime = performance.now();
     const duration = endTime - startTime;
@@ -117,7 +126,7 @@ async function benchmark(name, tasks, options = {}) {
       name,
       duration,
       error: error.message,
-      success: false
+      success: false,
     };
   }
 }
@@ -125,14 +134,14 @@ async function benchmark(name, tasks, options = {}) {
 // 主测试函数
 async function runBenchmarks() {
   console.log('🚀 VCP异步执行引擎性能对比测试');
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
 
   const testScenarios = [
     { count: 10, complexity: 'simple', name: '小规模简单任务' },
     { count: 50, complexity: 'simple', name: '中规模简单任务' },
     { count: 100, complexity: 'simple', name: '大规模简单任务' },
     { count: 20, complexity: 'complex', name: '计算密集型任务' },
-    { count: 20, complexity: 'io-bound', name: 'I/O密集型任务' }
+    { count: 20, complexity: 'io-bound', name: 'I/O密集型任务' },
   ];
 
   const results = [];
@@ -146,24 +155,23 @@ async function runBenchmarks() {
     // 测试不同的执行方式
     const sequentialResult = await benchmark(
       `Sequential (${scenario.name})`,
-      tasks
+      tasks,
     );
 
     const promiseAllResult = await benchmark(
       `Promise.all (${scenario.name})`,
-      tasks
+      tasks,
     );
 
-    const vcpResult = await benchmark(
-      `VCP Engine (${scenario.name})`,
-      tasks,
-      { maxConcurrency: 10, strategy: 'parallel' }
-    );
+    const vcpResult = await benchmark(`VCP Engine (${scenario.name})`, tasks, {
+      maxConcurrency: 10,
+      strategy: 'parallel',
+    });
 
     const vcpAdaptiveResult = await benchmark(
       `VCP Adaptive (${scenario.name})`,
       tasks,
-      { maxConcurrency: 10, strategy: 'adaptive' }
+      { maxConcurrency: 10, strategy: 'adaptive' },
     );
 
     results.push({
@@ -171,7 +179,7 @@ async function runBenchmarks() {
       sequential: sequentialResult,
       promiseAll: promiseAllResult,
       vcp: vcpResult,
-      vcpAdaptive: vcpAdaptiveResult
+      vcpAdaptive: vcpAdaptiveResult,
     });
   }
 
@@ -179,20 +187,38 @@ async function runBenchmarks() {
   console.log('\n📊 性能对比总结报告');
   console.log('='.repeat(80));
 
-  console.log('| 场景 | Sequential | Promise.all | VCP Engine | VCP Adaptive |');
-  console.log('|------|------------|-------------|------------|---------------|');
+  console.log(
+    '| 场景 | Sequential | Promise.all | VCP Engine | VCP Adaptive |',
+  );
+  console.log(
+    '|------|------------|-------------|------------|---------------|',
+  );
 
-  results.forEach(result => {
-    const seqTime = result.sequential.success ? result.sequential.duration.toFixed(1) : 'FAIL';
-    const allTime = result.promiseAll.success ? result.promiseAll.duration.toFixed(1) : 'FAIL';
-    const vcpTime = result.vcp.success ? result.vcp.duration.toFixed(1) : 'FAIL';
-    const adaptiveTime = result.vcpAdaptive.success ? result.vcpAdaptive.duration.toFixed(1) : 'FAIL';
+  results.forEach((result) => {
+    const seqTime = result.sequential.success
+      ? result.sequential.duration.toFixed(1)
+      : 'FAIL';
+    const allTime = result.promiseAll.success
+      ? result.promiseAll.duration.toFixed(1)
+      : 'FAIL';
+    const vcpTime = result.vcp.success
+      ? result.vcp.duration.toFixed(1)
+      : 'FAIL';
+    const adaptiveTime = result.vcpAdaptive.success
+      ? result.vcpAdaptive.duration.toFixed(1)
+      : 'FAIL';
 
-    console.log(`| ${result.scenario} | ${seqTime}ms | ${allTime}ms | ${vcpTime}ms | ${adaptiveTime}ms |`);
+    console.log(
+      `| ${result.scenario} | ${seqTime}ms | ${allTime}ms | ${vcpTime}ms | ${adaptiveTime}ms |`,
+    );
 
     // 计算性能提升
     if (result.promiseAll.success && result.vcp.success) {
-      const improvement = ((result.promiseAll.duration - result.vcp.duration) / result.promiseAll.duration * 100).toFixed(1);
+      const improvement = (
+        ((result.promiseAll.duration - result.vcp.duration) /
+          result.promiseAll.duration) *
+        100
+      ).toFixed(1);
       console.log(`| 性能提升 | - | - | +${improvement}% | +${improvement}% |`);
     }
   });
@@ -201,10 +227,7 @@ async function runBenchmarks() {
 
   // 导出结果为JSON
   const fs = await import('fs');
-  fs.writeFileSync(
-    'benchmark-results.json',
-    JSON.stringify(results, null, 2)
-  );
+  fs.writeFileSync('benchmark-results.json', JSON.stringify(results, null, 2));
   console.log('📄 详细结果已保存到 benchmark-results.json');
 }
 

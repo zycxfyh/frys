@@ -10,7 +10,8 @@ import { logger } from '../../shared/utils/logger.js';
 export class TextInstructionParser {
   constructor() {
     // 指令块匹配正则
-    this.toolRequestRegex = /<<<\[TOOL_REQUEST\]>>>(.*?)<<<\[END_TOOL_REQUEST\]>>>/gs;
+    this.toolRequestRegex =
+      /<<<\[TOOL_REQUEST\]>>>(.*?)<<<\[END_TOOL_REQUEST\]>>>/gs;
 
     // 参数解析正则：key:「始」value「末」
     this.paramRegex = /(\w+)：「始」([^「]+)「末」/g;
@@ -73,7 +74,7 @@ export class TextInstructionParser {
       toolName,
       parameters,
       rawBlock: block,
-      parsedAt: new Date()
+      parsedAt: new Date(),
     };
   }
 
@@ -113,27 +114,49 @@ export class TextInstructionParser {
     if (!value) return '';
 
     // 尝试解析为数字
-    if (/^-?\d+(\.\d+)?$/.test(value)) {
-      const num = parseFloat(value);
-      return isNaN(num) ? value : num;
-    }
+    const numValue = this.tryParseNumber(value);
+    if (numValue !== null) return numValue;
 
     // 尝试解析为布尔值
-    if (value.toLowerCase() === 'true') return true;
-    if (value.toLowerCase() === 'false') return false;
+    const boolValue = this.tryParseBoolean(value);
+    if (boolValue !== null) return boolValue;
 
     // 尝试解析为JSON
-    if ((value.startsWith('{') && value.endsWith('}')) ||
-        (value.startsWith('[') && value.endsWith(']'))) {
+    const jsonValue = this.tryParseJson(value);
+    if (jsonValue !== null) return jsonValue;
+
+    // 默认当作字符串
+    return value;
+  }
+
+  tryParseNumber(value) {
+    if (/^-?\d+(\.\d+)?$/.test(value)) {
+      const num = parseFloat(value);
+      return isNaN(num) ? null : num;
+    }
+    return null;
+  }
+
+  tryParseBoolean(value) {
+    const lowerValue = value.toLowerCase();
+    if (lowerValue === 'true') return true;
+    if (lowerValue === 'false') return false;
+    return null;
+  }
+
+  tryParseJson(value) {
+    if (
+      (value.startsWith('{') && value.endsWith('}')) ||
+      (value.startsWith('[') && value.endsWith(']'))
+    ) {
       try {
         return JSON.parse(value);
       } catch (e) {
         // 解析失败，当作字符串处理
+        return null;
       }
     }
-
-    // 默认当作字符串
-    return value;
+    return null;
   }
 
   /**
@@ -230,7 +253,9 @@ export class TextInstructionParser {
             name: command.commandIdentifier,
             description: command.description,
             plugin: plugin.name,
-            parameters: this.extractParametersFromDescription(command.description)
+            parameters: this.extractParametersFromDescription(
+              command.description,
+            ),
           };
         }
       }
@@ -254,7 +279,7 @@ export class TextInstructionParser {
       params.push({
         name: match[2],
         description: match[3],
-        required: !match[3].includes('可选') && !match[3].includes('optional')
+        required: !match[3].includes('可选') && !match[3].includes('optional'),
       });
     }
 
@@ -274,37 +299,52 @@ export class TextInstructionParser {
     let prompt = '你可以调用以下工具：\n\n';
 
     for (const [toolName, toolInfo] of Object.entries(tools)) {
-      prompt += `## ${toolName}\n`;
-      prompt += `${toolInfo.description}\n\n`;
-
-      if (toolInfo.parameters && toolInfo.parameters.length > 0) {
-        prompt += '**参数：**\n';
-        for (const param of toolInfo.parameters) {
-          prompt += `- ${param.name}: ${param.description}`;
-          if (param.required) {
-            prompt += ' (必需)';
-          }
-          prompt += '\n';
-        }
-        prompt += '\n';
-      }
-
-      // 添加调用示例
-      prompt += '**调用格式：**\n';
-      prompt += `<<<[TOOL_REQUEST]>>>tool_name:「始」${toolName}「末」`;
-
-      if (toolInfo.parameters && toolInfo.parameters.length > 0) {
-        for (const param of toolInfo.parameters) {
-          if (param.required) {
-            prompt += `,${param.name}:「始」[值]「末」`;
-          }
-        }
-      }
-
-      prompt += `<<<[END_TOOL_REQUEST]>>>\n\n`;
+      prompt += this.generateToolSection(toolName, toolInfo);
     }
 
     return prompt;
+  }
+
+  generateToolSection(toolName, toolInfo) {
+    let section = `## ${toolName}\n`;
+    section += `${toolInfo.description}\n\n`;
+
+    if (toolInfo.parameters && toolInfo.parameters.length > 0) {
+      section += this.generateParametersSection(toolInfo.parameters);
+    }
+
+    section += this.generateCallFormatSection(toolName, toolInfo);
+    return section;
+  }
+
+  generateParametersSection(parameters) {
+    let section = '**参数：**\n';
+    for (const param of parameters) {
+      section += `- ${param.name}: ${param.description}`;
+      if (param.required) {
+        section += ' (必需)';
+      }
+      section += '\n';
+    }
+    section += '\n';
+    return section;
+  }
+
+  generateCallFormatSection(toolName, toolInfo) {
+    let section = '**调用格式：**\n';
+    section += `<<<[TOOL_REQUEST]>>>tool_name:「始」${toolName}「末」`;
+
+    if (toolInfo.parameters && toolInfo.parameters.length > 0) {
+      section += this.generateRequiredParamsFormat(toolInfo.parameters);
+    }
+
+    section += `<<<[END_TOOL_REQUEST]>>>\n\n`;
+    return section;
+  }
+
+  generateRequiredParamsFormat(parameters) {
+    const requiredParams = parameters.filter(param => param.required);
+    return requiredParams.map(param => `,${param.name}:「始」[值]「末」`).join('');
   }
 
   /**
@@ -317,7 +357,7 @@ export class TextInstructionParser {
 
     return text
       .trim()
-      .replace(/\r\n/g, '\n')  // 统一换行符
+      .replace(/\r\n/g, '\n') // 统一换行符
       .replace(/\r/g, '\n')
       .replace(/\n{3,}/g, '\n\n'); // 最多两个连续换行
   }
@@ -329,19 +369,10 @@ export class TextInstructionParser {
     return {
       supportedFormats: [
         '<<<[TOOL_REQUEST]>>>tool_name:「始」ToolName「末」,param:「始」value「末」<<<[END_TOOL_REQUEST]>>>',
-        '<<<[TOOL_REQUEST]>>>tool_name:「ToolName」,param:「value」<<<[END_TOOL_REQUEST]>>>'
+        '<<<[TOOL_REQUEST]>>>tool_name:「ToolName」,param:「value」<<<[END_TOOL_REQUEST]>>>',
       ],
-      parameterFormats: [
-        'key:「始」value「末」',
-        'key:「value」'
-      ],
-      valueTypes: [
-        'string',
-        'number',
-        'boolean',
-        'json_object',
-        'json_array'
-      ]
+      parameterFormats: ['key:「始」value「末」', 'key:「value」'],
+      valueTypes: ['string', 'number', 'boolean', 'json_object', 'json_array'],
     };
   }
 }

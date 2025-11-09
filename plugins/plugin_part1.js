@@ -64,9 +64,9 @@ class PluginManager {
                 const expectedType = pluginManifest.configSchema[key];
                 let rawValue;
 
-                if (pluginSpecificEnv.hasOwnProperty(key)) { 
+                if (Object.hasOwn(pluginSpecificEnv, key)) { 
                     rawValue = pluginSpecificEnv[key];
-                } else if (globalEnv.hasOwnProperty(key)) { 
+                } else if (Object.hasOwn(globalEnv, key)) { 
                     rawValue = globalEnv[key];
                 } else {
                     continue; 
@@ -86,11 +86,11 @@ class PluginManager {
             }
         }
 
-        if (pluginSpecificEnv.hasOwnProperty('DebugMode')) {
+        if (Object.hasOwn(pluginSpecificEnv, 'DebugMode')) {
             config.DebugMode = String(pluginSpecificEnv.DebugMode).toLowerCase() === 'true';
-        } else if (globalEnv.hasOwnProperty('DebugMode')) {
+        } else if (Object.hasOwn(globalEnv, 'DebugMode')) {
             config.DebugMode = String(globalEnv.DebugMode).toLowerCase() === 'true';
-        } else if (!config.hasOwnProperty('DebugMode')) { 
+        } else if (!Object.hasOwn(config, 'DebugMode')) { 
             config.DebugMode = false; 
         }
         return config;
@@ -115,7 +115,7 @@ class PluginManager {
             const pluginConfig = this._getPluginConfig(plugin); 
             const envForProcess = { ...process.env }; 
             for (const key in pluginConfig) {
-                if (pluginConfig.hasOwnProperty(key) && pluginConfig[key] !== undefined) {
+                if (Object.hasOwn(pluginConfig, key) && pluginConfig[key] !== undefined) {
                     envForProcess[key] = String(pluginConfig[key]);
                 }
             }

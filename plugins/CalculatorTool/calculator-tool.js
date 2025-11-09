@@ -24,7 +24,7 @@ function safeEvaluate(expression) {
       floor: Math.floor,
       ceil: Math.ceil,
       round: Math.round,
-      pow: Math.pow
+      pow: Math.pow,
     };
 
     // 使用mathjs进行安全计算
@@ -75,7 +75,7 @@ function main() {
       if (!params.expression) {
         const errorResult = {
           status: 'error',
-          error: '缺少必需参数：expression'
+          error: '缺少必需参数：expression',
         };
         console.log(JSON.stringify(errorResult));
         process.exit(1);
@@ -87,16 +87,15 @@ function main() {
         status: 'success',
         result: result,
         expression: params.expression,
-        precision: params.precision || 2
+        precision: params.precision || 2,
       };
 
       console.log(JSON.stringify(successResult));
       process.exit(0);
-
     } catch (error) {
       const errorResult = {
         status: 'error',
-        error: `处理请求失败：${error.message}`
+        error: `处理请求失败：${error.message}`,
       };
 
       console.log(JSON.stringify(errorResult));
@@ -108,7 +107,7 @@ function main() {
   setTimeout(() => {
     const timeoutResult = {
       status: 'error',
-      error: '请求处理超时'
+      error: '请求处理超时',
     };
     console.log(JSON.stringify(timeoutResult));
     process.exit(1);

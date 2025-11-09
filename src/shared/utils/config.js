@@ -6,12 +6,12 @@ import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import {
-  safeParseInt,
-  safeParseFloat,
-  safeBoolean,
-  safeString,
-  isValidUrl,
   isValidEmail,
+  isValidUrl,
+  safeBoolean,
+  safeParseFloat,
+  safeParseInt,
+  safeString,
 } from './type-guards.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -61,10 +61,7 @@ const loadEnvConfig = () => {
         console.log(`📄 从 ${envFile} 加载了环境配置`);
         return envVars;
       }
-    } catch (error) {
-      // 文件不存在或读取失败，继续尝试下一个文件
-      continue;
-    }
+    } catch (error) {}
   }
 
   // 如果没有配置文件，使用默认配置
@@ -101,6 +98,16 @@ export const config = {
       getEnvVar('MESSAGING_MAX_CONNECTIONS', '10'),
       10,
     ),
+  },
+
+  // Redis配置
+  redis: {
+    url: getEnvVar('REDIS_URL', 'redis://localhost:6379'),
+    host: getEnvVar('REDIS_HOST', 'localhost'),
+    port: safeParseInt(getEnvVar('REDIS_PORT', '6379'), 6379),
+    password: getEnvVar('REDIS_PASSWORD'),
+    db: safeParseInt(getEnvVar('REDIS_DB', '0'), 0),
+    keyPrefix: getEnvVar('REDIS_KEY_PREFIX', 'frys:'),
   },
 
   // 认证配置
@@ -155,10 +162,19 @@ export const config = {
   // Sentry 配置
   sentry: {
     dsn: getEnvVar('SENTRY_DSN'),
-    tracesSampleRate: safeParseFloat(getEnvVar('SENTRY_TRACES_SAMPLE_RATE', '0.1'), 0.1),
-    profilesSampleRate: safeParseFloat(getEnvVar('SENTRY_PROFILES_SAMPLE_RATE', '0.1'), 0.1),
+    tracesSampleRate: safeParseFloat(
+      getEnvVar('SENTRY_TRACES_SAMPLE_RATE', '0.1'),
+      0.1,
+    ),
+    profilesSampleRate: safeParseFloat(
+      getEnvVar('SENTRY_PROFILES_SAMPLE_RATE', '0.1'),
+      0.1,
+    ),
     sampleRate: safeParseFloat(getEnvVar('SENTRY_SAMPLE_RATE', '1.0'), 1.0),
-    slowQueryThreshold: safeParseInt(getEnvVar('SENTRY_SLOW_QUERY_THRESHOLD', '1000'), 1000),
+    slowQueryThreshold: safeParseInt(
+      getEnvVar('SENTRY_SLOW_QUERY_THRESHOLD', '1000'),
+      1000,
+    ),
   },
 
   // AI服务配置

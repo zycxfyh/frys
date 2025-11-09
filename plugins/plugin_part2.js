@@ -24,7 +24,7 @@
 
             // 3. 确定预处理器加载顺序
             const availablePlugins = new Set(discoveredPreprocessors.keys());
-            let finalOrder = [];
+            const finalOrder = [];
             try {
                 const orderContent = await fs.readFile(PREPROCESSOR_ORDER_FILE, 'utf-8');
                 const savedOrder = JSON.parse(orderContent);
@@ -110,11 +110,11 @@
 
     buildVCPDescription() {
         this.individualPluginDescriptions.clear(); // Clear previous descriptions
-        let overallLog = ['[PluginManager] Building individual VCP descriptions:'];
+        const overallLog = ['[PluginManager] Building individual VCP descriptions:'];
 
         for (const plugin of this.plugins.values()) {
             if (plugin.capabilities && plugin.capabilities.invocationCommands && plugin.capabilities.invocationCommands.length > 0) {
-                let pluginSpecificDescriptions = [];
+                const pluginSpecificDescriptions = [];
                 plugin.capabilities.invocationCommands.forEach(cmd => {
                     if (cmd.description) {
                         let commandDescription = `- ${plugin.displayName} (${plugin.name}) - 命令: ${cmd.command || 'N/A'}:\n`; // Assuming cmd might have a 'command' field or similar identifier

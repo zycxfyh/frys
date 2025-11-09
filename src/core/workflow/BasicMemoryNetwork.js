@@ -14,12 +14,12 @@ import { logger } from '../../shared/utils/logger.js';
 export class BasicMemoryNetwork {
   constructor(options = {}) {
     this.options = {
-      maxMemoryMB: options.maxMemoryMB || 100,     // 最大内存使用(MB)
-      defaultTTL: options.defaultTTL || 3600000,   // 默认TTL 1小时
+      maxMemoryMB: options.maxMemoryMB || 100, // 最大内存使用(MB)
+      defaultTTL: options.defaultTTL || 3600000, // 默认TTL 1小时
       cleanupInterval: options.cleanupInterval || 300000, // 清理间隔 5分钟
       enableCompression: options.enableCompression || false,
       enableLogging: options.enableLogging || true,
-      ...options
+      ...options,
     };
 
     // 记忆存储 - 按命名空间组织
@@ -33,7 +33,7 @@ export class BasicMemoryNetwork {
       hits: 0,
       misses: 0,
       evictions: 0,
-      expirations: 0
+      expirations: 0,
     };
 
     // 过期管理
@@ -60,7 +60,7 @@ export class BasicMemoryNetwork {
 
     logger.info('BasicMemoryNetwork initialized', {
       maxMemoryMB: this.options.maxMemoryMB,
-      defaultTTL: this.options.defaultTTL
+      defaultTTL: this.options.defaultTTL,
     });
   }
 
@@ -70,78 +70,118 @@ export class BasicMemoryNetwork {
   async set(key, value, options = {}) {
     const namespace = options.namespace || 'default';
     const ttl = options.ttl || this.options.defaultTTL;
-    const compress = options.compress !== undefined ? options.compress : this.options.enableCompression;
+    const compress = this.getCompressOption(options);
 
     try {
-      // 确保命名空间存在
-      if (!this.namespaces.has(namespace)) {
-        this.namespaces.set(namespace, new Map());
-        this.stats.totalNamespaces++;
-      }
-
-      const ns = this.namespaces.get(namespace);
-
-      // 序列化值
+      const ns = this.ensureNamespace(namespace);
       const serializedValue = this.serialize(value, compress);
-
-      // 计算内存使用
       const memoryUsage = this.calculateMemoryUsage(serializedValue);
 
-      // 检查内存限制
-      if (this.stats.memoryUsage + memoryUsage > this.options.maxMemoryMB * 1024 * 1024) {
-        await this.evictOldEntries(memoryUsage);
-      }
-
-      // 创建记忆项
-      const memoryItem = {
+      await this.checkMemoryLimit(memoryUsage);
+      const memoryItem = this.createMemoryItem(
         key,
-        value: serializedValue,
-        originalValue: value, // 保留原始值用于快速访问
-        compressed: compress,
-        createdAt: new Date(),
-        accessedAt: new Date(),
-        expiresAt: ttl > 0 ? new Date(Date.now() + ttl) : null,
-        accessCount: 0,
+        value,
+        serializedValue,
+        compress,
+        ttl,
         namespace,
-        size: memoryUsage,
-        metadata: options.metadata || {}
-      };
+        memoryUsage,
+        options,
+      );
 
-      // 检查是否已存在
-      const existing = ns.get(key);
-      if (existing) {
-        // 更新现有项
-        this.stats.memoryUsage -= existing.size;
-        this.removeFromExpirationQueue(existing);
-      } else {
-        this.stats.totalKeys++;
-      }
-
-      // 存储记忆项
-      ns.set(key, memoryItem);
-      this.stats.memoryUsage += memoryUsage;
-
-      // 添加到过期队列
-      if (memoryItem.expiresAt) {
-        this.addToExpirationQueue(memoryItem);
-      }
+      this.updateExistingItem(ns, key, memoryItem);
+      this.storeMemoryItem(ns, key, memoryItem);
 
       if (this.options.enableLogging) {
-        logger.debug('Memory item stored', {
-          namespace,
-          key,
-          size: memoryUsage,
-          ttl,
-          compressed: compress
-        });
+        this.logStorage(memoryItem);
       }
 
       return true;
-
     } catch (error) {
-      logger.error('Failed to store memory item', { namespace, key, error: error.message });
+      logger.error('Failed to store memory item', {
+        namespace,
+        key,
+        error: error.message,
+      });
       throw error;
     }
+  }
+
+  getCompressOption(options) {
+    return options.compress !== undefined
+      ? options.compress
+      : this.options.enableCompression;
+  }
+
+  ensureNamespace(namespace) {
+    if (!this.namespaces.has(namespace)) {
+      this.namespaces.set(namespace, new Map());
+      this.stats.totalNamespaces++;
+    }
+    return this.namespaces.get(namespace);
+  }
+
+  async checkMemoryLimit(memoryUsage) {
+    if (
+      this.stats.memoryUsage + memoryUsage >
+      this.options.maxMemoryMB * 1024 * 1024
+    ) {
+      await this.evictOldEntries(memoryUsage);
+    }
+  }
+
+  createMemoryItem(
+    key,
+    value,
+    serializedValue,
+    compress,
+    ttl,
+    namespace,
+    memoryUsage,
+    options,
+  ) {
+    return {
+      key,
+      value: serializedValue,
+      originalValue: value,
+      compressed: compress,
+      createdAt: new Date(),
+      accessedAt: new Date(),
+      expiresAt: ttl > 0 ? new Date(Date.now() + ttl) : null,
+      accessCount: 0,
+      namespace,
+      size: memoryUsage,
+      metadata: options.metadata || {},
+    };
+  }
+
+  updateExistingItem(ns, key) {
+    const existing = ns.get(key);
+    if (existing) {
+      this.stats.memoryUsage -= existing.size;
+      this.removeFromExpirationQueue(existing);
+    } else {
+      this.stats.totalKeys++;
+    }
+  }
+
+  storeMemoryItem(ns, key, memoryItem) {
+    ns.set(key, memoryItem);
+    this.stats.memoryUsage += memoryItem.size;
+
+    if (memoryItem.expiresAt) {
+      this.addToExpirationQueue(memoryItem);
+    }
+  }
+
+  logStorage(memoryItem) {
+    logger.debug('Memory item stored', {
+      namespace: memoryItem.namespace,
+      key: memoryItem.key,
+      size: memoryItem.size,
+      ttl: memoryItem.expiresAt,
+      compressed: memoryItem.compressed,
+    });
   }
 
   /**
@@ -181,14 +221,17 @@ export class BasicMemoryNetwork {
         logger.debug('Memory item accessed frequently', {
           namespace,
           key,
-          accessCount: item.accessCount
+          accessCount: item.accessCount,
         });
       }
 
       return item.originalValue;
-
     } catch (error) {
-      logger.error('Failed to get memory item', { namespace, key, error: error.message });
+      logger.error('Failed to get memory item', {
+        namespace,
+        key,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -231,9 +274,12 @@ export class BasicMemoryNetwork {
       }
 
       return true;
-
     } catch (error) {
-      logger.error('Failed to delete memory item', { namespace, key, error: error.message });
+      logger.error('Failed to delete memory item', {
+        namespace,
+        key,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -262,9 +308,12 @@ export class BasicMemoryNetwork {
       }
 
       return true;
-
     } catch (error) {
-      logger.error('Failed to check memory item existence', { namespace, key, error: error.message });
+      logger.error('Failed to check memory item existence', {
+        namespace,
+        key,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -286,13 +335,16 @@ export class BasicMemoryNetwork {
 
       // 应用模式匹配
       if (pattern) {
-        keys = keys.filter(key => this.matchesPattern(key, pattern));
+        keys = keys.filter((key) => this.matchesPattern(key, pattern));
       }
 
       return keys;
-
     } catch (error) {
-      logger.error('Failed to get keys', { namespace, pattern, error: error.message });
+      logger.error('Failed to get keys', {
+        namespace,
+        pattern,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -341,13 +393,17 @@ export class BasicMemoryNetwork {
       }
 
       if (this.options.enableLogging) {
-        logger.info('Memory network cleared', { namespace: namespace || 'all' });
+        logger.info('Memory network cleared', {
+          namespace: namespace || 'all',
+        });
       }
 
       return true;
-
     } catch (error) {
-      logger.error('Failed to clear memory', { namespace, error: error.message });
+      logger.error('Failed to clear memory', {
+        namespace,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -362,9 +418,12 @@ export class BasicMemoryNetwork {
       const oldValue = await this.get(key, { namespace });
       await this.set(key, value, options);
       return oldValue;
-
     } catch (error) {
-      logger.error('Failed to getset memory item', { namespace, key, error: error.message });
+      logger.error('Failed to getset memory item', {
+        namespace,
+        key,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -400,9 +459,13 @@ export class BasicMemoryNetwork {
       }
 
       return true;
-
     } catch (error) {
-      logger.error('Failed to set expiration', { namespace, key, ttl, error: error.message });
+      logger.error('Failed to set expiration', {
+        namespace,
+        key,
+        ttl,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -430,9 +493,12 @@ export class BasicMemoryNetwork {
 
       const remaining = item.expiresAt.getTime() - Date.now();
       return remaining > 0 ? remaining : -2; // 已过期
-
     } catch (error) {
-      logger.error('Failed to get TTL', { namespace, key, error: error.message });
+      logger.error('Failed to get TTL', {
+        namespace,
+        key,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -453,7 +519,7 @@ export class BasicMemoryNetwork {
         memoryUsage: 0,
         oldestItem: null,
         newestItem: null,
-        expiredCount: 0
+        expiredCount: 0,
       };
 
       const now = new Date();
@@ -474,9 +540,11 @@ export class BasicMemoryNetwork {
       }
 
       return stats;
-
     } catch (error) {
-      logger.error('Failed to get namespace stats', { namespace, error: error.message });
+      logger.error('Failed to get namespace stats', {
+        namespace,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -488,9 +556,9 @@ export class BasicMemoryNetwork {
     try {
       if (compress && typeof value === 'object') {
         // 简单压缩：移除undefined值，简化对象
-        const cleaned = JSON.parse(JSON.stringify(value, (key, val) =>
-          val === undefined ? null : val
-        ));
+        const cleaned = JSON.parse(
+          JSON.stringify(value, (key, val) => (val === undefined ? null : val)),
+        );
         return JSON.stringify(cleaned);
       } else {
         return JSON.stringify(value);
@@ -504,7 +572,7 @@ export class BasicMemoryNetwork {
   /**
    * 反序列化值
    */
-  deserialize(serializedValue, compressed = false) {
+  deserialize(serializedValue) {
     try {
       return JSON.parse(serializedValue);
     } catch (error) {
@@ -569,8 +637,9 @@ export class BasicMemoryNetwork {
    * 从过期队列移除
    */
   removeFromExpirationQueue(item) {
-    const index = this.expirationQueue.findIndex(queueItem =>
-      queueItem.key === item.key && queueItem.namespace === item.namespace
+    const index = this.expirationQueue.findIndex(
+      (queueItem) =>
+        queueItem.key === item.key && queueItem.namespace === item.namespace,
     );
 
     if (index >= 0) {
@@ -587,7 +656,10 @@ export class BasicMemoryNetwork {
 
     try {
       // 处理过期项目
-      while (this.expirationQueue.length > 0 && this.expirationQueue[0].expiresAt <= now) {
+      while (
+        this.expirationQueue.length > 0 &&
+        this.expirationQueue[0].expiresAt <= now
+      ) {
         const item = this.expirationQueue.shift();
 
         // 只有在项目仍然存在时才删除
@@ -609,7 +681,6 @@ export class BasicMemoryNetwork {
       if (cleaned > 0 && this.options.enableLogging) {
         logger.info('Memory cleanup performed', { cleanedItems: cleaned });
       }
-
     } catch (error) {
       logger.error('Memory cleanup failed', { error: error.message });
     }
@@ -622,7 +693,7 @@ export class BasicMemoryNetwork {
     let evicted = 0;
     const targetMemory = Math.max(
       requiredSpace,
-      this.options.maxMemoryMB * 1024 * 1024 * 0.8 // 目标80%内存使用
+      this.options.maxMemoryMB * 1024 * 1024 * 0.8, // 目标80%内存使用
     );
 
     try {
@@ -636,9 +707,12 @@ export class BasicMemoryNetwork {
 
       allItems.sort((a, b) => {
         // 优先删除：过期项目 > 最少访问 > 最旧访问
-        if (a.expiresAt && (!b.expiresAt || a.expiresAt < b.expiresAt)) return -1;
-        if (b.expiresAt && (!a.expiresAt || b.expiresAt < a.expiresAt)) return 1;
-        if (a.accessCount !== b.accessCount) return a.accessCount - b.accessCount;
+        if (a.expiresAt && (!b.expiresAt || a.expiresAt < b.expiresAt))
+          return -1;
+        if (b.expiresAt && (!a.expiresAt || b.expiresAt < a.expiresAt))
+          return 1;
+        if (a.accessCount !== b.accessCount)
+          return a.accessCount - b.accessCount;
         return a.accessedAt - b.accessedAt;
       });
 
@@ -655,7 +729,6 @@ export class BasicMemoryNetwork {
       if (evicted > 0 && this.options.enableLogging) {
         logger.warn('Memory eviction performed', { evictedItems: evicted });
       }
-
     } catch (error) {
       logger.error('Memory eviction failed', { error: error.message });
     }
@@ -676,8 +749,10 @@ export class BasicMemoryNetwork {
         processMemoryUsage: `${(memUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`,
         totalKeys: this.stats.totalKeys,
         totalNamespaces: this.stats.totalNamespaces,
-        hitRate: this.stats.hits + this.stats.misses > 0 ?
-          `${((this.stats.hits / (this.stats.hits + this.stats.misses)) * 100).toFixed(1)}%` : '0%'
+        hitRate:
+          this.stats.hits + this.stats.misses > 0
+            ? `${((this.stats.hits / (this.stats.hits + this.stats.misses)) * 100).toFixed(1)}%`
+            : '0%',
       });
     } catch (error) {
       logger.error('Failed to update memory stats', { error: error.message });
@@ -694,10 +769,19 @@ export class BasicMemoryNetwork {
       ...this.stats,
       memoryUsageMB: parseFloat(memoryUsageMB.toFixed(2)),
       memoryLimitMB: this.options.maxMemoryMB,
-      memoryUsagePercent: parseFloat(((memoryUsageMB / this.options.maxMemoryMB) * 100).toFixed(1)),
-      hitRate: this.stats.hits + this.stats.misses > 0 ?
-        parseFloat(((this.stats.hits / (this.stats.hits + this.stats.misses)) * 100).toFixed(1)) : 0,
-      namespaces: Array.from(this.namespaces.keys())
+      memoryUsagePercent: parseFloat(
+        ((memoryUsageMB / this.options.maxMemoryMB) * 100).toFixed(1),
+      ),
+      hitRate:
+        this.stats.hits + this.stats.misses > 0
+          ? parseFloat(
+              (
+                (this.stats.hits / (this.stats.hits + this.stats.misses)) *
+                100
+              ).toFixed(1),
+            )
+          : 0,
+      namespaces: Array.from(this.namespaces.keys()),
     };
   }
 
@@ -727,15 +811,17 @@ export class BasicMemoryNetwork {
             value: item.originalValue,
             metadata: item.metadata,
             expiresAt: item.expiresAt,
-            createdAt: item.createdAt
+            createdAt: item.createdAt,
           };
         }
       }
 
       return exportData;
-
     } catch (error) {
-      logger.error('Failed to export data', { namespace, error: error.message });
+      logger.error('Failed to export data', {
+        namespace,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -754,17 +840,21 @@ export class BasicMemoryNetwork {
         const targetNamespace = namespace || nsName;
 
         for (const [key, itemData] of Object.entries(nsData)) {
-          if (skipExisting && await this.exists(key, { namespace: targetNamespace })) {
+          if (
+            skipExisting &&
+            (await this.exists(key, { namespace: targetNamespace }))
+          ) {
             continue;
           }
 
-          const ttl = itemData.expiresAt ?
-            Math.max(0, itemData.expiresAt.getTime() - Date.now()) : 0;
+          const ttl = itemData.expiresAt
+            ? Math.max(0, itemData.expiresAt.getTime() - Date.now())
+            : 0;
 
           await this.set(key, itemData.value, {
             namespace: targetNamespace,
             ttl,
-            metadata: itemData.metadata
+            metadata: itemData.metadata,
           });
 
           imported++;
@@ -776,7 +866,6 @@ export class BasicMemoryNetwork {
       }
 
       return imported;
-
     } catch (error) {
       logger.error('Failed to import data', { error: error.message });
       throw error;

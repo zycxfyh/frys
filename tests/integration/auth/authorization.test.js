@@ -1,45 +1,45 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
  * 授权服务集成测试
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import { AuthorizationService } from '../../../src/domain/services/auth/AuthorizationService.js';
-import { User } from '../../../src/domain/entities/auth/User.js';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { Role } from '../../../src/domain/entities/auth/Role.js';
+import { User } from '../../../src/domain/entities/auth/User.js';
+import { AuthorizationService } from '../../../src/domain/services/auth/AuthorizationService.js';
 
 // Mock repositories
 const mockUserRepository = {
-  findById: vi.fn()
+  findById: vi.fn(),
 };
 
 const mockRoleRepository = {
   findByUserId: vi.fn(),
   findByName: vi.fn(),
-  count: vi.fn()
+  count: vi.fn(),
 };
 
 const mockPermissionRepository = {
-  count: vi.fn()
+  count: vi.fn(),
 };
 
 const mockProjectMembershipRepository = {
-  findByUserAndProject: vi.fn()
+  findByUserAndProject: vi.fn(),
 };
 
 const mockOrganizationMembershipRepository = {
-  findByUserAndOrganization: vi.fn()
+  findByUserAndOrganization: vi.fn(),
 };
 
 const mockTeamMembershipRepository = {
-  findByUserAndTeam: vi.fn()
+  findByUserAndTeam: vi.fn(),
 };
 
 describe('授权服务集成测试', () => {
@@ -49,7 +49,7 @@ describe('授权服务集成测试', () => {
     authzService = new AuthorizationService({
       enablePermissionCaching: true,
       cacheTtl: 5000,
-      superAdminRole: 'super_admin'
+      superAdminRole: 'super_admin',
     });
 
     authzService.setDependencies(
@@ -58,7 +58,7 @@ describe('授权服务集成测试', () => {
       mockPermissionRepository,
       mockProjectMembershipRepository,
       mockOrganizationMembershipRepository,
-      mockTeamMembershipRepository
+      mockTeamMembershipRepository,
     );
   });
 
@@ -74,11 +74,14 @@ describe('授权服务集成测试', () => {
         username: 'superadmin',
         email: 'admin@example.com',
         roles: ['super_admin'],
-        permissions: []
+        permissions: [],
       });
 
       // Act
-      const result = await authzService.checkPermission(superAdmin, 'any:permission');
+      const result = await authzService.checkPermission(
+        superAdmin,
+        'any:permission',
+      );
 
       // Assert
       expect(result.granted).toBe(true);
@@ -92,12 +95,18 @@ describe('授权服务集成测试', () => {
         username: 'testuser',
         email: 'user@example.com',
         roles: [],
-        permissions: ['read:own_profile', 'write:own_profile']
+        permissions: ['read:own_profile', 'write:own_profile'],
       });
 
       // Act
-      const result1 = await authzService.checkPermission(user, 'read:own_profile');
-      const result2 = await authzService.checkPermission(user, 'delete:own_profile');
+      const result1 = await authzService.checkPermission(
+        user,
+        'read:own_profile',
+      );
+      const result2 = await authzService.checkPermission(
+        user,
+        'delete:own_profile',
+      );
 
       // Assert
       expect(result1.granted).toBe(true);
@@ -111,20 +120,26 @@ describe('授权服务集成测试', () => {
         username: 'testuser',
         email: 'editor@example.com',
         roles: ['editor'],
-        permissions: []
+        permissions: [],
       });
 
       const role = new Role({
         id: 'role-123',
         name: 'editor',
-        permissions: ['edit:documents', 'read:documents']
+        permissions: ['edit:documents', 'read:documents'],
       });
 
       mockRoleRepository.findByUserId.mockResolvedValue([role]);
 
       // Act
-      const result1 = await authzService.checkPermission(user, 'edit:documents');
-      const result2 = await authzService.checkPermission(user, 'delete:documents');
+      const result1 = await authzService.checkPermission(
+        user,
+        'edit:documents',
+      );
+      const result2 = await authzService.checkPermission(
+        user,
+        'delete:documents',
+      );
 
       // Assert
       expect(result1.granted).toBe(true);
@@ -138,12 +153,18 @@ describe('授权服务集成测试', () => {
         username: 'testuser',
         email: 'wildcard@example.com',
         roles: [],
-        permissions: ['documents:*']
+        permissions: ['documents:*'],
       });
 
       // Act
-      const result1 = await authzService.checkPermission(user, 'documents:read');
-      const result2 = await authzService.checkPermission(user, 'documents:write');
+      const result1 = await authzService.checkPermission(
+        user,
+        'documents:read',
+      );
+      const result2 = await authzService.checkPermission(
+        user,
+        'documents:write',
+      );
       const result3 = await authzService.checkPermission(user, 'files:read');
 
       // Assert
@@ -159,12 +180,18 @@ describe('授权服务集成测试', () => {
         username: 'testuser',
         email: 'multi@example.com',
         roles: [],
-        permissions: ['read:documents']
+        permissions: ['read:documents'],
       });
 
       // Act
-      const result1 = await authzService.checkAnyPermission(user, ['read:documents', 'write:documents']);
-      const result2 = await authzService.checkAllPermissions(user, ['read:documents', 'write:documents']);
+      const result1 = await authzService.checkAnyPermission(user, [
+        'read:documents',
+        'write:documents',
+      ]);
+      const result2 = await authzService.checkAllPermissions(user, [
+        'read:documents',
+        'write:documents',
+      ]);
 
       // Assert
       expect(result1.granted).toBe(true);
@@ -179,13 +206,13 @@ describe('授权服务集成测试', () => {
         id: 'user-123',
         username: 'testuser',
         email: 'manager@example.com',
-        roles: ['manager']
+        roles: ['manager'],
       });
 
       const role = new Role({
         id: 'role-123',
         name: 'manager',
-        permissions: ['manage:users', 'view:reports']
+        permissions: ['manage:users', 'view:reports'],
       });
 
       mockRoleRepository.findByUserId.mockResolvedValue([role]);
@@ -206,7 +233,7 @@ describe('授权服务集成测试', () => {
       // Arrange
       authzService.permissionCache.set('user-123', {
         permissions: ['old:permission'],
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
 
       // Act
@@ -221,7 +248,7 @@ describe('授权服务集成测试', () => {
       const oldTimestamp = Date.now() - 10000; // 10秒前
       authzService.permissionCache.set('old-user', {
         permissions: ['old:permission'],
-        timestamp: oldTimestamp
+        timestamp: oldTimestamp,
       });
 
       // Act
@@ -239,23 +266,25 @@ describe('授权服务集成测试', () => {
         id: 'user-123',
         username: 'testuser',
         email: 'project@example.com',
-        roles: []
+        roles: [],
       });
 
       const membership = {
         role: {
-          permissions: ['project:edit']
-        }
+          permissions: ['project:edit'],
+        },
       };
 
-      mockProjectMembershipRepository.findByUserAndProject.mockResolvedValue(membership);
+      mockProjectMembershipRepository.findByUserAndProject.mockResolvedValue(
+        membership,
+      );
 
       // Act
       const result = await authzService.checkContextPermission(
         user,
         'project:edit',
         { type: 'project', id: 'project-123' },
-        {}
+        {},
       );
 
       // Assert
@@ -268,23 +297,25 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
-        email: 'org@example.com'
+        email: 'org@example.com',
       });
 
       const membership = {
         role: {
-          permissions: ['org:manage_members']
-        }
+          permissions: ['org:manage_members'],
+        },
       };
 
-      mockOrganizationMembershipRepository.findByUserAndOrganization.mockResolvedValue(membership);
+      mockOrganizationMembershipRepository.findByUserAndOrganization.mockResolvedValue(
+        membership,
+      );
 
       // Act
       const result = await authzService.checkContextPermission(
         user,
         'org:manage_members',
         { type: 'organization', id: 'org-123' },
-        {}
+        {},
       );
 
       // Assert
@@ -297,17 +328,19 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
-        email: 'unauth@example.com'
+        email: 'unauth@example.com',
       });
 
-      mockProjectMembershipRepository.findByUserAndProject.mockResolvedValue(null);
+      mockProjectMembershipRepository.findByUserAndProject.mockResolvedValue(
+        null,
+      );
 
       // Act
       const result = await authzService.checkContextPermission(
         user,
         'project:edit',
         { type: 'project', id: 'project-123' },
-        {}
+        {},
       );
 
       // Assert
@@ -319,7 +352,8 @@ describe('授权服务集成测试', () => {
   describe('中间件功能', () => {
     it('应该创建权限中间件', () => {
       // Act
-      const middleware = authzService.createPermissionMiddleware('read:documents');
+      const middleware =
+        authzService.createPermissionMiddleware('read:documents');
 
       // Assert
       expect(typeof middleware).toBe('function');
@@ -335,15 +369,16 @@ describe('授权服务集成测试', () => {
 
     it('应该处理中间件错误', async () => {
       // Arrange
-      const middleware = authzService.createPermissionMiddleware('read:documents');
+      const middleware =
+        authzService.createPermissionMiddleware('read:documents');
       const mockReq = {
         user: null,
         path: '/api/documents',
-        method: 'GET'
+        method: 'GET',
       };
       const mockRes = {
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       };
       const mockNext = vi.fn();
 
@@ -381,13 +416,13 @@ describe('授权服务集成测试', () => {
         username: 'testuser',
         email: 'stats@example.com',
         permissions: ['direct:permission'],
-        roles: ['user']
+        roles: ['user'],
       });
 
       const role = new Role({
         id: 'role-123',
         name: 'user',
-        permissions: ['role:permission']
+        permissions: ['role:permission'],
       });
 
       mockUserRepository.findById.mockResolvedValue(user);
@@ -411,16 +446,19 @@ describe('授权服务集成测试', () => {
         id: 'user-123',
         username: 'testuser',
         email: 'batch@example.com',
-        permissions: ['read:documents']
+        permissions: ['read:documents'],
       });
 
       const permissionChecks = [
         { permission: 'read:documents', resource: null },
-        { permission: 'write:documents', resource: null }
+        { permission: 'write:documents', resource: null },
       ];
 
       // Act
-      const results = await authzService.batchCheckPermissions(user, permissionChecks);
+      const results = await authzService.batchCheckPermissions(
+        user,
+        permissionChecks,
+      );
 
       // Assert
       expect(results).toHaveLength(2);
@@ -433,7 +471,7 @@ describe('授权服务集成测试', () => {
     it('应该支持禁用缓存', () => {
       // Arrange
       const authzServiceNoCache = new AuthorizationService({
-        enablePermissionCaching: false
+        enablePermissionCaching: false,
       });
 
       // Assert
@@ -443,7 +481,7 @@ describe('授权服务集成测试', () => {
     it('应该支持自定义超级管理员角色', () => {
       // Arrange
       const authzServiceCustom = new AuthorizationService({
-        superAdminRole: 'god_mode'
+        superAdminRole: 'god_mode',
       });
 
       // Assert
@@ -453,7 +491,7 @@ describe('授权服务集成测试', () => {
     it('应该支持自定义缓存TTL', () => {
       // Arrange
       const authzServiceCustom = new AuthorizationService({
-        cacheTtl: 10000
+        cacheTtl: 10000,
       });
 
       // Assert
@@ -467,13 +505,18 @@ describe('授权服务集成测试', () => {
       const user = new User({
         id: 'user-123',
         username: 'testuser',
-        email: 'error@example.com'
+        email: 'error@example.com',
       });
 
-      mockRoleRepository.findByUserId.mockRejectedValue(new Error('Database error'));
+      mockRoleRepository.findByUserId.mockRejectedValue(
+        new Error('Database error'),
+      );
 
       // Act
-      const result = await authzService.checkPermission(user, 'test:permission');
+      const result = await authzService.checkPermission(
+        user,
+        'test:permission',
+      );
 
       // Assert
       expect(result.granted).toBe(false);
@@ -487,7 +530,7 @@ describe('授权服务集成测试', () => {
         id: 'user-123',
         username: 'testuser',
         email: 'invalid@example.com',
-        permissions: ['invalid-permission-format']
+        permissions: ['invalid-permission-format'],
       });
 
       // Act
@@ -504,7 +547,7 @@ describe('授权服务集成测试', () => {
         username: 'testuser',
         email: 'empty@example.com',
         permissions: [],
-        roles: []
+        roles: [],
       });
 
       mockRoleRepository.findByUserId.mockResolvedValue([]);
@@ -526,13 +569,13 @@ describe('授权服务集成测试', () => {
         username: 'testuser',
         email: 'perf@example.com',
         permissions: ['perm1', 'perm2', 'perm3'],
-        roles: ['role1']
+        roles: ['role1'],
       });
 
       const role = new Role({
         id: 'role-123',
         name: 'role1',
-        permissions: ['role:perm1', 'role:perm2']
+        permissions: ['role:perm1', 'role:perm2'],
       });
 
       mockRoleRepository.findByUserId.mockResolvedValue([role]);
@@ -541,7 +584,7 @@ describe('授权服务集成测试', () => {
       const startTime = Date.now();
       const checks = [];
       for (let i = 0; i < 100; i++) {
-        checks.push(authzService.checkPermission(user, 'perm' + (i % 3 + 1)));
+        checks.push(authzService.checkPermission(user, 'perm' + ((i % 3) + 1)));
       }
       await Promise.all(checks);
       const endTime = Date.now();
@@ -553,14 +596,14 @@ describe('授权服务集成测试', () => {
     it('应该限制缓存大小', () => {
       // Arrange
       const authzServiceSmallCache = new AuthorizationService({
-        enablePermissionCaching: true
+        enablePermissionCaching: true,
       });
 
       // Act - 添加大量缓存条目
       for (let i = 0; i < 1000; i++) {
         authzServiceSmallCache.permissionCache.set(`user-${i}`, {
           permissions: [`perm-${i}`],
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       }
 

@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * PrettierInspiredFormatting 风格的系统
  * 借鉴 Prettier 的核心理念
@@ -31,7 +33,7 @@ class PrettierInspiredFormatting {
       timestamp: new Date(),
     });
 
-    console.log(`✨ 代码已格式化: ${language}`);
+    logger.info(`✨ 代码已格式化: ${language}`);
     return formattedCode;
   }
 
@@ -58,7 +60,7 @@ class PrettierInspiredFormatting {
         formatted = this.formatCSS(formatted, options);
         break;
       default:
-        console.warn(`不支持的语言: ${language}`);
+        logger.warn(`不支持的语言: ${language}`);
     }
 
     return formatted;
@@ -70,7 +72,7 @@ class PrettierInspiredFormatting {
    * @param {Object} options - 选项
    * @returns {string} 格式化后的代码
    */
-  formatJavaScript(code, _options) {
+  formatJavaScript(code) {
     // 简化实现，实际应该使用更复杂的格式化逻辑
     return code
       .replace(/\s*;\s*/g, ';\n') // 分号后换行
@@ -90,7 +92,7 @@ class PrettierInspiredFormatting {
       const obj = JSON.parse(code);
       return JSON.stringify(obj, null, options.indent || 2);
     } catch (error) {
-      console.error('JSON格式化失败:', error);
+      logger.error('JSON格式化失败:', error);
       return code;
     }
   }
@@ -101,7 +103,7 @@ class PrettierInspiredFormatting {
    * @param {Object} options - 选项
    * @returns {string} 格式化后的CSS
    */
-  formatCSS(code, _options) {
+  formatCSS(code) {
     // 简化实现
     return code
       .replace(/\s*{\s*/g, ' {\n  ')

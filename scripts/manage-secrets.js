@@ -5,11 +5,14 @@
  * Herramienta de línea de comandos para gestionar secretos de manera segura
  */
 
-import { SecretManager, getSecretManager } from '../src/utils/secret-manager.js';
-import { logger } from '../src/utils/logger.js';
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { logger } from '../src/utils/logger.js';
+import {
+  getSecretManager,
+  SecretManager,
+} from '../src/utils/secret-manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -110,7 +113,9 @@ async function listSecrets(manager) {
   for (const secretKey of knownSecrets) {
     try {
       const value = await manager.getSecret(secretKey);
-      const masked = value ? '*'.repeat(Math.min(value.length, 20)) : '(no configurado)';
+      const masked = value
+        ? '*'.repeat(Math.min(value.length, 20))
+        : '(no configurado)';
       console.log(`${secretKey.padEnd(20)}: ${masked}`);
     } catch (error) {
       console.log(`${secretKey.padEnd(20)}: (error)`);
@@ -185,14 +190,17 @@ async function rotateSecret(manager, key) {
       jwt_secret: () => require('crypto').randomBytes(32).toString('hex'),
       db_password: () => generatePassword(16),
       cache_password: () => generatePassword(16),
-      openai_api_key: () => 'sk-' + require('crypto').randomBytes(32).toString('hex'),
+      openai_api_key: () =>
+        'sk-' + require('crypto').randomBytes(32).toString('hex'),
       claude_api_key: () => require('crypto').randomBytes(32).toString('hex'),
       gemini_api_key: () => require('crypto').randomBytes(32).toString('hex'),
       email_password: () => generatePassword(12),
       slack_webhook_url: () => 'https://example.com/webhook/placeholder',
     };
 
-    const generator = generators[key] || (() => require('crypto').randomBytes(16).toString('hex'));
+    const generator =
+      generators[key] ||
+      (() => require('crypto').randomBytes(16).toString('hex'));
     const newValue = await manager.rotateSecret(key, generator);
 
     console.log(`🔄 Secreto ${key} rotado`);
@@ -241,12 +249,18 @@ async function exportSecrets(manager, filePath) {
  * Crea una copia de seguridad de los secretos
  */
 async function backupSecrets(manager, filePath) {
-  const backupPath = filePath || `./secrets-backup-${new Date().toISOString().split('T')[0]}.enc`;
+  const backupPath =
+    filePath ||
+    `./secrets-backup-${new Date().toISOString().split('T')[0]}.enc`;
 
   try {
     // Esta funcionalidad depende del provider
-    console.log(`⚠️  Copia de seguridad no implementada para provider ${manager.provider}`);
-    console.log('Para encrypted-file provider, el archivo .secrets.enc ya es una copia de seguridad encriptada');
+    console.log(
+      `⚠️  Copia de seguridad no implementada para provider ${manager.provider}`,
+    );
+    console.log(
+      'Para encrypted-file provider, el archivo .secrets.enc ya es una copia de seguridad encriptada',
+    );
   } catch (error) {
     console.error('Error creando copia de seguridad:', error.message);
   }
@@ -303,7 +317,9 @@ async function initializeSecrets(manager) {
 
   console.log(`🎉 Inicializados ${initialized} secretos por defecto`);
   console.log('');
-  console.log('⚠️  IMPORTANTE: En producción, configura los siguientes secretos:');
+  console.log(
+    '⚠️  IMPORTANTE: En producción, configura los siguientes secretos:',
+  );
   console.log('   - openai_api_key (para OpenAI)');
   console.log('   - claude_api_key (para Anthropic Claude)');
   console.log('   - gemini_api_key (para Google Gemini)');
@@ -315,7 +331,8 @@ async function initializeSecrets(manager) {
  * Genera una contraseña segura
  */
 function generatePassword(length = 12) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+  const chars =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
   let password = '';
   for (let i = 0; i < length; i++) {
     password += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -368,7 +385,7 @@ SECURITY NOTES:
 
 // Ejecutar si se llama directamente
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(error => {
+  main().catch((error) => {
     console.error('Error fatal:', error);
     process.exit(1);
   });

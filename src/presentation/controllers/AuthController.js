@@ -4,7 +4,7 @@
  */
 
 import { BaseController } from '../../shared/kernel/BaseController.js';
-import { Success, Failure } from '../../shared/kernel/Result.js';
+import { Failure, Success } from '../../shared/kernel/Result.js';
 import { logger } from '../../shared/utils/logger.js';
 
 export class AuthController extends BaseController {

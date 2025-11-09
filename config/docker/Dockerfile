@@ -19,14 +19,13 @@ RUN addgroup -g 1001 -S nodejs && \
 # 设置工作目录
 WORKDIR /app
 
-# 从构建阶段复制文件（在实际部署时使用多阶段构建）
+# 复制源码文件
 COPY package*.json ./
 COPY pnpm-lock.yaml ./
-COPY dist/ ./dist/
+COPY src/ ./src/
 COPY config/ ./config/
-COPY scripts/ ./scripts/
 
-# 安装生产依赖
+# 安装生产依赖（不构建，直接运行源码）
 RUN npm install -g pnpm && \
     pnpm install --frozen-lockfile --prod && \
     pnpm store prune
@@ -51,4 +50,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:3000/health || exit 1
 
 # 启动应用
-CMD ["node", "dist/index.js"]
+CMD ["node", "src/index-fixed.js"]

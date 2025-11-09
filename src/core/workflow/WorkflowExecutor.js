@@ -86,7 +86,7 @@ class WorkflowNode {
     }
   }
 
-  async run(_context, _inputs) {
+  async run() {
     // 子类实现具体的执行逻辑
     throw new Error(`Node type '${this.type}' execution not implemented`);
   }
@@ -125,7 +125,7 @@ class ParallelNode extends WorkflowNode {
   }
 
   async run(context, inputs) {
-    const promises = this.subWorkflows.map(async (workflow, _index) => {
+    const promises = this.subWorkflows.map(async (workflow) => {
       const executor = new AsyncWorkflowExecutor(workflow);
       return executor.execute(context, inputs);
     });
@@ -274,7 +274,7 @@ export class AsyncWorkflowExecutor extends EventEmitter {
   /**
    * 初始化工作流执行器
    */
-  async initialize() {
+  initialize() {
     // 初始化逻辑（如果需要）
     logger.debug(`AsyncWorkflowExecutor initialized: ${this.executionId}`);
   }
@@ -543,7 +543,7 @@ export class AsyncWorkflowExecutor extends EventEmitter {
     }
   }
 
-  async waitForAnyNodeCompletion() {
+  waitForAnyNodeCompletion() {
     return new Promise((resolve) => {
       const checkCompletion = () => {
         if (
@@ -722,7 +722,7 @@ export class AsyncWorkflowExecutor extends EventEmitter {
   /**
    * 关闭工作流执行器，清理资源
    */
-  async shutdown() {
+  shutdown() {
     try {
       // 停止所有正在执行的工作流
       if (this.executionTimeout) {

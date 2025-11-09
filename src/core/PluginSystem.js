@@ -4,9 +4,7 @@
  */
 
 import fp from 'fastify-plugin';
-import { resolve } from './container.js';
 import { logger } from '../shared/utils/logger.js';
-import { config } from '../shared/utils/config.js';
 
 // 插件注册表
 const pluginRegistry = new Map();
@@ -112,31 +110,9 @@ class PluginManager {
     const { name, plugin, options } = pluginDefinition;
 
     try {
-      // 检查依赖
-      if (options.dependencies && options.dependencies.length > 0) {
-        for (const dep of options.dependencies) {
-          if (!loadedPlugins.has(dep)) {
-            throw new Error(`插件依赖未满足: ${dep}`);
-          }
-        }
-      }
-
-      // 如果是 fastify 插件，使用 fp 包装
-      let wrappedPlugin;
-      if (typeof plugin === 'function' && plugin.length >= 2) {
-        // 可能是 fastify 插件函数 (fastify, options, done)
-        wrappedPlugin = fp(plugin, options.fastifyOptions || {});
-      } else if (typeof plugin === 'object' && plugin.default) {
-        // ES模块
-        wrappedPlugin = plugin.default;
-      } else {
-        wrappedPlugin = plugin;
-      }
-
-      // 初始化插件（如果有初始化方法）
-      if (typeof wrappedPlugin.initialize === 'function') {
-        await wrappedPlugin.initialize(options);
-      }
+      this._checkPluginDependencies(name, options);
+      const wrappedPlugin = this._wrapPlugin(plugin, options);
+      await this._initializePluginIfNeeded(wrappedPlugin, options);
 
       loadedPlugins.set(name, {
         plugin: wrappedPlugin,
@@ -145,11 +121,42 @@ class PluginManager {
       });
 
       logger.info(`🔌 插件已加载: ${name}`);
-
       return wrappedPlugin;
     } catch (error) {
       logger.error(`🔌 插件加载失败: ${name}`, error);
       throw error;
+    }
+  }
+
+  _checkPluginDependencies(name, options) {
+    if (!options.dependencies || options.dependencies.length === 0) {
+      return;
+    }
+
+    for (const dep of options.dependencies) {
+      if (!loadedPlugins.has(dep)) {
+        throw new Error(`插件依赖未满足: ${dep}`);
+      }
+    }
+  }
+
+  _wrapPlugin(plugin, options) {
+    if (typeof plugin === 'function' && plugin.length >= 2) {
+      // 可能是 fastify 插件函数 (fastify, options, done)
+      return fp(plugin, options.fastifyOptions || {});
+    }
+
+    if (typeof plugin === 'object' && plugin.default) {
+      // ES模块
+      return plugin.default;
+    }
+
+    return plugin;
+  }
+
+  async _initializePluginIfNeeded(plugin, options) {
+    if (typeof plugin.initialize === 'function') {
+      await plugin.initialize(options);
     }
   }
 
@@ -307,28 +314,40 @@ class PluginManager {
 
     for (const [name, loadedPlugin] of loadedPlugins) {
       try {
-        const plugin = loadedPlugin.plugin;
-
-        // 如果插件有路由定义
-        if (plugin.routes) {
-          if (Array.isArray(plugin.routes)) {
-            for (const route of plugin.routes) {
-              fastify.route(route);
-            }
-          } else if (typeof plugin.routes === 'function') {
-            await plugin.routes(fastify);
-          }
-        }
-
-        // 如果插件本身就是 fastify 插件
-        if (typeof plugin === 'function' && plugin.length >= 2) {
-          await fastify.register(plugin, this.getConfig(name));
-        }
+        await this._registerPluginRoutes(fastify, name, loadedPlugin.plugin);
       } catch (error) {
         logger.error(`🔌 插件路由注册失败: ${name}`, error);
       }
     }
+  }
 
+  async _registerPluginRoutes(fastify, name, plugin) {
+    try {
+      if (!plugin.routes) {
+        return;
+      }
+
+      if (Array.isArray(plugin.routes)) {
+        for (const route of plugin.routes) {
+          fastify.route(route);
+        }
+      } else if (typeof plugin.routes === 'function') {
+        await plugin.routes(fastify);
+      }
+
+      // 如果插件本身就是 fastify 插件
+      if (typeof plugin === 'function' && plugin.length >= 2) {
+        await fastify.register(plugin, this.getConfig(name));
+      }
+    } catch (error) {
+      logger.error(`🔌 插件路由注册失败: ${name}`, error);
+    }
+  }
+
+  /**
+   * 完成插件路由注册
+   */
+  _finishRouteRegistration() {
     logger.debug('✅ 插件路由注册完成');
   }
 
@@ -357,7 +376,7 @@ class PluginManager {
   /**
    * 健康检查
    */
-  async healthCheck() {
+  healthCheck() {
     const statuses = this.getAllStatuses();
     const loadedCount = Object.values(statuses).filter((s) => s.loaded).length;
     const totalCount = Object.keys(statuses).length;

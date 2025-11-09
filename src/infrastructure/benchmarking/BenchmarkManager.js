@@ -3,12 +3,12 @@
  * 统一管理和执行各种类型的性能测试
  */
 
-import { PerformanceBenchmark } from './PerformanceBenchmark.js';
-import { LoadTester } from './LoadTester.js';
-import { StressTester } from './StressTester.js';
-import { logger } from '../../shared/utils/logger.js';
 import fs from 'fs/promises';
 import path from 'path';
+import { logger } from '../../shared/utils/logger.js';
+import { LoadTester } from './LoadTester.js';
+import { PerformanceBenchmark } from './PerformanceBenchmark.js';
+import { StressTester } from './StressTester.js';
 
 export class BenchmarkManager {
   constructor(options = {}) {

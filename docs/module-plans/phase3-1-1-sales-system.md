@@ -5,12 +5,14 @@
 **构建完整的销售管理系统，实现从线索获取到成交转化的全流程自动化管理，提升销售效率和成功率，为企业客户扩张提供强大的销售支持。**
 
 ### 核心价值
+
 - **流程自动化**：销售流程标准化和自动化执行
 - **数据驱动**：基于数据的销售决策和预测
 - **团队协作**：销售团队高效协作和知识共享
 - **客户洞察**：深度了解客户需求和购买行为
 
 ### 成功标准
+
 - 销售周期缩短30%
 - 销售转化率提升25%
 - 销售团队效率提升40%
@@ -23,12 +25,15 @@
 ### 3.1.1.1 CRM系统架构 (2周)
 
 #### 目标
+
 设计现代化的CRM系统架构，支持销售全流程管理。
 
 #### 具体任务
 
 **3.1.1.1.1 客户数据模型**
+
 - **客户关系数据架构**：
+
   ```typescript
   interface CRMSalesSystem {
     // 客户管理
@@ -105,13 +110,13 @@
   }
 
   enum SalesStage {
-    PROSPECT = 'prospect',           // 潜在客户
-    LEAD = 'lead',                  // 线索
-    QUALIFIED = 'qualified',         // 合格线索
-    PROPOSAL = 'proposal',          // 提案
-    NEGOTIATION = 'negotiation',     // 谈判
-    CLOSED_WON = 'closed_won',      // 成交
-    CLOSED_LOST = 'closed_lost'      // 失败
+    PROSPECT = 'prospect', // 潜在客户
+    LEAD = 'lead', // 线索
+    QUALIFIED = 'qualified', // 合格线索
+    PROPOSAL = 'proposal', // 提案
+    NEGOTIATION = 'negotiation', // 谈判
+    CLOSED_WON = 'closed_won', // 成交
+    CLOSED_LOST = 'closed_lost', // 失败
   }
 
   enum LeadSource {
@@ -122,7 +127,7 @@
     COLD_OUTREACH = 'cold_outreach',
     PARTNER = 'partner',
     CONTENT_MARKETING = 'content_marketing',
-    PAID_ADS = 'paid_ads'
+    PAID_ADS = 'paid_ads',
   }
 
   interface BuyingIntent {
@@ -132,7 +137,12 @@
   }
 
   interface BuyingSignal {
-    type: 'website_visit' | 'content_download' | 'demo_request' | 'pricing_inquiry' | 'competitor_mention';
+    type:
+      | 'website_visit'
+      | 'content_download'
+      | 'demo_request'
+      | 'pricing_inquiry'
+      | 'competitor_mention';
     description: string;
     date: Date;
     value: number; // 信号强度
@@ -158,7 +168,7 @@
     WEBINAR = 'webinar',
     SOCIAL_ENGAGEMENT = 'social_engagement',
     EVENT = 'event',
-    NOTE = 'note'
+    NOTE = 'note',
   }
 
   interface CustomerSegmentation {
@@ -220,7 +230,9 @@
   ```
 
 **3.1.1.1.2 销售流程引擎**
+
 - **销售自动化工作流**：
+
   ```typescript
   interface SalesProcessManagement {
     // 销售流程定义
@@ -281,7 +293,7 @@
     PROPOSAL = 'proposal',
     FOLLOW_UP = 'follow_up',
     RESEARCH = 'research',
-    CUSTOM = 'custom'
+    CUSTOM = 'custom',
   }
 
   interface StageExitCriteria {
@@ -324,7 +336,13 @@
   }
 
   interface AutomationTrigger {
-    type: 'stage_enter' | 'stage_exit' | 'activity_complete' | 'time_based' | 'score_change' | 'custom_event';
+    type:
+      | 'stage_enter'
+      | 'stage_exit'
+      | 'activity_complete'
+      | 'time_based'
+      | 'score_change'
+      | 'custom_event';
     config: Record<string, any>;
   }
 
@@ -335,7 +353,13 @@
   }
 
   interface AutomationAction {
-    type: 'send_email' | 'create_task' | 'update_field' | 'assign_owner' | 'schedule_followup' | 'notify_team';
+    type:
+      | 'send_email'
+      | 'create_task'
+      | 'update_field'
+      | 'assign_owner'
+      | 'schedule_followup'
+      | 'notify_team';
     config: Record<string, any>;
   }
 
@@ -343,17 +367,26 @@
     private processDefinitions: Map<string, SalesProcess> = new Map();
     private activeProcesses: Map<string, ActiveProcess> = new Map();
 
-    async startSalesProcess(customerId: string, processId: string): Promise<ActiveProcess> {
+    async startSalesProcess(
+      customerId: string,
+      processId: string,
+    ): Promise<ActiveProcess> {
       const processDefinition = this.processDefinitions.get(processId);
       if (!processDefinition) {
         throw new Error(`Sales process ${processId} not found`);
       }
 
       // 验证客户是否符合流程目标
-      await this.validateCustomerFit(customerId, processDefinition.targetSegment);
+      await this.validateCustomerFit(
+        customerId,
+        processDefinition.targetSegment,
+      );
 
       // 创建活动流程实例
-      const activeProcess = await this.createActiveProcess(customerId, processDefinition);
+      const activeProcess = await this.createActiveProcess(
+        customerId,
+        processDefinition,
+      );
 
       // 初始化第一阶段
       await this.initializeFirstStage(activeProcess);
@@ -362,22 +395,31 @@
       await this.auditLog('process_started', {
         customerId,
         processId: activeProcess.id,
-        processDefinitionId: processId
+        processDefinitionId: processId,
       });
 
       return activeProcess;
     }
 
-    async advanceProcess(processId: string, trigger: ProcessTrigger): Promise<ProcessUpdateResult> {
+    async advanceProcess(
+      processId: string,
+      trigger: ProcessTrigger,
+    ): Promise<ProcessUpdateResult> {
       const activeProcess = this.activeProcesses.get(processId);
       if (!activeProcess) {
         throw new Error(`Active process ${processId} not found`);
       }
 
-      const processDefinition = this.processDefinitions.get(activeProcess.definitionId);
+      const processDefinition = this.processDefinitions.get(
+        activeProcess.definitionId,
+      );
 
       // 评估转换条件
-      const transition = await this.evaluateTransitions(activeProcess, trigger, processDefinition);
+      const transition = await this.evaluateTransitions(
+        activeProcess,
+        trigger,
+        processDefinition,
+      );
 
       if (!transition) {
         return { advanced: false, reason: 'no_valid_transition' };
@@ -403,21 +445,25 @@
         advanced: true,
         fromStage: transition.fromStage,
         toStage: transition.toStage,
-        actions: transition.actions
+        actions: transition.actions,
       };
     }
 
     private async evaluateTransitions(
       activeProcess: ActiveProcess,
       trigger: ProcessTrigger,
-      processDefinition: SalesProcess
+      processDefinition: SalesProcess,
     ): Promise<ProcessTransition | null> {
       for (const transition of processDefinition.transitions) {
         if (transition.fromStage !== activeProcess.currentStage) {
           continue;
         }
 
-        const conditionMet = await this.evaluateTransitionCondition(transition.condition, trigger, activeProcess);
+        const conditionMet = await this.evaluateTransitionCondition(
+          transition.condition,
+          trigger,
+          activeProcess,
+        );
 
         if (conditionMet) {
           return transition;
@@ -430,22 +476,32 @@
     private async evaluateTransitionCondition(
       condition: TransitionCondition,
       trigger: ProcessTrigger,
-      activeProcess: ActiveProcess
+      activeProcess: ActiveProcess,
     ): Promise<boolean> {
       switch (condition.type) {
         case 'manual':
-          return trigger.type === 'manual' && trigger.userId === activeProcess.ownerId;
+          return (
+            trigger.type === 'manual' &&
+            trigger.userId === activeProcess.ownerId
+          );
 
         case 'time_based':
-          const stageDuration = Date.now() - activeProcess.stageEnteredAt.getTime();
-          const requiredDuration = condition.criteria.days * 24 * 60 * 60 * 1000;
+          const stageDuration =
+            Date.now() - activeProcess.stageEnteredAt.getTime();
+          const requiredDuration =
+            condition.criteria.days * 24 * 60 * 60 * 1000;
           return stageDuration >= requiredDuration;
 
         case 'activity_based':
-          return await this.checkActivityCompletion(activeProcess.id, condition.criteria.activityId);
+          return await this.checkActivityCompletion(
+            activeProcess.id,
+            condition.criteria.activityId,
+          );
 
         case 'score_based':
-          const customerScore = await this.getCustomerScore(activeProcess.customerId);
+          const customerScore = await this.getCustomerScore(
+            activeProcess.customerId,
+          );
           return this.evaluateScoreCondition(customerScore, condition.criteria);
 
         default:
@@ -453,8 +509,14 @@
       }
     }
 
-    private async executeStageEntry(stageId: string, activeProcess: ActiveProcess): Promise<void> {
-      const stage = await this.getProcessStage(activeProcess.definitionId, stageId);
+    private async executeStageEntry(
+      stageId: string,
+      activeProcess: ActiveProcess,
+    ): Promise<void> {
+      const stage = await this.getProcessStage(
+        activeProcess.definitionId,
+        stageId,
+      );
 
       // 创建必需活动
       for (const activity of stage.activities) {
@@ -467,7 +529,7 @@
       await this.triggerAutomationRules('stage_enter', {
         processId: activeProcess.id,
         stageId,
-        customerId: activeProcess.customerId
+        customerId: activeProcess.customerId,
       });
     }
 
@@ -479,7 +541,10 @@
       await this.triggerAutomationRules('stage_exit', { stageId });
     }
 
-    async applyAutomationRules(trigger: AutomationTrigger, context: any): Promise<void> {
+    async applyAutomationRules(
+      trigger: AutomationTrigger,
+      context: any,
+    ): Promise<void> {
       const matchingRules = await this.findMatchingAutomationRules(trigger);
 
       for (const rule of matchingRules) {
@@ -489,19 +554,33 @@
       }
     }
 
-    private async findMatchingAutomationRules(trigger: AutomationTrigger): Promise<AutomationRule[]> {
+    private async findMatchingAutomationRules(
+      trigger: AutomationTrigger,
+    ): Promise<AutomationRule[]> {
       // 从数据库或缓存中查找匹配的自动化规则
       return await this.automationRuleRepository.find({
         trigger: trigger,
-        enabled: true
+        enabled: true,
       });
     }
 
-    private async evaluateAutomationConditions(conditions: AutomationCondition[], context: any): Promise<boolean> {
+    private async evaluateAutomationConditions(
+      conditions: AutomationCondition[],
+      context: any,
+    ): Promise<boolean> {
       for (const condition of conditions) {
-        const fieldValue = await this.getContextFieldValue(context, condition.field);
+        const fieldValue = await this.getContextFieldValue(
+          context,
+          condition.field,
+        );
 
-        if (!this.evaluateCondition(fieldValue, condition.operator, condition.value)) {
+        if (
+          !this.evaluateCondition(
+            fieldValue,
+            condition.operator,
+            condition.value,
+          )
+        ) {
           return false;
         }
       }
@@ -509,13 +588,19 @@
       return true;
     }
 
-    private async executeAutomationActions(actions: AutomationAction[], context: any): Promise<void> {
+    private async executeAutomationActions(
+      actions: AutomationAction[],
+      context: any,
+    ): Promise<void> {
       for (const action of actions) {
         await this.executeAutomationAction(action, context);
       }
     }
 
-    private async executeAutomationAction(action: AutomationAction, context: any): Promise<void> {
+    private async executeAutomationAction(
+      action: AutomationAction,
+      context: any,
+    ): Promise<void> {
       switch (action.type) {
         case 'send_email':
           await this.sendAutomatedEmail(action.config, context);
@@ -546,6 +631,7 @@
   ```
 
 #### 验收标准
+
 - ✅ CRM数据模型完整准确
 - ✅ 销售流程引擎自动化高效
 - ✅ 客户分层科学有效
@@ -556,12 +642,15 @@
 ### 3.1.1.2 销售团队管理 (2周)
 
 #### 目标
+
 构建销售团队协作和管理平台。
 
 #### 具体任务
 
 **3.1.1.2.1 销售团队组织架构**
+
 - **团队管理架构**：
+
   ```typescript
   interface SalesTeamManagement {
     // 团队结构管理
@@ -602,7 +691,7 @@
     REGIONAL_MANAGER = 'regional_manager',
     SALES_MANAGER = 'sales_manager',
     SALES_REP = 'sales_rep',
-    SDR = 'sdr' // Sales Development Representative
+    SDR = 'sdr', // Sales Development Representative
   }
 
   interface SalesRole {
@@ -645,7 +734,7 @@
     ACTIVE = 'active',
     INACTIVE = 'inactive',
     ON_LEAVE = 'on_leave',
-    TERMINATED = 'terminated'
+    TERMINATED = 'terminated',
   }
 
   interface SalesSkill {
@@ -675,7 +764,7 @@
     GEOGRAPHIC = 'geographic',
     INDUSTRY = 'industry',
     ACCOUNT_SIZE = 'account_size',
-    NAMED_ACCOUNTS = 'named_accounts'
+    NAMED_ACCOUNTS = 'named_accounts',
   }
 
   interface TerritoryTargets {
@@ -738,7 +827,7 @@
     GOOD = 'good',
     SATISFACTORY = 'satisfactory',
     NEEDS_IMPROVEMENT = 'needs_improvement',
-    UNSATISFACTORY = 'unsatisfactory'
+    UNSATISFACTORY = 'unsatisfactory',
   }
 
   interface SalesQuota {
@@ -833,7 +922,9 @@
   ```
 
 **3.1.1.2.2 销售协作平台**
+
 - **团队协作工具**：
+
   ```typescript
   interface SalesCollaboration {
     // 客户共享和移交
@@ -879,7 +970,7 @@
     LOAD_BALANCED = 'load_balanced',
     SKILL_BASED = 'skill_based',
     GEOGRAPHIC = 'geographic',
-    MANUAL = 'manual'
+    MANUAL = 'manual',
   }
 
   interface HandoverProcess {
@@ -956,7 +1047,7 @@
     PLANNED = 'planned',
     ACTIVE = 'active',
     COMPLETED = 'completed',
-    CANCELLED = 'cancelled'
+    CANCELLED = 'cancelled',
   }
 
   interface KnowledgeBase {
@@ -1117,7 +1208,12 @@
     private knowledgeBase: KnowledgeBaseService;
     private forecastingEngine: SalesForecastingEngine;
 
-    async shareCustomer(customerId: string, fromRep: string, toRep: string, reason: string): Promise<CustomerShareResult> {
+    async shareCustomer(
+      customerId: string,
+      fromRep: string,
+      toRep: string,
+      reason: string,
+    ): Promise<CustomerShareResult> {
       // 验证权限
       await this.validateSharingPermission(fromRep, customerId);
 
@@ -1127,7 +1223,7 @@
         fromRep,
         toRep,
         reason,
-        permissions: ['read', 'comment'] // 默认权限
+        permissions: ['read', 'comment'], // 默认权限
       });
 
       // 通知接收者
@@ -1139,11 +1235,15 @@
       return {
         requestId: shareRequest.id,
         status: 'pending',
-        sharedAt: new Date()
+        sharedAt: new Date(),
       };
     }
 
-    async provideCoachingFeedback(coacheeId: string, coachId: string, feedback: CoachingFeedback): Promise<void> {
+    async provideCoachingFeedback(
+      coacheeId: string,
+      coachId: string,
+      feedback: CoachingFeedback,
+    ): Promise<void> {
       // 验证教练关系
       await this.validateCoachingRelationship(coacheeId, coachId);
 
@@ -1152,7 +1252,7 @@
         coacheeId,
         coachId,
         feedback,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
 
       // 更新教练计划
@@ -1162,7 +1262,9 @@
       await this.triggerImprovementActions(coacheeId, feedback);
     }
 
-    async searchKnowledgeBase(query: KnowledgeQuery): Promise<KnowledgeResult[]> {
+    async searchKnowledgeBase(
+      query: KnowledgeQuery,
+    ): Promise<KnowledgeResult[]> {
       // 执行搜索
       const results = await this.knowledgeBase.search(query);
 
@@ -1175,18 +1277,31 @@
       return sortedResults.slice(0, query.limit || 20);
     }
 
-    async generateSalesForecast(parameters: ForecastParameters): Promise<SalesForecast> {
+    async generateSalesForecast(
+      parameters: ForecastParameters,
+    ): Promise<SalesForecast> {
       // 收集历史数据
-      const historicalData = await this.forecastingEngine.collectHistoricalData(parameters.period);
+      const historicalData = await this.forecastingEngine.collectHistoricalData(
+        parameters.period,
+      );
 
       // 应用预测模型
-      const forecast = await this.forecastingEngine.generateForecast(historicalData, parameters);
+      const forecast = await this.forecastingEngine.generateForecast(
+        historicalData,
+        parameters,
+      );
 
       // 计算置信区间
-      forecast.confidence = this.calculateForecastConfidence(forecast, historicalData);
+      forecast.confidence = this.calculateForecastConfidence(
+        forecast,
+        historicalData,
+      );
 
       // 添加预测洞察
-      forecast.insights = await this.generateForecastInsights(forecast, historicalData);
+      forecast.insights = await this.generateForecastInsights(
+        forecast,
+        historicalData,
+      );
 
       // 保存预测
       await this.saveForecast(forecast);
@@ -1194,36 +1309,52 @@
       return forecast;
     }
 
-    private async validateSharingPermission(repId: string, customerId: string): Promise<void> {
+    private async validateSharingPermission(
+      repId: string,
+      customerId: string,
+    ): Promise<void> {
       const customer = await this.getCustomer(customerId);
 
       // 检查是否是客户所有者
       if (customer.assignedTo !== repId) {
         // 检查是否是团队成员
-        const isTeamMember = await this.checkTeamMembership(repId, customer.assignedTo);
+        const isTeamMember = await this.checkTeamMembership(
+          repId,
+          customer.assignedTo,
+        );
         if (!isTeamMember) {
           throw new AuthorizationError('没有权限共享此客户');
         }
       }
     }
 
-    private async validateCoachingRelationship(coacheeId: string, coachId: string): Promise<void> {
+    private async validateCoachingRelationship(
+      coacheeId: string,
+      coachId: string,
+    ): Promise<void> {
       // 检查教练分配
-      const assignment = await this.coachingSystem.getCoachAssignment(coacheeId);
+      const assignment =
+        await this.coachingSystem.getCoachAssignment(coacheeId);
 
       if (assignment.coachId !== coachId) {
         throw new ValidationError('无效的教练关系');
       }
 
       // 检查教练资格
-      const coachQualification = await this.checkCoachQualification(coachId, coacheeId);
+      const coachQualification = await this.checkCoachQualification(
+        coachId,
+        coacheeId,
+      );
 
       if (!coachQualification.qualified) {
         throw new ValidationError('教练没有提供反馈的资格');
       }
     }
 
-    private rankResults(results: KnowledgeResult[], query: KnowledgeQuery): KnowledgeResult[] {
+    private rankResults(
+      results: KnowledgeResult[],
+      query: KnowledgeQuery,
+    ): KnowledgeResult[] {
       return results.sort((a, b) => {
         let scoreA = 0;
         let scoreB = 0;
@@ -1248,7 +1379,10 @@
       });
     }
 
-    private calculateForecastConfidence(forecast: SalesForecast, historicalData: HistoricalData): number {
+    private calculateForecastConfidence(
+      forecast: SalesForecast,
+      historicalData: HistoricalData,
+    ): number {
       // 使用历史预测准确性计算置信度
       const recentAccuracy = this.calculateRecentAccuracy(historicalData);
 
@@ -1259,16 +1393,26 @@
       const marketVolatility = this.assessMarketVolatility(historicalData);
 
       // 综合计算置信度
-      return (recentAccuracy * 0.5 + dataQuality * 0.3 + (1 - marketVolatility) * 0.2) * 100;
+      return (
+        (recentAccuracy * 0.5 +
+          dataQuality * 0.3 +
+          (1 - marketVolatility) * 0.2) *
+        100
+      );
     }
 
-    private async generateForecastInsights(forecast: SalesForecast, historicalData: HistoricalData): Promise<string[]> {
+    private async generateForecastInsights(
+      forecast: SalesForecast,
+      historicalData: HistoricalData,
+    ): Promise<string[]> {
       const insights: string[] = [];
 
       // 趋势分析
       const trend = this.analyzeRevenueTrend(historicalData);
       if (trend.direction === 'increasing' && trend.significance > 0.8) {
-        insights.push(`收入呈显著上升趋势，预计增长${trend.growthRate.toFixed(1)}%`);
+        insights.push(
+          `收入呈显著上升趋势，预计增长${trend.growthRate.toFixed(1)}%`,
+        );
       }
 
       // 季节性模式
@@ -1284,8 +1428,11 @@
       }
 
       // 机会识别
-      const opportunities = this.identifyOpportunities(forecast, historicalData);
-      opportunities.forEach(opp => insights.push(opp.description));
+      const opportunities = this.identifyOpportunities(
+        forecast,
+        historicalData,
+      );
+      opportunities.forEach((opp) => insights.push(opp.description));
 
       return insights;
     }
@@ -1293,6 +1440,7 @@
   ```
 
 #### 验收标准
+
 - ✅ 销售团队组织架构清晰合理
 - ✅ 销售协作平台功能完善
 - ✅ 绩效管理公平透明
@@ -1303,12 +1451,15 @@
 ### 3.1.1.3 销售分析和报告 (2周)
 
 #### 目标
+
 构建销售数据分析和可视化报告系统。
 
 #### 具体任务
 
 **3.1.1.3.1 销售仪表盘**
+
 - **销售数据可视化**：
+
   ```typescript
   interface SalesAnalytics {
     // 实时仪表盘
@@ -1449,12 +1600,18 @@
     private alertService: SalesAlertService;
     private visualizationEngine: DashboardVisualizationEngine;
 
-    async getDashboardData(userId: string, filters: DashboardFilters): Promise<DashboardData> {
+    async getDashboardData(
+      userId: string,
+      filters: DashboardFilters,
+    ): Promise<DashboardData> {
       // 获取用户权限和角色
       const userContext = await this.getUserContext(userId);
 
       // 应用数据过滤器
-      const appliedFilters = await this.applyDashboardFilters(filters, userContext);
+      const appliedFilters = await this.applyDashboardFilters(
+        filters,
+        userContext,
+      );
 
       // 并行获取各项数据
       const [
@@ -1462,13 +1619,13 @@
         salesFunnel,
         teamPerformance,
         activityTracking,
-        alerts
+        alerts,
       ] = await Promise.all([
         this.getKeyMetrics(appliedFilters),
         this.getSalesFunnel(appliedFilters),
         this.getTeamPerformance(appliedFilters, userContext),
         this.getActivityTracking(appliedFilters, userContext),
-        this.getActiveAlerts(appliedFilters, userContext)
+        this.getActiveAlerts(appliedFilters, userContext),
       ]);
 
       return {
@@ -1478,83 +1635,95 @@
         activityTracking,
         alerts,
         lastUpdated: new Date(),
-        refreshInterval: 30000 // 30秒刷新
+        refreshInterval: 30000, // 30秒刷新
       };
     }
 
-    private async getKeyMetrics(filters: DashboardFilters): Promise<DashboardMetric[]> {
+    private async getKeyMetrics(
+      filters: DashboardFilters,
+    ): Promise<DashboardMetric[]> {
       const metrics = [
         {
           id: 'total_revenue',
           name: '总收入',
           calculation: 'sum(deals.amount where status = "closed_won")',
           format: 'currency',
-          target: await this.getRevenueTarget(filters.period)
+          target: await this.getRevenueTarget(filters.period),
         },
         {
           id: 'total_deals',
           name: '成交数量',
           calculation: 'count(deals where status = "closed_won")',
-          format: 'number'
+          format: 'number',
         },
         {
           id: 'average_deal_size',
           name: '平均成交金额',
           calculation: 'avg(deals.amount where status = "closed_won")',
-          format: 'currency'
+          format: 'currency',
         },
         {
           id: 'conversion_rate',
           name: '转化率',
-          calculation: 'count(deals where status = "closed_won") / count(leads) * 100',
-          format: 'percentage'
+          calculation:
+            'count(deals where status = "closed_won") / count(leads) * 100',
+          format: 'percentage',
         },
         {
           id: 'sales_velocity',
           name: '销售速度',
           calculation: 'avg(time_to_close where status = "closed_won")',
           format: 'number',
-          unit: '天'
+          unit: '天',
         },
         {
           id: 'pipeline_value',
           name: '销售管道价值',
-          calculation: 'sum(opportunities.amount where status in ("proposal", "negotiation"))',
-          format: 'currency'
-        }
+          calculation:
+            'sum(opportunities.amount where status in ("proposal", "negotiation"))',
+          format: 'currency',
+        },
       ];
 
       // 计算每个指标的值
       const calculatedMetrics = await Promise.all(
-        metrics.map(metric => this.calculateMetric(metric, filters))
+        metrics.map((metric) => this.calculateMetric(metric, filters)),
       );
 
       return calculatedMetrics;
     }
 
-    private async calculateMetric(metric: any, filters: DashboardFilters): Promise<DashboardMetric> {
+    private async calculateMetric(
+      metric: any,
+      filters: DashboardFilters,
+    ): Promise<DashboardMetric> {
       // 执行指标计算
       const currentValue = await this.metricsService.calculateMetric(
         metric.calculation,
-        filters.period
+        filters.period,
       );
 
       // 获取对比期间的值
       const previousPeriod = this.getPreviousPeriod(filters.period);
       const previousValue = await this.metricsService.calculateMetric(
         metric.calculation,
-        previousPeriod
+        previousPeriod,
       );
 
       // 计算变化
       const change = currentValue - previousValue;
-      const changePercent = previousValue !== 0 ? (change / previousValue) * 100 : 0;
+      const changePercent =
+        previousValue !== 0 ? (change / previousValue) * 100 : 0;
 
       // 确定趋势
       const trend = change > 0 ? 'up' : change < 0 ? 'down' : 'stable';
 
       // 确定状态
-      const status = this.determineMetricStatus(currentValue, metric.target, metric.id);
+      const status = this.determineMetricStatus(
+        currentValue,
+        metric.target,
+        metric.id,
+      );
 
       return {
         id: metric.id,
@@ -1566,11 +1735,13 @@
         trend,
         format: metric.format,
         target: metric.target,
-        status
+        status,
       };
     }
 
-    private async getSalesFunnel(filters: DashboardFilters): Promise<SalesFunnel> {
+    private async getSalesFunnel(
+      filters: DashboardFilters,
+    ): Promise<SalesFunnel> {
       // 获取各阶段的统计数据
       const stages = await this.getFunnelStages(filters);
 
@@ -1578,7 +1749,10 @@
       const conversionRates = this.calculateConversionRates(stages);
 
       // 识别瓶颈
-      const bottlenecks = await this.identifyBottlenecks(stages, conversionRates);
+      const bottlenecks = await this.identifyBottlenecks(
+        stages,
+        conversionRates,
+      );
 
       // 计算转化时间
       const timeToConvert = await this.calculateTimeToConvert(stages);
@@ -1587,22 +1761,27 @@
         stages,
         conversionRates,
         bottlenecks,
-        timeToConvert
+        timeToConvert,
       };
     }
 
-    private async getFunnelStages(filters: DashboardFilters): Promise<FunnelStage[]> {
+    private async getFunnelStages(
+      filters: DashboardFilters,
+    ): Promise<FunnelStage[]> {
       const stages: FunnelStage[] = [];
 
       for (const stageName of Object.values(SalesStage)) {
-        const stageData = await this.metricsService.getStageMetrics(stageName, filters);
+        const stageData = await this.metricsService.getStageMetrics(
+          stageName,
+          filters,
+        );
 
         stages.push({
           name: stageName,
           count: stageData.count,
           value: stageData.value,
           conversionRate: stageData.conversionRate,
-          averageTime: stageData.averageTimeInStage
+          averageTime: stageData.averageTimeInStage,
         });
       }
 
@@ -1625,26 +1804,30 @@
           toStage: toStage.name,
           rate: rate * 100,
           target: target * 100,
-          status
+          status,
         });
       }
 
       return rates;
     }
 
-    private async identifyBottlenecks(stages: FunnelStage[], rates: ConversionRate[]): Promise<FunnelBottleneck[]> {
+    private async identifyBottlenecks(
+      stages: FunnelStage[],
+      rates: ConversionRate[],
+    ): Promise<FunnelBottleneck[]> {
       const bottlenecks: FunnelBottleneck[] = [];
 
       for (const rate of rates) {
         if (rate.status === 'poor') {
           const impact = await this.calculateBottleneckImpact(rate);
-          const recommendations = await this.generateBottleneckRecommendations(rate);
+          const recommendations =
+            await this.generateBottleneckRecommendations(rate);
 
           bottlenecks.push({
             stage: rate.fromStage,
             issue: `从${rate.fromStage}到${rate.toStage}的转化率偏低`,
             impact,
-            recommendations
+            recommendations,
           });
         }
       }
@@ -1652,31 +1835,45 @@
       return bottlenecks.sort((a, b) => b.impact - a.impact);
     }
 
-    private async getTeamPerformance(filters: DashboardFilters, userContext: UserContext): Promise<TeamPerformanceDashboard> {
+    private async getTeamPerformance(
+      filters: DashboardFilters,
+      userContext: UserContext,
+    ): Promise<TeamPerformanceDashboard> {
       // 根据用户角色确定可见范围
       const visibilityScope = this.determineVisibilityScope(userContext);
 
       // 获取个人绩效
-      const individualPerformance = await this.getIndividualPerformance(visibilityScope, filters);
+      const individualPerformance = await this.getIndividualPerformance(
+        visibilityScope,
+        filters,
+      );
 
       // 获取团队指标
       const teamMetrics = await this.getTeamMetrics(visibilityScope, filters);
 
       // 生成排行榜
-      const leaderboards = await this.generateLeaderboards(visibilityScope, filters);
+      const leaderboards = await this.generateLeaderboards(
+        visibilityScope,
+        filters,
+      );
 
       // 获取绩效对比
-      const comparisons = await this.getPerformanceComparisons(visibilityScope, filters);
+      const comparisons = await this.getPerformanceComparisons(
+        visibilityScope,
+        filters,
+      );
 
       return {
         individualPerformance,
         teamMetrics,
         leaderboards,
-        comparisons
+        comparisons,
       };
     }
 
-    private determineVisibilityScope(userContext: UserContext): VisibilityScope {
+    private determineVisibilityScope(
+      userContext: UserContext,
+    ): VisibilityScope {
       switch (userContext.role) {
         case 'sales_rep':
           return { type: 'individual', userId: userContext.userId };
@@ -1696,7 +1893,10 @@
       }
     }
 
-    private async getActiveAlerts(filters: DashboardFilters, userContext: UserContext): Promise<SalesAlert[]> {
+    private async getActiveAlerts(
+      filters: DashboardFilters,
+      userContext: UserContext,
+    ): Promise<SalesAlert[]> {
       // 获取所有活跃告警
       const allAlerts = await this.alertService.getActiveAlerts(filters);
 
@@ -1710,7 +1910,10 @@
       });
     }
 
-    async createCustomDashboard(userId: string, config: DashboardConfig): Promise<CustomDashboard> {
+    async createCustomDashboard(
+      userId: string,
+      config: DashboardConfig,
+    ): Promise<CustomDashboard> {
       // 验证配置
       await this.validateDashboardConfig(config);
 
@@ -1721,7 +1924,10 @@
       await this.setDashboardPermissions(dashboard.id, config.permissions);
 
       // 初始化数据源
-      await this.initializeDashboardDataSources(dashboard.id, config.dataSources);
+      await this.initializeDashboardDataSources(
+        dashboard.id,
+        config.dataSources,
+      );
 
       return dashboard;
     }
@@ -1737,7 +1943,10 @@
       const content = await this.generateReportContent(reportConfig, data);
 
       // 创建可视化
-      const visualizations = await this.createReportVisualizations(reportConfig, data);
+      const visualizations = await this.createReportVisualizations(
+        reportConfig,
+        data,
+      );
 
       // 生成洞察
       const insights = await this.generateReportInsights(data, reportConfig);
@@ -1752,13 +1961,14 @@
         visualizations,
         insights,
         generatedAt: new Date(),
-        generatedBy: reportConfig.userId
+        generatedBy: reportConfig.userId,
       };
     }
   }
   ```
 
 #### 验收标准
+
 - ✅ 销售仪表盘数据准确实时
 - ✅ 销售分析报告深入全面
 - ✅ 可视化效果直观美观
@@ -1771,6 +1981,7 @@
 ### 架构设计
 
 #### 销售管理系统架构
+
 ```
 销售前端界面 → CRM API → 销售引擎 → 数据存储
     ↓            ↓          ↓          ↓
@@ -1806,6 +2017,7 @@ interface TeamManager {
 ### 数据架构设计
 
 #### CRM数据模型
+
 ```sql
 -- 客户表
 CREATE TABLE customers (
@@ -1850,16 +2062,19 @@ CREATE TABLE sales_activities (
 ## 📅 时间安排
 
 ### Week 1-2: CRM系统架构
+
 - 客户数据模型设计和实现
 - 销售流程引擎开发
 - 销售阶段和活动管理
 
 ### Week 3-5: 销售团队管理
+
 - 销售团队组织架构实现
 - 销售协作平台开发
 - 绩效管理和培训系统
 
 ### Week 6-8: 销售分析和报告
+
 - 销售仪表盘开发
 - 数据可视化和图表
 - 销售报告生成系统
@@ -1870,24 +2085,28 @@ CREATE TABLE sales_activities (
 ## 🎯 验收标准
 
 ### 功能验收
+
 - [ ] CRM系统功能完整可用
 - [ ] 销售流程自动化顺畅
 - [ ] 团队协作高效便捷
 - [ ] 销售分析准确深入
 
 ### 性能验收
+
 - [ ] 系统响应时间<1秒
 - [ ] 支持并发用户>500
 - [ ] 数据查询效率高
 - [ ] 报表生成时间<30秒
 
 ### 质量验收
+
 - [ ] 数据准确性>99%
 - [ ] 系统稳定性>99.5%
 - [ ] 用户体验满意度>4.5/5
 - [ ] 安全合规性达标
 
 ### 用户验收
+
 - [ ] 销售人员工作效率提升>40%
 - [ ] 销售周期缩短>30%
 - [ ] 销售转化率提升>25%
@@ -1900,6 +2119,7 @@ CREATE TABLE sales_activities (
 ### 技术风险
 
 **1. 数据一致性问题**
+
 - **风险等级**：高
 - **影响**：销售数据不准确导致决策失误
 - **应对策略**：
@@ -1909,6 +2129,7 @@ CREATE TABLE sales_activities (
   - 定期数据质量检查
 
 **2. 系统扩展性挑战**
+
 - **风险等级**：中
 - **影响**：销售团队增长导致系统性能下降
 - **应对策略**：
@@ -1918,6 +2139,7 @@ CREATE TABLE sales_activities (
   - 使用缓存和CDN
 
 **3. 集成复杂性**
+
 - **风险等级**：中
 - **影响**：与现有系统的集成困难
 - **应对策略**：
@@ -1929,6 +2151,7 @@ CREATE TABLE sales_activities (
 ### 业务风险
 
 **1. 用户接受度低**
+
 - **风险等级**：中
 - **影响**：销售团队不愿使用新系统
 - **应对策略**：
@@ -1938,6 +2161,7 @@ CREATE TABLE sales_activities (
   - 逐步推广使用
 
 **2. 销售流程变化**
+
 - **风险等级**：低到中
 - **影响**：业务流程变化导致系统不适用
 - **应对策略**：
@@ -1947,6 +2171,7 @@ CREATE TABLE sales_activities (
   - 提供定制化服务
 
 **3. 数据隐私合规**
+
 - **风险等级**：高
 - **影响**：违反数据隐私法规
 - **应对策略**：
@@ -1960,6 +2185,7 @@ CREATE TABLE sales_activities (
 ## 👥 团队配置
 
 ### 核心团队 (7-8人)
+
 - **产品经理**：1人 (需求分析，产品规划)
 - **销售专家**：1人 (销售流程，CRM最佳实践)
 - **前端工程师**：2人 (用户界面，仪表盘)
@@ -1968,6 +2194,7 @@ CREATE TABLE sales_activities (
 - **测试工程师**：1人 (质量保证)
 
 ### 外部支持
+
 - **销售咨询师**：销售流程优化
 - **CRM专家**：CRM系统设计
 - **数据分析师**：销售数据分析
@@ -1978,6 +2205,7 @@ CREATE TABLE sales_activities (
 ## 💰 预算规划
 
 ### 人力成本 (8周)
+
 - 产品经理：1人 × ¥22,000/月 × 2个月 = ¥44,000
 - 销售专家：1人 × ¥25,000/月 × 2个月 = ¥50,000
 - 前端工程师：2人 × ¥25,000/月 × 2个月 = ¥100,000
@@ -1987,6 +2215,7 @@ CREATE TABLE sales_activities (
 - **人力小计**：¥406,000
 
 ### 技术成本
+
 - 开发工具和环境：¥60,000 (CRM工具，分析工具)
 - 云服务资源：¥80,000 (数据库，分析服务)
 - 第三方集成：¥40,000 (邮件，通讯工具)
@@ -1994,6 +2223,7 @@ CREATE TABLE sales_activities (
 - **技术小计**：¥210,000
 
 ### 其他成本
+
 - 销售培训：¥25,000 (销售团队培训)
 - 数据迁移：¥20,000 (现有数据迁移)
 - 法律合规：¥15,000 (数据隐私合规)
@@ -2006,18 +2236,21 @@ CREATE TABLE sales_activities (
 ## 📈 关键指标
 
 ### 销售效率指标
+
 - **销售周期**：平均销售周期缩短30%，从120天降至84天
 - **销售转化率**：销售转化率提升25%，从15%升至18.75%
 - **销售团队效率**：销售人员工作效率提升40%，日均活动增加50%
 - **客户响应时间**：客户查询响应时间<2小时，满意度>4.5/5
 
 ### 系统性能指标
+
 - **响应时间**：系统平均响应时间<1秒，95分位<2秒
 - **并发处理**：支持并发用户>500，峰值>1000
 - **数据准确性**：CRM数据准确性>99%，更新延迟<5分钟
 - **可用性**：系统可用性>99.5%，故障恢复时间<1小时
 
 ### 业务价值指标
+
 - **收入增长**：销售收入增长>25%，利润率提升15%
 - **客户获取**：客户获取成本降低20%，终身价值提升30%
 - **销售预测准确性**：销售预测准确率>85%，偏差<10%
@@ -2028,17 +2261,20 @@ CREATE TABLE sales_activities (
 ## 🎯 后续规划
 
 ### Phase 3.1.2 衔接
+
 - 基于销售管理系统，收集客户成功案例
 - 利用销售数据，优化客户成功策略
 - 通过销售分析，指导市场扩张决策
 
 ### 持续优化计划
+
 1. **AI增强**：集成AI预测销售机会和客户流失
 2. **移动优化**：开发移动销售应用
 3. **多渠道集成**：集成更多销售渠道和工具
 4. **个性化**：基于销售数据提供个性化建议
 
 ### 长期演进
+
 - **销售生态**：构建销售工具和集成生态
 - **全球销售**：支持多语言和国际销售流程
 - **预测销售**：高级AI预测和自动化销售

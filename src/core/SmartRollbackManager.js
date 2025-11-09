@@ -3,28 +3,13 @@
  * 基于监控指标的自动化回退决策和执行
  */
 
-import { logger, logPerformance } from '../shared/utils/logger.js';
-import { execSync, spawn } from 'child_process';
-import fs from 'fs';
+import { execSync } from 'child_process';
 import path from 'path';
+import { logger, logPerformance } from '../shared/utils/logger.js';
 
 class SmartRollbackManager {
   constructor(options = {}) {
-    this.options = {
-      environment: options.environment || process.env.NODE_ENV || 'development',
-      rollbackTimeout: options.rollbackTimeout || 300000, // 5分钟
-      healthCheckInterval: options.healthCheckInterval || 30000, // 30秒
-      maxRollbackAttempts: options.maxRollbackAttempts || 3,
-      enableAutoRollback: options.enableAutoRollback !== false,
-      alertThresholds: {
-        responseTime: options.alertThresholds?.responseTime || 5000, // 5秒
-        errorRate: options.alertThresholds?.errorRate || 0.05, // 5%
-        memoryUsage: options.alertThresholds?.memoryUsage || 0.9, // 90%
-        cpuUsage: options.alertThresholds?.cpuUsage || 0.9, // 90%
-        consecutiveFailures: options.alertThresholds?.consecutiveFailures || 3,
-      },
-      ...options,
-    };
+    this.options = this._initializeOptions(options);
 
     this.rollbackHistory = [];
     this.currentHealthStatus = 'healthy';
@@ -47,6 +32,34 @@ class SmartRollbackManager {
       autoRollback: this.options.enableAutoRollback,
       thresholds: this.options.alertThresholds,
     });
+  }
+
+  /**
+   * 初始化选项
+   * @private
+   */
+  _initializeOptions(options) {
+    const alertThresholds = this.createAlertThresholds(options.alertThresholds);
+
+    return {
+      environment: options.environment || process.env.NODE_ENV || 'development',
+      rollbackTimeout: options.rollbackTimeout || 300000, // 5分钟
+      healthCheckInterval: options.healthCheckInterval || 30000, // 30秒
+      maxRollbackAttempts: options.maxRollbackAttempts || 3,
+      enableAutoRollback: options.enableAutoRollback !== false,
+      alertThresholds,
+      ...options,
+    };
+  }
+
+  createAlertThresholds(thresholds = {}) {
+    return {
+      responseTime: thresholds.responseTime || 5000, // 5秒
+      errorRate: thresholds.errorRate || 0.05, // 5%
+      memoryUsage: thresholds.memoryUsage || 0.9, // 90%
+      cpuUsage: thresholds.cpuUsage || 0.9, // 90%
+      consecutiveFailures: thresholds.consecutiveFailures || 3,
+    };
   }
 
   /**
@@ -396,7 +409,7 @@ class SmartRollbackManager {
   /**
    * 处理健康评估结果
    */
-  async handleHealthAssessment(assessment, metrics) {
+  async handleHealthAssessment(assessment) {
     const previousStatus = this.currentHealthStatus;
     this.currentHealthStatus = assessment.status;
 
@@ -513,25 +526,25 @@ class SmartRollbackManager {
   /**
    * 执行回退策略
    */
-  async executeRollbackStrategy(strategy, issues, assessment) {
+  async executeRollbackStrategy(strategy) {
     this.isRollingBack = true;
 
     try {
       switch (strategy) {
         case 'circuit_breaker':
-          return await this.executeCircuitBreaker(issues);
+          return this.executeCircuitBreaker();
 
         case 'traffic_shifting':
-          return await this.executeTrafficShifting(issues);
+          return this.executeTrafficShifting();
 
         case 'environment_switch':
-          return await this.executeEnvironmentSwitch(issues);
+          return this.executeEnvironmentSwitch();
 
         case 'version_rollback':
-          return await this.executeVersionRollback(issues);
+          return this.executeVersionRollback();
 
         case 'emergency_shutdown':
-          return await this.executeEmergencyShutdown(issues);
+          return this.executeEmergencyShutdown();
 
         default:
           logger.warn(`未知回退策略: ${strategy}`);
@@ -545,7 +558,7 @@ class SmartRollbackManager {
   /**
    * 熔断器策略
    */
-  async executeCircuitBreaker(issues) {
+  async executeCircuitBreaker() {
     logger.info('执行熔断器策略：暂时停止接受新请求');
 
     // 实现熔断器逻辑
@@ -557,7 +570,7 @@ class SmartRollbackManager {
   /**
    * 流量切换策略
    */
-  async executeTrafficShifting(issues) {
+  async executeTrafficShifting() {
     logger.info('执行流量切换策略：将流量切换到备用实例');
 
     try {
@@ -582,7 +595,7 @@ class SmartRollbackManager {
   /**
    * 环境切换策略
    */
-  async executeEnvironmentSwitch(issues) {
+  async executeEnvironmentSwitch() {
     logger.info('执行环境切换策略：切换到备用环境');
 
     try {
@@ -604,7 +617,7 @@ class SmartRollbackManager {
   /**
    * 版本回滚策略
    */
-  async executeVersionRollback(issues) {
+  async executeVersionRollback() {
     logger.info('执行版本回滚策略：回滚到上一稳定版本');
 
     try {
@@ -634,7 +647,7 @@ class SmartRollbackManager {
   /**
    * 紧急停止策略
    */
-  async executeEmergencyShutdown(issues) {
+  async executeEmergencyShutdown() {
     logger.error('执行紧急停止策略：停止服务以防止进一步损害');
 
     try {
@@ -657,7 +670,7 @@ class SmartRollbackManager {
   /**
    * 执行降级策略
    */
-  async executeDegradationStrategy(issues, assessment) {
+  async executeDegradationStrategy(issues) {
     logger.info('执行降级策略：降低服务质量以维持可用性');
 
     // 根据问题类型执行不同的降级策略
@@ -731,7 +744,7 @@ class SmartRollbackManager {
   /**
    * 运行命令
    */
-  async runCommand(command, args = [], options = {}) {
+  runCommand(command, args = [], options = {}) {
     return new Promise((resolve) => {
       try {
         const result = execSync(`${command} ${args.join(' ')}`, {
@@ -780,7 +793,7 @@ class SmartRollbackManager {
   /**
    * 发送健康告警
    */
-  async sendHealthAlert(assessment) {
+  sendHealthAlert(assessment) {
     if (assessment.issues.length === 0) return;
 
     const criticalIssues = assessment.issues.filter(
@@ -849,7 +862,7 @@ class SmartRollbackManager {
       timestamp: new Date().toISOString(),
     };
 
-    return await this.executeRollbackStrategy(strategy, issues, assessment);
+    return this.executeRollbackStrategy(strategy, issues, assessment);
   }
 }
 

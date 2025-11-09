@@ -33,11 +33,15 @@ export default class ExamplePlugin extends PluginInterface {
     });
 
     // 注册扩展
-    context.manager.extend('logger', {
-      logExample: (message) => {
-        console.log(`📝 [示例插件] ${message}`);
-      }
-    }, this.name);
+    context.manager.extend(
+      'logger',
+      {
+        logExample: (message) => {
+          console.log(`📝 [示例插件] ${message}`);
+        },
+      },
+      this.name,
+    );
   }
 
   async stop(context) {
@@ -51,7 +55,7 @@ export default class ExamplePlugin extends PluginInterface {
   getConfig() {
     return {
       enabled: true,
-      features: ['logging', 'middleware', 'hooks']
+      features: ['logging', 'middleware', 'hooks'],
     };
   }
 }

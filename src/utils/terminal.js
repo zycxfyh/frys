@@ -12,14 +12,14 @@ const execAsync = promisify(exec);
 export async function run_terminal_cmd(command, options = {}) {
   try {
     let cmdString;
-    let execOptions = { ...options };
+    const execOptions = { ...options };
 
     if (typeof command === 'string') {
       cmdString = command;
     } else if (typeof command === 'object' && command.command) {
       cmdString = command.command;
       if (command.args && Array.isArray(command.args)) {
-        cmdString += ' ' + command.args.join(' ');
+        cmdString += ` ${command.args.join(' ')}`;
       }
       if (command.cwd) {
         execOptions.cwd = command.cwd;
@@ -36,14 +36,14 @@ export async function run_terminal_cmd(command, options = {}) {
     return {
       success: true,
       stdout: stdout.trim(),
-      stderr: stderr.trim()
+      stderr: stderr.trim(),
     };
   } catch (error) {
     return {
       success: false,
       stdout: '',
       stderr: error.stderr || error.message,
-      error
+      error,
     };
   }
 }

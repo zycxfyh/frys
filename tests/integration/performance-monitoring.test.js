@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,7 +11,7 @@ import {
  * 验证性能监控、告警和健康检查功能
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import PerformanceMonitoringMiddleware from '../../src/presentation/middleware/performance-monitoring.middleware.js';
 import { logger } from '../../src/shared/utils/logger.js';
 
@@ -23,7 +23,7 @@ describe('性能监控集成测试', () => {
       collectInterval: 1000, // 1秒收集间隔（测试用）
       alertInterval: 2000, // 2秒告警检查间隔（测试用）
       enableHealthEndpoint: true,
-      enableMetricsEndpoint: true
+      enableMetricsEndpoint: true,
     });
   });
 
@@ -46,7 +46,7 @@ describe('性能监控集成测试', () => {
 
     it('应该收集系统指标', async () => {
       // 等待指标收集
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const memUsage = monitoringMiddleware.monitorMemoryUsage();
       expect(memUsage).toHaveProperty('rss');
@@ -59,7 +59,11 @@ describe('性能监控集成测试', () => {
     it('应该记录应用错误', () => {
       const testError = new Error('测试错误');
 
-      monitoringMiddleware.recordApplicationError(testError, 'test_error', 'warning');
+      monitoringMiddleware.recordApplicationError(
+        testError,
+        'test_error',
+        'warning',
+      );
 
       const stats = monitoringMiddleware.metrics.getStats();
       expect(stats).toBeDefined();
@@ -87,8 +91,14 @@ describe('性能监控集成测试', () => {
     });
 
     it('应该记录业务操作', () => {
-      monitoringMiddleware.recordBusinessOperation('user_registration', 'success');
-      monitoringMiddleware.recordBusinessOperation('payment_processing', 'failed');
+      monitoringMiddleware.recordBusinessOperation(
+        'user_registration',
+        'success',
+      );
+      monitoringMiddleware.recordBusinessOperation(
+        'payment_processing',
+        'failed',
+      );
 
       const stats = monitoringMiddleware.metrics.getStats();
       expect(stats).toBeDefined();
@@ -98,14 +108,14 @@ describe('性能监控集成测试', () => {
   describe('异步函数监控', () => {
     it('应该监控成功的异步操作', async () => {
       const mockAsyncFunction = async (param) => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         return `processed_${param}`;
       };
 
       const monitoredFunction = monitoringMiddleware.monitorAsyncFunction(
         'test_operation',
         mockAsyncFunction,
-        { category: 'business', metadata: { test: true } }
+        { category: 'business', metadata: { test: true } },
       );
 
       const result = await monitoredFunction('test_data');
@@ -114,14 +124,14 @@ describe('性能监控集成测试', () => {
 
     it('应该监控失败的异步操作', async () => {
       const mockFailingFunction = async () => {
-        await new Promise(resolve => setTimeout(resolve, 5));
+        await new Promise((resolve) => setTimeout(resolve, 5));
         throw new Error('模拟错误');
       };
 
       const monitoredFunction = monitoringMiddleware.monitorAsyncFunction(
         'failing_operation',
         mockFailingFunction,
-        { errorType: 'test_failure' }
+        { errorType: 'test_failure' },
       );
 
       await expect(monitoredFunction()).rejects.toThrow('模拟错误');
@@ -147,14 +157,18 @@ describe('性能监控集成测试', () => {
     it('应该添加自定义健康检查', async () => {
       const customCheckName = 'custom_service';
 
-      monitoringMiddleware.addCustomHealthCheck(customCheckName, async () => {
-        return { status: 'ok', version: '1.0.0' };
-      }, { interval: 5000 });
+      monitoringMiddleware.addCustomHealthCheck(
+        customCheckName,
+        async () => {
+          return { status: 'ok', version: '1.0.0' };
+        },
+        { interval: 5000 },
+      );
 
       const healthStatus = await monitoringMiddleware.metrics.getHealthStatus();
 
       // 等待健康检查执行
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(healthStatus.checks).toHaveProperty(customCheckName);
     });
@@ -164,15 +178,23 @@ describe('性能监控集成测试', () => {
     it('应该添加自定义告警规则', () => {
       const alertName = 'test_high_cpu';
 
-      monitoringMiddleware.addCustomAlertRule(alertName, (metrics) => {
-        // 简单的测试条件：CPU使用率 > 50%
-        return monitoringMiddleware.metrics.getMetricValue('process_cpu_usage_percent') > 50;
-      }, {
-        severity: 'warning',
-        message: '测试高CPU使用率告警',
-        threshold: 50,
-        cooldown: 10000
-      });
+      monitoringMiddleware.addCustomAlertRule(
+        alertName,
+        (metrics) => {
+          // 简单的测试条件：CPU使用率 > 50%
+          return (
+            monitoringMiddleware.metrics.getMetricValue(
+              'process_cpu_usage_percent',
+            ) > 50
+          );
+        },
+        {
+          severity: 'warning',
+          message: '测试高CPU使用率告警',
+          threshold: 50,
+          cooldown: 10000,
+        },
+      );
 
       const stats = monitoringMiddleware.metrics.getStats();
       expect(stats.alertRules).toBeGreaterThan(0);
@@ -200,7 +222,8 @@ describe('性能监控集成测试', () => {
 
   describe('Prometheus指标导出', () => {
     it('应该生成Prometheus格式的指标', () => {
-      const prometheusOutput = monitoringMiddleware.metrics.getPrometheusMetrics();
+      const prometheusOutput =
+        monitoringMiddleware.metrics.getPrometheusMetrics();
 
       expect(typeof prometheusOutput).toBe('string');
       expect(prometheusOutput).toContain('# frys Application Metrics');
@@ -209,7 +232,8 @@ describe('性能监控集成测试', () => {
     });
 
     it('应该包含基础指标', () => {
-      const prometheusOutput = monitoringMiddleware.metrics.getPrometheusMetrics();
+      const prometheusOutput =
+        monitoringMiddleware.metrics.getPrometheusMetrics();
 
       // 检查是否包含基础指标
       expect(prometheusOutput).toMatch(/http_requests_total/);
@@ -232,7 +256,7 @@ describe('性能监控集成测试', () => {
         method: 'GET',
         path: '/api/test',
         route: { path: '/api/test' },
-        requestId: 'test-request-id'
+        requestId: 'test-request-id',
       };
 
       const mockRes = {
@@ -246,7 +270,7 @@ describe('性能监控集成测试', () => {
             // 立即触发finish事件
             setTimeout(callback, 1);
           }
-        }
+        },
       };
 
       const middleware = monitoringMiddleware.httpRequestMonitoring();
@@ -324,10 +348,12 @@ describe('性能监控集成测试', () => {
           monitoringMiddleware.monitorAsyncFunction(
             `concurrent_op_${i}`,
             async () => {
-              await new Promise(resolve => setTimeout(resolve, Math.random() * 10));
+              await new Promise((resolve) =>
+                setTimeout(resolve, Math.random() * 10),
+              );
               return `result_${i}`;
-            }
-          )()
+            },
+          )(),
         );
       }
 

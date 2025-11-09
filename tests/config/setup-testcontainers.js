@@ -22,7 +22,9 @@ class TestEnvironment {
 
     try {
       // 启动PostgreSQL容器
-      this.postgresContainer = await new PostgreSqlContainer('postgres:15-alpine')
+      this.postgresContainer = await new PostgreSqlContainer(
+        'postgres:15-alpine',
+      )
         .withDatabase('testdb')
         .withUsername('testuser')
         .withPassword('testpass')
@@ -125,7 +127,11 @@ let globalTestEnvironment = null;
 // Vitest全局设置
 export async function setup() {
   // 只在需要时启动容器
-  if (!process.env.CI && !process.env.SKIP_TEST_CONTAINERS && !globalTestEnvironment) {
+  if (
+    !process.env.CI &&
+    !process.env.SKIP_TEST_CONTAINERS &&
+    !globalTestEnvironment
+  ) {
     globalTestEnvironment = new TestEnvironment();
     await globalTestEnvironment.start();
   }

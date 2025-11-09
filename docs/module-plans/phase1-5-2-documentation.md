@@ -5,12 +5,14 @@
 **构建完整、易懂、实用的文档体系，帮助用户快速上手frys工作流系统，降低学习成本，提升用户满意度和产品采用率。**
 
 ### 核心价值
+
 - **快速上手**：新用户15分钟内完成基础操作
 - **自助解决**：80%+用户问题可通过文档解决
 - **最佳实践**：内置行业标准和优化建议
 - **持续更新**：文档与产品同步迭代
 
 ### 成功标准
+
 - 文档覆盖率>95% (核心功能)
 - 用户查找信息时间<2分钟
 - 文档准确率>98%
@@ -23,58 +25,62 @@
 ### 1.5.2.1 文档架构设计 (1周)
 
 #### 目标
+
 设计结构化、可扩展的文档体系。
 
 #### 具体任务
 
 **1.5.2.1.1 文档结构规划**
+
 - **文档层次结构**：
   ```markdown
   docs/
-  ├── getting-started/           # 快速开始
-  │   ├── installation.md        # 安装指南
-  │   ├── quick-start.md         # 快速开始
-  │   └── first-workflow.md      # 第一个工作流
-  ├── user-guide/               # 用户指南
-  │   ├── basics/               # 基础概念
-  │   ├── workflows/            # 工作流管理
-  │   ├── nodes/                # 节点类型
-  │   ├── integrations/         # 集成指南
-  │   └── best-practices/       # 最佳实践
-  ├── api-reference/            # API参考
-  │   ├── rest-api/             # REST API
-  │   ├── webhooks/             # Webhooks
-  │   └── cli/                  # CLI工具
-  ├── tutorials/                # 教程
-  │   ├── beginner/             # 入门教程
-  │   ├── intermediate/         # 中级教程
-  │   └── advanced/             # 高级教程
-  ├── integrations/             # 集成文档
-  │   ├── databases/            # 数据库集成
-  │   ├── apis/                 # API集成
-  │   ├── cloud-services/       # 云服务
-  │   └── third-party/          # 第三方工具
-  ├── troubleshooting/          # 故障排除
-  │   ├── common-issues/        # 常见问题
-  │   ├── error-codes/          # 错误代码
-  │   └── debugging/            # 调试指南
-  ├── deployment/               # 部署指南
-  │   ├── docker/               # Docker部署
-  │   ├── kubernetes/           # K8s部署
-  │   └── cloud/                # 云部署
-  ├── administration/           # 管理指南
-  │   ├── user-management/      # 用户管理
-  │   ├── permissions/          # 权限管理
-  │   └── monitoring/           # 监控管理
-  └── developer/                # 开发者文档
-      ├── architecture/         # 系统架构
-      ├── plugins/              # 插件开发
-      ├── api/                  # 开发API
-      └── contributing/         # 贡献指南
+  ├── getting-started/ # 快速开始
+  │ ├── installation.md # 安装指南
+  │ ├── quick-start.md # 快速开始
+  │ └── first-workflow.md # 第一个工作流
+  ├── user-guide/ # 用户指南
+  │ ├── basics/ # 基础概念
+  │ ├── workflows/ # 工作流管理
+  │ ├── nodes/ # 节点类型
+  │ ├── integrations/ # 集成指南
+  │ └── best-practices/ # 最佳实践
+  ├── api-reference/ # API参考
+  │ ├── rest-api/ # REST API
+  │ ├── webhooks/ # Webhooks
+  │ └── cli/ # CLI工具
+  ├── tutorials/ # 教程
+  │ ├── beginner/ # 入门教程
+  │ ├── intermediate/ # 中级教程
+  │ └── advanced/ # 高级教程
+  ├── integrations/ # 集成文档
+  │ ├── databases/ # 数据库集成
+  │ ├── apis/ # API集成
+  │ ├── cloud-services/ # 云服务
+  │ └── third-party/ # 第三方工具
+  ├── troubleshooting/ # 故障排除
+  │ ├── common-issues/ # 常见问题
+  │ ├── error-codes/ # 错误代码
+  │ └── debugging/ # 调试指南
+  ├── deployment/ # 部署指南
+  │ ├── docker/ # Docker部署
+  │ ├── kubernetes/ # K8s部署
+  │ └── cloud/ # 云部署
+  ├── administration/ # 管理指南
+  │ ├── user-management/ # 用户管理
+  │ ├── permissions/ # 权限管理
+  │ └── monitoring/ # 监控管理
+  └── developer/ # 开发者文档
+  ├── architecture/ # 系统架构
+  ├── plugins/ # 插件开发
+  ├── api/ # 开发API
+  └── contributing/ # 贡献指南
   ```
 
 **1.5.2.1.2 文档生成系统**
+
 - **自动化文档生成**：
+
   ```typescript
   class DocumentationGenerator {
     private contentSources: ContentSource[] = [];
@@ -87,7 +93,8 @@
       const processedContent = await this.processContent(sources);
 
       // 3. 生成文档结构
-      const documentation = await this.buildDocumentationStructure(processedContent);
+      const documentation =
+        await this.buildDocumentationStructure(processedContent);
 
       // 4. 生成导航和索引
       const navigation = await this.generateNavigation(documentation);
@@ -99,7 +106,7 @@
         structure: documentation,
         navigation,
         searchIndex,
-        metadata: await this.generateMetadata(documentation)
+        metadata: await this.generateMetadata(documentation),
       };
     }
 
@@ -107,16 +114,16 @@
       const sources: ContentSource[] = [];
 
       // 从代码注释中提取
-      sources.push(...await this.extractFromCodeComments());
+      sources.push(...(await this.extractFromCodeComments()));
 
       // 从API定义中提取
-      sources.push(...await this.extractFromAPIDefinitions());
+      sources.push(...(await this.extractFromAPIDefinitions()));
 
       // 从配置文件中提取
-      sources.push(...await this.extractFromConfiguration());
+      sources.push(...(await this.extractFromConfiguration()));
 
       // 从测试用例中提取
-      sources.push(...await this.extractFromTests());
+      sources.push(...(await this.extractFromTests()));
 
       return sources;
     }
@@ -137,8 +144,8 @@
           content: apiDocs,
           metadata: {
             category: 'api-reference',
-            lastModified: await this.getFileLastModified(file)
-          }
+            lastModified: await this.getFileLastModified(file),
+          },
         });
       }
 
@@ -147,7 +154,8 @@
 
     private parseAPIDocumentation(content: string): APIDocumentation[] {
       const docs: APIDocumentation[] = [];
-      const routePattern = /router\.(get|post|put|delete|patch)\(['"]([^'"]+)['"]/g;
+      const routePattern =
+        /router\.(get|post|put|delete|patch)\(['"]([^'"]+)['"]/g;
 
       let match;
       while ((match = routePattern.exec(content)) !== null) {
@@ -164,7 +172,7 @@
           docs.push({
             method: method.toUpperCase(),
             path,
-            ...parsedComment
+            ...parsedComment,
           });
         }
       }
@@ -174,7 +182,7 @@
 
     private parseJSDocComment(comment: string): ParsedJSDoc {
       // 解析JSDoc注释
-      const lines = comment.split('\n').map(line => line.trim());
+      const lines = comment.split('\n').map((line) => line.trim());
 
       let description = '';
       const params: ParameterDoc[] = [];
@@ -191,12 +199,14 @@
           const content = line.substring(1).trim();
 
           if (content.startsWith('@param')) {
-            const paramMatch = content.match(/@param\s+\{([^}]+)\}\s+(\w+)\s+(.+)/);
+            const paramMatch = content.match(
+              /@param\s+\{([^}]+)\}\s+(\w+)\s+(.+)/,
+            );
             if (paramMatch) {
               params.push({
                 type: paramMatch[1],
                 name: paramMatch[2],
-                description: paramMatch[3]
+                description: paramMatch[3],
               });
             }
           } else if (content.startsWith('@returns')) {
@@ -204,7 +214,7 @@
             if (returnMatch) {
               returns = {
                 type: returnMatch[1],
-                description: returnMatch[2]
+                description: returnMatch[2],
               };
             }
           } else if (content.startsWith('@example')) {
@@ -236,19 +246,23 @@
         description: description.trim(),
         params,
         returns,
-        examples
+        examples,
       };
     }
   }
   ```
 
 **1.5.2.1.3 文档质量保证**
+
 - **文档验证系统**：
+
   ```typescript
   class DocumentationValidator {
     private validators: Map<string, ValidationRule> = new Map();
 
-    async validateDocumentation(docs: Documentation): Promise<ValidationResult> {
+    async validateDocumentation(
+      docs: Documentation,
+    ): Promise<ValidationResult> {
       const errors: ValidationError[] = [];
       const warnings: ValidationWarning[] = [];
 
@@ -280,11 +294,13 @@
         isValid: errors.length === 0,
         errors,
         warnings,
-        score: this.calculateQualityScore(docs, errors, warnings)
+        score: this.calculateQualityScore(docs, errors, warnings),
       };
     }
 
-    private async validateCodeExamples(docs: Documentation): Promise<ValidationError[]> {
+    private async validateCodeExamples(
+      docs: Documentation,
+    ): Promise<ValidationError[]> {
       const errors: ValidationError[] = [];
 
       for (const page of docs.pages) {
@@ -292,25 +308,31 @@
 
         for (const block of codeBlocks) {
           // 语法验证
-          const syntaxError = await this.validateSyntax(block.code, block.language);
+          const syntaxError = await this.validateSyntax(
+            block.code,
+            block.language,
+          );
           if (syntaxError) {
             errors.push({
               file: page.path,
               line: block.line,
               message: `代码语法错误: ${syntaxError}`,
-              severity: 'error'
+              severity: 'error',
             });
           }
 
           // 可执行性验证 (如果适用)
           if (this.shouldValidateExecution(block)) {
-            const executionError = await this.validateExecution(block.code, block.language);
+            const executionError = await this.validateExecution(
+              block.code,
+              block.language,
+            );
             if (executionError) {
               errors.push({
                 file: page.path,
                 line: block.line,
                 message: `代码执行错误: ${executionError}`,
-                severity: 'error'
+                severity: 'error',
               });
             }
           }
@@ -320,7 +342,9 @@
       return errors;
     }
 
-    private async validateAccuracy(docs: Documentation): Promise<ValidationError[]> {
+    private async validateAccuracy(
+      docs: Documentation,
+    ): Promise<ValidationError[]> {
       const errors: ValidationError[] = [];
 
       // 检查API文档是否与实际实现匹配
@@ -338,7 +362,11 @@
       return errors;
     }
 
-    private calculateQualityScore(docs: Documentation, errors: ValidationError[], warnings: ValidationWarning[]): number {
+    private calculateQualityScore(
+      docs: Documentation,
+      errors: ValidationError[],
+      warnings: ValidationWarning[],
+    ): number {
       let score = 100;
 
       // 错误严重影响分数
@@ -359,6 +387,7 @@
   ```
 
 #### 验收标准
+
 - ✅ 文档架构层次清晰合理
 - ✅ 文档生成自动化程度>70%
 - ✅ 文档质量验证系统有效
@@ -369,13 +398,16 @@
 ### 1.5.2.2 核心文档编写 (3周)
 
 #### 目标
+
 编写完整的核心使用文档。
 
 #### 具体任务
 
 **1.5.2.2.1 快速开始指南**
+
 - **安装和配置**：
-  ```markdown
+
+  ````markdown
   # 安装 frys
 
   ## 系统要求
@@ -398,6 +430,7 @@
   # 验证安装
   frys --version
   ```
+  ````
 
   ### 使用 Docker 安装
 
@@ -459,11 +492,16 @@
   # 显示当前配置
   frys config show
   ```
+
+  ```
+
   ```
 
 **1.5.2.2.2 用户指南**
+
 - **工作流基础**：
-  ```markdown
+
+  ````markdown
   # 工作流基础
 
   ## 什么是工作流？
@@ -514,6 +552,7 @@
   # 查看执行结果
   frys workflow logs my-workflow --last 1
   ```
+  ````
 
   ### 7. 部署工作流
 
@@ -528,7 +567,6 @@
   ## 工作流状态管理
 
   ### 工作流状态
-
   - **草稿**: 正在编辑，未部署
   - **活跃**: 已部署并运行中
   - **暂停**: 临时停止执行
@@ -564,15 +602,19 @@
   配置适当的监控指标和告警规则，及时发现和解决问题。
 
   ### 4. 性能优化
-
   - 避免不必要的 API 调用
   - 使用批量操作处理大量数据
   - 合理设置超时时间
   - 监控和优化资源使用
+
+  ```
+
   ```
 
 **1.5.2.2.3 API 参考文档**
+
 - **REST API 文档**：
+
   ```markdown
   # REST API 参考
 
@@ -583,10 +625,11 @@
   ### API Key 认证
 
   将 API Key 添加到请求头：
+  ```
 
-  ```
   Authorization: Bearer YOUR_API_KEY
-  ```
+
+  ````
 
   ### 获取 API Key
 
@@ -596,7 +639,7 @@
 
   # 或通过管理界面获取
   # 访问: 设置 > API > 生成新 Key
-  ```
+  ````
 
   ## 工作流管理
 
@@ -730,15 +773,15 @@
 
   ### 常见错误代码
 
-  | 错误代码 | HTTP 状态码 | 描述 |
-  |----------|-------------|------|
-  | `VALIDATION_ERROR` | 400 | 请求参数验证失败 |
-  | `AUTHENTICATION_ERROR` | 401 | 认证失败 |
-  | `AUTHORIZATION_ERROR` | 403 | 权限不足 |
-  | `NOT_FOUND` | 404 | 资源不存在 |
-  | `CONFLICT` | 409 | 资源冲突 |
-  | `RATE_LIMIT_EXCEEDED` | 429 | 请求频率超限 |
-  | `INTERNAL_ERROR` | 500 | 服务器内部错误 |
+  | 错误代码               | HTTP 状态码 | 描述             |
+  | ---------------------- | ----------- | ---------------- |
+  | `VALIDATION_ERROR`     | 400         | 请求参数验证失败 |
+  | `AUTHENTICATION_ERROR` | 401         | 认证失败         |
+  | `AUTHORIZATION_ERROR`  | 403         | 权限不足         |
+  | `NOT_FOUND`            | 404         | 资源不存在       |
+  | `CONFLICT`             | 409         | 资源冲突         |
+  | `RATE_LIMIT_EXCEEDED`  | 429         | 请求频率超限     |
+  | `INTERNAL_ERROR`       | 500         | 服务器内部错误   |
 
   ### 错误响应格式
 
@@ -762,7 +805,6 @@
   ## 分页
 
   支持分页的 API 端点接受以下查询参数：
-
   - `page`: 页码 (从 1 开始，默认 1)
   - `limit`: 每页数量 (默认 20，最大 100)
   - `sort`: 排序字段
@@ -789,9 +831,13 @@
     }
   }
   ```
+
+  ```
+
   ```
 
 #### 验收标准
+
 - ✅ 快速开始指南完整易懂
 - ✅ 用户指南覆盖核心功能
 - ✅ API文档准确详细
@@ -802,12 +848,15 @@
 ### 1.5.2.3 文档平台和发布 (1周)
 
 #### 目标
+
 构建文档平台和发布系统。
 
 #### 具体任务
 
 **1.5.2.3.1 文档网站**
+
 - **文档站点架构**：
+
   ```typescript
   // docs/package.json
   {
@@ -832,6 +881,7 @@
   ```
 
 - **搜索功能实现**：
+
   ```typescript
   class DocumentationSearch {
     private searchIndex: SearchIndex;
@@ -841,7 +891,7 @@
       // 初始化 Algolia 搜索
       this.algoliaClient = algoliasearch(
         process.env.ALGOLIA_APP_ID!,
-        process.env.ALGOLIA_API_KEY!
+        process.env.ALGOLIA_API_KEY!,
       );
       this.searchIndex = this.algoliaClient.initIndex('frys_docs');
     }
@@ -863,7 +913,7 @@
             url: page.path,
             category: page.category,
             tags: page.tags,
-            lastModified: page.lastModified
+            lastModified: page.lastModified,
           });
         }
       }
@@ -872,23 +922,26 @@
       await this.searchIndex.saveObjects(records);
     }
 
-    async search(query: string, options: SearchOptions = {}): Promise<SearchResult[]> {
+    async search(
+      query: string,
+      options: SearchOptions = {},
+    ): Promise<SearchResult[]> {
       const searchParams = {
         query,
         hitsPerPage: options.limit || 20,
         filters: this.buildFilters(options),
         attributesToHighlight: ['title', 'content'],
-        attributesToSnippet: ['content:50']
+        attributesToSnippet: ['content:50'],
       };
 
       const result = await this.searchIndex.search(query, searchParams);
 
-      return result.hits.map(hit => ({
+      return result.hits.map((hit) => ({
         title: hit._highlightResult?.title?.value || hit.title,
         content: hit._snippetResult?.content?.value || hit.content,
         url: hit.url,
         category: hit.category,
-        score: hit._rankingInfo?.nbTypos === 0 ? 1 : 0.8
+        score: hit._rankingInfo?.nbTypos === 0 ? 1 : 0.8,
       }));
     }
 
@@ -900,7 +953,7 @@
       }
 
       if (options.tags?.length) {
-        filters.push(options.tags.map(tag => `tags:${tag}`).join(' OR '));
+        filters.push(options.tags.map((tag) => `tags:${tag}`).join(' OR '));
       }
 
       return filters.join(' AND ');
@@ -910,14 +963,16 @@
       // 将 Markdown 内容分割为段落
       return content
         .split('\n\n')
-        .filter(paragraph => paragraph.trim().length > 0)
-        .map(paragraph => paragraph.replace(/\n/g, ' ').trim());
+        .filter((paragraph) => paragraph.trim().length > 0)
+        .map((paragraph) => paragraph.replace(/\n/g, ' ').trim());
     }
   }
   ```
 
 **1.5.2.3.2 版本管理和更新**
+
 - **文档版本控制**：
+
   ```typescript
   class DocumentationVersioning {
     private git: SimpleGit;
@@ -977,19 +1032,24 @@
 
     private async generateChangelog(version: string, changes: VersionChanges): Promise<void> {
       const changelog = `# ${version} (${new Date().toISOString().split('T')[0]})
+  ```
 
 ${changes.description}
 
 ## 新功能
+
 ${changes.changes.newFeatures?.map(f => `- ${f}`).join('\n') || '无'}
 
 ## 改进
+
 ${changes.changes.improvements?.map(i => `- ${i}`).join('\n') || '无'}
 
 ## 修复
+
 ${changes.changes.fixes?.map(f => `- ${f}`).join('\n') || '无'}
 
 ## 破坏性变更
+
 ${changes.breakingChanges?.map(c => `- ${c}`).join('\n') || '无'}
 `;
 
@@ -1004,94 +1064,97 @@ ${changes.breakingChanges?.map(c => `- ${c}`).join('\n') || '无'}
 
       await fs.writeFile(changelogPath, changelog + '\n' + existingChangelog);
     }
-  }
-  ```
+
+}
+
+````
 
 **1.5.2.3.3 文档反馈系统**
 - **用户反馈收集**：
-  ```typescript
-  class DocumentationFeedback {
-    private feedbackStore: FeedbackStore;
+```typescript
+class DocumentationFeedback {
+  private feedbackStore: FeedbackStore;
 
-    async collectFeedback(pageId: string, feedback: UserFeedback): Promise<void> {
-      const feedbackRecord = {
-        id: generateId(),
-        pageId,
-        userId: feedback.userId,
-        type: feedback.type, // 'helpful', 'not_helpful', 'suggestion', 'error'
-        rating: feedback.rating, // 1-5
-        comment: feedback.comment,
-        userAgent: feedback.userAgent,
-        url: feedback.url,
-        timestamp: new Date(),
-        resolved: false
-      };
+  async collectFeedback(pageId: string, feedback: UserFeedback): Promise<void> {
+    const feedbackRecord = {
+      id: generateId(),
+      pageId,
+      userId: feedback.userId,
+      type: feedback.type, // 'helpful', 'not_helpful', 'suggestion', 'error'
+      rating: feedback.rating, // 1-5
+      comment: feedback.comment,
+      userAgent: feedback.userAgent,
+      url: feedback.url,
+      timestamp: new Date(),
+      resolved: false
+    };
 
-      await this.feedbackStore.save(feedbackRecord);
+    await this.feedbackStore.save(feedbackRecord);
 
-      // 触发反馈处理
-      await this.processFeedback(feedbackRecord);
-    }
-
-    private async processFeedback(feedback: FeedbackRecord): Promise<void> {
-      // 分析反馈类型
-      switch (feedback.type) {
-        case 'helpful':
-        case 'not_helpful':
-          await this.updatePageRating(feedback.pageId, feedback.rating);
-          break;
-
-        case 'suggestion':
-          await this.createImprovementTask(feedback);
-          break;
-
-        case 'error':
-          await this.createBugReport(feedback);
-          break;
-      }
-
-      // 发送通知给文档团队
-      await this.notifyDocumentationTeam(feedback);
-    }
-
-    async getFeedbackStats(pageId?: string): Promise<FeedbackStats> {
-      const feedbacks = await this.feedbackStore.getFeedbacks(pageId);
-
-      const stats = {
-        totalFeedbacks: feedbacks.length,
-        averageRating: feedbacks.reduce((sum, f) => sum + (f.rating || 0), 0) / feedbacks.length,
-        helpfulCount: feedbacks.filter(f => f.type === 'helpful').length,
-        notHelpfulCount: feedbacks.filter(f => f.type === 'not_helpful').length,
-        suggestionCount: feedbacks.filter(f => f.type === 'suggestion').length,
-        errorCount: feedbacks.filter(f => f.type === 'error').length,
-        ratings: {
-          1: feedbacks.filter(f => f.rating === 1).length,
-          2: feedbacks.filter(f => f.rating === 2).length,
-          3: feedbacks.filter(f => f.rating === 3).length,
-          4: feedbacks.filter(f => f.rating === 4).length,
-          5: feedbacks.filter(f => f.rating === 5).length
-        }
-      };
-
-      return stats;
-    }
-
-    private async updatePageRating(pageId: string, rating: number): Promise<void> {
-      // 更新页面评分统计
-      const currentStats = await this.feedbackStore.getPageStats(pageId);
-      const newStats = {
-        ...currentStats,
-        totalRatings: currentStats.totalRatings + 1,
-        sumRatings: currentStats.sumRatings + rating,
-        averageRating: (currentStats.sumRatings + rating) / (currentStats.totalRatings + 1)
-      };
-
-      await this.feedbackStore.updatePageStats(pageId, newStats);
-    }
+    // 触发反馈处理
+    await this.processFeedback(feedbackRecord);
   }
-  ```
+
+  private async processFeedback(feedback: FeedbackRecord): Promise<void> {
+    // 分析反馈类型
+    switch (feedback.type) {
+      case 'helpful':
+      case 'not_helpful':
+        await this.updatePageRating(feedback.pageId, feedback.rating);
+        break;
+
+      case 'suggestion':
+        await this.createImprovementTask(feedback);
+        break;
+
+      case 'error':
+        await this.createBugReport(feedback);
+        break;
+    }
+
+    // 发送通知给文档团队
+    await this.notifyDocumentationTeam(feedback);
+  }
+
+  async getFeedbackStats(pageId?: string): Promise<FeedbackStats> {
+    const feedbacks = await this.feedbackStore.getFeedbacks(pageId);
+
+    const stats = {
+      totalFeedbacks: feedbacks.length,
+      averageRating: feedbacks.reduce((sum, f) => sum + (f.rating || 0), 0) / feedbacks.length,
+      helpfulCount: feedbacks.filter(f => f.type === 'helpful').length,
+      notHelpfulCount: feedbacks.filter(f => f.type === 'not_helpful').length,
+      suggestionCount: feedbacks.filter(f => f.type === 'suggestion').length,
+      errorCount: feedbacks.filter(f => f.type === 'error').length,
+      ratings: {
+        1: feedbacks.filter(f => f.rating === 1).length,
+        2: feedbacks.filter(f => f.rating === 2).length,
+        3: feedbacks.filter(f => f.rating === 3).length,
+        4: feedbacks.filter(f => f.rating === 4).length,
+        5: feedbacks.filter(f => f.rating === 5).length
+      }
+    };
+
+    return stats;
+  }
+
+  private async updatePageRating(pageId: string, rating: number): Promise<void> {
+    // 更新页面评分统计
+    const currentStats = await this.feedbackStore.getPageStats(pageId);
+    const newStats = {
+      ...currentStats,
+      totalRatings: currentStats.totalRatings + 1,
+      sumRatings: currentStats.sumRatings + rating,
+      averageRating: (currentStats.sumRatings + rating) / (currentStats.totalRatings + 1)
+    };
+
+    await this.feedbackStore.updatePageStats(pageId, newStats);
+  }
+}
+````
 
 #### 验收标准
+
 - ✅ 文档网站功能完整可用
 - ✅ 搜索功能响应快速准确
 - ✅ 版本管理自动化
@@ -1104,6 +1167,7 @@ ${changes.breakingChanges?.map(c => `- ${c}`).join('\n') || '无'}
 ### 架构设计
 
 #### 文档系统架构
+
 ```
 文档源代码 → 文档生成器 → 质量验证器 → 文档发布器
     ↓            ↓            ↓          ↓
@@ -1137,7 +1201,10 @@ interface DocumentationGenerator {
 // 文档发布器接口
 interface DocumentationPublisher {
   publishToWeb(docs: Documentation): Promise<PublishResult>;
-  publishToPDF(docs: Documentation, options: PDFOptions): Promise<PublishResult>;
+  publishToPDF(
+    docs: Documentation,
+    options: PDFOptions,
+  ): Promise<PublishResult>;
   publishToAPI(docs: Documentation): Promise<PublishResult>;
   updateVersion(docs: Documentation, version: string): Promise<void>;
 }
@@ -1146,6 +1213,7 @@ interface DocumentationPublisher {
 ### 文档生成流程
 
 #### 自动化文档生成
+
 ```typescript
 class AutomatedDocumentationGenerator {
   private extractors: ContentExtractor[];
@@ -1154,11 +1222,11 @@ class AutomatedDocumentationGenerator {
 
   async generateFullDocumentation(): Promise<Documentation> {
     // 1. 并行提取各种内容源
-    const extractionPromises = this.extractors.map(extractor =>
-      extractor.extract().catch(error => {
+    const extractionPromises = this.extractors.map((extractor) =>
+      extractor.extract().catch((error) => {
         console.warn(`Extraction failed for ${extractor.name}:`, error);
         return [];
-      })
+      }),
     );
 
     const contentSources = await Promise.all(extractionPromises);
@@ -1175,16 +1243,17 @@ class AutomatedDocumentationGenerator {
 
     // 4. 验证内容
     const validationResults = await Promise.all(
-      this.validators.map(validator => validator.validate(processedContent))
+      this.validators.map((validator) => validator.validate(processedContent)),
     );
 
-    const hasErrors = validationResults.some(result => !result.isValid);
+    const hasErrors = validationResults.some((result) => !result.isValid);
     if (hasErrors) {
       throw new Error('Content validation failed');
     }
 
     // 5. 构建文档结构
-    const documentation = await this.buildDocumentationStructure(processedContent);
+    const documentation =
+      await this.buildDocumentationStructure(processedContent);
 
     // 6. 生成导航和索引
     const navigation = await this.generateNavigation(documentation);
@@ -1198,8 +1267,8 @@ class AutomatedDocumentationGenerator {
         generatedAt: new Date(),
         totalPages: documentation.pages.length,
         totalWords: this.countTotalWords(documentation),
-        version: await this.getCurrentVersion()
-      }
+        version: await this.getCurrentVersion(),
+      },
     };
   }
 
@@ -1218,11 +1287,13 @@ class AutomatedDocumentationGenerator {
           metadata: {
             ...existing.metadata,
             ...source.metadata,
-            lastModified: new Date(Math.max(
-              existing.metadata.lastModified.getTime(),
-              source.metadata.lastModified.getTime()
-            ))
-          }
+            lastModified: new Date(
+              Math.max(
+                existing.metadata.lastModified.getTime(),
+                source.metadata.lastModified.getTime(),
+              ),
+            ),
+          },
         });
       } else {
         merged.set(key, source);
@@ -1256,18 +1327,21 @@ class AutomatedDocumentationGenerator {
 ## 📅 时间安排
 
 ### Week 1: 文档架构设计
+
 - 文档结构规划和设计
 - 文档生成系统开发
 - 文档质量保证系统
 - 基础测试和验证
 
 ### Week 2-4: 核心文档编写
+
 - 快速开始指南编写
 - 用户指南系统编写
 - API参考文档编写
 - 教程和示例开发
 
 ### Week 5: 文档平台和发布
+
 - 文档网站建设
 - 搜索功能实现
 - 版本管理和更新系统
@@ -1278,24 +1352,28 @@ class AutomatedDocumentationGenerator {
 ## 🎯 验收标准
 
 ### 功能验收
+
 - [ ] 文档架构完整可扩展
 - [ ] 核心文档内容完整准确
 - [ ] 文档平台功能完善
 - [ ] 文档生成自动化
 
 ### 性能验收
+
 - [ ] 文档网站加载时间<2秒
 - [ ] 搜索响应时间<500ms
 - [ ] 文档生成时间<10分钟
 - [ ] 支持并发访问>1000用户
 
 ### 质量验收
+
 - [ ] 文档准确率>98%
 - [ ] 代码示例可运行性>95%
 - [ ] 链接有效性>99%
 - [ ] 用户满意度>4.5/5
 
 ### 用户验收
+
 - [ ] 新用户上手时间<15分钟
 - [ ] 问题解决率>80%
 - [ ] 文档查找时间<2分钟
@@ -1308,6 +1386,7 @@ class AutomatedDocumentationGenerator {
 ### 技术风险
 
 **1. 文档内容过时风险**
+
 - **风险等级**：高
 - **影响**：用户按照过时文档操作导致问题
 - **应对策略**：
@@ -1317,6 +1396,7 @@ class AutomatedDocumentationGenerator {
   - 用户反馈驱动的更新
 
 **2. 文档生成复杂性**
+
 - **风险等级**：中
 - **影响**：文档生成失败或不准确
 - **应对策略**：
@@ -1326,6 +1406,7 @@ class AutomatedDocumentationGenerator {
   - 人工审核重要内容
 
 **3. 多语言文档维护**
+
 - **风险等级**：低到中
 - **影响**：不同语言版本内容不一致
 - **应对策略**：
@@ -1337,6 +1418,7 @@ class AutomatedDocumentationGenerator {
 ### 业务风险
 
 **1. 文档质量不佳**
+
 - **风险等级**：高
 - **影响**：用户体验差，增加支持成本
 - **应对策略**：
@@ -1346,6 +1428,7 @@ class AutomatedDocumentationGenerator {
   - 持续改进机制
 
 **2. 文档发现性差**
+
 - **风险等级**：中
 - **影响**：用户找不到需要的文档
 - **应对策略**：
@@ -1359,11 +1442,13 @@ class AutomatedDocumentationGenerator {
 ## 👥 团队配置
 
 ### 核心团队 (3-4人)
+
 - **技术文档工程师**：2人 (文档编写，技术实现)
 - **前端工程师**：1人 (文档网站开发)
 - **产品经理**：1人 (内容规划，用户研究)
 
 ### 外部支持
+
 - **UI/UX设计师**：文档网站设计
 - **内容编辑**：文档内容审核和优化
 - **用户研究专家**：用户测试和反馈分析
@@ -1373,12 +1458,14 @@ class AutomatedDocumentationGenerator {
 ## 💰 预算规划
 
 ### 人力成本 (5周)
+
 - 技术文档工程师：2人 × ¥20,000/月 × 1.5个月 = ¥60,000
 - 前端工程师：1人 × ¥25,000/月 × 1.5个月 = ¥37,500
 - 产品经理：1人 × ¥22,000/月 × 1.5个月 = ¥33,000
 - **人力小计**：¥130,500
 
 ### 技术成本
+
 - 文档平台工具：¥25,000 (Next.js, Algolia搜索)
 - 云服务费用：¥20,000 (文档网站托管，CDN)
 - 翻译和本地化：¥15,000 (多语言支持)
@@ -1386,6 +1473,7 @@ class AutomatedDocumentationGenerator {
 - **技术小计**：¥70,000
 
 ### 其他成本
+
 - 内容创作工具：¥8,000 (写作和编辑工具)
 - 用户测试：¥12,000 (用户可用性测试)
 - 专业审校：¥10,000 (文档专业审校)
@@ -1398,24 +1486,28 @@ class AutomatedDocumentationGenerator {
 ## 📈 关键指标
 
 ### 用户体验指标
+
 - **查找效率**：用户找到所需信息的时间<2分钟
 - **理解程度**：用户理解文档内容的准确率>90%
 - **完成率**：用户按文档完成任务的成功率>85%
 - **满意度**：文档质量满意度评分>4.5/5
 
 ### 内容质量指标
+
 - **准确性**：文档内容准确率>98%，错误率<2%
 - **完整性**：核心功能文档覆盖率>95%
 - **及时性**：新功能文档上线时间<1周
 - **一致性**：文档间信息一致性>95%
 
 ### 技术指标
+
 - **性能**：文档网站加载时间<2秒，搜索响应<500ms
 - **可用性**：文档网站正常运行时间>99.9%
 - **扩展性**：支持文档页面数>1000个
 - **自动化**：文档生成自动化程度>70%
 
 ### 业务价值指标
+
 - **用户增长**：文档改进带来的用户增长>15%
 - **支持效率**：文档解决的支持请求比例>80%
 - **转化率**：文档用户转化为付费用户的比例>20%
@@ -1426,17 +1518,20 @@ class AutomatedDocumentationGenerator {
 ## 🎯 后续规划
 
 ### Phase 1.5.3 衔接
+
 - 基于文档中的示例，创建第三方集成指南
 - 利用文档反馈，完善集成示例
 - 通过文档验证集成的正确性
 
 ### 持续优化计划
+
 1. **智能化文档**：AI辅助文档生成和优化
 2. **个性化推荐**：基于用户行为的文档推荐
 3. **多语言支持**：完整的国际化文档体系
 4. **互动学习**：集成代码运行和交互式教程
 
 ### 长期演进
+
 - **文档即代码**：文档和代码同步开发
 - **社区共建**：用户贡献和维护文档
 - **AI助手**：智能文档问答和引导

@@ -3,10 +3,10 @@
  * 统一管理多供应商AI API，支持动态配置、模型发现、连接测试和智能路由
  */
 
-import { logger } from '../utils/logger.js';
-import { config } from '../utils/config.js';
-import { eventSystem } from '../core/events.js';
 import { errorHandler } from '../core/error-handler.js';
+import { eventSystem } from '../core/events.js';
+import { config } from '../utils/config.js';
+import { logger } from '../utils/logger.js';
 
 export class AIProviderManager {
   constructor(options = {}) {
@@ -444,7 +444,6 @@ export class AIProviderManager {
           model,
           error: error.message,
         });
-        continue;
       }
     }
 

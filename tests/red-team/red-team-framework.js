@@ -3,9 +3,9 @@
  * 模拟黑客攻击并验证防御机制
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
+import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
 import SQLiteInspiredDatabase from '../../src/core/SQLiteInspiredDatabase.js';
 import { logger } from '../../src/shared/utils/logger.js';
 
@@ -48,7 +48,7 @@ export class RedTeamFramework {
         blocked: result.blocked,
         duration: endTime - startTime,
         timestamp: new Date().toISOString(),
-        details: result.details || {}
+        details: result.details || {},
       };
 
       this.attackResults.push(attackResult);
@@ -74,7 +74,7 @@ export class RedTeamFramework {
         result,
         effective: result.effective,
         response: result.response,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       this.defenseResults.push(defenseResult);
@@ -88,11 +88,15 @@ export class RedTeamFramework {
   // 生成测试报告
   generateReport() {
     const totalAttacks = this.attackResults.length;
-    const successfulAttacks = this.attackResults.filter(r => r.success).length;
-    const blockedAttacks = this.attackResults.filter(r => r.blocked).length;
+    const successfulAttacks = this.attackResults.filter(
+      (r) => r.success,
+    ).length;
+    const blockedAttacks = this.attackResults.filter((r) => r.blocked).length;
 
-    const successRate = totalAttacks > 0 ? (successfulAttacks / totalAttacks * 100) : 0;
-    const blockRate = totalAttacks > 0 ? (blockedAttacks / totalAttacks * 100) : 0;
+    const successRate =
+      totalAttacks > 0 ? (successfulAttacks / totalAttacks) * 100 : 0;
+    const blockRate =
+      totalAttacks > 0 ? (blockedAttacks / totalAttacks) * 100 : 0;
 
     const report = {
       summary: {
@@ -100,12 +104,12 @@ export class RedTeamFramework {
         successfulAttacks,
         blockedAttacks,
         successRate: successRate.toFixed(2),
-        blockRate: blockRate.toFixed(2)
+        blockRate: blockRate.toFixed(2),
       },
       attackResults: this.attackResults,
       defenseResults: this.defenseResults,
       recommendations: this.generateRecommendations(successRate),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     return report;
@@ -125,19 +129,15 @@ export class RedTeamFramework {
           '实施更严格的输入验证',
           '增强防御机制',
           '考虑使用WAF',
-          '实施零信任架构'
-        ]
+          '实施零信任架构',
+        ],
       });
     } else if (successRate > 10) {
       recommendations.push({
         priority: 'HIGH',
         type: 'SECURITY_ENHANCEMENT',
         message: `攻击成功率较高 (${successRate.toFixed(2)}%)，建议优化防御`,
-        suggestions: [
-          '加强输入清理',
-          '改进认证机制',
-          '增强日志记录'
-        ]
+        suggestions: ['加强输入清理', '改进认证机制', '增强日志记录'],
       });
     }
 
@@ -162,7 +162,7 @@ export const AttackVectors = {
   FILE_UPLOAD_ATTACK: 'file_upload_attack',
   DIRECTORY_TRAVERSAL: 'directory_traversal',
   BUFFER_OVERFLOW: 'buffer_overflow',
-  FUZZ_ATTACK: 'fuzz_attack'
+  FUZZ_ATTACK: 'fuzz_attack',
 };
 
 // 安全级别枚举
@@ -171,7 +171,7 @@ export const SecurityLevels = {
   HIGH: 'HIGH',
   MEDIUM: 'MEDIUM',
   LOW: 'LOW',
-  INFO: 'INFO'
+  INFO: 'INFO',
 };
 
 export default RedTeamFramework;

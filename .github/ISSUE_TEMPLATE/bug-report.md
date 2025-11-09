@@ -1,10 +1,9 @@
 ---
 name: Bug 报告
 about: 报告一个错误或问题
-title: "[BUG] 简短描述问题"
+title: '[BUG] 简短描述问题'
 labels: bug
 assignees: ''
-
 ---
 
 ## 🐛 Bug 描述

@@ -1,10 +1,9 @@
 ---
 name: 文档改进
 about: 改进文档或报告文档问题
-title: "[DOCS] 文档标题"
+title: '[DOCS] 文档标题'
 labels: documentation
 assignees: ''
-
 ---
 
 ## 📚 文档问题

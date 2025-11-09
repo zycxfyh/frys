@@ -47,20 +47,20 @@ pre-commit:
     # 快速代码质量检查
     lint:
       run: npm run lint -- --quiet --max-warnings=0
-      glob: "*.{js,mjs}"
-      exclude: "node_modules/**"
+      glob: '*.{js,mjs}'
+      exclude: 'node_modules/**'
 
     # 格式检查
     format:
       run: npm run format:check
-      glob: "*.{js,json,md}"
-      exclude: "node_modules/**"
+      glob: '*.{js,json,md}'
+      exclude: 'node_modules/**'
 
     # 基础单元测试
     test:
       run: npm run test:unit -- --run --reporter=verbose --testTimeout=5000
-      glob: "*.{js,mjs}"
-      exclude: "node_modules/**"
+      glob: '*.{js,mjs}'
+      exclude: 'node_modules/**'
       fail_fast: true
 
 pre-push:
@@ -202,16 +202,16 @@ export default [
     languageOptions: {
       globals: {
         ...globals.node,
-        ...globals.jest
-      }
+        ...globals.jest,
+      },
     },
     rules: {
       // 自定义规则
       'no-console': 'warn',
       'prefer-const': 'error',
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
-    }
-  }
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
+  },
 ];
 ```
 
@@ -233,12 +233,12 @@ npx eslint src/ --format json --output-file eslint-report.json
 
 ### 规则说明
 
-| 规则 | 级别 | 说明 |
-|------|------|------|
-| `no-console` | 警告 | 避免在生产代码中使用 console |
-| `prefer-const` | 错误 | 优先使用 const 声明 |
-| `no-unused-vars` | 错误 | 禁止未使用的变量 |
-| `eqeqeq` | 错误 | 强制使用 === 和 !== |
+| 规则             | 级别 | 说明                         |
+| ---------------- | ---- | ---------------------------- |
+| `no-console`     | 警告 | 避免在生产代码中使用 console |
+| `prefer-const`   | 错误 | 优先使用 const 声明          |
+| `no-unused-vars` | 错误 | 禁止未使用的变量             |
+| `eqeqeq`         | 错误 | 强制使用 === 和 !==          |
 
 ## 🧪 测试工具 (Vitest)
 
@@ -255,9 +255,9 @@ export default defineConfig({
     setupFiles: ['./tests/setup.js'],
     coverage: {
       reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'tests/']
-    }
-  }
+      exclude: ['node_modules/', 'tests/'],
+    },
+  },
 });
 ```
 
@@ -314,9 +314,9 @@ describe('ExampleService', () => {
     it('should throw error for invalid input', async () => {
       const input = { name: '', value: -1 };
 
-      await expect(service.createExample(input))
-        .rejects
-        .toThrow('Invalid input');
+      await expect(service.createExample(input)).rejects.toThrow(
+        'Invalid input',
+      );
     });
   });
 });
@@ -443,10 +443,10 @@ module.exports = {
         'refactor',
         'revert',
         'style',
-        'test'
-      ]
-    ]
-  }
+        'test',
+      ],
+    ],
+  },
 };
 ```
 
@@ -474,18 +474,19 @@ module.exports = {
 
 ### 质量指标
 
-| 指标 | 目标值 | 当前值 | 状态 |
-|------|--------|--------|------|
-| **测试覆盖率** | ≥ 90% | 92% | ✅ |
-| **ESLint 错误** | 0 | 0 | ✅ |
-| **安全漏洞** | 0 高危 | 0 | ✅ |
-| **代码重复率** | < 5% | 3.2% | ✅ |
+| 指标            | 目标值 | 当前值 | 状态 |
+| --------------- | ------ | ------ | ---- |
+| **测试覆盖率**  | ≥ 90%  | 92%    | ✅   |
+| **ESLint 错误** | 0      | 0      | ✅   |
+| **安全漏洞**    | 0 高危 | 0      | ✅   |
+| **代码重复率**  | < 5%   | 3.2%   | ✅   |
 
 ## 🐛 故障排除
 
 ### Lefthook 问题
 
 **问题**: 钩子没有执行
+
 ```bash
 # 检查钩子文件
 ls -la .git/hooks/
@@ -498,6 +499,7 @@ cat lefthook.yml
 ```
 
 **问题**: 钩子执行太慢
+
 ```yaml
 # 优化配置，减少检查范围
 pre-commit:
@@ -511,26 +513,28 @@ pre-commit:
 ### ESLint 问题
 
 **问题**: 规则冲突
+
 ```javascript
 // .eslintrc.js 中禁用冲突规则
 module.exports = {
   rules: {
     'no-console': 'off', // 在开发阶段允许 console
-    'import/no-unresolved': 'off' // 对于某些动态导入
-  }
+    'import/no-unresolved': 'off', // 对于某些动态导入
+  },
 };
 ```
 
 ### 测试问题
 
 **问题**: 测试超时
+
 ```javascript
 // vitest.config.js
 export default {
   test: {
     testTimeout: 10000, // 增加超时时间
-    hookTimeout: 5000   // 钩子超时时间
-  }
+    hookTimeout: 5000, // 钩子超时时间
+  },
 };
 ```
 
@@ -607,6 +611,6 @@ node scripts/dev-tools.js update
 
 ---
 
-*最后更新: 2025年11月7日*
+_最后更新: 2025年11月7日_
 
 </div>

@@ -1,3 +1,5 @@
+import { logger } from '../shared/utils/logger.js';
+
 /**
  * UUID 风格的唯一标识符
  * 借鉴 UUID 的标准格式生成和验证理念
@@ -111,7 +113,7 @@ class UUIDInspiredId {
    */
   registerNamespace(name, uuid) {
     this.namespaces.set(name, uuid);
-    console.log(`📦 命名空间已注册: ${name} [${uuid}]`);
+    logger.info(`📦 命名空间已注册: ${name} [${uuid}]`);
   }
 
   /**

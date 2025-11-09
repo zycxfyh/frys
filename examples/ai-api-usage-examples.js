@@ -19,9 +19,9 @@ async function apiRequest(endpoint, options = {}) {
     method: options.method || 'GET',
     headers: {
       'Content-Type': 'application/json',
-      ...options.headers
+      ...options.headers,
     },
-    ...options
+    ...options,
   };
 
   if (options.body) {
@@ -33,7 +33,9 @@ async function apiRequest(endpoint, options = {}) {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(`API请求失败: ${response.status} - ${data.error || response.statusText}`);
+      throw new Error(
+        `API请求失败: ${response.status} - ${data.error || response.statusText}`,
+      );
     }
 
     return data;
@@ -53,7 +55,7 @@ async function example1_getProviders() {
     const result = await apiRequest('/api/ai/providers');
 
     console.log('✅ 成功获取供应商信息:');
-    result.data.forEach(provider => {
+    result.data.forEach((provider) => {
       console.log(`  ${provider.name} (${provider.id}):`);
       console.log(`    - 状态: ${provider.status}`);
       console.log(`    - 模型数量: ${provider.models}`);
@@ -74,7 +76,7 @@ async function example2_openAIChat() {
 
   const messages = [
     { role: 'system', content: '你是一个有帮助的AI助手，请用中文回答问题。' },
-    { role: 'user', content: '请解释什么是机器学习，以及它有哪些应用场景？' }
+    { role: 'user', content: '请解释什么是机器学习，以及它有哪些应用场景？' },
   ];
 
   try {
@@ -84,8 +86,8 @@ async function example2_openAIChat() {
         model: 'gpt-3.5-turbo',
         messages: messages,
         temperature: 0.7,
-        maxTokens: 1000
-      }
+        maxTokens: 1000,
+      },
     });
 
     console.log('✅ OpenAI响应:');
@@ -93,7 +95,9 @@ async function example2_openAIChat() {
     console.log(`  响应时间: ${result.data.responseTime}ms`);
     console.log(`  Token消耗: ${result.data.usage.total_tokens}`);
     console.log(`  费用: $${result.data.cost.toFixed(6)}`);
-    console.log(`  内容: ${result.data.choices[0].message.content.substring(0, 200)}...`);
+    console.log(
+      `  内容: ${result.data.choices[0].message.content.substring(0, 200)}...`,
+    );
 
     return result.data;
   } catch (error) {
@@ -107,9 +111,7 @@ async function example2_openAIChat() {
 async function example3_claudeChat() {
   console.log('\n=== 示例3: Claude聊天API ===');
 
-  const messages = [
-    { role: 'user', content: '请写一首关于人工智能的短诗。' }
-  ];
+  const messages = [{ role: 'user', content: '请写一首关于人工智能的短诗。' }];
 
   try {
     const result = await apiRequest('/api/ai/claude/chat', {
@@ -118,8 +120,8 @@ async function example3_claudeChat() {
         model: 'claude-3-haiku-20240307',
         messages: messages,
         temperature: 0.8,
-        maxTokens: 500
-      }
+        maxTokens: 500,
+      },
     });
 
     console.log('✅ Claude响应:');
@@ -142,7 +144,7 @@ async function example4_geminiChat() {
   console.log('\n=== 示例4: Gemini聊天API ===');
 
   const messages = [
-    { role: 'user', content: '用简单的语言解释什么是区块链技术。' }
+    { role: 'user', content: '用简单的语言解释什么是区块链技术。' },
   ];
 
   try {
@@ -152,8 +154,8 @@ async function example4_geminiChat() {
         model: 'gemini-1.5-flash',
         messages: messages,
         temperature: 0.7,
-        maxTokens: 800
-      }
+        maxTokens: 800,
+      },
     });
 
     console.log('✅ Gemini响应:');
@@ -161,7 +163,9 @@ async function example4_geminiChat() {
     console.log(`  响应时间: ${result.data.responseTime}ms`);
     console.log(`  Token消耗: ${result.data.usage.total_tokens}`);
     console.log(`  费用: $${result.data.cost.toFixed(6)}`);
-    console.log(`  内容: ${result.data.choices[0].message.content.substring(0, 200)}...`);
+    console.log(
+      `  内容: ${result.data.choices[0].message.content.substring(0, 200)}...`,
+    );
 
     return result.data;
   } catch (error) {
@@ -176,7 +180,7 @@ async function example5_deepSeekChat() {
   console.log('\n=== 示例5: DeepSeek聊天API（高性价比） ===');
 
   const messages = [
-    { role: 'user', content: '给我推荐5个学习编程的在线资源。' }
+    { role: 'user', content: '给我推荐5个学习编程的在线资源。' },
   ];
 
   try {
@@ -186,8 +190,8 @@ async function example5_deepSeekChat() {
         model: 'deepseek-chat',
         messages: messages,
         temperature: 0.6,
-        maxTokens: 600
-      }
+        maxTokens: 600,
+      },
     });
 
     console.log('✅ DeepSeek响应:');
@@ -195,7 +199,9 @@ async function example5_deepSeekChat() {
     console.log(`  响应时间: ${result.data.responseTime}ms`);
     console.log(`  Token消耗: ${result.data.usage.total_tokens}`);
     console.log(`  费用: $${result.data.cost.toFixed(6)} (极低成本)`);
-    console.log(`  内容: ${result.data.choices[0].message.content.substring(0, 200)}...`);
+    console.log(
+      `  内容: ${result.data.choices[0].message.content.substring(0, 200)}...`,
+    );
 
     return result.data;
   } catch (error) {
@@ -210,7 +216,11 @@ async function example6_alibabaChat() {
   console.log('\n=== 示例6: 通义千问聊天API（中文优化） ===');
 
   const messages = [
-    { role: 'user', content: '请详细介绍一下中国的传统节日春节，包括起源、习俗和现代庆祝方式。' }
+    {
+      role: 'user',
+      content:
+        '请详细介绍一下中国的传统节日春节，包括起源、习俗和现代庆祝方式。',
+    },
   ];
 
   try {
@@ -220,8 +230,8 @@ async function example6_alibabaChat() {
         model: 'qwen-plus',
         messages: messages,
         temperature: 0.7,
-        maxTokens: 1200
-      }
+        maxTokens: 1200,
+      },
     });
 
     console.log('✅ 通义千问响应:');
@@ -229,7 +239,9 @@ async function example6_alibabaChat() {
     console.log(`  响应时间: ${result.data.responseTime}ms`);
     console.log(`  Token消耗: ${result.data.usage.total_tokens}`);
     console.log(`  费用: $${result.data.cost.toFixed(6)}`);
-    console.log(`  内容: ${result.data.choices[0].message.content.substring(0, 200)}...`);
+    console.log(
+      `  内容: ${result.data.choices[0].message.content.substring(0, 200)}...`,
+    );
 
     return result.data;
   } catch (error) {
@@ -251,7 +263,9 @@ async function example7_getStats() {
     console.log(`  总错误数: ${result.data.summary.totalErrors}`);
     console.log(`  总Token消耗: ${result.data.summary.totalTokens}`);
     console.log(`  总费用: $${result.data.summary.totalCost.toFixed(4)}`);
-    console.log(`  平均响应时间: ${result.data.summary.avgResponseTime.toFixed(0)}ms`);
+    console.log(
+      `  平均响应时间: ${result.data.summary.avgResponseTime.toFixed(0)}ms`,
+    );
 
     console.log('\n各服务详情:');
     Object.entries(result.data.providers).forEach(([provider, stats]) => {
@@ -279,10 +293,11 @@ async function example8_openAIImage() {
     const result = await apiRequest('/api/ai/openai/images', {
       method: 'POST',
       body: {
-        prompt: 'A beautiful sunset over mountains with a lake, digital art style',
+        prompt:
+          'A beautiful sunset over mountains with a lake, digital art style',
         n: 1,
-        size: '1024x1024'
-      }
+        size: '1024x1024',
+      },
     });
 
     console.log('✅ OpenAI图像生成:');
@@ -306,11 +321,36 @@ async function example9_performanceComparison() {
   const messages = [{ role: 'user', content: testPrompt }];
 
   const providers = [
-    { id: 'openai', name: 'OpenAI', model: 'gpt-3.5-turbo', endpoint: '/api/ai/openai/chat' },
-    { id: 'claude', name: 'Claude', model: 'claude-3-haiku-20240307', endpoint: '/api/ai/claude/chat' },
-    { id: 'gemini', name: 'Gemini', model: 'gemini-1.5-flash', endpoint: '/api/ai/gemini/chat' },
-    { id: 'deepseek', name: 'DeepSeek', model: 'deepseek-chat', endpoint: '/api/ai/deepseek/chat' },
-    { id: 'alibaba', name: '通义千问', model: 'qwen-turbo', endpoint: '/api/ai/alibaba/chat' }
+    {
+      id: 'openai',
+      name: 'OpenAI',
+      model: 'gpt-3.5-turbo',
+      endpoint: '/api/ai/openai/chat',
+    },
+    {
+      id: 'claude',
+      name: 'Claude',
+      model: 'claude-3-haiku-20240307',
+      endpoint: '/api/ai/claude/chat',
+    },
+    {
+      id: 'gemini',
+      name: 'Gemini',
+      model: 'gemini-1.5-flash',
+      endpoint: '/api/ai/gemini/chat',
+    },
+    {
+      id: 'deepseek',
+      name: 'DeepSeek',
+      model: 'deepseek-chat',
+      endpoint: '/api/ai/deepseek/chat',
+    },
+    {
+      id: 'alibaba',
+      name: '通义千问',
+      model: 'qwen-turbo',
+      endpoint: '/api/ai/alibaba/chat',
+    },
   ];
 
   const results = [];
@@ -326,8 +366,8 @@ async function example9_performanceComparison() {
           model: provider.model,
           messages: messages,
           temperature: 0.7,
-          maxTokens: 300
-        }
+          maxTokens: 300,
+        },
       });
 
       const totalTime = Date.now() - startTime;
@@ -338,16 +378,17 @@ async function example9_performanceComparison() {
         totalTime: totalTime,
         tokens: result.data.usage.total_tokens,
         cost: result.data.cost,
-        success: true
+        success: true,
       });
 
-      console.log(`  ✅ ${provider.name}: ${result.data.responseTime}ms, $${result.data.cost.toFixed(6)}`);
-
+      console.log(
+        `  ✅ ${provider.name}: ${result.data.responseTime}ms, $${result.data.cost.toFixed(6)}`,
+      );
     } catch (error) {
       results.push({
         provider: provider.name,
         success: false,
-        error: error.message
+        error: error.message,
       });
 
       console.log(`  ❌ ${provider.name}: 失败 - ${error.message}`);
@@ -359,11 +400,15 @@ async function example9_performanceComparison() {
   console.log('Provider    | Response Time | Cost      | Tokens | Status');
   console.log('-------------|---------------|-----------|--------|--------');
 
-  results.forEach(result => {
+  results.forEach((result) => {
     if (result.success) {
-      console.log(`${result.provider.padEnd(12)} | ${result.responseTime.toString().padStart(13)}ms | $${result.cost.toFixed(6).padStart(8)} | ${result.tokens.toString().padStart(6)} | ✅`);
+      console.log(
+        `${result.provider.padEnd(12)} | ${result.responseTime.toString().padStart(13)}ms | $${result.cost.toFixed(6).padStart(8)} | ${result.tokens.toString().padStart(6)} | ✅`,
+      );
     } else {
-      console.log(`${result.provider.padEnd(12)} | ${'N/A'.padStart(13)} | ${'N/A'.padStart(9)} | ${'N/A'.padStart(6)} | ❌`);
+      console.log(
+        `${result.provider.padEnd(12)} | ${'N/A'.padStart(13)} | ${'N/A'.padStart(9)} | ${'N/A'.padStart(6)} | ❌`,
+      );
     }
   });
 
@@ -402,7 +447,6 @@ async function main() {
     console.log('  - 确保frys服务器正在运行 (npm start)');
     console.log('  - 配置相应的API密钥到环境变量');
     console.log('  - 查看完整API文档: http://localhost:3000/api/docs');
-
   } catch (error) {
     console.error('\n❌ 示例运行失败:', error.message);
     process.exit(1);
@@ -424,5 +468,5 @@ export {
   example6_alibabaChat,
   example7_getStats,
   example8_openAIImage,
-  example9_performanceComparison
+  example9_performanceComparison,
 };

@@ -5,11 +5,11 @@
 
 import {
   AutoScalingManager,
-  CpuScalingPolicy,
-  MemoryScalingPolicy,
   CompositeScalingPolicy,
+  CpuScalingPolicy,
   DockerContainerOrchestrator,
-  LoadBalancer
+  LoadBalancer,
+  MemoryScalingPolicy,
 } from '../src/infrastructure/scaling/index.js';
 import { logger } from '../src/utils/logger.js';
 
@@ -27,20 +27,21 @@ async function basicAutoScalingExample() {
     network: 'frys-network',
     environment: {
       NODE_ENV: 'production',
-      DATABASE_URL: process.env.DATABASE_URL || 'postgresql://localhost:5432/frys'
-    }
+      DATABASE_URL:
+        process.env.DATABASE_URL || 'postgresql://localhost:5432/frys',
+    },
   });
 
   // 2. 创建扩容策略
   const cpuPolicy = new CpuScalingPolicy({
-    scaleUpThreshold: 0.75,    // CPU > 75% 扩容
-    scaleDownThreshold: 0.25,  // CPU < 25% 缩容
-    cooldownPeriod: 120000     // 2分钟冷却期
+    scaleUpThreshold: 0.75, // CPU > 75% 扩容
+    scaleDownThreshold: 0.25, // CPU < 25% 缩容
+    cooldownPeriod: 120000, // 2分钟冷却期
   });
 
   const memoryPolicy = new MemoryScalingPolicy({
-    scaleUpThreshold: 0.80,    // 内存 > 80% 扩容
-    scaleDownThreshold: 0.30   // 内存 < 30% 缩容
+    scaleUpThreshold: 0.8, // 内存 > 80% 扩容
+    scaleDownThreshold: 0.3, // 内存 < 30% 缩容
   });
 
   // 复合策略：任意指标超过阈值就扩容
@@ -54,8 +55,8 @@ async function basicAutoScalingExample() {
     initialInstances: 2,
     policies: [compositePolicy],
     orchestrator,
-    metricsInterval: 10000,    // 10秒收集一次指标
-    healthCheckInterval: 15000  // 15秒健康检查一次
+    metricsInterval: 10000, // 10秒收集一次指标
+    healthCheckInterval: 15000, // 15秒健康检查一次
   });
 
   // 4. 启动自动扩容
@@ -75,37 +76,41 @@ async function basicAutoScalingExample() {
     const alerts = stats.recentAlerts;
     if (alerts.length > 0) {
       console.log('🚨 最近告警:');
-      alerts.forEach(alert => {
+      alerts.forEach((alert) => {
         console.log(`  - [${alert.severity}] ${alert.message}`);
       });
     }
   }, 30000); // 每30秒报告一次状态
 
   // 6. 运行5分钟后停止
-  setTimeout(async () => {
-    clearInterval(monitorInterval);
-    console.log('🛑 停止自动扩容示例');
+  setTimeout(
+    async () => {
+      clearInterval(monitorInterval);
+      console.log('🛑 停止自动扩容示例');
 
-    await autoScaler.stop();
-    console.log('✅ 自动扩容已停止');
+      await autoScaler.stop();
+      console.log('✅ 自动扩容已停止');
 
-    // 显示最终统计
-    const finalStats = autoScaler.getStats();
-    const history = autoScaler.getScaleHistory();
+      // 显示最终统计
+      const finalStats = autoScaler.getStats();
+      const history = autoScaler.getScaleHistory();
 
-    console.log('📈 最终统计:');
-    console.log(`  - 总扩容事件: ${history.length}`);
-    console.log(`  - 最终实例数: ${finalStats.currentInstances}`);
-    console.log(`  - 告警总数: ${finalStats.recentAlerts.length}`);
+      console.log('📈 最终统计:');
+      console.log(`  - 总扩容事件: ${history.length}`);
+      console.log(`  - 最终实例数: ${finalStats.currentInstances}`);
+      console.log(`  - 告警总数: ${finalStats.recentAlerts.length}`);
 
-    if (history.length > 0) {
-      console.log('🔄 扩容历史:');
-      history.forEach(event => {
-        console.log(`  - ${new Date(event.timestamp).toLocaleTimeString()}: ${event.type} (${event.fromInstances} → ${event.toInstances}) - ${event.reason}`);
-      });
-    }
-
-  }, 5 * 60 * 1000); // 5分钟
+      if (history.length > 0) {
+        console.log('🔄 扩容历史:');
+        history.forEach((event) => {
+          console.log(
+            `  - ${new Date(event.timestamp).toLocaleTimeString()}: ${event.type} (${event.fromInstances} → ${event.toInstances}) - ${event.reason}`,
+          );
+        });
+      }
+    },
+    5 * 60 * 1000,
+  ); // 5分钟
 }
 
 /**
@@ -118,21 +123,21 @@ async function advancedLoadBalancingExample() {
   const loadBalancer = new LoadBalancer({
     algorithm: 'weighted_round_robin',
     healthCheckInterval: 10000,
-    maxRetries: 3
+    maxRetries: 3,
   });
 
   // 2. 添加不同权重的实例
   loadBalancer.addInstance('high-capacity-1', 'http://localhost:3001', {
     weight: 3,
-    metadata: { region: 'us-east', capacity: 'high' }
+    metadata: { region: 'us-east', capacity: 'high' },
   });
   loadBalancer.addInstance('medium-capacity-1', 'http://localhost:3002', {
     weight: 2,
-    metadata: { region: 'us-west', capacity: 'medium' }
+    metadata: { region: 'us-west', capacity: 'medium' },
   });
   loadBalancer.addInstance('low-capacity-1', 'http://localhost:3003', {
     weight: 1,
-    metadata: { region: 'eu-central', capacity: 'low' }
+    metadata: { region: 'eu-central', capacity: 'low' },
   });
 
   // 3. 启动健康检查
@@ -154,7 +159,7 @@ async function advancedLoadBalancingExample() {
 
   // 统计分配结果
   const distribution = {};
-  requests.forEach(instanceId => {
+  requests.forEach((instanceId) => {
     distribution[instanceId] = (distribution[instanceId] || 0) + 1;
   });
 
@@ -190,17 +195,23 @@ async function manualScalingExample() {
     minInstances: 1,
 
     async manualScale(targetInstances, reason) {
-      console.log(`🔧 手动扩容: ${this.currentInstances} → ${targetInstances} (${reason})`);
+      console.log(
+        `🔧 手动扩容: ${this.currentInstances} → ${targetInstances} (${reason})`,
+      );
 
       if (targetInstances > this.currentInstances) {
-        console.log(`  启动 ${targetInstances - this.currentInstances} 个新实例...`);
+        console.log(
+          `  启动 ${targetInstances - this.currentInstances} 个新实例...`,
+        );
       } else if (targetInstances < this.currentInstances) {
-        console.log(`  停止 ${this.currentInstances - targetInstances} 个实例...`);
+        console.log(
+          `  停止 ${this.currentInstances - targetInstances} 个实例...`,
+        );
       }
 
       this.currentInstances = Math.max(
         this.minInstances,
-        Math.min(this.maxInstances, targetInstances)
+        Math.min(this.maxInstances, targetInstances),
       );
 
       return { success: true, finalInstances: this.currentInstances };
@@ -210,10 +221,16 @@ async function manualScalingExample() {
       return {
         currentInstances: this.currentInstances,
         scaleHistory: [
-          { type: 'manual_scale_up', fromInstances: 1, toInstances: 2, reason: '初始启动', timestamp: Date.now() - 60000 }
-        ]
+          {
+            type: 'manual_scale_up',
+            fromInstances: 1,
+            toInstances: 2,
+            reason: '初始启动',
+            timestamp: Date.now() - 60000,
+          },
+        ],
       };
-    }
+    },
   };
 
   // 模拟不同的扩容场景
@@ -233,7 +250,9 @@ async function manualScalingExample() {
 
   // 场景4: 超出限制（会被限制在最大值内）
   await mockAutoScaler.manualScale(15, '测试边界情况 - 超出最大值');
-  console.log(`   当前实例数: ${mockAutoScaler.currentInstances} (限制在最大值 ${mockAutoScaler.maxInstances})`);
+  console.log(
+    `   当前实例数: ${mockAutoScaler.currentInstances} (限制在最大值 ${mockAutoScaler.maxInstances})`,
+  );
 
   console.log('✅ 手动扩容示例完成');
 }
@@ -251,7 +270,7 @@ async function runAllExamples() {
       await run_terminal_cmd({
         command: 'docker --version',
         is_background: false,
-        explanation: '检查Docker是否可用'
+        explanation: '检查Docker是否可用',
       });
       console.log('🐳 Docker可用，将运行完整示例\n');
     } catch (error) {
@@ -269,7 +288,6 @@ async function runAllExamples() {
     // await basicAutoScalingExample();
 
     console.log('🎉 所有示例运行完成！');
-
   } catch (error) {
     console.error('❌ 示例运行失败:', error);
     process.exit(1);
@@ -285,5 +303,5 @@ export {
   basicAutoScalingExample,
   advancedLoadBalancingExample,
   manualScalingExample,
-  runAllExamples
+  runAllExamples,
 };

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { PlaceholderSystem } from '../../../../src/core/utils/PlaceholderSystem.js';
 
 describe('PlaceholderSystem', () => {
@@ -8,7 +8,7 @@ describe('PlaceholderSystem', () => {
     system = new PlaceholderSystem({
       enableCaching: false,
       strictMode: true,
-      maxDepth: 10
+      maxDepth: 10,
     });
   });
 
@@ -27,7 +27,7 @@ describe('PlaceholderSystem', () => {
     it('should handle nested object properties', () => {
       const template = 'User: {{user.name}} ({{user.age}} years old)';
       const context = {
-        user: { name: 'Alice', age: 30 }
+        user: { name: 'Alice', age: 30 },
       };
       const result = system.processString(template, context);
       expect(result).toBe('User: Alice (30 years old)');

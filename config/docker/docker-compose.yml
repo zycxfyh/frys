@@ -1,6 +1,21 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: frys-redis
+    ports:
+      - '6380:6379'
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   frys:
     build:
       context: ../..
@@ -8,15 +23,23 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - DEEPSEEK_API_KEY=sk-777737d8d25a4b9b94f9f9024833d37a
+      - REDIS_URL=redis://redis:6379
     ports:
-      - "3000:3000"
+      - '3002:3000'
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  redis_data:

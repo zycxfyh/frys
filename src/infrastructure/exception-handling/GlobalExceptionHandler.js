@@ -3,8 +3,8 @@
  * 捕获和处理应用程序中的未处理异常和未捕获的Promise拒绝
  */
 
-import { logger } from '../../shared/utils/logger.js';
 import { EventBus } from '../../shared/kernel/EventBus.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class GlobalExceptionHandler {
   constructor(config = {}) {

@@ -117,7 +117,7 @@
             }
 
             // --- 通用结果处理 ---
-            let finalResultObject = (typeof resultFromPlugin === 'object' && resultFromPlugin !== null) ? resultFromPlugin : { original_plugin_output: resultFromPlugin };
+            const finalResultObject = (typeof resultFromPlugin === 'object' && resultFromPlugin !== null) ? resultFromPlugin : { original_plugin_output: resultFromPlugin };
 
             if (maidNameFromArgs) {
                 finalResultObject.MaidName = maidNameFromArgs;
@@ -163,7 +163,7 @@
         const envForProcess = { ...process.env };
 
         for (const key in pluginConfig) {
-            if (pluginConfig.hasOwnProperty(key) && pluginConfig[key] !== undefined) {
+            if (Object.hasOwn(pluginConfig, key) && pluginConfig[key] !== undefined) {
                 envForProcess[key] = String(pluginConfig[key]);
             }
         }

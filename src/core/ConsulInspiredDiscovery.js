@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * ConsulInspiredServiceDiscovery 风格的Consul系统
  * 借鉴 Consul 的核心理念
@@ -30,7 +32,7 @@ class ConsulInspiredServiceDiscovery {
     };
 
     this.services.set(serviceId, svc);
-    console.log(`📝 服务已注册: ${serviceId} (${svc.address}:${svc.port})`);
+    logger.info(`📝 服务已注册: ${serviceId} (${svc.address}:${svc.port})`);
     return svc;
   }
 
@@ -44,7 +46,7 @@ class ConsulInspiredServiceDiscovery {
       (svc) => svc.name === serviceName,
     );
 
-    console.log(
+    logger.info(
       `🔍 服务发现: ${serviceName} -> 找到 ${services.length} 个实例`,
     );
     return services;
@@ -57,7 +59,7 @@ class ConsulInspiredServiceDiscovery {
    */
   setConfig(key, value) {
     this.configs.set(key, { value, updatedAt: Date.now() });
-    console.log(`⚙️ 配置已设置: ${key}`);
+    logger.info(`⚙️ 配置已设置: ${key}`);
   }
 
   /**
@@ -80,7 +82,7 @@ class ConsulInspiredServiceDiscovery {
       lastCheck: null,
       status: 'unknown',
     });
-    console.log(`❤️ 健康检查已添加: ${serviceId}`);
+    logger.info(`❤️ 健康检查已添加: ${serviceId}`);
   }
 
   /**

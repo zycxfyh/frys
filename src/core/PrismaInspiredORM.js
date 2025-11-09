@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * Prisma 风格的现代ORM
  * 借鉴 Prisma 的数据库抽象、类型安全和迁移管理理念
@@ -21,7 +23,7 @@ class PrismaInspiredORM {
     };
 
     this.models.set(modelName, model);
-    console.log(
+    logger.info(
       `��� 模型已定义: ${modelName} (${Object.keys(fields).length} 个字段)`,
     );
     return model;
@@ -35,7 +37,7 @@ class PrismaInspiredORM {
     };
 
     this.schemas.set(schemaName, schema);
-    console.log(
+    logger.info(
       `��� 数据库模式已创建: ${schemaName} (${schema.models.length} 个模型)`,
     );
     return schema;
@@ -50,7 +52,7 @@ class PrismaInspiredORM {
     };
 
     this.connections.set(clientId, client);
-    console.log(`��� 数据库客户端已创建: ${clientId}`);
+    logger.info(`��� 数据库客户端已创建: ${clientId}`);
     return client;
   }
 
@@ -61,10 +63,10 @@ class PrismaInspiredORM {
     }
 
     client.connected = true;
-    console.log(`��� 数据库已连接: ${clientId}`);
+    logger.info(`��� 数据库已连接: ${clientId}`);
   }
 
-  async create(modelName, data) {
+  create(modelName, data) {
     const model = this.models.get(modelName);
     if (!model) {
       throw new Error(`Model ${modelName} not found`);
@@ -77,12 +79,12 @@ class PrismaInspiredORM {
       updatedAt: new Date(),
     };
 
-    console.log(`➕ 创建 ${modelName}:`, record);
+    logger.info(`➕ 创建 ${modelName}:`, record);
     return record;
   }
 
-  async findMany(modelName, options = {}) {
-    console.log(`��� 查询 ${modelName}:`, options);
+  findMany(modelName, options = {}) {
+    logger.info(`��� 查询 ${modelName}:`, options);
     return [{ id: 1, name: 'Sample Record' }];
   }
 

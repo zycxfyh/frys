@@ -13,10 +13,10 @@ import { WorkflowEngine } from '../src/index.js';
 function createWorkflowEngine() {
   return new WorkflowEngine({
     // 工作流执行配置
-    maxConcurrency: 10,        // 最大并发数
-    timeout: 30000,           // 执行超时时间
-    retryAttempts: 3,         // 重试次数
-    enableMetrics: true,      // 启用指标收集
+    maxConcurrency: 10, // 最大并发数
+    timeout: 30000, // 执行超时时间
+    retryAttempts: 3, // 重试次数
+    enableMetrics: true, // 启用指标收集
   });
 }
 
@@ -41,7 +41,7 @@ function createUserRegistrationWorkflow() {
           schema: {
             email: 'required|email',
             password: 'required|min:8',
-            name: 'required|min:2|max:50'
+            name: 'required|min:2|max:50',
           },
           errorMessages: {
             'email.required': '邮箱地址不能为空',
@@ -50,9 +50,9 @@ function createUserRegistrationWorkflow() {
             'password.min': '密码长度不能少于8位',
             'name.required': '姓名不能为空',
             'name.min': '姓名长度不能少于2位',
-            'name.max': '姓名长度不能超过50位'
-          }
-        }
+            'name.max': '姓名长度不能超过50位',
+          },
+        },
       },
 
       {
@@ -63,9 +63,9 @@ function createUserRegistrationWorkflow() {
           service: 'userService',
           method: 'findByEmail',
           parameters: {
-            email: '${input.email}'
-          }
-        }
+            email: '${input.email}',
+          },
+        },
       },
 
       {
@@ -75,8 +75,8 @@ function createUserRegistrationWorkflow() {
         config: {
           expression: '${steps.check-user-exists.result} === null',
           trueStep: 'do-create-user',
-          falseStep: 'user-already-exists'
-        }
+          falseStep: 'user-already-exists',
+        },
       },
 
       {
@@ -90,9 +90,9 @@ function createUserRegistrationWorkflow() {
             email: '${input.email}',
             password: '${input.password}',
             name: '${input.name}',
-            status: 'pending_verification'
-          }
-        }
+            status: 'pending_verification',
+          },
+        },
       },
 
       {
@@ -105,9 +105,10 @@ function createUserRegistrationWorkflow() {
           parameters: {
             to: '${input.email}',
             userId: '${steps.do-create-user.result.id}',
-            verificationToken: '${steps.do-create-user.result.verificationToken}'
-          }
-        }
+            verificationToken:
+              '${steps.do-create-user.result.verificationToken}',
+          },
+        },
       },
 
       {
@@ -116,9 +117,9 @@ function createUserRegistrationWorkflow() {
         type: 'error',
         config: {
           message: '用户已存在',
-          code: 'USER_ALREADY_EXISTS'
-        }
-      }
+          code: 'USER_ALREADY_EXISTS',
+        },
+      },
     ],
 
     // 错误处理策略
@@ -127,16 +128,16 @@ function createUserRegistrationWorkflow() {
       retryPolicy: {
         maxAttempts: 3,
         backoff: 'exponential',
-        initialDelay: 1000
-      }
+        initialDelay: 1000,
+      },
     },
 
     // 监控配置
     monitoring: {
       enableMetrics: true,
       logLevel: 'info',
-      alertOnFailure: true
-    }
+      alertOnFailure: true,
+    },
   };
 }
 
@@ -162,9 +163,9 @@ function createOrderProcessingWorkflow() {
             customerId: 'required|string',
             items: 'required|array|min:1',
             total: 'required|number|min:0',
-            paymentMethod: 'required|in:credit_card,debit_card,paypal'
-          }
-        }
+            paymentMethod: 'required|in:credit_card,debit_card,paypal',
+          },
+        },
       },
 
       {
@@ -182,14 +183,14 @@ function createOrderProcessingWorkflow() {
                 method: 'checkStock',
                 parameters: {
                   itemId: '${input.items[0].id}',
-                  quantity: '${input.items[0].quantity}'
-                }
-              }
-            }
+                  quantity: '${input.items[0].quantity}',
+                },
+              },
+            },
           ],
           maxConcurrency: 5,
-          failFast: false
-        }
+          failFast: false,
+        },
       },
 
       {
@@ -202,9 +203,9 @@ function createOrderProcessingWorkflow() {
           parameters: {
             items: '${input.items}',
             taxRate: 0.08,
-            shipping: '${input.shipping || 0}'
-          }
-        }
+            shipping: '${input.shipping || 0}',
+          },
+        },
       },
 
       {
@@ -214,8 +215,8 @@ function createOrderProcessingWorkflow() {
         config: {
           expression: '${input.paymentMethod} === "credit_card"',
           trueStep: 'credit-card-payment',
-          falseStep: 'other-payment'
-        }
+          falseStep: 'other-payment',
+        },
       },
 
       {
@@ -229,9 +230,9 @@ function createOrderProcessingWorkflow() {
             amount: '${steps.calculate-total.result.total}',
             cardNumber: '${input.cardNumber}',
             expiryDate: '${input.expiryDate}',
-            cvv: '${input.cvv}'
-          }
-        }
+            cvv: '${input.cvv}',
+          },
+        },
       },
 
       {
@@ -243,9 +244,9 @@ function createOrderProcessingWorkflow() {
           method: 'processPayment',
           parameters: {
             method: '${input.paymentMethod}',
-            amount: '${steps.calculate-total.result.total}'
-          }
-        }
+            amount: '${steps.calculate-total.result.total}',
+          },
+        },
       },
 
       {
@@ -256,9 +257,9 @@ function createOrderProcessingWorkflow() {
           service: 'inventoryService',
           method: 'updateStock',
           parameters: {
-            items: '${input.items}'
-          }
-        }
+            items: '${input.items}',
+          },
+        },
       },
 
       {
@@ -272,9 +273,9 @@ function createOrderProcessingWorkflow() {
             orderId: '${input.orderId}',
             customerId: '${input.customerId}',
             items: '${input.items}',
-            shippingAddress: '${input.shippingAddress}'
-          }
-        }
+            shippingAddress: '${input.shippingAddress}',
+          },
+        },
       },
 
       {
@@ -294,9 +295,9 @@ function createOrderProcessingWorkflow() {
                   to: '${input.customerEmail}',
                   orderId: '${input.orderId}',
                   items: '${input.items}',
-                  total: '${steps.calculate-total.result.total}'
-                }
-              }
+                  total: '${steps.calculate-total.result.total}',
+                },
+              },
             },
             {
               id: 'sms-confirmation',
@@ -308,13 +309,13 @@ function createOrderProcessingWorkflow() {
                 parameters: {
                   phone: '${input.customerPhone}',
                   orderId: '${input.orderId}',
-                  status: 'confirmed'
-                }
-              }
-            }
-          ]
-        }
-      }
+                  status: 'confirmed',
+                },
+              },
+            },
+          ],
+        },
+      },
     ],
 
     // 补偿逻辑（失败时的回滚操作）
@@ -323,17 +324,17 @@ function createOrderProcessingWorkflow() {
         action: 'refund-payment',
         service: 'paymentService.refund',
         parameters: {
-          transactionId: '${steps.process-payment.result.transactionId}'
-        }
+          transactionId: '${steps.process-payment.result.transactionId}',
+        },
       },
       'update-inventory': {
         action: 'restore-inventory',
         service: 'inventoryService.restoreStock',
         parameters: {
-          items: '${input.items}'
-        }
-      }
-    }
+          items: '${input.items}',
+        },
+      },
+    },
   };
 }
 
@@ -355,16 +356,19 @@ async function demonstrateWorkflowExecution() {
 
     // 执行用户注册
     console.log('📝 执行用户注册工作流...');
-    const userResult = await engine.executeWorkflow('user-registration-workflow', {
-      email: 'john.doe@example.com',
-      password: 'SecurePass123!',
-      name: 'John Doe'
-    });
+    const userResult = await engine.executeWorkflow(
+      'user-registration-workflow',
+      {
+        email: 'john.doe@example.com',
+        password: 'SecurePass123!',
+        name: 'John Doe',
+      },
+    );
 
     console.log('✅ 用户注册完成:', {
       userId: userResult.steps['do-create-user']?.result?.id,
       email: userResult.steps['do-create-user']?.result?.email,
-      status: userResult.status
+      status: userResult.status,
     });
     console.log();
 
@@ -375,41 +379,48 @@ async function demonstrateWorkflowExecution() {
 
     // 执行订单处理
     console.log('🛒 执行订单处理工作流...');
-    const orderResult = await engine.executeWorkflow('order-processing-workflow', {
-      orderId: 'ORDER-2025-001',
-      customerId: 'CUSTOMER-123',
-      customerEmail: 'john.doe@example.com',
-      customerPhone: '+1234567890',
-      items: [
-        { id: 'ITEM-001', name: 'Wireless Headphones', quantity: 1, price: 199.99 },
-        { id: 'ITEM-002', name: 'Phone Case', quantity: 2, price: 29.99 }
-      ],
-      total: 259.97,
-      paymentMethod: 'credit_card',
-      cardNumber: '4111111111111111',
-      expiryDate: '12/25',
-      cvv: '123',
-      shippingAddress: {
-        street: '123 Main St',
-        city: 'Anytown',
-        state: 'CA',
-        zipCode: '12345'
-      }
-    });
+    const orderResult = await engine.executeWorkflow(
+      'order-processing-workflow',
+      {
+        orderId: 'ORDER-2025-001',
+        customerId: 'CUSTOMER-123',
+        customerEmail: 'john.doe@example.com',
+        customerPhone: '+1234567890',
+        items: [
+          {
+            id: 'ITEM-001',
+            name: 'Wireless Headphones',
+            quantity: 1,
+            price: 199.99,
+          },
+          { id: 'ITEM-002', name: 'Phone Case', quantity: 2, price: 29.99 },
+        ],
+        total: 259.97,
+        paymentMethod: 'credit_card',
+        cardNumber: '4111111111111111',
+        expiryDate: '12/25',
+        cvv: '123',
+        shippingAddress: {
+          street: '123 Main St',
+          city: 'Anytown',
+          state: 'CA',
+          zipCode: '12345',
+        },
+      },
+    );
 
     console.log('✅ 订单处理完成:', {
       orderId: orderResult.input.orderId,
       status: orderResult.status,
       total: orderResult.steps['calculate-total']?.result?.total,
       paymentStatus: orderResult.steps['process-payment']?.status,
-      shipmentId: orderResult.steps['create-shipment']?.result?.id
+      shipmentId: orderResult.steps['create-shipment']?.result?.id,
     });
     console.log();
 
     // 显示执行统计
     const stats = engine.getStats();
     console.log('📊 执行统计:', stats);
-
   } catch (error) {
     console.error('❌ 工作流执行失败:', error.message);
 
@@ -483,11 +494,11 @@ async function demonstrateErrorHandling() {
           retry: {
             maxAttempts: 3,
             backoff: 'exponential',
-            initialDelay: 1000
-          }
-        }
-      }
-    ]
+            initialDelay: 1000,
+          },
+        },
+      },
+    ],
   };
 
   try {
@@ -495,7 +506,6 @@ async function demonstrateErrorHandling() {
 
     const result = await engine.executeWorkflow('error-handling-demo', {});
     console.log('✅ 工作流最终成功执行');
-
   } catch (error) {
     console.log('ℹ️  工作流按预期失败，演示了错误处理机制');
     console.log('错误信息:', error.message);
@@ -505,7 +515,7 @@ async function demonstrateErrorHandling() {
 // 主执行函数
 async function main() {
   console.log('🎯 frys 工作流基础示例\n');
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
 
   // 演示基本工作流执行
   await demonstrateWorkflowExecution();
@@ -524,15 +534,15 @@ async function main() {
         id: 'step1',
         name: '步骤1',
         type: 'log',
-        config: { message: '执行步骤1' }
+        config: { message: '执行步骤1' },
       },
       {
         id: 'step2',
         name: '步骤2',
         type: 'log',
-        config: { message: '执行步骤2' }
-      }
-    ]
+        config: { message: '执行步骤2' },
+      },
+    ],
   };
 
   await eventEngine.registerWorkflow(simpleWorkflow);
@@ -557,5 +567,5 @@ export {
   createOrderProcessingWorkflow,
   demonstrateWorkflowExecution,
   demonstrateWorkflowEvents,
-  demonstrateErrorHandling
+  demonstrateErrorHandling,
 };

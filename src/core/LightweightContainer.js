@@ -155,31 +155,44 @@ export class LightweightContainer {
   _injectDependencies(instance) {
     if (!instance || typeof instance !== 'object') return;
 
-    // 检查是否有注入标记
-    if (instance._injections) {
-      for (const [property, dependencyName] of instance._injections) {
-        try {
-          instance[property] = this.resolve(dependencyName);
-        } catch (error) {
-          logger.warn(
-            `依赖注入失败: ${property} -> ${dependencyName}`,
-            error.message,
-          );
-        }
+    this._injectPropertyDependencies(instance);
+    this._injectConstructorDependencies(instance);
+  }
+
+  /**
+   * 注入属性依赖
+   * @private
+   */
+  _injectPropertyDependencies(instance) {
+    if (!instance._injections) return;
+
+    for (const [property, dependencyName] of instance._injections) {
+      try {
+        instance[property] = this.resolve(dependencyName);
+      } catch (error) {
+        logger.warn(
+          `依赖注入失败: ${property} -> ${dependencyName}`,
+          error.message,
+        );
       }
     }
+  }
 
-    // 检查构造函数参数中的依赖
-    if (instance.constructor && instance.constructor._dependencies) {
-      const deps = instance.constructor._dependencies;
-      for (let i = 0; i < deps.length; i++) {
-        const depName = deps[i];
-        if (!instance[depName] && this.has(depName)) {
-          try {
-            instance[depName] = this.resolve(depName);
-          } catch (error) {
-            logger.warn(`构造函数依赖注入失败: ${depName}`, error.message);
-          }
+  /**
+   * 注入构造函数依赖
+   * @private
+   */
+  _injectConstructorDependencies(instance) {
+    if (!instance.constructor || !instance.constructor._dependencies) return;
+
+    const deps = instance.constructor._dependencies;
+    for (let i = 0; i < deps.length; i++) {
+      const depName = deps[i];
+      if (!instance[depName] && this.has(depName)) {
+        try {
+          instance[depName] = this.resolve(depName);
+        } catch (error) {
+          logger.warn(`构造函数依赖注入失败: ${depName}`, error.message);
         }
       }
     }
@@ -233,7 +246,7 @@ export class LightweightContainer {
  * 依赖装饰器
  */
 export function Dependency(...dependencies) {
-  return function (constructor) {
+  return (constructor) => {
     constructor._dependencies = dependencies;
     return constructor;
   };
@@ -243,7 +256,7 @@ export function Dependency(...dependencies) {
  * 服务装饰器
  */
 export function Service(name, options = {}) {
-  return function (constructor) {
+  return (constructor) => {
     // 在容器中注册
     if (global.frysContainer) {
       global.frysContainer.register(name, constructor, options);

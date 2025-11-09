@@ -10,9 +10,9 @@ groups:
           severity: critical
           service: frys
         annotations:
-          summary: "frys 实例宕机"
-          description: "frys {{ $labels.instance }} 实例已宕机 1 分钟"
-          runbook_url: "https://docs.frys.com/runbooks/instance-down"
+          summary: 'frys 实例宕机'
+          description: 'frys {{ $labels.instance }} 实例已宕机 1 分钟'
+          runbook_url: 'https://docs.frys.com/runbooks/instance-down'
 
       # 应用响应时间过高
       - alert: frysHighResponseTime
@@ -22,9 +22,9 @@ groups:
           severity: warning
           service: frys
         annotations:
-          summary: "frys 响应时间过高"
-          description: "frys {{ $labels.instance }} 95% 响应时间超过 2 秒"
-          runbook_url: "https://docs.frys.com/runbooks/high-response-time"
+          summary: 'frys 响应时间过高'
+          description: 'frys {{ $labels.instance }} 95% 响应时间超过 2 秒'
+          runbook_url: 'https://docs.frys.com/runbooks/high-response-time'
 
       # 应用错误率过高
       - alert: frysHighErrorRate
@@ -34,9 +34,9 @@ groups:
           severity: critical
           service: frys
         annotations:
-          summary: "frys 错误率过高"
-          description: "frys {{ $labels.instance }} 错误率超过 5%"
-          runbook_url: "https://docs.frys.com/runbooks/high-error-rate"
+          summary: 'frys 错误率过高'
+          description: 'frys {{ $labels.instance }} 错误率超过 5%'
+          runbook_url: 'https://docs.frys.com/runbooks/high-error-rate'
 
       # 内存使用过高
       - alert: frysHighMemoryUsage
@@ -46,9 +46,9 @@ groups:
           severity: warning
           service: frys
         annotations:
-          summary: "frys 内存使用过高"
-          description: "frys {{ $labels.instance }} 内存使用超过 90%"
-          runbook_url: "https://docs.frys.com/runbooks/high-memory"
+          summary: 'frys 内存使用过高'
+          description: 'frys {{ $labels.instance }} 内存使用超过 90%'
+          runbook_url: 'https://docs.frys.com/runbooks/high-memory'
 
       # CPU 使用过高
       - alert: frysHighCPUUsage
@@ -58,9 +58,9 @@ groups:
           severity: warning
           service: frys
         annotations:
-          summary: "frys CPU 使用过高"
-          description: "frys {{ $labels.instance }} CPU 使用率超过 80%"
-          runbook_url: "https://docs.frys.com/runbooks/high-cpu"
+          summary: 'frys CPU 使用过高'
+          description: 'frys {{ $labels.instance }} CPU 使用率超过 80%'
+          runbook_url: 'https://docs.frys.com/runbooks/high-cpu'
 
   # 基础设施告警
   - name: infrastructure_alerts
@@ -73,9 +73,9 @@ groups:
           severity: critical
           service: database
         annotations:
-          summary: "数据库连接失败"
-          description: "PostgreSQL 数据库无法连接"
-          runbook_url: "https://docs.frys.com/runbooks/database-down"
+          summary: '数据库连接失败'
+          description: 'PostgreSQL 数据库无法连接'
+          runbook_url: 'https://docs.frys.com/runbooks/database-down'
 
       # Redis 连接失败
       - alert: RedisDown
@@ -85,9 +85,9 @@ groups:
           severity: critical
           service: cache
         annotations:
-          summary: "Redis 连接失败"
-          description: "Redis 缓存服务无法连接"
-          runbook_url: "https://docs.frys.com/runbooks/redis-down"
+          summary: 'Redis 连接失败'
+          description: 'Redis 缓存服务无法连接'
+          runbook_url: 'https://docs.frys.com/runbooks/redis-down'
 
       # Nginx 连接失败
       - alert: NginxDown
@@ -97,9 +97,9 @@ groups:
           severity: critical
           service: proxy
         annotations:
-          summary: "Nginx 代理失败"
-          description: "Nginx 反向代理服务宕机"
-          runbook_url: "https://docs.frys.com/runbooks/nginx-down"
+          summary: 'Nginx 代理失败'
+          description: 'Nginx 反向代理服务宕机'
+          runbook_url: 'https://docs.frys.com/runbooks/nginx-down'
 
       # 系统磁盘空间不足
       - alert: DiskSpaceLow
@@ -109,9 +109,9 @@ groups:
           severity: warning
           service: system
         annotations:
-          summary: "磁盘空间不足"
-          description: "{{ $labels.mountpoint }} 分区可用空间小于 10%"
-          runbook_url: "https://docs.frys.com/runbooks/disk-space-low"
+          summary: '磁盘空间不足'
+          description: '{{ $labels.mountpoint }} 分区可用空间小于 10%'
+          runbook_url: 'https://docs.frys.com/runbooks/disk-space-low'
 
       # 系统内存不足
       - alert: SystemMemoryLow
@@ -121,9 +121,9 @@ groups:
           severity: critical
           service: system
         annotations:
-          summary: "系统内存不足"
-          description: "系统可用内存小于 10%"
-          runbook_url: "https://docs.frys.com/runbooks/memory-low"
+          summary: '系统内存不足'
+          description: '系统可用内存小于 10%'
+          runbook_url: 'https://docs.frys.com/runbooks/memory-low'
 
   # 监控系统告警
   - name: monitoring_alerts
@@ -136,9 +136,9 @@ groups:
           severity: warning
           service: monitoring
         annotations:
-          summary: "Prometheus 配置重载失败"
-          description: "Prometheus 配置文件重载失败"
-          runbook_url: "https://docs.frys.com/runbooks/prometheus-config"
+          summary: 'Prometheus 配置重载失败'
+          description: 'Prometheus 配置文件重载失败'
+          runbook_url: 'https://docs.frys.com/runbooks/prometheus-config'
 
       # AlertManager 不可用
       - alert: AlertmanagerDown
@@ -148,9 +148,9 @@ groups:
           severity: warning
           service: monitoring
         annotations:
-          summary: "AlertManager 不可用"
-          description: "告警管理器服务宕机"
-          runbook_url: "https://docs.frys.com/runbooks/alertmanager-down"
+          summary: 'AlertManager 不可用'
+          description: '告警管理器服务宕机'
+          runbook_url: 'https://docs.frys.com/runbooks/alertmanager-down'
 
   # 业务指标告警
   - name: business_alerts
@@ -163,9 +163,9 @@ groups:
           severity: info
           service: frys
         annotations:
-          summary: "API 调用量异常偏低"
-          description: "frys API 10分钟内调用次数少于 1 次"
-          runbook_url: "https://docs.frys.com/runbooks/low-api-calls"
+          summary: 'API 调用量异常偏低'
+          description: 'frys API 10分钟内调用次数少于 1 次'
+          runbook_url: 'https://docs.frys.com/runbooks/low-api-calls'
 
       # 工作流执行失败率过高
       - alert: HighWorkflowFailureRate
@@ -175,9 +175,9 @@ groups:
           severity: warning
           service: frys
         annotations:
-          summary: "工作流失败率过高"
-          description: "工作流执行失败率超过 10%"
-          runbook_url: "https://docs.frys.com/runbooks/workflow-failures"
+          summary: '工作流失败率过高'
+          description: '工作流执行失败率超过 10%'
+          runbook_url: 'https://docs.frys.com/runbooks/workflow-failures'
 
       # 用户认证失败率过高
       - alert: HighAuthFailureRate
@@ -187,6 +187,6 @@ groups:
           severity: warning
           service: frys
         annotations:
-          summary: "认证失败率过高"
-          description: "用户认证失败率超过 20%"
-          runbook_url: "https://docs.frys.com/runbooks/auth-failures"
+          summary: '认证失败率过高'
+          description: '用户认证失败率超过 20%'
+          runbook_url: 'https://docs.frys.com/runbooks/auth-failures'

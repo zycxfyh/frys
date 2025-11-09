@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,7 +11,7 @@ import {
  * 测试HTTP请求的认证流程和安全机制
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
 import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
 
@@ -31,11 +31,15 @@ describe('HTTP与认证系统集成测试', () => {
     jwt.setSecret('test-key', 'my-test-secret');
 
     // 创建测试用户令牌
-    authToken = jwt.generateToken({
-      userId: 123,
-      username: 'testuser',
-      role: 'admin'
-    }, 'test-key', { expiresIn: 3600 });
+    authToken = jwt.generateToken(
+      {
+        userId: 123,
+        username: 'testuser',
+        role: 'admin',
+      },
+      'test-key',
+      { expiresIn: 3600 },
+    );
   });
 
   afterEach(async () => {
@@ -50,7 +54,7 @@ describe('HTTP与认证系统集成测试', () => {
     it('应该能发送带认证头的HTTP请求', async () => {
       const instance = http.create({
         baseURL: 'https://api.workflow.local',
-        timeout: 5000
+        timeout: 5000,
       });
 
       // 添加认证拦截器
@@ -59,15 +63,15 @@ describe('HTTP与认证系统集成测试', () => {
           ...config,
           headers: {
             ...config.headers,
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
         };
       });
 
       const response = await http.request(instance.id, {
         method: 'GET',
-        url: '/users/profile'
+        url: '/users/profile',
       });
 
       expect(response).toBeDefined();
@@ -75,13 +79,15 @@ describe('HTTP与认证系统集成测试', () => {
       expect(response.status).toBe(200);
 
       // 验证请求包含认证头
-      expect(response.request.headers['Authorization']).toBe(`Bearer ${authToken}`);
+      expect(response.request.headers['Authorization']).toBe(
+        `Bearer ${authToken}`,
+      );
       expect(response.request.headers['Content-Type']).toBe('application/json');
     });
 
     it('应该处理认证失败的场景', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local'
+        baseURL: 'https://api.workflow.local',
       });
 
       // 添加无效令牌
@@ -91,25 +97,27 @@ describe('HTTP与认证系统集成测试', () => {
           ...config,
           headers: {
             ...config.headers,
-            'Authorization': `Bearer ${invalidToken}`
-          }
+            Authorization: `Bearer ${invalidToken}`,
+          },
         };
       });
 
       // 模拟401响应
       const response = await http.request(instance.id, {
         method: 'GET',
-        url: '/protected/resource'
+        url: '/protected/resource',
       });
 
       expect(response).toBeDefined();
       // 在我们的模拟中，请求会成功但我们可以检查认证头
-      expect(response.request.headers['Authorization']).toBe(`Bearer ${invalidToken}`);
+      expect(response.request.headers['Authorization']).toBe(
+        `Bearer ${invalidToken}`,
+      );
     });
 
     it('应该支持令牌刷新机制', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local'
+        baseURL: 'https://api.workflow.local',
       });
 
       let currentToken = authToken;
@@ -119,11 +127,15 @@ describe('HTTP与认证系统集成测试', () => {
         // 模拟令牌过期检查
         if (response.status === 401) {
           // 刷新令牌
-          const newToken = jwt.generateToken({
-            userId: 123,
-            username: 'testuser',
-            role: 'admin'
-          }, 'test-key', { expiresIn: 7200 });
+          const newToken = jwt.generateToken(
+            {
+              userId: 123,
+              username: 'testuser',
+              role: 'admin',
+            },
+            'test-key',
+            { expiresIn: 7200 },
+          );
 
           currentToken = newToken;
           console.log('🔄 令牌已刷新');
@@ -137,12 +149,14 @@ describe('HTTP与认证系统集成测试', () => {
           method: 'GET',
           url: `/api/data/${i}`,
           headers: {
-            'Authorization': `Bearer ${currentToken}`
-          }
+            Authorization: `Bearer ${currentToken}`,
+          },
         });
 
         expect(response.success).toBe(true);
-        expect(response.request.headers['Authorization']).toBe(`Bearer ${currentToken}`);
+        expect(response.request.headers['Authorization']).toBe(
+          `Bearer ${currentToken}`,
+        );
       }
     });
   });
@@ -154,36 +168,40 @@ describe('HTTP与认证系统集成测试', () => {
         { id: 2, name: 'bob', role: 'user' },
         { id: 3, name: 'charlie', role: 'moderator' },
         { id: 4, name: 'diana', role: 'user' },
-        { id: 5, name: 'eve', role: 'admin' }
+        { id: 5, name: 'eve', role: 'admin' },
       ];
 
       const instance = http.create({
-        baseURL: 'https://api.workflow.local'
+        baseURL: 'https://api.workflow.local',
       });
 
       const startTime = global.performanceMonitor.start();
 
       // 为每个用户创建令牌并发送请求
       const promises = users.map(async (user) => {
-        const userToken = jwt.generateToken({
-          userId: user.id,
-          username: user.name,
-          role: user.role
-        }, 'test-key', { expiresIn: 3600 });
+        const userToken = jwt.generateToken(
+          {
+            userId: user.id,
+            username: user.name,
+            role: user.role,
+          },
+          'test-key',
+          { expiresIn: 3600 },
+        );
 
         const response = await http.request(instance.id, {
           method: 'GET',
           url: `/users/${user.id}/profile`,
           headers: {
-            'Authorization': `Bearer ${userToken}`,
-            'X-User-ID': user.id.toString()
-          }
+            Authorization: `Bearer ${userToken}`,
+            'X-User-ID': user.id.toString(),
+          },
         });
 
         return {
           user,
           response,
-          token: userToken
+          token: userToken,
         };
       });
 
@@ -196,8 +214,12 @@ describe('HTTP与认证系统集成测试', () => {
       expect(results).toHaveLength(5);
       results.forEach((result, index) => {
         expect(result.response.success).toBe(true);
-        expect(result.response.request.headers['X-User-ID']).toBe(result.user.id.toString());
-        expect(result.response.request.headers['Authorization']).toBe(`Bearer ${result.token}`);
+        expect(result.response.request.headers['X-User-ID']).toBe(
+          result.user.id.toString(),
+        );
+        expect(result.response.request.headers['Authorization']).toBe(
+          `Bearer ${result.token}`,
+        );
 
         // 验证JWT令牌内容
         const decoded = jwt.verifyToken(result.token, 'test-key');
@@ -213,7 +235,7 @@ describe('HTTP与认证系统集成测试', () => {
   describe('安全认证中间件集成', () => {
     it('应该验证请求频率限制与认证结合', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local'
+        baseURL: 'https://api.workflow.local',
       });
 
       let requestCount = 0;
@@ -239,10 +261,10 @@ describe('HTTP与认证系统集成测试', () => {
           ...config,
           headers: {
             ...config.headers,
-            'Authorization': `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}`,
             'X-Request-Count': requestCount.toString(),
-            'X-Rate-Limit': `${requestCount}/${maxRequests}`
-          }
+            'X-Rate-Limit': `${requestCount}/${maxRequests}`,
+          },
         };
       });
 
@@ -252,8 +274,8 @@ describe('HTTP与认证系统集成测试', () => {
         promises.push(
           http.request(instance.id, {
             method: 'GET',
-            url: `/api/data/${i}`
-          })
+            url: `/api/data/${i}`,
+          }),
         );
       }
 
@@ -262,9 +284,15 @@ describe('HTTP与认证系统集成测试', () => {
       // 验证所有请求都成功且包含正确的头信息
       responses.forEach((response, index) => {
         expect(response.success).toBe(true);
-        expect(response.request.headers['Authorization']).toBe(`Bearer ${authToken}`);
-        expect(response.request.headers['X-Request-Count']).toBe((index + 1).toString());
-        expect(response.request.headers['X-Rate-Limit']).toBe(`${index + 1}/${maxRequests}`);
+        expect(response.request.headers['Authorization']).toBe(
+          `Bearer ${authToken}`,
+        );
+        expect(response.request.headers['X-Request-Count']).toBe(
+          (index + 1).toString(),
+        );
+        expect(response.request.headers['X-Rate-Limit']).toBe(
+          `${index + 1}/${maxRequests}`,
+        );
       });
 
       expect(requestCount).toBe(maxRequests);
@@ -272,7 +300,7 @@ describe('HTTP与认证系统集成测试', () => {
 
     it('应该处理认证过期时的自动重试', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local'
+        baseURL: 'https://api.workflow.local',
       });
 
       let retryCount = 0;
@@ -285,11 +313,15 @@ describe('HTTP与认证系统集成测试', () => {
           retryCount++;
 
           // 生成新令牌
-          currentToken = jwt.generateToken({
-            userId: 123,
-            username: 'testuser',
-            role: 'admin'
-          }, 'test-key', { expiresIn: 3600 });
+          currentToken = jwt.generateToken(
+            {
+              userId: 123,
+              username: 'testuser',
+              role: 'admin',
+            },
+            'test-key',
+            { expiresIn: 3600 },
+          );
 
           console.log('🔄 认证失败，自动重试');
 
@@ -298,8 +330,8 @@ describe('HTTP与认证系统集成测试', () => {
             ...response.request,
             headers: {
               ...response.request.headers,
-              'Authorization': `Bearer ${currentToken}`
-            }
+              Authorization: `Bearer ${currentToken}`,
+            },
           });
         }
 
@@ -310,8 +342,8 @@ describe('HTTP与认证系统集成测试', () => {
         method: 'GET',
         url: '/protected/resource',
         headers: {
-          'Authorization': `Bearer ${currentToken}`
-        }
+          Authorization: `Bearer ${currentToken}`,
+        },
       });
 
       expect(response.success).toBe(true);
@@ -322,7 +354,7 @@ describe('HTTP与认证系统集成测试', () => {
   describe('跨模块状态同步', () => {
     it('应该在HTTP请求中同步认证状态', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local'
+        baseURL: 'https://api.workflow.local',
       });
 
       // 模拟用户会话状态
@@ -330,12 +362,16 @@ describe('HTTP与认证系统集成测试', () => {
 
       // 创建多个用户的令牌
       const users = ['alice', 'bob', 'charlie'];
-      users.forEach(username => {
-        const token = jwt.generateToken({
-          userId: username.charCodeAt(0),
-          username,
-          role: 'user'
-        }, 'test-key', { expiresIn: 3600 });
+      users.forEach((username) => {
+        const token = jwt.generateToken(
+          {
+            userId: username.charCodeAt(0),
+            username,
+            role: 'user',
+          },
+          'test-key',
+          { expiresIn: 3600 },
+        );
         sessionTokens.set(username, token);
       });
 
@@ -349,13 +385,13 @@ describe('HTTP与认证系统集成测试', () => {
           method: 'POST',
           url: '/auth/session',
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'X-Session-User': username
+            Authorization: `Bearer ${token}`,
+            'X-Session-User': username,
           },
           data: {
             action: 'validate',
-            timestamp: Date.now()
-          }
+            timestamp: Date.now(),
+          },
         });
 
         // 验证令牌
@@ -364,7 +400,7 @@ describe('HTTP与认证系统集成测试', () => {
           username,
           response,
           decoded,
-          valid: response.success && decoded.username === username
+          valid: response.success && decoded.username === username,
         };
       });
 
@@ -374,7 +410,7 @@ describe('HTTP与认证系统集成测试', () => {
       console.log(`用户会话同步耗时: ${perfResult.formatted}`);
 
       // 验证所有会话都有效
-      sessionResults.forEach(result => {
+      sessionResults.forEach((result) => {
         expect(result.valid).toBe(true);
         expect(result.response.success).toBe(true);
         expect(result.decoded.username).toBe(result.username);

@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * LernaInspiredMonorepo 风格的系统
  * 借鉴 Lerna 的核心理念
@@ -21,7 +23,7 @@ class LernaInspiredMonorepo {
    */
   addPackage(name, config) {
     this.packages.set(name, config);
-    console.log(`📦 包已添加: ${name}`);
+    logger.info(`📦 包已添加: ${name}`);
   }
 
   /**
@@ -31,7 +33,7 @@ class LernaInspiredMonorepo {
    */
   createWorkspace(name, packages) {
     this.workspaces.set(name, packages);
-    console.log(`🏢 工作区已创建: ${name}`);
+    logger.info(`🏢 工作区已创建: ${name}`);
   }
 
   /**
@@ -49,7 +51,7 @@ class LernaInspiredMonorepo {
     this.publications.push(publication);
     this.versions.set(packageName, version);
 
-    console.log(`🚀 包已发布: ${packageName}@${version}`);
+    logger.info(`🚀 包已发布: ${packageName}@${version}`);
   }
 
   /**

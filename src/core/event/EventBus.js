@@ -4,8 +4,8 @@
  */
 
 import { EventEmitter } from 'eventemitter3';
-import { resolve } from '../container.js';
 import { logger } from '../../shared/utils/logger.js';
+import { resolve } from '../container.js';
 
 // 创建全局事件发射器实例
 const eventEmitter = new EventEmitter();

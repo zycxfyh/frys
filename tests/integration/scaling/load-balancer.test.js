@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,7 +11,15 @@ import {
  * 测试负载均衡器的各种算法和健康检查功能
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi, beforeEach } from 'vitest';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { LoadBalancer } from '../../../src/infrastructure/scaling/LoadBalancer.js';
 import { logger } from '../../../src/shared/utils/logger.js';
 
@@ -37,7 +45,7 @@ describe('负载均衡器集成测试', () => {
       algorithm: 'round_robin',
       healthCheckInterval: 1000, // 1秒，用于测试
       healthCheckTimeout: 500,
-      maxRetries: 2
+      maxRetries: 2,
     });
 
     // 重置fetch mock
@@ -63,8 +71,12 @@ describe('负载均衡器集成测试', () => {
     });
 
     it('应该支持实例权重', () => {
-      loadBalancer.addInstance('instance-1', 'http://localhost:3001', { weight: 2 });
-      loadBalancer.addInstance('instance-2', 'http://localhost:3001', { weight: 1 });
+      loadBalancer.addInstance('instance-1', 'http://localhost:3001', {
+        weight: 2,
+      });
+      loadBalancer.addInstance('instance-2', 'http://localhost:3001', {
+        weight: 1,
+      });
 
       const stats = loadBalancer.getStats();
       expect(stats.instances[0].weight).toBe(2);
@@ -82,7 +94,7 @@ describe('负载均衡器集成测试', () => {
 
     it('应该使用轮询算法分配请求', () => {
       const requests = [];
-      for (let i = 0; i = 6; i++) {
+      for (let i = 0; (i = 6); i++) {
         const instance = loadBalancer.getNextInstance();
         requests.push(instance.instanceId);
       }
@@ -94,7 +106,7 @@ describe('负载均衡器集成测试', () => {
         'instance-3',
         'instance-1',
         'instance-2',
-        'instance-3'
+        'instance-3',
       ]);
     });
 
@@ -137,8 +149,12 @@ describe('负载均衡器集成测试', () => {
       loadBalancer.removeInstance('instance-2');
       loadBalancer.removeInstance('instance-3');
 
-      loadBalancer.addInstance('high-weight', 'http://localhost:3001', { weight: 3 });
-      loadBalancer.addInstance('low-weight', 'http://localhost:3002', { weight: 1 });
+      loadBalancer.addInstance('high-weight', 'http://localhost:3001', {
+        weight: 3,
+      });
+      loadBalancer.addInstance('low-weight', 'http://localhost:3002', {
+        weight: 1,
+      });
 
       const requests = [];
       for (let i = 0; i < 10; i++) {
@@ -147,8 +163,12 @@ describe('负载均衡器集成测试', () => {
       }
 
       // 高权重实例应该获得更多请求
-      const highWeightCount = requests.filter(id => id === 'high-weight').length;
-      const lowWeightCount = requests.filter(id => id === 'low-weight').length;
+      const highWeightCount = requests.filter(
+        (id) => id === 'high-weight',
+      ).length;
+      const lowWeightCount = requests.filter(
+        (id) => id === 'low-weight',
+      ).length;
 
       expect(highWeightCount).toBeGreaterThan(lowWeightCount);
     });
@@ -164,16 +184,18 @@ describe('负载均衡器集成测试', () => {
       // Mock healthy response
       global.fetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ status: 'healthy' })
+        json: async () => ({ status: 'healthy' }),
       });
 
       await loadBalancer.startHealthChecks();
 
       // 等待健康检查完成
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const stats = loadBalancer.getStats();
-      const healthyInstance = stats.instances.find(i => i.instanceId === 'healthy-instance');
+      const healthyInstance = stats.instances.find(
+        (i) => i.instanceId === 'healthy-instance',
+      );
       expect(healthyInstance.healthy).toBe(true);
     });
 
@@ -184,10 +206,12 @@ describe('负载均衡器集成测试', () => {
       await loadBalancer.startHealthChecks();
 
       // 等待健康检查完成
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const stats = loadBalancer.getStats();
-      const unhealthyInstance = stats.instances.find(i => i.instanceId === 'unhealthy-instance');
+      const unhealthyInstance = stats.instances.find(
+        (i) => i.instanceId === 'unhealthy-instance',
+      );
       expect(unhealthyInstance.healthy).toBe(false);
     });
 
@@ -199,7 +223,7 @@ describe('负载均衡器集成测试', () => {
       const instances = loadBalancer.getStats().instances;
       instances[0].healthy = false; // 第一个实例不健康
       instances[1].healthy = false; // 第二个实例不健康
-      instances[2].healthy = true;  // 第三个实例健康
+      instances[2].healthy = true; // 第三个实例健康
 
       // 所有请求都应该路由到健康的实例
       for (let i = 0; i < 5; i++) {
@@ -212,7 +236,7 @@ describe('负载均衡器集成测试', () => {
     it('应该在没有健康实例时抛出错误', () => {
       // 所有实例都不健康
       const instances = loadBalancer.getStats().instances;
-      instances.forEach(instance => instance.healthy = false);
+      instances.forEach((instance) => (instance.healthy = false));
 
       expect(() => {
         loadBalancer.getNextInstance();
@@ -230,7 +254,7 @@ describe('负载均衡器集成测试', () => {
       global.fetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: async () => ({ message: 'success' })
+        json: async () => ({ message: 'success' }),
       });
 
       const mockReq = {
@@ -238,12 +262,12 @@ describe('负载均衡器集成测试', () => {
         url: '/api/test',
         headers: { 'content-type': 'application/json' },
         body: null,
-        ip: '127.0.0.1'
+        ip: '127.0.0.1',
       };
 
       const mockRes = {
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       };
 
       await loadBalancer.proxyRequest(mockReq, mockRes);
@@ -260,19 +284,19 @@ describe('负载均衡器集成测试', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
-          json: async () => ({ message: 'success after retry' })
+          json: async () => ({ message: 'success after retry' }),
         });
 
       const mockReq = {
         method: 'GET',
         url: '/api/test',
         headers: {},
-        ip: '127.0.0.1'
+        ip: '127.0.0.1',
       };
 
       const mockRes = {
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       };
 
       await loadBalancer.proxyRequest(mockReq, mockRes);
@@ -289,12 +313,12 @@ describe('负载均衡器集成测试', () => {
         method: 'GET',
         url: '/api/test',
         headers: {},
-        ip: '127.0.0.1'
+        ip: '127.0.0.1',
       };
 
       const mockRes = {
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       };
 
       await loadBalancer.proxyRequest(mockReq, mockRes);
@@ -302,7 +326,7 @@ describe('负载均衡器集成测试', () => {
       expect(mockRes.status).toHaveBeenCalledWith(503);
       expect(mockRes.json).toHaveBeenCalledWith({
         error: 'Service Unavailable',
-        message: '所有服务实例都不可用'
+        message: '所有服务实例都不可用',
       });
     });
   });
@@ -317,9 +341,13 @@ describe('负载均衡器集成测试', () => {
       loadBalancer.getNextInstance(); // connections: instance-1 = 1
       loadBalancer.getNextInstance(); // connections: instance-2 = 1
 
-      let stats = loadBalancer.getStats();
-      expect(stats.instances.find(i => i.instanceId === 'instance-1').connections).toBe(1);
-      expect(stats.instances.find(i => i.instanceId === 'instance-2').connections).toBe(1);
+      const stats = loadBalancer.getStats();
+      expect(
+        stats.instances.find((i) => i.instanceId === 'instance-1').connections,
+      ).toBe(1);
+      expect(
+        stats.instances.find((i) => i.instanceId === 'instance-2').connections,
+      ).toBe(1);
       expect(stats.totalConnections).toBe(2);
     });
 
@@ -329,17 +357,27 @@ describe('负载均衡器集成测试', () => {
 
       loadBalancer.releaseConnection(instance1.instanceId);
 
-      let stats = loadBalancer.getStats();
-      expect(stats.instances.find(i => i.instanceId === instance1.instanceId).connections).toBe(0);
-      expect(stats.instances.find(i => i.instanceId === instance2.instanceId).connections).toBe(1);
+      const stats = loadBalancer.getStats();
+      expect(
+        stats.instances.find((i) => i.instanceId === instance1.instanceId)
+          .connections,
+      ).toBe(0);
+      expect(
+        stats.instances.find((i) => i.instanceId === instance2.instanceId)
+          .connections,
+      ).toBe(1);
       expect(stats.totalConnections).toBe(1);
     });
   });
 
   describe('统计信息', () => {
     beforeEach(() => {
-      loadBalancer.addInstance('instance-1', 'http://localhost:3001', { weight: 2 });
-      loadBalancer.addInstance('instance-2', 'http://localhost:3002', { weight: 1 });
+      loadBalancer.addInstance('instance-1', 'http://localhost:3001', {
+        weight: 2,
+      });
+      loadBalancer.addInstance('instance-2', 'http://localhost:3002', {
+        weight: 1,
+      });
     });
 
     it('应该提供完整的统计信息', () => {
@@ -366,7 +404,7 @@ describe('负载均衡器集成测试', () => {
       loadBalancer.updateConfig({
         algorithm: 'least_connections',
         maxRetries: 5,
-        healthCheckTimeout: 1000
+        healthCheckTimeout: 1000,
       });
 
       const config = loadBalancer.getConfig();

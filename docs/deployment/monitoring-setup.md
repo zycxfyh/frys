@@ -52,12 +52,12 @@ graph TB
 
 ### 监控指标类型
 
-| 指标类型 | 说明 | 示例 |
-|----------|------|------|
-| **业务指标** | 应用级业务逻辑指标 | 工作流执行次数、AI API 调用 |
-| **系统指标** | 操作系统级指标 | CPU、内存、磁盘、网络 |
-| **应用指标** | 应用运行时指标 | 响应时间、错误率、并发数 |
-| **自定义指标** | 业务特定指标 | 用户活跃度、功能使用统计 |
+| 指标类型       | 说明               | 示例                        |
+| -------------- | ------------------ | --------------------------- |
+| **业务指标**   | 应用级业务逻辑指标 | 工作流执行次数、AI API 调用 |
+| **系统指标**   | 操作系统级指标     | CPU、内存、磁盘、网络       |
+| **应用指标**   | 应用运行时指标     | 响应时间、错误率、并发数    |
+| **自定义指标** | 业务特定指标       | 用户活跃度、功能使用统计    |
 
 ## 🚀 快速开始
 
@@ -113,19 +113,19 @@ cp /path/to/frys/monitoring/grafana/provisioning/datasources/prometheus.yml conf
 ```yaml
 # monitoring/prometheus/prometheus.yml
 global:
-  scrape_interval: 15s     # 抓取间隔
+  scrape_interval: 15s # 抓取间隔
   evaluation_interval: 15s # 评估间隔
-  scrape_timeout: 10s      # 抓取超时
+  scrape_timeout: 10s # 抓取超时
 
 rule_files:
-  - "alert_rules.yml"      # 告警规则文件
-  - "slo_rules.yml"        # SLO 规则文件
+  - 'alert_rules.yml' # 告警规则文件
+  - 'slo_rules.yml' # SLO 规则文件
 
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
-          - alertmanager:9093
+            - alertmanager:9093
 
 scrape_configs:
   # frys 应用指标
@@ -188,9 +188,9 @@ scrape_configs:
 
 # 远程写入 (可选)
 remote_write:
-  - url: "https://prometheus-prod-10-prod-us-central-0.grafana.net/api/prom/push"
+  - url: 'https://prometheus-prod-10-prod-us-central-0.grafana.net/api/prom/push'
     headers:
-      Authorization: "Bearer YOUR_GRAFANA_CLOUD_TOKEN"
+      Authorization: 'Bearer YOUR_GRAFANA_CLOUD_TOKEN'
 ```
 
 ## 🎨 Grafana 配置
@@ -315,8 +315,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "frys 服务不可用"
-          description: "frys 服务已停止运行超过 5 分钟"
+          summary: 'frys 服务不可用'
+          description: 'frys 服务已停止运行超过 5 分钟'
 
       # 高 CPU 使用率告警
       - alert: HighCPUUsage
@@ -325,8 +325,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "CPU 使用率过高"
-          description: "CPU 使用率超过 80% 已持续 10 分钟"
+          summary: 'CPU 使用率过高'
+          description: 'CPU 使用率超过 80% 已持续 10 分钟'
 
       # 内存不足告警
       - alert: HighMemoryUsage
@@ -335,8 +335,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "内存使用率过高"
-          description: "系统内存使用率超过 85%"
+          summary: '内存使用率过高'
+          description: '系统内存使用率超过 85%'
 
       # API 响应时间过长
       - alert: SlowAPIResponse
@@ -345,8 +345,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "API 响应时间过长"
-          description: "95% 的 API 请求响应时间超过 5 秒"
+          summary: 'API 响应时间过长'
+          description: '95% 的 API 请求响应时间超过 5 秒'
 ```
 
 ## 📊 SLO 配置
@@ -385,9 +385,9 @@ groups:
 ```yaml
 # SLO 目标定义
 slo_targets:
-  api_availability: 99.9    # API 可用性目标 99.9%
-  api_latency: 99          # API 延迟目标 99% 在 1 秒内
-  workflow_success: 99.5   # 工作流成功率目标 99.5%
+  api_availability: 99.9 # API 可用性目标 99.9%
+  api_latency: 99 # API 延迟目标 99% 在 1 秒内
+  workflow_success: 99.5 # 工作流成功率目标 99.5%
 ```
 
 ## 📈 应用指标配置
@@ -409,7 +409,7 @@ const workflowExecutionsTotal = new promClient.Counter({
   name: 'workflow_executions_total',
   help: 'Total number of workflow executions',
   labelNames: ['status', 'workflow_type'],
-  registers: [register]
+  registers: [register],
 });
 
 const apiRequestDuration = new promClient.Histogram({
@@ -417,7 +417,7 @@ const apiRequestDuration = new promClient.Histogram({
   help: 'API request duration in seconds',
   labelNames: ['method', 'endpoint', 'status'],
   buckets: [0.1, 0.5, 1, 2, 5, 10],
-  registers: [register]
+  registers: [register],
 });
 
 // 在 Express 中间件中使用
@@ -426,7 +426,11 @@ app.use((req, res, next) => {
   res.on('finish', () => {
     const duration = (Date.now() - start) / 1000;
     apiRequestDuration
-      .labels(req.method, req.route?.path || req.path, res.statusCode.toString())
+      .labels(
+        req.method,
+        req.route?.path || req.path,
+        res.statusCode.toString(),
+      )
       .observe(duration);
   });
   next();
@@ -478,6 +482,7 @@ cd redis_exporter-v1.54.0.linux-amd64/
 ### Prometheus 问题
 
 **问题**: 指标收集失败
+
 ```bash
 # 检查 Prometheus 状态
 curl http://localhost:9090/-/healthy
@@ -490,6 +495,7 @@ curl http://localhost:9090/api/v1/targets
 ```
 
 **问题**: 查询失败
+
 ```bash
 # 检查查询语法
 curl "http://localhost:9090/api/v1/query?query=up"
@@ -501,6 +507,7 @@ curl "http://localhost:9090/api/v1/query?query=invalid_query"
 ### Grafana 问题
 
 **问题**: 无法连接数据源
+
 ```bash
 # 检查数据源配置
 curl -u admin:admin http://localhost:3001/api/datasources
@@ -510,6 +517,7 @@ curl -u admin:admin http://localhost:3001/api/datasources/1/health
 ```
 
 **问题**: 仪表板不显示数据
+
 ```bash
 # 检查查询语法
 # 在 Grafana UI 中查看 Query Inspector
@@ -521,6 +529,7 @@ curl "http://localhost:9090/api/v1/query?query=up{job=\"frys\"}"
 ### Alertmanager 问题
 
 **问题**: 告警不发送
+
 ```bash
 # 检查告警状态
 curl http://localhost:9093/api/v2/alerts
@@ -541,13 +550,13 @@ docker logs alertmanager
 const httpRequestsTotal = new Counter({
   name: 'http_requests_total',
   help: 'Total number of HTTP requests',
-  labelNames: ['method', 'endpoint', 'status']
+  labelNames: ['method', 'endpoint', 'status'],
 });
 
 // 避免的命名
 const reqCount = new Counter({
-  name: 'requests',  // 太模糊
-  help: 'Number of requests'  // 描述不够详细
+  name: 'requests', // 太模糊
+  help: 'Number of requests', // 描述不够详细
 });
 ```
 
@@ -644,6 +653,6 @@ grafana:
 
 ---
 
-*最后更新: 2025年11月7日*
+_最后更新: 2025年11月7日_
 
 </div>

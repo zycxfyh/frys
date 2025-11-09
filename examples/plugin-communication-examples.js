@@ -27,7 +27,7 @@ class LoggerPlugin {
     if (message.type === 'direct' && message.payload.type === 'get_logs') {
       await this.api.sendTo(this.id, message.senderId, {
         type: 'logs_response',
-        logs: this.logs.slice(-10) // 返回最近10条日志
+        logs: this.logs.slice(-10), // 返回最近10条日志
       });
     }
   }
@@ -37,7 +37,7 @@ class LoggerPlugin {
       timestamp: new Date(),
       level: 'info',
       message: message.payload.message,
-      source: message.publisherId
+      source: message.publisherId,
     };
     this.logs.push(logEntry);
     console.log(`[LOG] ${message.publisherId}: ${message.payload.message}`);
@@ -49,7 +49,7 @@ class LoggerPlugin {
       level: 'error',
       message: message.payload.message,
       source: message.publisherId,
-      stack: message.payload.stack
+      stack: message.payload.stack,
     };
     this.logs.push(logEntry);
     console.error(`[ERROR] ${message.publisherId}: ${message.payload.message}`);
@@ -84,20 +84,21 @@ class DatabasePlugin {
     const { collection, filter, responseTopic } = message.payload;
 
     try {
-      const results = Array.from(this.data.get(collection) || [])
-        .filter(item => this.matchesFilter(item, filter));
+      const results = Array.from(this.data.get(collection) || []).filter(
+        (item) => this.matchesFilter(item, filter),
+      );
 
       if (responseTopic) {
         await this.api.publish(responseTopic, {
           success: true,
-          data: results
+          data: results,
         });
       }
     } catch (error) {
       if (responseTopic) {
         await this.api.publish(responseTopic, {
           success: false,
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -118,14 +119,14 @@ class DatabasePlugin {
       if (responseTopic) {
         await this.api.publish(responseTopic, {
           success: true,
-          data: newItem
+          data: newItem,
         });
       }
     } catch (error) {
       if (responseTopic) {
         await this.api.publish(responseTopic, {
           success: false,
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -178,7 +179,7 @@ class APIServicePlugin {
       // 记录日志
       await this.api.publish('system.log', {
         message: `API调用: ${method} ${endpoint}`,
-        requestCount: this.requests
+        requestCount: this.requests,
       });
 
       // 查询数据库（如果需要）
@@ -186,13 +187,13 @@ class APIServicePlugin {
         const response = await this.api.request(this.id, 'database-plugin', {
           type: 'query',
           collection: 'users',
-          filter: data?.filter
+          filter: data?.filter,
         });
 
         if (responseTopic) {
           await this.api.publish(responseTopic, {
             success: true,
-            data: response
+            data: response,
           });
         }
       } else {
@@ -201,29 +202,28 @@ class APIServicePlugin {
           endpoint,
           method,
           timestamp: new Date(),
-          status: 200
+          status: 200,
         };
 
         if (responseTopic) {
           await this.api.publish(responseTopic, {
             success: true,
-            data: mockResponse
+            data: mockResponse,
           });
         }
       }
-
     } catch (error) {
       // 记录错误日志
       await this.api.publish('system.error', {
         message: `API调用失败: ${error.message}`,
         endpoint,
-        method
+        method,
       });
 
       if (responseTopic) {
         await this.api.publish(responseTopic, {
           success: false,
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -251,7 +251,7 @@ async function example1_BasicPubSub() {
   await bus.publish('system', 'system.log', { message: '服务初始化完成' });
 
   // 等待消息处理
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   console.log('日志记录:', logger.logs.length, '条');
 
@@ -275,11 +275,16 @@ async function example2_RequestResponse() {
 
   // API插件请求数据库
   try {
-    const response = await bus.request('api-plugin', 'database-plugin', {
-      type: 'query',
-      collection: 'users',
-      filter: { active: true }
-    }, { timeout: 2000 });
+    const response = await bus.request(
+      'api-plugin',
+      'database-plugin',
+      {
+        type: 'query',
+        collection: 'users',
+        filter: { active: true },
+      },
+      { timeout: 2000 },
+    );
 
     console.log('数据库响应:', response);
   } catch (error) {
@@ -317,7 +322,7 @@ async function example3_PluginWorkflow() {
     type: 'call',
     endpoint: '/users',
     method: 'GET',
-    data: { filter: { active: true } }
+    data: { filter: { active: true } },
   });
 
   console.log('API响应:', apiResponse);
@@ -326,7 +331,7 @@ async function example3_PluginWorkflow() {
   await bus.publish('workflow', 'system.log', { message: '工作流执行完成' });
 
   // 等待所有消息处理完成
-  await new Promise(resolve => setTimeout(resolve, 200));
+  await new Promise((resolve) => setTimeout(resolve, 200));
 
   console.log('📊 最终统计:');
   console.log('- 日志条数:', logger.logs.length);
@@ -361,12 +366,18 @@ async function example4_AdvancedFeatures() {
   });
 
   // 发布各种消息
-  await bus.publish('system', 'events.user', { message: '用户登录', userId: 123 });
+  await bus.publish('system', 'events.user', {
+    message: '用户登录',
+    userId: 123,
+  });
   await bus.publish('system', 'events.system', { message: '系统重启' });
-  await bus.publish('system', 'events.security', { message: '密码变更', userId: 123 }); // 会被过滤
+  await bus.publish('system', 'events.security', {
+    message: '密码变更',
+    userId: 123,
+  }); // 会被过滤
 
   // 等待消息处理
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   console.log(`通配符处理的消息数: ${wildcardCount}`);
 
@@ -392,7 +403,6 @@ async function main() {
 
     console.log('\n✅ 所有示例运行完成！');
     console.log('\n📖 更多信息请查看 docs/plugin-communication-guide.md');
-
   } catch (error) {
     console.error('❌ 示例运行失败:', error);
   }

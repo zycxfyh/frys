@@ -6,11 +6,11 @@
  */
 
 import { spawn } from 'child_process';
+import { createHash } from 'crypto';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import os from 'os';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { createHash } from 'crypto';
-import os from 'os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -29,14 +29,14 @@ const PIPELINE_STAGES = {
   // 部署阶段
   DEPLOY: 'deploy',
   // 验证阶段
-  VERIFY: 'verify'
+  VERIFY: 'verify',
 };
 
 // 环境类型
 const ENV_TYPES = {
   DEVELOPMENT: 'development',
   STAGING: 'staging',
-  PRODUCTION: 'production'
+  PRODUCTION: 'production',
 };
 
 class UnifiedCIPipeline {
@@ -46,10 +46,11 @@ class UnifiedCIPipeline {
       branch: options.branch || 'main',
       pr: options.pr || null,
       failFast: options.failFast !== false,
-      maxConcurrency: options.maxConcurrency || Math.max(1, os.cpus().length - 1),
+      maxConcurrency:
+        options.maxConcurrency || Math.max(1, os.cpus().length - 1),
       cacheEnabled: options.cacheEnabled !== false,
       dryRun: options.dryRun || false,
-      ...options
+      ...options,
     };
 
     this.results = {
@@ -57,7 +58,7 @@ class UnifiedCIPipeline {
       totalDuration: 0,
       startTime: Date.now(),
       cacheHits: 0,
-      cacheMisses: 0
+      cacheMisses: 0,
     };
 
     this.cache = new Map();
@@ -69,7 +70,10 @@ class UnifiedCIPipeline {
     }
 
     this.log(`🚀 初始化 frys 统一CI/CD流水线`, 'info');
-    this.log(`环境: ${this.options.env}, 分支: ${this.options.branch}, 并发数: ${this.options.maxConcurrency}`, 'info');
+    this.log(
+      `环境: ${this.options.env}, 分支: ${this.options.branch}, 并发数: ${this.options.maxConcurrency}`,
+      'info',
+    );
   }
 
   log(message, type = 'info') {
@@ -80,18 +84,21 @@ class UnifiedCIPipeline {
       error: '\x1b[31m',
       warning: '\x1b[33m',
       header: '\x1b[35m',
-      reset: '\x1b[0m'
+      reset: '\x1b[0m',
     };
 
-    const prefix = {
-      info: 'ℹ️ ',
-      success: '✅ ',
-      error: '❌ ',
-      warning: '⚠️ ',
-      header: '🚀 '
-    }[type] || 'ℹ️ ';
+    const prefix =
+      {
+        info: 'ℹ️ ',
+        success: '✅ ',
+        error: '❌ ',
+        warning: '⚠️ ',
+        header: '🚀 ',
+      }[type] || 'ℹ️ ';
 
-    console.log(`${colors[type]}[${timestamp}] ${prefix}${message}${colors.reset}`);
+    console.log(
+      `${colors[type]}[${timestamp}] ${prefix}${message}${colors.reset}`,
+    );
   }
 
   /**
@@ -133,7 +140,7 @@ class UnifiedCIPipeline {
     const cacheFile = join(this.cacheDir, `${cacheKey}.json`);
     const cacheData = {
       timestamp: Date.now(),
-      result: result
+      result: result,
     };
 
     try {
@@ -156,7 +163,7 @@ class UnifiedCIPipeline {
           task,
           status: 'passed',
           duration: 0,
-          dryRun: true
+          dryRun: true,
         });
         return;
       }
@@ -167,7 +174,7 @@ class UnifiedCIPipeline {
         cwd: task.cwd || process.cwd(),
         stdio: task.silent ? 'pipe' : 'inherit',
         shell: true,
-        env: { ...process.env, ...task.env }
+        env: { ...process.env, ...task.env },
       });
 
       let stdout = '';
@@ -204,18 +211,21 @@ class UnifiedCIPipeline {
           code,
           stdout,
           stderr,
-          duration
+          duration,
         };
 
         if (code === 0) {
           this.log(`${task.name} 成功 ✓ (${duration}ms)`, 'success');
         } else {
-          this.log(`${task.name} 失败 ✗ (退出码: ${code}, ${duration}ms)`, 'error');
+          this.log(
+            `${task.name} 失败 ✗ (退出码: ${code}, ${duration}ms)`,
+            'error',
+          );
 
           // 输出错误信息（限制长度）
           if (stderr && stderr.length > 0) {
-            const errorSnippet = stderr.length > 500 ?
-              stderr.substring(0, 500) + '...' : stderr;
+            const errorSnippet =
+              stderr.length > 500 ? stderr.substring(0, 500) + '...' : stderr;
             console.log(`\n${task.name} 错误输出:`);
             console.log(errorSnippet);
           }
@@ -228,13 +238,16 @@ class UnifiedCIPipeline {
         if (timeoutId) clearTimeout(timeoutId);
 
         const duration = Date.now() - startTime;
-        this.log(`${task.name} 执行出错: ${error.message} (${duration}ms)`, 'error');
+        this.log(
+          `${task.name} 执行出错: ${error.message} (${duration}ms)`,
+          'error',
+        );
 
         resolve({
           task,
           status: 'error',
           error: error.message,
-          duration
+          duration,
         });
       });
     });
@@ -247,15 +260,18 @@ class UnifiedCIPipeline {
     const results = [];
     const concurrency = Math.min(this.options.maxConcurrency, tasks.length);
 
-    this.log(`开始执行 ${stage} 阶段 (${tasks.length} 个任务, 并发数: ${concurrency})`, 'info');
+    this.log(
+      `开始执行 ${stage} 阶段 (${tasks.length} 个任务, 并发数: ${concurrency})`,
+      'info',
+    );
 
     // 检查缓存
     const cacheKey = this.generateCacheKey(stage, tasks);
     const cachedResult = this.getCacheResult(cacheKey);
 
-    if (cachedResult && cachedResult.every(r => r.status === 'passed')) {
+    if (cachedResult && cachedResult.every((r) => r.status === 'passed')) {
       this.log(`使用缓存结果: ${stage} 阶段`, 'success');
-      return cachedResult.map(r => ({ ...r, cached: true }));
+      return cachedResult.map((r) => ({ ...r, cached: true }));
     }
 
     this.results.cacheMisses++;
@@ -263,7 +279,7 @@ class UnifiedCIPipeline {
     // 分批执行
     for (let i = 0; i < tasks.length; i += concurrency) {
       const batch = tasks.slice(i, i + concurrency);
-      const batchPromises = batch.map(task => this.executeTask(task, stage));
+      const batchPromises = batch.map((task) => this.executeTask(task, stage));
 
       try {
         const batchResults = await Promise.all(batchPromises);
@@ -271,7 +287,9 @@ class UnifiedCIPipeline {
 
         // 检查是否需要快速失败
         if (this.options.failFast) {
-          const hasFailure = batchResults.some(r => r.status === 'failed' || r.status === 'error');
+          const hasFailure = batchResults.some(
+            (r) => r.status === 'failed' || r.status === 'error',
+          );
           if (hasFailure) {
             this.log(`检测到失败，快速失败模式: ${stage} 阶段`, 'warning');
             break;
@@ -284,7 +302,7 @@ class UnifiedCIPipeline {
     }
 
     // 缓存成功结果
-    if (results.every(r => r.status === 'passed')) {
+    if (results.every((r) => r.status === 'passed')) {
       this.setCacheResult(cacheKey, results);
     }
 
@@ -308,7 +326,7 @@ class UnifiedCIPipeline {
             args: ['run', 'lint'],
             priority: 1,
             timeout: 60000,
-            category: 'linting'
+            category: 'linting',
           },
           {
             name: 'Prettier 格式检查',
@@ -316,8 +334,8 @@ class UnifiedCIPipeline {
             args: ['run', 'format:check'],
             priority: 2,
             timeout: 30000,
-            category: 'formatting'
-          }
+            category: 'formatting',
+          },
         ];
 
       case PIPELINE_STAGES.SECURITY:
@@ -328,7 +346,7 @@ class UnifiedCIPipeline {
             args: ['audit', '--audit-level=moderate'],
             priority: 4,
             timeout: 120000,
-            category: 'security'
+            category: 'security',
           },
           {
             name: '工业级安全审计',
@@ -336,11 +354,11 @@ class UnifiedCIPipeline {
             args: ['scripts/security-audit.js'],
             priority: 3,
             timeout: 300000,
-            category: 'security'
-          }
+            category: 'security',
+          },
         ];
 
-      case PIPELINE_STAGES.TESTING:
+      case PIPELINE_STAGES.TESTING: {
         const testTasks = [
           {
             name: '单元测试',
@@ -348,7 +366,7 @@ class UnifiedCIPipeline {
             args: ['run', 'test:unit'],
             priority: 5,
             timeout: 180000,
-            category: 'testing'
+            category: 'testing',
           },
           {
             name: '集成测试',
@@ -356,7 +374,7 @@ class UnifiedCIPipeline {
             args: ['run', 'test:integration'],
             priority: 6,
             timeout: 300000,
-            category: 'testing'
+            category: 'testing',
           },
           {
             name: '性能测试',
@@ -364,8 +382,8 @@ class UnifiedCIPipeline {
             args: ['run', 'test:performance'],
             priority: 8,
             timeout: 180000,
-            category: 'testing'
-          }
+            category: 'testing',
+          },
         ];
 
         // 生产环境添加更多测试
@@ -376,11 +394,12 @@ class UnifiedCIPipeline {
             args: ['run', 'test:e2e'],
             priority: 7,
             timeout: 600000,
-            category: 'testing'
+            category: 'testing',
           });
         }
 
         return testTasks;
+      }
 
       case PIPELINE_STAGES.BUILD:
         return [
@@ -390,8 +409,8 @@ class UnifiedCIPipeline {
             args: ['run', 'build:prod'],
             priority: 1,
             timeout: 300000,
-            category: 'build'
-          }
+            category: 'build',
+          },
         ];
 
       case PIPELINE_STAGES.DEPLOY_PREP:
@@ -403,8 +422,8 @@ class UnifiedCIPipeline {
             priority: 1,
             timeout: 60000,
             category: 'verification',
-            env: { DEPLOY_ENV: this.options.env }
-          }
+            env: { DEPLOY_ENV: this.options.env },
+          },
         ];
 
       case PIPELINE_STAGES.DEPLOY:
@@ -416,8 +435,8 @@ class UnifiedCIPipeline {
               args: ['--env=production'],
               priority: 1,
               timeout: 1800000, // 30分钟
-              category: 'deployment'
-            }
+              category: 'deployment',
+            },
           ];
         } else if (isStaging) {
           return [
@@ -427,13 +446,13 @@ class UnifiedCIPipeline {
               args: ['--env=staging'],
               priority: 1,
               timeout: 900000, // 15分钟
-              category: 'deployment'
-            }
+              category: 'deployment',
+            },
           ];
         }
         return [];
 
-      case PIPELINE_STAGES.VERIFY:
+      case PIPELINE_STAGES.VERIFY: {
         const verifyTasks = [
           {
             name: '部署验证',
@@ -442,8 +461,8 @@ class UnifiedCIPipeline {
             priority: 1,
             timeout: 120000,
             category: 'verification',
-            env: { DEPLOY_ENV: this.options.env }
-          }
+            env: { DEPLOY_ENV: this.options.env },
+          },
         ];
 
         // 生产环境添加额外验证
@@ -454,11 +473,12 @@ class UnifiedCIPipeline {
             args: ['scripts/regression-matrix.js'],
             priority: 2,
             timeout: 300000,
-            category: 'testing'
+            category: 'testing',
           });
         }
 
         return verifyTasks;
+      }
 
       default:
         return [];
@@ -484,10 +504,10 @@ class UnifiedCIPipeline {
 
     const stageResult = {
       stage,
-      status: results.every(r => r.status === 'passed') ? 'passed' : 'failed',
+      status: results.every((r) => r.status === 'passed') ? 'passed' : 'failed',
       duration,
       tasks: results,
-      cached: results.some(r => r.cached)
+      cached: results.some((r) => r.cached),
     };
 
     this.results.stages.set(stage, stageResult);
@@ -517,7 +537,10 @@ class UnifiedCIPipeline {
     }
 
     // 构建阶段
-    if (this.options.env === ENV_TYPES.STAGING || this.options.env === ENV_TYPES.PRODUCTION) {
+    if (
+      this.options.env === ENV_TYPES.STAGING ||
+      this.options.env === ENV_TYPES.PRODUCTION
+    ) {
       stages.push(PIPELINE_STAGES.BUILD);
       stages.push(PIPELINE_STAGES.DEPLOY_PREP);
       stages.push(PIPELINE_STAGES.DEPLOY);
@@ -526,7 +549,11 @@ class UnifiedCIPipeline {
 
     // PR检查只执行代码质量和安全阶段
     if (this.options.pr) {
-      return [PIPELINE_STAGES.CODE_QUALITY, PIPELINE_STAGES.SECURITY, PIPELINE_STAGES.TESTING];
+      return [
+        PIPELINE_STAGES.CODE_QUALITY,
+        PIPELINE_STAGES.SECURITY,
+        PIPELINE_STAGES.TESTING,
+      ];
     }
 
     return stages;
@@ -542,35 +569,47 @@ class UnifiedCIPipeline {
     const report = {
       timestamp: new Date().toISOString(),
       config: this.options,
-      stages: Array.from(this.results.stages.entries()).map(([name, result]) => ({
-        name,
-        status: result.status,
-        duration: result.duration,
-        taskCount: result.tasks.length,
-        passedTasks: result.tasks.filter(t => t.status === 'passed').length,
-        failedTasks: result.tasks.filter(t => t.status === 'failed').length,
-        cached: result.cached
-      })),
+      stages: Array.from(this.results.stages.entries()).map(
+        ([name, result]) => ({
+          name,
+          status: result.status,
+          duration: result.duration,
+          taskCount: result.tasks.length,
+          passedTasks: result.tasks.filter((t) => t.status === 'passed').length,
+          failedTasks: result.tasks.filter((t) => t.status === 'failed').length,
+          cached: result.cached,
+        }),
+      ),
       performance: {
         totalDuration,
         cacheHits: this.results.cacheHits,
         cacheMisses: this.results.cacheMisses,
-        cacheRatio: this.results.cacheHits / (this.results.cacheHits + this.results.cacheMisses) || 0,
-        averageStageDuration: totalDuration / this.results.stages.size
+        cacheRatio:
+          this.results.cacheHits /
+            (this.results.cacheHits + this.results.cacheMisses) || 0,
+        averageStageDuration: totalDuration / this.results.stages.size,
       },
       summary: {
-        status: Array.from(this.results.stages.values()).every(s => s.status === 'passed') ? 'PASSED' : 'FAILED',
+        status: Array.from(this.results.stages.values()).every(
+          (s) => s.status === 'passed',
+        )
+          ? 'PASSED'
+          : 'FAILED',
         totalStages: this.results.stages.size,
-        passedStages: Array.from(this.results.stages.values()).filter(s => s.status === 'passed').length,
-        failedStages: Array.from(this.results.stages.values()).filter(s => s.status === 'failed').length,
+        passedStages: Array.from(this.results.stages.values()).filter(
+          (s) => s.status === 'passed',
+        ).length,
+        failedStages: Array.from(this.results.stages.values()).filter(
+          (s) => s.status === 'failed',
+        ).length,
         systemInfo: {
           platform: os.platform(),
           arch: os.arch(),
           cpus: os.cpus().length,
           totalMemory: os.totalmem(),
-          nodeVersion: process.version
-        }
-      }
+          nodeVersion: process.version,
+        },
+      },
     };
 
     return report;
@@ -584,24 +623,34 @@ class UnifiedCIPipeline {
     this.log('📊 frys 统一CI/CD流水线执行报告', 'info');
     console.log('='.repeat(100));
 
-    console.log(`⏱️  总耗时: ${(report.performance.totalDuration / 1000).toFixed(2)}秒`);
+    console.log(
+      `⏱️  总耗时: ${(report.performance.totalDuration / 1000).toFixed(2)}秒`,
+    );
     console.log(`📈 阶段数: ${report.summary.totalStages}`);
     console.log(`✅ 通过阶段: ${report.summary.passedStages}`);
     console.log(`❌ 失败阶段: ${report.summary.failedStages}`);
     console.log(`📋 缓存命中: ${report.performance.cacheHits}`);
-    console.log(`💾 缓存命中率: ${(report.performance.cacheRatio * 100).toFixed(1)}%`);
+    console.log(
+      `💾 缓存命中率: ${(report.performance.cacheRatio * 100).toFixed(1)}%`,
+    );
 
     console.log('\n📂 阶段详情:');
-    report.stages.forEach(stage => {
+    report.stages.forEach((stage) => {
       const status = stage.status === 'passed' ? '✅' : '❌';
       const cache = stage.cached ? ' (缓存)' : '';
-      console.log(`  ${status} ${stage.name}: ${stage.passedTasks}/${stage.taskCount} 任务通过 (${stage.duration}ms)${cache}`);
+      console.log(
+        `  ${status} ${stage.name}: ${stage.passedTasks}/${stage.taskCount} 任务通过 (${stage.duration}ms)${cache}`,
+      );
     });
 
     console.log('\n💻 系统信息:');
-    console.log(`  平台: ${report.summary.systemInfo.platform} ${report.summary.systemInfo.arch}`);
+    console.log(
+      `  平台: ${report.summary.systemInfo.platform} ${report.summary.systemInfo.arch}`,
+    );
     console.log(`  CPU: ${report.summary.systemInfo.cpus} 核心`);
-    console.log(`  内存: ${(report.summary.systemInfo.totalMemory / 1024 / 1024 / 1024).toFixed(1)} GB`);
+    console.log(
+      `  内存: ${(report.summary.systemInfo.totalMemory / 1024 / 1024 / 1024).toFixed(1)} GB`,
+    );
     console.log(`  Node.js: ${report.summary.systemInfo.nodeVersion}`);
 
     console.log('\n' + '='.repeat(100));
@@ -643,7 +692,6 @@ class UnifiedCIPipeline {
       // 设置退出码
       const exitCode = report.summary.status === 'PASSED' ? 0 : 1;
       process.exit(exitCode);
-
     } catch (error) {
       this.log(`流水线执行失败: ${error.message}`, 'error');
 
@@ -716,7 +764,7 @@ frys 统一CI/CD流水线
 // 执行流水线
 const options = parseArgs();
 const pipeline = new UnifiedCIPipeline(options);
-pipeline.run().catch(error => {
+pipeline.run().catch((error) => {
   console.error('CI/CD流水线执行失败:', error);
   process.exit(1);
 });

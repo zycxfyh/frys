@@ -3,8 +3,9 @@
  * 提供高效的数据库连接管理和连接复用
  */
 
-import { logger } from '../../shared/utils/logger.js';
 import pg from 'pg';
+import { logger } from '../../shared/utils/logger.js';
+
 const { Pool } = pg;
 
 export class DatabaseConnectionPool {

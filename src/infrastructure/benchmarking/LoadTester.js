@@ -3,8 +3,8 @@
  * 提供各种负载模式的测试功能
  */
 
-import { PerformanceBenchmark } from './PerformanceBenchmark.js';
 import { logger } from '../../shared/utils/logger.js';
+import { PerformanceBenchmark } from './PerformanceBenchmark.js';
 
 export class LoadTester extends PerformanceBenchmark {
   constructor(options = {}) {
@@ -460,7 +460,7 @@ export class LoadTester extends PerformanceBenchmark {
 
     const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
     const variance =
-      values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+      values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length;
 
     return variance;
   }

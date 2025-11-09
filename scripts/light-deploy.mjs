@@ -12,11 +12,13 @@ const deployConfig = {
   environment: process.env.DEPLOY_ENV || 'staging',
   strategy: process.env.DEPLOY_STRATEGY || 'rolling', // rolling/blue-green/canary
   rollback: process.env.ENABLE_ROLLBACK !== 'false',
-  healthCheck: process.env.HEALTH_CHECK !== 'false'
+  healthCheck: process.env.HEALTH_CHECK !== 'false',
 };
 
 async function lightDeploy() {
-  console.log(`🚀 开始轻量化部署 [${deployConfig.environment}] [${deployConfig.strategy}]`);
+  console.log(
+    `🚀 开始轻量化部署 [${deployConfig.environment}] [${deployConfig.strategy}]`,
+  );
 
   const startTime = Date.now();
 
@@ -39,7 +41,6 @@ async function lightDeploy() {
     await generateDeployReport(startTime);
 
     console.log(`✅ 部署完成 (${Date.now() - startTime}ms)`);
-
   } catch (error) {
     console.error('❌ 部署失败:', error.message);
 
@@ -57,7 +58,7 @@ async function preDeploy() {
   console.log('🔍 部署前检查...');
 
   // 验证构建产物
-  if (!await fileExists('dist/index.js')) {
+  if (!(await fileExists('dist/index.js'))) {
     throw new Error('构建产物不存在，请先执行构建');
   }
 
@@ -173,7 +174,9 @@ async function healthCheck() {
 
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const response = await fetch(`http://localhost:${config.environment.isProd ? 3000 : 3000}/health`);
+      const response = await fetch(
+        `http://localhost:${config.environment.isProd ? 3000 : 3000}/health`,
+      );
       if (response.ok) {
         console.log('✅ 健康检查通过');
         return;
@@ -183,7 +186,9 @@ async function healthCheck() {
     }
 
     if (i < maxRetries - 1) {
-      console.log(`⏳ 健康检查失败，${retryDelay/1000}秒后重试 (${i + 1}/${maxRetries})`);
+      console.log(
+        `⏳ 健康检查失败，${retryDelay / 1000}秒后重试 (${i + 1}/${maxRetries})`,
+      );
       await sleep(retryDelay);
     }
   }
@@ -258,12 +263,12 @@ async function generateDeployReport(startTime) {
     config: config,
     artifacts: {
       build: await getBuildInfo(),
-      git: await getGitInfo()
+      git: await getGitInfo(),
     },
     health: {
       checked: deployConfig.healthCheck,
-      status: 'passed' // 如果到达这里说明检查通过
-    }
+      status: 'passed', // 如果到达这里说明检查通过
+    },
   };
 
   const fs = require('fs');
@@ -284,7 +289,9 @@ async function getGitInfo() {
   try {
     const commit = (await $`git rev-parse HEAD`).stdout.trim();
     const branch = (await $`git branch --show-current`).stdout.trim();
-    const tag = (await $`git describe --tags --abbrev=0 2>/dev/null || echo "no-tag"`).stdout.trim();
+    const tag = (
+      await $`git describe --tags --abbrev=0 2>/dev/null || echo "no-tag"`
+    ).stdout.trim();
 
     return { commit, branch, tag: tag === 'no-tag' ? null : tag };
   } catch (error) {
@@ -302,7 +309,7 @@ async function fileExists(path) {
 }
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // 执行部署

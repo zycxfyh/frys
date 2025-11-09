@@ -28,7 +28,7 @@ const techStack = {
   api: 'Fetch API + RESTful',
   realtime: 'Server-Sent Events (SSE)',
   build: 'ES6 Modules',
-  deployment: 'Static hosting'
+  deployment: 'Static hosting',
 };
 ```
 
@@ -63,16 +63,19 @@ open web/index.html
 ### 功能特性
 
 #### 🖥️ 仪表板
+
 - **系统状态监控**: 显示服务健康状态、资源使用情况
 - **实时指标**: CPU、内存、请求数等关键指标
 - **告警通知**: 系统异常的实时提醒
 
 #### ⚙️ 工作流管理
+
 - **工作流列表**: 查看所有已创建的工作流
 - **工作流执行**: 手动触发工作流执行
 - **执行监控**: 实时查看执行状态和日志
 
 #### 🤖 AI 服务配置
+
 - **供应商管理**: 添加、配置 AI 服务供应商
 - **模型选择**: 为不同任务选择合适的 AI 模型
 - **使用统计**: 查看 API 调用次数和费用
@@ -84,30 +87,30 @@ open web/index.html
 ```html
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>frys - 工作流管理系统</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <div id="app">
-        <header>
-            <h1>frys</h1>
-            <nav>
-                <button onclick="showDashboard()">仪表板</button>
-                <button onclick="showWorkflows()">工作流</button>
-                <button onclick="showAISettings()">AI 设置</button>
-            </nav>
-        </header>
+      <header>
+        <h1>frys</h1>
+        <nav>
+          <button onclick="showDashboard()">仪表板</button>
+          <button onclick="showWorkflows()">工作流</button>
+          <button onclick="showAISettings()">AI 设置</button>
+        </nav>
+      </header>
 
-        <main id="main-content">
-            <!-- 动态内容区域 -->
-        </main>
+      <main id="main-content">
+        <!-- 动态内容区域 -->
+      </main>
     </div>
 
     <script type="module" src="app.js"></script>
-</body>
+  </body>
 </html>
 ```
 
@@ -118,39 +121,39 @@ open web/index.html
 ```javascript
 // app.js
 class FrysApp {
-    constructor() {
-        this.currentView = 'dashboard';
-        this.init();
-    }
+  constructor() {
+    this.currentView = 'dashboard';
+    this.init();
+  }
 
-    async init() {
-        // 初始化事件监听器
-        this.setupEventListeners();
+  async init() {
+    // 初始化事件监听器
+    this.setupEventListeners();
 
-        // 加载初始数据
-        await this.loadSystemStatus();
+    // 加载初始数据
+    await this.loadSystemStatus();
 
-        // 渲染初始视图
-        this.renderView();
-    }
+    // 渲染初始视图
+    this.renderView();
+  }
 
-    setupEventListeners() {
-        // 导航事件
-        document.querySelectorAll('nav button').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const view = e.target.dataset.view;
-                this.switchView(view);
-            });
-        });
+  setupEventListeners() {
+    // 导航事件
+    document.querySelectorAll('nav button').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const view = e.target.dataset.view;
+        this.switchView(view);
+      });
+    });
 
-        // 定期更新状态
-        setInterval(() => this.updateStatus(), 5000);
-    }
+    // 定期更新状态
+    setInterval(() => this.updateStatus(), 5000);
+  }
 }
 
 // 应用启动
 document.addEventListener('DOMContentLoaded', () => {
-    window.frysApp = new FrysApp();
+  window.frysApp = new FrysApp();
 });
 ```
 
@@ -159,64 +162,64 @@ document.addEventListener('DOMContentLoaded', () => {
 ```javascript
 // API 客户端
 class ApiClient {
-    constructor(baseURL = '/api/v1') {
-        this.baseURL = baseURL;
+  constructor(baseURL = '/api/v1') {
+    this.baseURL = baseURL;
+  }
+
+  async request(endpoint, options = {}) {
+    const url = `${this.baseURL}${endpoint}`;
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('API 请求失败:', error);
+      throw error;
     }
+  }
 
-    async request(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`;
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            },
-            ...options
-        };
+  // 系统状态
+  async getSystemStatus() {
+    return this.request('/health');
+  }
 
-        try {
-            const response = await fetch(url, config);
-            const data = await response.json();
+  // 工作流列表
+  async getWorkflows() {
+    return this.request('/workflows');
+  }
 
-            if (!response.ok) {
-                throw new Error(data.message || `HTTP ${response.status}`);
-            }
+  // 执行工作流
+  async executeWorkflow(workflowId, input) {
+    return this.request(`/workflows/${workflowId}/execute`, {
+      method: 'POST',
+      body: JSON.stringify({ input }),
+    });
+  }
 
-            return data;
-        } catch (error) {
-            console.error('API 请求失败:', error);
-            throw error;
-        }
-    }
+  // AI 配置
+  async getAIProviders() {
+    return this.request('/ai/providers');
+  }
 
-    // 系统状态
-    async getSystemStatus() {
-        return this.request('/health');
-    }
-
-    // 工作流列表
-    async getWorkflows() {
-        return this.request('/workflows');
-    }
-
-    // 执行工作流
-    async executeWorkflow(workflowId, input) {
-        return this.request(`/workflows/${workflowId}/execute`, {
-            method: 'POST',
-            body: JSON.stringify({ input })
-        });
-    }
-
-    // AI 配置
-    async getAIProviders() {
-        return this.request('/ai/providers');
-    }
-
-    async updateAIProvider(providerId, config) {
-        return this.request(`/ai/providers/${providerId}`, {
-            method: 'PUT',
-            body: JSON.stringify(config)
-        });
-    }
+  async updateAIProvider(providerId, config) {
+    return this.request(`/ai/providers/${providerId}`, {
+      method: 'PUT',
+      body: JSON.stringify(config),
+    });
+  }
 }
 
 // 全局 API 实例
@@ -228,58 +231,58 @@ window.api = new ApiClient();
 ```javascript
 // 实时状态更新
 class RealtimeManager {
-    constructor() {
-        this.eventSource = null;
-        this.listeners = new Map();
+  constructor() {
+    this.eventSource = null;
+    this.listeners = new Map();
+  }
+
+  connect(workflowId = null) {
+    const url = workflowId
+      ? `/api/v1/workflows/executions/${workflowId}/events`
+      : '/api/v1/system/events';
+
+    this.eventSource = new EventSource(url);
+
+    this.eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        this.notifyListeners(data.type, data);
+      } catch (error) {
+        console.error('解析实时事件失败:', error);
+      }
+    };
+
+    this.eventSource.onerror = (error) => {
+      console.error('实时连接错误:', error);
+      // 自动重连逻辑
+      setTimeout(() => this.connect(workflowId), 5000);
+    };
+  }
+
+  disconnect() {
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
     }
+  }
 
-    connect(workflowId = null) {
-        const url = workflowId
-            ? `/api/v1/workflows/executions/${workflowId}/events`
-            : '/api/v1/system/events';
-
-        this.eventSource = new EventSource(url);
-
-        this.eventSource.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                this.notifyListeners(data.type, data);
-            } catch (error) {
-                console.error('解析实时事件失败:', error);
-            }
-        };
-
-        this.eventSource.onerror = (error) => {
-            console.error('实时连接错误:', error);
-            // 自动重连逻辑
-            setTimeout(() => this.connect(workflowId), 5000);
-        };
+  on(eventType, callback) {
+    if (!this.listeners.has(eventType)) {
+      this.listeners.set(eventType, []);
     }
+    this.listeners.get(eventType).push(callback);
+  }
 
-    disconnect() {
-        if (this.eventSource) {
-            this.eventSource.close();
-            this.eventSource = null;
-        }
-    }
-
-    on(eventType, callback) {
-        if (!this.listeners.has(eventType)) {
-            this.listeners.set(eventType, []);
-        }
-        this.listeners.get(eventType).push(callback);
-    }
-
-    notifyListeners(eventType, data) {
-        const callbacks = this.listeners.get(eventType) || [];
-        callbacks.forEach(callback => {
-            try {
-                callback(data);
-            } catch (error) {
-                console.error('事件监听器执行失败:', error);
-            }
-        });
-    }
+  notifyListeners(eventType, data) {
+    const callbacks = this.listeners.get(eventType) || [];
+    callbacks.forEach((callback) => {
+      try {
+        callback(data);
+      } catch (error) {
+        console.error('事件监听器执行失败:', error);
+      }
+    });
+  }
 }
 
 // 使用示例
@@ -287,12 +290,12 @@ const realtime = new RealtimeManager();
 
 // 监听工作流执行状态
 realtime.on('workflow.completed', (data) => {
-    console.log('工作流执行完成:', data.workflowId);
-    updateWorkflowStatus(data.workflowId, 'completed');
+  console.log('工作流执行完成:', data.workflowId);
+  updateWorkflowStatus(data.workflowId, 'completed');
 });
 
 realtime.on('system.metrics', (data) => {
-    updateSystemMetrics(data.metrics);
+  updateSystemMetrics(data.metrics);
 });
 
 // 连接到系统事件流
@@ -308,122 +311,133 @@ realtime.connect();
 
 /* CSS 变量定义 */
 :root {
-    --primary-color: #667eea;
-    --secondary-color: #764ba2;
-    --success-color: #28a745;
-    --warning-color: #ffc107;
-    --danger-color: #dc3545;
-    --text-color: #333;
-    --bg-color: #fff;
-    --border-radius: 8px;
-    --shadow: 0 2px 10px rgba(0,0,0,0.1);
+  --primary-color: #667eea;
+  --secondary-color: #764ba2;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --text-color: #333;
+  --bg-color: #fff;
+  --border-radius: 8px;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* 基础样式 */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    line-height: 1.6;
-    color: var(--text-color);
-    background: var(--bg-color);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background: var(--bg-color);
 }
 
 /* 布局组件 */
 .app-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 header {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    padding: 1rem;
-    box-shadow: var(--shadow);
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  color: white;
+  padding: 1rem;
+  box-shadow: var(--shadow);
 }
 
 nav {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 nav button {
-    background: rgba(255,255,255,0.2);
-    border: none;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    transition: background 0.3s;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
 nav button:hover,
 nav button.active {
-    background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* 主内容区域 */
 main {
-    flex: 1;
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 /* 卡片组件 */
 .card {
-    background: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    padding: 1.5rem;
-    margin-bottom: 1rem;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .card-header {
-    border-bottom: 1px solid #eee;
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 /* 状态指示器 */
 .status-indicator {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 0.5rem;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
 }
 
-.status-healthy { background: var(--success-color); }
-.status-warning { background: var(--warning-color); }
-.status-error { background: var(--danger-color); }
+.status-healthy {
+  background: var(--success-color);
+}
+.status-warning {
+  background: var(--warning-color);
+}
+.status-error {
+  background: var(--danger-color);
+}
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-    nav {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
+  nav {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 
-    main {
-        padding: 1rem;
-    }
+  main {
+    padding: 1rem;
+  }
 
-    .card {
-        padding: 1rem;
-    }
+  .card {
+    padding: 1rem;
+  }
 }
 ```
 
@@ -432,16 +446,16 @@ main {
 ```css
 /* 深色主题支持 */
 @media (prefers-color-scheme: dark) {
-    :root {
-        --text-color: #e9ecef;
-        --bg-color: #212529;
-        --shadow: 0 2px 10px rgba(0,0,0,0.3);
-    }
+  :root {
+    --text-color: #e9ecef;
+    --bg-color: #212529;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
 
-    .card {
-        background: #343a40;
-        border: 1px solid #495057;
-    }
+  .card {
+    background: #343a40;
+    border: 1px solid #495057;
+  }
 }
 ```
 
@@ -452,30 +466,30 @@ main {
 ```javascript
 // 仪表板功能
 class Dashboard {
-    constructor(container) {
-        this.container = container;
-        this.metrics = {};
-        this.init();
-    }
+  constructor(container) {
+    this.container = container;
+    this.metrics = {};
+    this.init();
+  }
 
-    async init() {
-        await this.loadSystemStatus();
-        this.render();
-        this.startAutoRefresh();
-    }
+  async init() {
+    await this.loadSystemStatus();
+    this.render();
+    this.startAutoRefresh();
+  }
 
-    async loadSystemStatus() {
-        try {
-            const status = await window.api.getSystemStatus();
-            this.metrics = status.data;
-        } catch (error) {
-            console.error('加载系统状态失败:', error);
-            this.metrics = { status: 'error', message: error.message };
-        }
+  async loadSystemStatus() {
+    try {
+      const status = await window.api.getSystemStatus();
+      this.metrics = status.data;
+    } catch (error) {
+      console.error('加载系统状态失败:', error);
+      this.metrics = { status: 'error', message: error.message };
     }
+  }
 
-    render() {
-        this.container.innerHTML = `
+  render() {
+    this.container.innerHTML = `
             <div class="dashboard-grid">
                 <div class="metric-card">
                     <h3>系统状态</h3>
@@ -499,28 +513,28 @@ class Dashboard {
                 </div>
             </div>
         `;
-    }
+  }
 
-    getStatusClass() {
-        const status = this.metrics.status;
-        if (status === 'healthy') return 'status-healthy';
-        if (status === 'warning') return 'status-warning';
-        return 'status-error';
-    }
+  getStatusClass() {
+    const status = this.metrics.status;
+    if (status === 'healthy') return 'status-healthy';
+    if (status === 'warning') return 'status-warning';
+    return 'status-error';
+  }
 
-    formatBytes(bytes) {
-        if (bytes === 0) return '0 B';
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
+  formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
 
-    startAutoRefresh() {
-        setInterval(() => {
-            this.loadSystemStatus().then(() => this.render());
-        }, 10000); // 每10秒刷新
-    }
+  startAutoRefresh() {
+    setInterval(() => {
+      this.loadSystemStatus().then(() => this.render());
+    }, 10000); // 每10秒刷新
+  }
 }
 ```
 
@@ -529,29 +543,29 @@ class Dashboard {
 ```javascript
 // 工作流管理功能
 class WorkflowManager {
-    constructor(container) {
-        this.container = container;
-        this.workflows = [];
-        this.init();
-    }
+  constructor(container) {
+    this.container = container;
+    this.workflows = [];
+    this.init();
+  }
 
-    async init() {
-        await this.loadWorkflows();
-        this.render();
-    }
+  async init() {
+    await this.loadWorkflows();
+    this.render();
+  }
 
-    async loadWorkflows() {
-        try {
-            const response = await window.api.getWorkflows();
-            this.workflows = response.data.items || [];
-        } catch (error) {
-            console.error('加载工作流失败:', error);
-            this.workflows = [];
-        }
+  async loadWorkflows() {
+    try {
+      const response = await window.api.getWorkflows();
+      this.workflows = response.data.items || [];
+    } catch (error) {
+      console.error('加载工作流失败:', error);
+      this.workflows = [];
     }
+  }
 
-    render() {
-        const html = `
+  render() {
+    const html = `
             <div class="workflow-manager">
                 <div class="card">
                     <div class="card-header">
@@ -562,7 +576,8 @@ class WorkflowManager {
                     </div>
 
                     <div class="workflow-list">
-                        ${this.workflows.length === 0
+                        ${
+                          this.workflows.length === 0
                             ? '<p class="empty-state">暂无工作流</p>'
                             : this.renderWorkflowList()
                         }
@@ -571,11 +586,13 @@ class WorkflowManager {
             </div>
         `;
 
-        this.container.innerHTML = html;
-    }
+    this.container.innerHTML = html;
+  }
 
-    renderWorkflowList() {
-        return this.workflows.map(workflow => `
+  renderWorkflowList() {
+    return this.workflows
+      .map(
+        (workflow) => `
             <div class="workflow-item" data-id="${workflow.id}">
                 <div class="workflow-info">
                     <h4>${workflow.name}</h4>
@@ -597,54 +614,56 @@ class WorkflowManager {
                     </button>
                 </div>
             </div>
-        `).join('');
-    }
+        `,
+      )
+      .join('');
+  }
 
-    getStatusText(status) {
-        const statusMap = {
-            draft: '草稿',
-            published: '已发布',
-            archived: '已归档'
-        };
-        return statusMap[status] || status;
-    }
+  getStatusText(status) {
+    const statusMap = {
+      draft: '草稿',
+      published: '已发布',
+      archived: '已归档',
+    };
+    return statusMap[status] || status;
+  }
 }
 
 // 全局函数
 window.createNewWorkflow = () => {
-    // 实现创建工作流逻辑
-    console.log('创建新工作流');
+  // 实现创建工作流逻辑
+  console.log('创建新工作流');
 };
 
 window.editWorkflow = (id) => {
-    // 实现编辑工作流逻辑
-    console.log('编辑工作流:', id);
+  // 实现编辑工作流逻辑
+  console.log('编辑工作流:', id);
 };
 
 window.executeWorkflow = async (id) => {
-    try {
-        const result = await window.api.executeWorkflow(id, {});
-        console.log('工作流执行结果:', result);
+  try {
+    const result = await window.api.executeWorkflow(id, {});
+    console.log('工作流执行结果:', result);
 
-        // 显示执行状态
-        showExecutionStatus(result.executionId);
-    } catch (error) {
-        alert('执行工作流失败: ' + error.message);
-    }
+    // 显示执行状态
+    showExecutionStatus(result.executionId);
+  } catch (error) {
+    alert('执行工作流失败: ' + error.message);
+  }
 };
 
 window.deleteWorkflow = async (id) => {
-    if (confirm('确定要删除这个工作流吗？')) {
-        try {
-            await window.api.deleteWorkflow(id);
-            // 重新加载工作流列表
-            window.workflowManager.loadWorkflows().then(() => {
-                window.workflowManager.render();
-            });
-        } catch (error) {
-            alert('删除工作流失败: ' + error.message);
-        }
+  if (confirm('确定要删除这个工作流吗？')) {
+    try {
+      await window.api.deleteWorkflow(id);
+      // 重新加载工作流列表
+      window.workflowManager.loadWorkflows().then(() => {
+        window.workflowManager.render();
+      });
+    } catch (error) {
+      alert('删除工作流失败: ' + error.message);
     }
+  }
 };
 ```
 
@@ -655,47 +674,47 @@ window.deleteWorkflow = async (id) => {
 ```javascript
 // 调试工具
 window.debugFrys = {
-    // 查看当前应用状态
-    getAppState() {
-        return {
-            currentView: window.frysApp?.currentView,
-            systemMetrics: window.frysApp?.metrics,
-            workflows: window.workflowManager?.workflows
-        };
-    },
+  // 查看当前应用状态
+  getAppState() {
+    return {
+      currentView: window.frysApp?.currentView,
+      systemMetrics: window.frysApp?.metrics,
+      workflows: window.workflowManager?.workflows,
+    };
+  },
 
-    // 手动刷新数据
-    refreshData() {
-        if (window.frysApp) {
-            window.frysApp.loadSystemStatus().then(() => {
-                window.frysApp.render();
-            });
-        }
-    },
-
-    // 测试 API 连接
-    async testAPI() {
-        try {
-            const result = await window.api.getSystemStatus();
-            console.log('API 测试成功:', result);
-            return result;
-        } catch (error) {
-            console.error('API 测试失败:', error);
-            throw error;
-        }
-    },
-
-    // 启用详细日志
-    enableVerboseLogging() {
-        localStorage.setItem('frys_debug', 'true');
-        console.log('详细日志已启用');
-    },
-
-    // 禁用详细日志
-    disableVerboseLogging() {
-        localStorage.removeItem('frys_debug');
-        console.log('详细日志已禁用');
+  // 手动刷新数据
+  refreshData() {
+    if (window.frysApp) {
+      window.frysApp.loadSystemStatus().then(() => {
+        window.frysApp.render();
+      });
     }
+  },
+
+  // 测试 API 连接
+  async testAPI() {
+    try {
+      const result = await window.api.getSystemStatus();
+      console.log('API 测试成功:', result);
+      return result;
+    } catch (error) {
+      console.error('API 测试失败:', error);
+      throw error;
+    }
+  },
+
+  // 启用详细日志
+  enableVerboseLogging() {
+    localStorage.setItem('frys_debug', 'true');
+    console.log('详细日志已启用');
+  },
+
+  // 禁用详细日志
+  disableVerboseLogging() {
+    localStorage.removeItem('frys_debug');
+    console.log('详细日志已禁用');
+  },
 };
 
 // 在控制台中使用
@@ -709,110 +728,111 @@ window.debugFrys = {
 ```javascript
 // 前端性能监控
 class PerformanceMonitor {
-    constructor() {
-        this.metrics = {};
-        this.init();
+  constructor() {
+    this.metrics = {};
+    this.init();
+  }
+
+  init() {
+    // 监听页面性能指标
+    if ('performance' in window) {
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          this.collectPerformanceMetrics();
+        }, 0);
+      });
     }
 
-    init() {
-        // 监听页面性能指标
-        if ('performance' in window) {
-            window.addEventListener('load', () => {
-                setTimeout(() => {
-                    this.collectPerformanceMetrics();
-                }, 0);
-            });
-        }
+    // 监听用户交互
+    document.addEventListener('click', (e) => {
+      this.trackInteraction('click', e.target);
+    });
 
-        // 监听用户交互
-        document.addEventListener('click', (e) => {
-            this.trackInteraction('click', e.target);
-        });
+    // 监听 API 调用
+    this.interceptFetch();
+  }
 
-        // 监听 API 调用
-        this.interceptFetch();
+  collectPerformanceMetrics() {
+    const perfData = performance.getEntriesByType('navigation')[0];
+
+    this.metrics = {
+      dnsLookup: perfData.domainLookupEnd - perfData.domainLookupStart,
+      tcpConnect: perfData.connectEnd - perfData.connectStart,
+      serverResponse: perfData.responseStart - perfData.requestStart,
+      pageLoad: perfData.loadEventEnd - perfData.loadEventStart,
+      domReady:
+        perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart,
+    };
+
+    console.log('性能指标:', this.metrics);
+  }
+
+  trackInteraction(type, target) {
+    const interaction = {
+      type,
+      target: target.tagName + (target.className ? '.' + target.className : ''),
+      timestamp: Date.now(),
+    };
+
+    // 发送到后端或存储在本地
+    this.sendTrackingData('interaction', interaction);
+  }
+
+  interceptFetch() {
+    const originalFetch = window.fetch;
+
+    window.fetch = async (...args) => {
+      const startTime = Date.now();
+      const url = args[0];
+
+      try {
+        const response = await originalFetch(...args);
+        const duration = Date.now() - startTime;
+
+        this.trackAPICall(url, duration, response.status);
+        return response;
+      } catch (error) {
+        const duration = Date.now() - startTime;
+        this.trackAPICall(url, duration, 0, error);
+        throw error;
+      }
+    };
+  }
+
+  trackAPICall(url, duration, status, error = null) {
+    const apiCall = {
+      url,
+      duration,
+      status,
+      error: error?.message,
+      timestamp: Date.now(),
+    };
+
+    this.sendTrackingData('api_call', apiCall);
+  }
+
+  sendTrackingData(type, data) {
+    // 在开发环境下输出到控制台
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Tracking] ${type}:`, data);
     }
 
-    collectPerformanceMetrics() {
-        const perfData = performance.getEntriesByType('navigation')[0];
+    // 在生产环境下发送到监控服务
+    // this.sendToMonitoringService(type, data);
+  }
 
-        this.metrics = {
-            dnsLookup: perfData.domainLookupEnd - perfData.domainLookupStart,
-            tcpConnect: perfData.connectEnd - perfData.connectStart,
-            serverResponse: perfData.responseStart - perfData.requestStart,
-            pageLoad: perfData.loadEventEnd - perfData.loadEventStart,
-            domReady: perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart
-        };
-
-        console.log('性能指标:', this.metrics);
-    }
-
-    trackInteraction(type, target) {
-        const interaction = {
-            type,
-            target: target.tagName + (target.className ? '.' + target.className : ''),
-            timestamp: Date.now()
-        };
-
-        // 发送到后端或存储在本地
-        this.sendTrackingData('interaction', interaction);
-    }
-
-    interceptFetch() {
-        const originalFetch = window.fetch;
-
-        window.fetch = async (...args) => {
-            const startTime = Date.now();
-            const url = args[0];
-
-            try {
-                const response = await originalFetch(...args);
-                const duration = Date.now() - startTime;
-
-                this.trackAPICall(url, duration, response.status);
-                return response;
-            } catch (error) {
-                const duration = Date.now() - startTime;
-                this.trackAPICall(url, duration, 0, error);
-                throw error;
-            }
-        };
-    }
-
-    trackAPICall(url, duration, status, error = null) {
-        const apiCall = {
-            url,
-            duration,
-            status,
-            error: error?.message,
-            timestamp: Date.now()
-        };
-
-        this.sendTrackingData('api_call', apiCall);
-    }
-
-    sendTrackingData(type, data) {
-        // 在开发环境下输出到控制台
-        if (process.env.NODE_ENV === 'development') {
-            console.log(`[Tracking] ${type}:`, data);
-        }
-
-        // 在生产环境下发送到监控服务
-        // this.sendToMonitoringService(type, data);
-    }
-
-    getMetrics() {
-        return this.metrics;
-    }
+  getMetrics() {
+    return this.metrics;
+  }
 }
 
 // 启动性能监控
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.performanceMonitor = new PerformanceMonitor();
-    });
-} else {
+  document.addEventListener('DOMContentLoaded', () => {
     window.performanceMonitor = new PerformanceMonitor();
+  });
+} else {
+  window.performanceMonitor = new PerformanceMonitor();
 }
 ```
 
@@ -832,17 +852,17 @@ app.use(express.static(path.join(__dirname, 'web')));
 
 // API 代理 (开发环境)
 app.use('/api', (req, res) => {
-    const apiUrl = 'http://localhost:3000' + req.url;
-    // 代理请求到后端API
+  const apiUrl = 'http://localhost:3000' + req.url;
+  // 代理请求到后端API
 });
 
 // SPA 路由回退
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'web/index.html'));
+  res.sendFile(path.join(__dirname, 'web/index.html'));
 });
 
 app.listen(8080, () => {
-    console.log('前端服务器运行在 http://localhost:8080');
+  console.log('前端服务器运行在 http://localhost:8080');
 });
 ```
 
@@ -851,8 +871,11 @@ app.listen(8080, () => {
 ```html
 <!-- 使用 CDN 加速静态资源 -->
 <head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frys-web@1.0.0/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/frys-web@1.0.0/app.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/frys-web@1.0.0/styles.css"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/frys-web@1.0.0/app.js"></script>
 </head>
 ```
 
@@ -861,11 +884,11 @@ app.listen(8080, () => {
 ```javascript
 // service-worker.js
 self.addEventListener('install', (event) => {
-    // 缓存关键资源
+  // 缓存关键资源
 });
 
 self.addEventListener('fetch', (event) => {
-    // 实现离线支持
+  // 实现离线支持
 });
 ```
 
@@ -883,14 +906,14 @@ self.addEventListener('fetch', (event) => {
 ```json
 // .vscode/settings.json
 {
-    "emmet.includeLanguages": {
-        "javascript": "html"
-    },
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "css.validate": false,
-    "less.validate": false,
-    "scss.validate": false
+  "emmet.includeLanguages": {
+    "javascript": "html"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false
 }
 ```
 
@@ -912,10 +935,10 @@ self.addEventListener('fetch', (event) => {
 // - 真机调试 (USB 连接)
 
 // 4. 常见调试命令
-console.table(window.frysApp.getAppState());  // 表格形式查看应用状态
-console.time('operation');                    // 开始计时
+console.table(window.frysApp.getAppState()); // 表格形式查看应用状态
+console.time('operation'); // 开始计时
 // 执行某些操作
-console.timeEnd('operation');                 // 结束计时
+console.timeEnd('operation'); // 结束计时
 ```
 
 ## 📚 相关资源
@@ -937,6 +960,6 @@ console.timeEnd('operation');                 // 结束计时
 
 ---
 
-*最后更新: 2025年11月7日*
+_最后更新: 2025年11月7日_
 
 </div>

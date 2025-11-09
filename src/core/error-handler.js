@@ -16,7 +16,7 @@ export const ErrorTypes = {
   UNAUTHORIZED: 'UNAUTHORIZED_ERROR',
   FORBIDDEN: 'FORBIDDEN_ERROR',
   TIMEOUT: 'TIMEOUT_ERROR',
-  NETWORK: 'NETWORK_ERROR'
+  NETWORK: 'NETWORK_ERROR',
 };
 
 /**
@@ -37,7 +37,7 @@ export class FrysError extends Error {
       code,
       message,
       details,
-      stack: this.stack
+      stack: this.stack,
     });
   }
 }
@@ -100,7 +100,7 @@ export const frysError = {
    */
   network(message, code = null, details = {}) {
     return new FrysError(ErrorTypes.NETWORK, message, code, details);
-  }
+  },
 };
 
 /**
@@ -124,16 +124,18 @@ export class ErrorHandler {
         type: error.type || error.name,
         code: error.code,
         context,
-        stack: error.stack
+        stack: error.stack,
       });
     }
 
     // 触发回调
-    this.errorCallbacks.forEach(callback => {
+    this.errorCallbacks.forEach((callback) => {
       try {
         callback(error, context);
       } catch (callbackError) {
-        logger.error('Error callback failed', { callbackError: callbackError.message });
+        logger.error('Error callback failed', {
+          callbackError: callbackError.message,
+        });
       }
     });
 

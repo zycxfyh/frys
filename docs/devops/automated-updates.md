@@ -12,17 +12,17 @@ Dependabot 会自动监控项目依赖的安全漏洞和版本更新，并创建
 # .github/dependabot.yml
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     groups:
       security-updates:
         applies-to: security-updates
       patch-updates:
         applies-to: version-updates
-        update-types: ["patch"]
+        update-types: ['patch']
 ```
 
 ### 支持的依赖类型
@@ -34,21 +34,25 @@ updates:
 ### 更新策略
 
 #### 🔒 安全更新
+
 - 立即处理和合并
 - 自动运行测试验证
 - 自动构建验证
 
 #### 🩹 补丁更新
+
 - 自动合并到主分支
 - 触发 CI/CD 流水线
 - 生成更新日志
 
 #### ⬆️ 次版本更新
+
 - 自动合并 (向后兼容)
 - 触发完整测试套件
 - 构建多架构镜像
 
 #### 🚀 主版本更新
+
 - 需要人工审查
 - 详细的兼容性报告
 - 迁移指南评估
@@ -89,11 +93,11 @@ chore: update dependencies
 
 基于提交类型自动计算版本号：
 
-| 提交类型 | 版本影响 | 示例 |
-|----------|----------|------|
-| `fix:` | 补丁版本 (0.0.x) | 1.2.3 → 1.2.4 |
-| `feat:` | 次版本 (0.x.0) | 1.2.3 → 1.3.0 |
-| `BREAKING CHANGE` | 主版本 (x.0.0) | 1.2.3 → 2.0.0 |
+| 提交类型          | 版本影响         | 示例          |
+| ----------------- | ---------------- | ------------- |
+| `fix:`            | 补丁版本 (0.0.x) | 1.2.3 → 1.2.4 |
+| `feat:`           | 次版本 (0.x.0)   | 1.2.3 → 1.3.0 |
+| `BREAKING CHANGE` | 主版本 (x.0.0)   | 1.2.3 → 2.0.0 |
 
 ### 发布流程
 
@@ -206,20 +210,20 @@ gh release download v1.0.0
 ```yaml
 # 自定义更新频率
 schedule:
-  interval: "daily"
-  time: "08:00"
-  timezone: "Asia/Shanghai"
+  interval: 'daily'
+  time: '08:00'
+  timezone: 'Asia/Shanghai'
 
 # 自定义忽略规则
 ignore:
-  - dependency-name: "webpack"
-    versions: ["5.80.x"] # 已知问题版本
+  - dependency-name: 'webpack'
+    versions: ['5.80.x'] # 已知问题版本
 
 # 自定义分组
 groups:
   dev-dependencies:
-    dependency-type: "development"
-    update-types: ["minor", "patch"]
+    dependency-type: 'development'
+    update-types: ['minor', 'patch']
 ```
 
 ### Semantic Release 自定义配置
@@ -227,12 +231,15 @@ groups:
 ```json
 {
   "plugins": [
-    ["@semantic-release/commit-analyzer", {
-      "releaseRules": [
-        { "type": "perf", "release": "patch" },
-        { "type": "build", "scope": "docker", "release": "patch" }
-      ]
-    }]
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "releaseRules": [
+          { "type": "perf", "release": "patch" },
+          { "type": "build", "scope": "docker", "release": "patch" }
+        ]
+      }
+    ]
   ]
 }
 ```
@@ -242,11 +249,13 @@ groups:
 ### Dependabot 问题
 
 #### PR 未自动创建
+
 - 检查 `.github/dependabot.yml` 语法
 - 验证分支权限设置
 - 确认依赖文件存在
 
 #### 自动合并失败
+
 - 检查 CI/CD 状态
 - 查看测试失败原因
 - 验证构建产物完整性
@@ -254,11 +263,13 @@ groups:
 ### Semantic Release 问题
 
 #### 版本计算错误
+
 - 检查提交信息格式
 - 验证 Conventional Commits 规范
 - 确认分支配置正确
 
 #### 发布失败
+
 - 检查 GitHub Token 权限
 - 验证 `.releaserc.json` 配置
 - 查看 CI/CD 日志
@@ -282,4 +293,4 @@ git push --force-with-lease origin main
 
 ---
 
-*自动化让发布变得简单而可靠！* 🎉
+_自动化让发布变得简单而可靠！_ 🎉

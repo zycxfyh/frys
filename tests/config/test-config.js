@@ -70,9 +70,9 @@ export const TEST_CONFIG = {
 export class TestDataGenerator {
   static generateUser(overrides = {}) {
     return {
-      id: this.generateId(),
-      username: `user_${this.generateId()}`,
-      email: `user${this.generateId()}@test.com`,
+      id: TestDataGenerator.generateId(),
+      username: `user_${TestDataGenerator.generateId()}`,
+      email: `user${TestDataGenerator.generateId()}@test.com`,
       role: 'user',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -82,12 +82,12 @@ export class TestDataGenerator {
 
   static generateTask(overrides = {}) {
     return {
-      id: this.generateId(),
-      title: `Task ${this.generateId()}`,
-      description: `Description for task ${this.generateId()}`,
+      id: TestDataGenerator.generateId(),
+      title: `Task ${TestDataGenerator.generateId()}`,
+      description: `Description for task ${TestDataGenerator.generateId()}`,
       status: 'pending',
       priority: 'medium',
-      assigneeId: this.generateId(),
+      assigneeId: TestDataGenerator.generateId(),
       createdAt: new Date(),
       updatedAt: new Date(),
       ...overrides,
@@ -96,9 +96,9 @@ export class TestDataGenerator {
 
   static generateWorkflow(overrides = {}) {
     return {
-      id: this.generateId(),
-      name: `Workflow ${this.generateId()}`,
-      description: `Workflow description ${this.generateId()}`,
+      id: TestDataGenerator.generateId(),
+      name: `Workflow ${TestDataGenerator.generateId()}`,
+      description: `Workflow description ${TestDataGenerator.generateId()}`,
       status: 'active',
       steps: [],
       createdAt: new Date(),
@@ -112,15 +112,16 @@ export class TestDataGenerator {
   }
 
   static generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
   }
 
   static generateRandomString(length = 10) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < length; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -129,7 +130,7 @@ export class TestDataGenerator {
   }
 
   static generateEmail(domain = 'test.com') {
-    return `${this.generateRandomString(8)}@${domain}`;
+    return `${TestDataGenerator.generateRandomString(8)}@${domain}`;
   }
 
   static generatePhoneNumber() {
@@ -150,7 +151,7 @@ export class TestDataGenerator {
 // 测试工具类
 export class TestUtils {
   static async wait(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   static async retry(fn, maxRetries = 3, delay = 1000) {
@@ -161,7 +162,7 @@ export class TestUtils {
       } catch (error) {
         lastError = error;
         if (i < maxRetries - 1) {
-          await this.wait(delay * (i + 1)); // 指数退避
+          await TestUtils.wait(delay * (i + 1)); // 指数退避
         }
       }
     }
@@ -212,10 +213,10 @@ export class TestUtils {
   static calculateMemoryUsage() {
     const usage = process.memoryUsage();
     return {
-      rss: Math.round(usage.rss / 1024 / 1024 * 100) / 100, // MB
-      heapUsed: Math.round(usage.heapUsed / 1024 / 1024 * 100) / 100, // MB
-      heapTotal: Math.round(usage.heapTotal / 1024 / 1024 * 100) / 100, // MB
-      external: Math.round(usage.external / 1024 / 1024 * 100) / 100, // MB
+      rss: Math.round((usage.rss / 1024 / 1024) * 100) / 100, // MB
+      heapUsed: Math.round((usage.heapUsed / 1024 / 1024) * 100) / 100, // MB
+      heapTotal: Math.round((usage.heapTotal / 1024 / 1024) * 100) / 100, // MB
+      external: Math.round((usage.external / 1024 / 1024) * 100) / 100, // MB
     };
   }
 
@@ -226,9 +227,11 @@ export class TestUtils {
   }
 
   static assertMemoryUsage(maxHeapUsed, label = 'operation') {
-    const memory = this.calculateMemoryUsage();
+    const memory = TestUtils.calculateMemoryUsage();
     if (memory.heapUsed > maxHeapUsed) {
-      throw new Error(`${label} 内存使用过高: ${memory.heapUsed}MB > ${maxHeapUsed}MB`);
+      throw new Error(
+        `${label} 内存使用过高: ${memory.heapUsed}MB > ${maxHeapUsed}MB`,
+      );
     }
   }
 }
@@ -290,8 +293,8 @@ export class SecurityTestUtils {
       { username: 'admin', password: 'admin' },
       { username: 'admin', password: '' },
       { username: '', password: 'admin' },
-      { username: 'admin\' OR \'1\'=\'1', password: 'anything' },
-      { username: 'admin', password: 'admin\' --' },
+      { username: "admin' OR '1'='1", password: 'anything' },
+      { username: 'admin', password: "admin' --" },
       { token: 'invalid.jwt.token' },
       { token: '' },
       { token: null },
@@ -300,7 +303,8 @@ export class SecurityTestUtils {
 
   static fuzzStrings(length = 100, count = 50) {
     const fuzzStrings = [];
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
 
     for (let i = 0; i < count; i++) {
       let str = '';

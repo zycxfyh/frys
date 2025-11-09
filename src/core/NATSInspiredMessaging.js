@@ -3,6 +3,7 @@
  * 借鉴 NATS 的轻量级消息传递和发布订阅模式理念
  */
 
+import { logger } from '../../shared/utils/logger.js';
 import { BaseModule } from './BaseModule.js';
 
 class NATSInspiredMessaging extends BaseModule {
@@ -29,12 +30,12 @@ class NATSInspiredMessaging extends BaseModule {
     this.messages = new Map(); // 已发布的消息
   }
 
-  async onInitialize() {
+  onInitialize() {
     // 初始化消息队列系统
-    console.log('📡 NATS风格消息队列系统已初始化');
+    logger.info('📡 NATS风格消息队列系统已初始化');
   }
 
-  async onDestroy() {
+  onDestroy() {
     // 清理所有连接和订阅
     for (const connection of this.connections.values()) {
       // 模拟连接清理
@@ -47,7 +48,7 @@ class NATSInspiredMessaging extends BaseModule {
     this.connections.clear();
     this.messages.clear();
 
-    console.log('📡 NATS风格消息队列系统已销毁');
+    logger.info('📡 NATS风格消息队列系统已销毁');
   }
 
   /**
@@ -67,12 +68,12 @@ class NATSInspiredMessaging extends BaseModule {
         // 清理连接
         this.connections.delete(connectionId);
         connection.connected = false;
-        console.log(`🔌 连接已关闭: ${connectionId}`);
+        logger.info(`🔌 连接已关闭: ${connectionId}`);
       },
     };
 
     this.connections.set(connectionId, connection);
-    console.log(`🔌 已连接到NATS集群: ${clusterName}`);
+    logger.info(`🔌 已连接到NATS集群: ${clusterName}`);
     return connection;
   }
 
@@ -82,7 +83,7 @@ class NATSInspiredMessaging extends BaseModule {
    * @param {*} message - 消息内容
    * @param {string} connectionId - 连接ID
    */
-  async publish(subject, message, _connectionId = null) {
+  publish(subject, message) {
     const subscribers = this.subscriptions.get(subject) || [];
     const delivered = subscribers.length;
 
@@ -98,7 +99,7 @@ class NATSInspiredMessaging extends BaseModule {
       }
     }
 
-    console.log(`📨 消息已发布: ${subject} -> ${delivered} 个订阅者`);
+    logger.info(`📨 消息已发布: ${subject} -> ${delivered} 个订阅者`);
     return { subject, message, delivered };
   }
 
@@ -123,7 +124,7 @@ class NATSInspiredMessaging extends BaseModule {
     };
 
     this.subscriptions.get(subject).push(subscription);
-    console.log(`📥 订阅已创建: ${subject}`);
+    logger.info(`📥 订阅已创建: ${subject}`);
     return subscription;
   }
 
@@ -145,7 +146,7 @@ class NATSInspiredMessaging extends BaseModule {
     }
 
     subscribers.splice(index, 1);
-    console.log(`📤 订阅已取消: ${subject} (${subscriptionId})`);
+    logger.info(`📤 订阅已取消: ${subject} (${subscriptionId})`);
     return true;
   }
 

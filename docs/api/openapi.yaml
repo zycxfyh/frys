@@ -748,7 +748,7 @@ paths:
                         enum: [accepted]
                   message:
                     type: string
-                    example: "工作流执行已接受"
+                    example: '工作流执行已接受'
                   timestamp:
                     type: string
                     format: date-time

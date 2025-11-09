@@ -16,12 +16,12 @@
 
 ### 系统要求
 
-| 组件 | 版本要求 | 下载地址 |
-|------|----------|----------|
-| **Node.js** | ≥ 16.0.0 | [nodejs.org](https://nodejs.org/) |
-| **npm** | ≥ 8.0.0 | 随 Node.js 安装 |
-| **Git** | ≥ 2.30.0 | [git-scm.com](https://git-scm.com/) |
-| **Redis** | ≥ 6.0 | [redis.io](https://redis.io/) |
+| 组件        | 版本要求 | 下载地址                            |
+| ----------- | -------- | ----------------------------------- |
+| **Node.js** | ≥ 16.0.0 | [nodejs.org](https://nodejs.org/)   |
+| **npm**     | ≥ 8.0.0  | 随 Node.js 安装                     |
+| **Git**     | ≥ 2.30.0 | [git-scm.com](https://git-scm.com/) |
+| **Redis**   | ≥ 6.0    | [redis.io](https://redis.io/)       |
 
 ### 推荐配置
 
@@ -149,35 +149,35 @@ SENTRY_TRACES_SAMPLE_RATE=0.1
 
 #### 核心配置
 
-| 变量名 | 默认值 | 说明 |
-|--------|--------|------|
+| 变量名     | 默认值        | 说明                                     |
+| ---------- | ------------- | ---------------------------------------- |
 | `NODE_ENV` | `development` | 运行环境：development/staging/production |
-| `PORT` | `3000` | 服务器监听端口 |
-| `HOST` | `localhost` | 服务器绑定主机 |
+| `PORT`     | `3000`        | 服务器监听端口                           |
+| `HOST`     | `localhost`   | 服务器绑定主机                           |
 
 #### 数据库配置
 
-| 变量名 | 默认值 | 说明 |
-|--------|--------|------|
-| `DATABASE_URL` | - | PostgreSQL连接字符串 |
-| `DB_SSL` | `false` | 是否启用SSL连接 |
-| `DB_MAX_CONNECTIONS` | `20` | 最大连接数 |
+| 变量名               | 默认值  | 说明                 |
+| -------------------- | ------- | -------------------- |
+| `DATABASE_URL`       | -       | PostgreSQL连接字符串 |
+| `DB_SSL`             | `false` | 是否启用SSL连接      |
+| `DB_MAX_CONNECTIONS` | `20`    | 最大连接数           |
 
 #### Redis 配置
 
-| 变量名 | 默认值 | 说明 |
-|--------|--------|------|
-| `REDIS_URL` | `redis://localhost:6379` | Redis连接URL |
-| `REDIS_PASSWORD` | - | Redis密码（可选） |
-| `REDIS_DB` | `0` | Redis数据库编号 |
+| 变量名           | 默认值                   | 说明              |
+| ---------------- | ------------------------ | ----------------- |
+| `REDIS_URL`      | `redis://localhost:6379` | Redis连接URL      |
+| `REDIS_PASSWORD` | -                        | Redis密码（可选） |
+| `REDIS_DB`       | `0`                      | Redis数据库编号   |
 
 #### JWT 配置
 
-| 变量名 | 默认值 | 说明 |
-|--------|--------|------|
-| `JWT_SECRET` | - | JWT签名密钥（必需） |
-| `JWT_EXPIRES_IN` | `7d` | Access Token过期时间 |
-| `JWT_REFRESH_EXPIRES_IN` | `30d` | Refresh Token过期时间 |
+| 变量名                   | 默认值 | 说明                  |
+| ------------------------ | ------ | --------------------- |
+| `JWT_SECRET`             | -      | JWT签名密钥（必需）   |
+| `JWT_EXPIRES_IN`         | `7d`   | Access Token过期时间  |
+| `JWT_REFRESH_EXPIRES_IN` | `30d`  | Refresh Token过期时间 |
 
 ---
 
@@ -223,7 +223,7 @@ curl http://localhost:3000/api/v1/system/database/status
 
 ### 验证 Redis 连接
 
-```bash
+````bash
 # Redis CLI
 redis-cli -u "$REDIS_URL" ping
 
@@ -249,13 +249,14 @@ nvm use 18
 # Ubuntu/Debian
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt-get install -y nodejs
-```
+````
 
 #### 2. Redis 连接失败
 
 **问题**: `Error: Redis connection failed`
 
 **解决方案**:
+
 ```bash
 # 1. 检查 Redis 是否运行
 redis-cli ping
@@ -279,6 +280,7 @@ redis-cli -u "$REDIS_URL" ping
 **问题**: `Error: Database connection failed`
 
 **解决方案**:
+
 ```bash
 # 1. 检查 PostgreSQL 是否运行
 sudo systemctl status postgresql
@@ -298,6 +300,7 @@ psql "$DATABASE_URL" -c "SELECT 1;"
 **问题**: `Error: Port 3000 is already in use`
 
 **解决方案**:
+
 ```bash
 # 1. 查找占用端口的进程
 lsof -i :3000
@@ -314,6 +317,7 @@ PORT=3001 npm run dev
 **问题**: `npm install` 失败
 
 **解决方案**:
+
 ```bash
 # 1. 清理缓存
 npm cache clean --force
@@ -333,6 +337,7 @@ npm install
 **问题**: `Error: EACCES permission denied`
 
 **解决方案**:
+
 ```bash
 # 修复 npm 权限
 sudo chown -R $(whoami) ~/.npm
@@ -523,6 +528,6 @@ SSL_KEY_PATH=/etc/letsencrypt/live/yourdomain.com/privkey.pem
 
 ---
 
-*最后更新: 2025年11月7日*
+_最后更新: 2025年11月7日_
 
 </div>

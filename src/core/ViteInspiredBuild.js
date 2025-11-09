@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * ViteInspiredBuild 风格的系统
  * 借鉴 Vite 的核心理念
@@ -21,7 +23,7 @@ class ViteInspiredBuild {
    */
   configure(name, config) {
     this.configs.set(name, config);
-    console.log(`⚙️ 构建配置已设置: ${name}`);
+    logger.info(`⚙️ 构建配置已设置: ${name}`);
   }
 
   /**
@@ -31,7 +33,7 @@ class ViteInspiredBuild {
    */
   use(name, plugin) {
     this.plugins.set(name, plugin);
-    console.log(`🔌 构建插件已添加: ${name}`);
+    logger.info(`🔌 构建插件已添加: ${name}`);
   }
 
   /**
@@ -39,7 +41,7 @@ class ViteInspiredBuild {
    * @param {Object} options - 服务器选项
    */
   async dev(options = {}) {
-    console.log(`🚀 启动开发服务器...`);
+    logger.info(`🚀 启动开发服务器...`);
 
     // 模拟开发服务器启动
     this.devServer = {
@@ -53,11 +55,11 @@ class ViteInspiredBuild {
       try {
         await plugin('dev', this.devServer);
       } catch (error) {
-        console.error(`插件 ${name} 执行失败:`, error);
+        logger.error(`插件 ${name} 执行失败:`, error);
       }
     }
 
-    console.log(
+    logger.info(
       `✅ 开发服务器已启动: http://${this.devServer.host}:${this.devServer.port}`,
     );
     return this.devServer;
@@ -68,7 +70,7 @@ class ViteInspiredBuild {
    * @param {Object} options - 构建选项
    */
   async build(options = {}) {
-    console.log(`🔨 开始构建...`);
+    logger.info(`🔨 开始构建...`);
 
     const buildResult = {
       startTime: new Date(),
@@ -97,14 +99,14 @@ class ViteInspiredBuild {
       this.builds.push(buildResult);
 
       if (buildResult.errors.length === 0) {
-        console.log(`✅ 构建完成，耗时: ${buildResult.duration}ms`);
+        logger.info(`✅ 构建完成，耗时: ${buildResult.duration}ms`);
       } else {
-        console.error(`❌ 构建失败，错误数量: ${buildResult.errors.length}`);
+        logger.error(`❌ 构建失败，错误数量: ${buildResult.errors.length}`);
       }
 
       return buildResult;
     } catch (error) {
-      console.error('构建过程中发生错误:', error);
+      logger.error('构建过程中发生错误:', error);
       throw error;
     }
   }
@@ -114,7 +116,7 @@ class ViteInspiredBuild {
    * @param {Object} options - 预览选项
    */
   async preview(options = {}) {
-    console.log(`👀 启动预览服务器...`);
+    logger.info(`👀 启动预览服务器...`);
 
     const previewServer = {
       port: options.port || 4173,
@@ -122,7 +124,7 @@ class ViteInspiredBuild {
       build: this.builds[this.builds.length - 1],
     };
 
-    console.log(
+    logger.info(
       `✅ 预览服务器已启动: http://${previewServer.host}:${previewServer.port}`,
     );
     return previewServer;

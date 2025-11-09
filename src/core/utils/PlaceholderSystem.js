@@ -14,21 +14,46 @@ import { logger } from '../../shared/utils/logger.js';
 
 export class PlaceholderSystem {
   constructor(options = {}) {
-    this.options = {
-      maxDepth: options.maxDepth || 10,        // 最大递归深度
-      enableCaching: options.enableCaching || true, // 启用缓存
-      strictMode: options.strictMode || false,    // 严格模式
-      customFunctions: options.customFunctions || {}, // 自定义函数
-      ...options
-    };
-
-    // 变量缓存
+    this.options = this._initializeOptions(options);
     this.variableCache = new Map();
     this.expressionCache = new Map();
+    this.builtInFunctions = this._initializeBuiltInFunctions();
+    this.functions = {
+      ...this.builtInFunctions,
+      ...this.options.customFunctions,
+    };
+    this._logInitialization();
+  }
 
-    // 内置函数
-    this.builtInFunctions = {
+  _initializeOptions(options) {
+    return {
+      maxDepth: options.maxDepth || 10,
+      enableCaching: options.enableCaching !== false,
+      strictMode: options.strictMode || false,
+      customFunctions: options.customFunctions || {},
+      ...options,
+    };
+  }
+
+  _initializeBuiltInFunctions() {
+    return {
       // 数学函数
+      ...this._getMathFunctions(),
+      // 字符串函数
+      ...this._getStringFunctions(),
+      // 数组函数
+      ...this._getArrayFunctions(),
+      // 逻辑函数
+      ...this._getLogicFunctions(),
+      // 日期时间函数
+      ...this._getDateFunctions(),
+      // 工具函数
+      ...this._getUtilityFunctions(),
+    };
+  }
+
+  _getMathFunctions() {
+    return {
       abs: Math.abs,
       ceil: Math.ceil,
       floor: Math.floor,
@@ -36,37 +61,54 @@ export class PlaceholderSystem {
       max: Math.max,
       min: Math.min,
       random: Math.random,
+    };
+  }
 
-      // 字符串函数
+  _getStringFunctions() {
+    return {
       uppercase: (str) => String(str).toUpperCase(),
       lowercase: (str) => String(str).toLowerCase(),
-      capitalize: (str) => String(str).charAt(0).toUpperCase() + String(str).slice(1).toLowerCase(),
+      capitalize: (str) =>
+        String(str).charAt(0).toUpperCase() +
+        String(str).slice(1).toLowerCase(),
       trim: (str) => String(str).trim(),
       length: (str) => String(str).length,
       substring: (str, start, end) => String(str).substring(start, end),
-      replace: (str, search, replace) => String(str).replace(new RegExp(search, 'g'), replace),
+      replace: (str, search, replace) =>
+        String(str).replace(new RegExp(search, 'g'), replace),
+    };
+  }
 
-      // 数组函数
-      join: (arr, separator = ',') => Array.isArray(arr) ? arr.join(separator) : arr,
+  _getArrayFunctions() {
+    return {
+      join: (arr, separator = ',') =>
+        Array.isArray(arr) ? arr.join(separator) : arr,
       split: (str, separator = ',') => String(str).split(separator),
-      includes: (arr, item) => Array.isArray(arr) ? arr.includes(item) : String(arr).includes(item),
+      includes: (arr, item) =>
+        Array.isArray(arr) ? arr.includes(item) : String(arr).includes(item),
       filter: (arr, condition) => {
-        if (!Array.isArray(arr)) return arr;
-        if (typeof condition !== 'function') return arr;
+        if (!Array.isArray(arr) || typeof condition !== 'function') {
+          return arr;
+        }
         return arr.filter(condition);
       },
       map: (arr, mapper) => {
-        if (!Array.isArray(arr)) return arr;
-        if (typeof mapper !== 'function') return arr;
+        if (!Array.isArray(arr) || typeof mapper !== 'function') {
+          return arr;
+        }
         return arr.map(mapper);
       },
       reduce: (arr, reducer, initial) => {
-        if (!Array.isArray(arr)) return arr;
-        if (typeof reducer !== 'function') return arr;
+        if (!Array.isArray(arr) || typeof reducer !== 'function') {
+          return arr;
+        }
         return arr.reduce(reducer, initial);
       },
+    };
+  }
 
-      // 逻辑函数
+  _getLogicFunctions() {
+    return {
       equals: (a, b) => a === b,
       notequals: (a, b) => a !== b,
       gt: (a, b) => a > b,
@@ -76,56 +118,66 @@ export class PlaceholderSystem {
       and: (...args) => args.every(Boolean),
       or: (...args) => args.some(Boolean),
       not: (value) => !value,
+    };
+  }
 
-      // 日期时间函数
+  _getDateFunctions() {
+    return {
       now: () => new Date(),
       timestamp: () => Date.now(),
-      formatdate: (date, format = 'YYYY-MM-DD') => {
-        let d;
-        if (date instanceof Date) {
-          d = date;
-        } else if (typeof date === 'string' || typeof date === 'number') {
-          d = new Date(date);
-        } else {
-          d = new Date();
-        }
+      formatdate: this._formatDate.bind(this),
+    };
+  }
 
-        if (isNaN(d.getTime())) {
-          return 'Invalid Date';
-        }
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        const hours = String(d.getHours()).padStart(2, '0');
-        const minutes = String(d.getMinutes()).padStart(2, '0');
-        const seconds = String(d.getSeconds()).padStart(2, '0');
+  _formatDate(date, format = 'YYYY-MM-DD') {
+    const d = this._parseDate(date);
+    if (isNaN(d.getTime())) {
+      return 'Invalid Date';
+    }
 
-        return format
-          .replace('YYYY', year)
-          .replace('MM', month)
-          .replace('DD', day)
-          .replace('HH', hours)
-          .replace('mm', minutes)
-          .replace('ss', seconds);
-      },
+    const tokens = {
+      YYYY: d.getFullYear(),
+      MM: String(d.getMonth() + 1).padStart(2, '0'),
+      DD: String(d.getDate()).padStart(2, '0'),
+      HH: String(d.getHours()).padStart(2, '0'),
+      mm: String(d.getMinutes()).padStart(2, '0'),
+      ss: String(d.getSeconds()).padStart(2, '0'),
+    };
 
-      // 工具函数
+    return Object.entries(tokens).reduce(
+      (result, [token, value]) => result.replace(token, value),
+      format,
+    );
+  }
+
+  _parseDate(date) {
+    if (date instanceof Date) {
+      return date;
+    }
+    if (typeof date === 'string' || typeof date === 'number') {
+      return new Date(date);
+    }
+    return new Date();
+  }
+
+  _getUtilityFunctions() {
+    return {
       isEmpty: (value) => value === null || value === undefined || value === '',
       isArray: Array.isArray,
-      isObject: (value) => typeof value === 'object' && value !== null && !Array.isArray(value),
+      isObject: (value) =>
+        typeof value === 'object' && value !== null && !Array.isArray(value),
       typeOf: (value) => typeof value,
       toString: (value) => String(value),
       toNumber: (value) => Number(value),
       toBoolean: (value) => Boolean(value),
     };
+  }
 
-    // 合并自定义函数
-    this.functions = { ...this.builtInFunctions, ...this.options.customFunctions };
-
+  _logInitialization() {
     logger.info('PlaceholderSystem initialized', {
       maxDepth: this.options.maxDepth,
       enableCaching: this.options.enableCaching,
-      strictMode: this.options.strictMode
+      strictMode: this.options.strictMode,
     });
   }
 
@@ -138,51 +190,84 @@ export class PlaceholderSystem {
     }
 
     const opts = { ...this.options, ...options };
-    const cacheKey = this.options.enableCaching ? this.generateCacheKey(input, context) : null;
-
-    // 检查缓存
-    if (cacheKey && this.variableCache.has(cacheKey)) {
-      return this.variableCache.get(cacheKey);
+    const cachedResult = this._getCachedResult(input, context);
+    if (cachedResult !== null) {
+      return cachedResult;
     }
 
     try {
-      let result = input;
-      let depth = 0;
-
-      // 递归处理，直到没有更多占位符或达到最大深度
-      while (this.containsPlaceholders(result) && depth < opts.maxDepth) {
-        result = this.processSinglePass(result, context, opts);
-        depth++;
-
-        if (depth >= opts.maxDepth) {
-          logger.warn('Maximum placeholder resolution depth reached', { input, depth });
-          if (opts.strictMode) {
-            throw new Error(`Maximum placeholder resolution depth (${opts.maxDepth}) exceeded`);
-          }
-        }
-      }
-
-      // 检查是否有未解析的占位符
-      if (opts.strictMode && this.containsPlaceholders(result)) {
-        const unresolved = this.findUnresolvedPlaceholders(result);
-        throw new Error(`Unresolved placeholders found: ${unresolved.join(', ')}`);
-      }
-
-      // 缓存结果
-      if (cacheKey) {
-        this.variableCache.set(cacheKey, result);
-      }
-
+      const result = this._processWithDepthLimit(input, context, opts);
+      this._validateResult(result, opts);
+      this._cacheResult(input, context, result);
       return result;
-
     } catch (error) {
-      logger.error('Placeholder processing failed', { input, error: error.message });
-      if (opts.strictMode) {
-        throw error;
-      }
-      // 在非严格模式下，返回处理后的结果（保留未解析的占位符）
-      return result || input;
+      return this._handleProcessingError(error, input, opts);
     }
+  }
+
+  _getCachedResult(input, context) {
+    if (!this.options.enableCaching) {
+      return null;
+    }
+    const cacheKey = this.generateCacheKey(input, context);
+    return this.variableCache.has(cacheKey)
+      ? this.variableCache.get(cacheKey)
+      : null;
+  }
+
+  _processWithDepthLimit(input, context, opts) {
+    let result = input;
+    let depth = 0;
+
+    while (this.containsPlaceholders(result) && depth < opts.maxDepth) {
+      result = this.processSinglePass(result, context, opts);
+      depth++;
+    }
+
+    if (depth >= opts.maxDepth) {
+      this._handleMaxDepthReached(input, depth, opts);
+    }
+
+    return result;
+  }
+
+  _handleMaxDepthReached(input, depth, opts) {
+    logger.warn('Maximum placeholder resolution depth reached', {
+      input,
+      depth,
+    });
+    if (opts.strictMode) {
+      throw new Error(
+        `Maximum placeholder resolution depth (${opts.maxDepth}) exceeded`,
+      );
+    }
+  }
+
+  _validateResult(result, opts) {
+    if (opts.strictMode && this.containsPlaceholders(result)) {
+      const unresolved = this.findUnresolvedPlaceholders(result);
+      throw new Error(
+        `Unresolved placeholders found: ${unresolved.join(', ')}`,
+      );
+    }
+  }
+
+  _cacheResult(input, context, result) {
+    if (this.options.enableCaching) {
+      const cacheKey = this.generateCacheKey(input, context);
+      this.variableCache.set(cacheKey, result);
+    }
+  }
+
+  _handleProcessingError(error, input, opts) {
+    logger.error('Placeholder processing failed', {
+      input,
+      error: error.message,
+    });
+    if (opts.strictMode) {
+      throw error;
+    }
+    return input;
   }
 
   /**
@@ -194,7 +279,7 @@ export class PlaceholderSystem {
     }
 
     if (Array.isArray(obj)) {
-      return obj.map(item => this.processObject(item, context, options));
+      return obj.map((item) => this.processObject(item, context, options));
     }
 
     const result = {};
@@ -211,10 +296,17 @@ export class PlaceholderSystem {
   processSinglePass(input, context, options) {
     return input.replace(/\{\{([^}]+)\}\}/g, (match, expression) => {
       try {
-        const value = this.evaluateExpression(expression.trim(), context, options);
+        const value = this.evaluateExpression(
+          expression.trim(),
+          context,
+          options,
+        );
         return String(value);
       } catch (error) {
-        logger.warn('Expression evaluation failed', { expression, error: error.message });
+        logger.warn('Expression evaluation failed', {
+          expression,
+          error: error.message,
+        });
         // 在非严格模式下保留原始占位符，在严格模式下抛出错误
         if (options.strictMode) {
           throw error;
@@ -230,7 +322,9 @@ export class PlaceholderSystem {
   evaluateExpression(expression, context, options) {
     // 检查循环引用
     if (this.hasCircularReference(expression, context)) {
-      throw new Error(`Circular reference detected in expression: ${expression}`);
+      throw new Error(
+        `Circular reference detected in expression: ${expression}`,
+      );
     }
 
     // 尝试从缓存获取
@@ -261,9 +355,11 @@ export class PlaceholderSystem {
       }
 
       return result;
-
     } catch (error) {
-      logger.error('Expression evaluation error', { expression, error: error.message });
+      logger.error('Expression evaluation error', {
+        expression,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -290,7 +386,9 @@ export class PlaceholderSystem {
     try {
       return func(...args);
     } catch (error) {
-      throw new Error(`Function ${funcName} execution failed: ${error.message}`);
+      throw new Error(
+        `Function ${funcName} execution failed: ${error.message}`,
+      );
     }
   }
 
@@ -315,9 +413,9 @@ export class PlaceholderSystem {
     const trueBranch = branches[0].trim();
     const falseBranch = branches[1].trim();
 
-    return conditionValue ?
-      this.evaluateExpression(trueBranch, context, options) :
-      this.evaluateExpression(falseBranch, context, options);
+    return conditionValue
+      ? this.evaluateExpression(trueBranch, context, options)
+      : this.evaluateExpression(falseBranch, context, options);
   }
 
   /**
@@ -354,72 +452,129 @@ export class PlaceholderSystem {
     }
 
     // 求值每个参数
-    return args.map(arg => this.evaluateSimpleExpression(arg, context, options));
+    return args.map((arg) =>
+      this.evaluateSimpleExpression(arg, context, options),
+    );
   }
 
   /**
    * 求值简单表达式
    */
   evaluateSimpleExpression(expression, context, options) {
-    // 处理字符串字面量
-    if ((expression.startsWith('"') && expression.endsWith('"')) ||
-        (expression.startsWith("'") && expression.endsWith("'"))) {
+    if (this._isStringLiteral(expression)) {
       return expression.slice(1, -1);
     }
 
-    // 处理数字字面量
-    if (/^-?\d+(\.\d+)?$/.test(expression)) {
+    if (this._isNumberLiteral(expression)) {
       return parseFloat(expression);
     }
 
-    // 处理布尔字面量
-    if (expression === 'true') return true;
-    if (expression === 'false') return false;
-    if (expression === 'null') return null;
-    if (expression === 'undefined') return undefined;
+    const literalValue = this._getBooleanOrNullLiteral(expression);
+    if (literalValue !== undefined) {
+      return literalValue;
+    }
 
-    // 处理比较表达式 (简单的二元操作)
-    if (expression.includes(' >= ') || expression.includes(' <= ') ||
-        expression.includes(' > ') || expression.includes(' < ') ||
-        expression.includes(' === ') || expression.includes(' !== ') ||
-        expression.includes(' == ') || expression.includes(' != ')) {
-
+    if (this._isComparisonExpression(expression)) {
       return this.evaluateComparison(expression, context, options);
     }
 
-    // 处理变量
     return this.resolveVariable(expression, context, options);
+  }
+
+  _isStringLiteral(expression) {
+    return (
+      (expression.startsWith('"') && expression.endsWith('"')) ||
+      (expression.startsWith("'") && expression.endsWith("'"))
+    );
+  }
+
+  _isNumberLiteral(expression) {
+    return /^-?\d+(\.\d+)?$/.test(expression);
+  }
+
+  _getBooleanOrNullLiteral(expression) {
+    const literals = {
+      true: true,
+      false: false,
+      null: null,
+      undefined,
+    };
+    return literals[expression];
+  }
+
+  _isComparisonExpression(expression) {
+    const operators = [
+      ' >= ',
+      ' <= ',
+      ' > ',
+      ' < ',
+      ' === ',
+      ' !== ',
+      ' == ',
+      ' != ',
+    ];
+    return operators.some((op) => expression.includes(op));
   }
 
   /**
    * 求值比较表达式
    */
   evaluateComparison(expression, context, options) {
-    // 支持的比较操作符
     const operators = ['>=', '<=', '>', '<', '===', '!==', '==', '!='];
 
     for (const op of operators) {
-      if (expression.includes(` ${op} `)) {
-        const parts = expression.split(` ${op} `);
-        if (parts.length === 2) {
-          const left = this.evaluateSimpleExpression(parts[0].trim(), context, options);
-          const right = this.evaluateSimpleExpression(parts[1].trim(), context, options);
-
-          switch (op) {
-            case '>=': return left >= right;
-            case '<=': return left <= right;
-            case '>': return left > right;
-            case '<': return left < right;
-            case '===': return left === right;
-            case '!==': return left !== right;
-            case '==': return left == right; // 故意使用 == 而不是 ===
-            case '!=': return left != right; // 故意使用 != 而不是 !==
-          }
-        }
+      const result = this._tryEvaluateWithOperator(
+        expression,
+        op,
+        context,
+        options,
+      );
+      if (result !== null) {
+        return result;
       }
     }
 
     throw new Error(`Invalid comparison expression: ${expression}`);
+  }
+
+  _tryEvaluateWithOperator(expression, operator, context, options) {
+    const separator = ` ${operator} `;
+    if (!expression.includes(separator)) {
+      return null;
+    }
+
+    const parts = expression.split(separator);
+    if (parts.length !== 2) {
+      return null;
+    }
+
+    const left = this.evaluateSimpleExpression(
+      parts[0].trim(),
+      context,
+      options,
+    );
+    const right = this.evaluateSimpleExpression(
+      parts[1].trim(),
+      context,
+      options,
+    );
+
+    return this._applyComparisonOperator(operator, left, right);
+  }
+
+  _applyComparisonOperator(operator, left, right) {
+    const operations = {
+      '>=': () => left >= right,
+      '<=': () => left <= right,
+      '>': () => left > right,
+      '<': () => left < right,
+      '===': () => left === right,
+      '!==': () => left !== right,
+      '==': () => left === right,
+      '!=': () => left !== right,
+    };
+
+    return operations[operator]();
   }
 
   /**
@@ -466,7 +621,7 @@ export class PlaceholderSystem {
    */
   findUnresolvedPlaceholders(str) {
     const matches = str.match(/\{\{([^}]+)\}\}/g);
-    return matches ? matches.map(match => match.slice(2, -2).trim()) : [];
+    return matches ? matches.map((match) => match.slice(2, -2).trim()) : [];
   }
 
   /**
@@ -484,7 +639,13 @@ export class PlaceholderSystem {
       const variables = this.extractVariables(expression);
       for (const variable of variables) {
         if (this.containsPlaceholders(String(context[variable] || ''))) {
-          if (this.hasCircularReference(context[variable], context, new Set(visited))) {
+          if (
+            this.hasCircularReference(
+              context[variable],
+              context,
+              new Set(visited),
+            )
+          ) {
             return true;
           }
         }
@@ -502,9 +663,11 @@ export class PlaceholderSystem {
     const variables = new Set();
 
     // 简单的变量提取（不完整，但对循环引用检测足够）
-    const varMatch = expression.match(/\b[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*\b/g);
+    const varMatch = expression.match(
+      /\b[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*\b/g,
+    );
     if (varMatch) {
-      varMatch.forEach(match => {
+      varMatch.forEach((match) => {
         if (!this.functions[match.split('.')[0]]) {
           variables.add(match.split('.')[0]);
         }
@@ -550,10 +713,10 @@ export class PlaceholderSystem {
     return {
       cacheSize: {
         variables: this.variableCache.size,
-        expressions: this.expressionCache.size
+        expressions: this.expressionCache.size,
       },
       functions: Object.keys(this.functions).length,
-      options: this.options
+      options: this.options,
     };
   }
 }

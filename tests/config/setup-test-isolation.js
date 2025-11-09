@@ -3,10 +3,10 @@
  * 确保测试间的完全隔离，防止状态污染
  */
 
-import { beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,7 +50,7 @@ class TestIsolationManager {
     if (!ISOLATION_CONFIG.resetEnvironment) return;
 
     // 重置环境变量
-    Object.keys(process.env).forEach(key => {
+    Object.keys(process.env).forEach((key) => {
       if (!(key in globalTestState.environmentBackup)) {
         delete process.env[key];
       } else {
@@ -63,7 +63,7 @@ class TestIsolationManager {
     if (!ISOLATION_CONFIG.cleanupTempFiles) return;
 
     // 清理测试期间创建的临时文件
-    globalTestState.tempFiles.forEach(filePath => {
+    globalTestState.tempFiles.forEach((filePath) => {
       try {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
@@ -79,7 +79,7 @@ class TestIsolationManager {
     if (!ISOLATION_CONFIG.cleanupTimers) return;
 
     // 清理未清理的定时器
-    globalTestState.timers.forEach(timerId => {
+    globalTestState.timers.forEach((timerId) => {
       try {
         clearTimeout(timerId);
         clearInterval(timerId);
@@ -107,7 +107,7 @@ class TestIsolationManager {
     if (!ISOLATION_CONFIG.cleanupCache) return;
 
     // 清理Node.js模块缓存
-    Object.keys(require.cache).forEach(key => {
+    Object.keys(require.cache).forEach((key) => {
       if (key.includes('test') || key.includes('spec')) {
         delete require.cache[key];
       }
@@ -119,7 +119,7 @@ class TestIsolationManager {
       path.join(rootDir, 'coverage', 'cache'),
     ];
 
-    cacheDirs.forEach(dir => {
+    cacheDirs.forEach((dir) => {
       try {
         if (fs.existsSync(dir)) {
           fs.rmSync(dir, { recursive: true, force: true });
@@ -166,12 +166,12 @@ class TestIsolationManager {
 
   static async isolate() {
     // 执行完整的隔离清理
-    await this.cleanupDatabase();
-    this.cleanupTempFiles();
-    this.cleanupTimers();
-    this.resetEnvironment();
-    this.resetSingletons();
-    this.cleanupCache();
+    await TestIsolationManager.cleanupDatabase();
+    TestIsolationManager.cleanupTempFiles();
+    TestIsolationManager.cleanupTimers();
+    TestIsolationManager.resetEnvironment();
+    TestIsolationManager.resetSingletons();
+    TestIsolationManager.cleanupCache();
 
     // 强制垃圾回收（如果可用）
     if (global.gc) {
@@ -224,7 +224,7 @@ afterEach(async (context) => {
 
   if (isolation) {
     // 清理临时文件
-    isolation.tempFiles.forEach(filePath => {
+    isolation.tempFiles.forEach((filePath) => {
       try {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
@@ -242,7 +242,7 @@ afterEach(async (context) => {
     });
 
     // 清理spies
-    isolation.spies.forEach(spy => {
+    isolation.spies.forEach((spy) => {
       if (typeof spy.restore === 'function') {
         spy.restore();
       }

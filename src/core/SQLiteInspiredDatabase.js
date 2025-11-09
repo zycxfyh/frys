@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * SQLite 风格的轻量数据库
  * 借鉴 SQLite 的嵌入式数据库和ACID事务理念
@@ -9,10 +11,10 @@ class SQLiteInspiredDatabase {
     this.tables = new Map();
     this.data = new Map();
     this.connected = true;
-    console.log(`��� SQLite数据库已创建: ${filename}`);
+    logger.info(`��� SQLite数据库已创建: ${filename}`);
   }
 
-  async createTable(tableName, schema) {
+  createTable(tableName, schema) {
     const table = {
       name: tableName,
       schema,
@@ -22,11 +24,11 @@ class SQLiteInspiredDatabase {
     };
 
     this.tables.set(tableName, table);
-    console.log(`��� 表已创建: ${tableName} (${schema.columns.length} 列)`);
+    logger.info(`��� 表已创建: ${tableName} (${schema.columns.length} 列)`);
     return table;
   }
 
-  async insert(tableName, data) {
+  insert(tableName, data) {
     const table = this.tables.get(tableName);
     if (!table) {
       throw new Error(`Table ${tableName} not found`);
@@ -40,11 +42,11 @@ class SQLiteInspiredDatabase {
     };
 
     table.records.push(record);
-    console.log(`��� 数据已插入: ${tableName}`);
+    logger.info(`��� 数据已插入: ${tableName}`);
     return record;
   }
 
-  async select(tableName, conditions = {}) {
+  select(tableName, conditions = {}) {
     const table = this.tables.get(tableName);
     if (!table) {
       throw new Error(`Table ${tableName} not found`);
@@ -60,7 +62,7 @@ class SQLiteInspiredDatabase {
       });
     }
 
-    console.log(`��� 查询 ${tableName}: 找到 ${results.length} 行`);
+    logger.info(`��� 查询 ${tableName}: 找到 ${results.length} 行`);
     return results;
   }
 

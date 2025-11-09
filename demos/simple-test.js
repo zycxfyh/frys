@@ -24,7 +24,9 @@ if (result.length > 0) {
 
 // 测试格式化
 console.log('\n📤 测试格式化:');
-const formatted = parser.formatInstruction('CalculatorTool', { expression: '2+3*4' });
+const formatted = parser.formatInstruction('CalculatorTool', {
+  expression: '2+3*4',
+});
 console.log('格式化结果:', formatted);
 
 // 测试解析格式化后的指令

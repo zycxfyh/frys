@@ -3,11 +3,11 @@
  * 提供多轮对话管理、上下文保持和记忆集成
  */
 
-// AI服务将在运行时通过插件系统注入
-import { logger } from '../../shared/utils/logger.js';
-import { config } from '../../shared/utils/config.js';
 import { errorHandler } from '../../core/ErrorHandlerConfig.js';
 import { eventSystem } from '../../core/event/EventBus.js';
+import { config } from '../../shared/utils/config.js';
+// AI服务将在运行时通过插件系统注入
+import { logger } from '../../shared/utils/logger.js';
 
 export class ConversationManager {
   constructor(options = {}) {
@@ -46,7 +46,9 @@ export class ConversationManager {
         openai: !!config.ai.providers.openai?.apiKey,
         claude: !!config.ai.providers.claude?.apiKey,
         gemini: !!config.ai.providers.gemini?.apiKey,
+        deepseek: !!config.ai.providers.deepseek?.apiKey,
         openaiKey: `${config.ai.providers.openai?.apiKey?.substring(0, 10)}...`,
+        deepseekKey: `${config.ai.providers.deepseek?.apiKey?.substring(0, 10)}...`,
       });
 
       // 初始化LangChain服务 - 在测试模式下总是初始化
@@ -58,10 +60,17 @@ export class ConversationManager {
         config.ai.providers.openai?.apiKey ||
         config.ai.providers.claude?.apiKey ||
         config.ai.providers.gemini?.apiKey ||
+        config.ai.providers.deepseek?.apiKey ||
         isTestMode
       ) {
-        this.langChainService = new LangChainService(options.langChain);
-        logger.info('LangChain服务集成成功');
+        try {
+          const { LangChainService } = await import('./ai/LangChainService.js');
+          this.langChainService = new LangChainService(options.langChain);
+          logger.info('LangChain服务集成成功');
+        } catch (error) {
+          logger.error('LangChain服务初始化失败', error);
+          this.langChainService = null;
+        }
       }
 
       // 初始化Cognee记忆服务

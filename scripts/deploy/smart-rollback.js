@@ -5,39 +5,43 @@
  * 集成智能回退管理系统，提供命令行接口
  */
 
-import SmartRollbackManager from '../src/core/SmartRollbackManager.js';
-import { logger } from '../src/utils/logger.js';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import SmartRollbackManager from '../src/core/SmartRollbackManager.js';
+import { logger } from '../src/utils/logger.js';
 
 class SmartRollbackCoordinator {
   constructor(options = {}) {
     this.options = {
-      environment: options.environment || process.env.DEPLOY_ENV || 'production',
-      healthCheckUrl: options.healthCheckUrl || process.env.HEALTH_CHECK_URL || 'http://localhost:3000/health',
+      environment:
+        options.environment || process.env.DEPLOY_ENV || 'production',
+      healthCheckUrl:
+        options.healthCheckUrl ||
+        process.env.HEALTH_CHECK_URL ||
+        'http://localhost:3000/health',
       enableAutoRollback: options.enableAutoRollback !== false,
       monitoringMode: options.monitoringMode || false,
-      ...options
+      ...options,
     };
 
     this.rollbackManager = new SmartRollbackManager({
       environment: this.options.environment,
       healthCheckUrl: this.options.healthCheckUrl,
-      enableAutoRollback: this.options.enableAutoRollback
+      enableAutoRollback: this.options.enableAutoRollback,
     });
 
     this.rollbackStats = {
       totalRollbacks: 0,
       successfulRollbacks: 0,
       failedRollbacks: 0,
-      averageRollbackTime: 0
+      averageRollbackTime: 0,
     };
 
     logger.info('🎯 智能回退协调器已初始化', {
       environment: this.options.environment,
       autoRollback: this.options.enableAutoRollback,
-      monitoringMode: this.options.monitoringMode
+      monitoringMode: this.options.monitoringMode,
     });
   }
 
@@ -86,13 +90,19 @@ class SmartRollbackCoordinator {
   /**
    * 执行手动回退
    */
-  async executeManualRollback(strategy = 'environment_switch', reason = 'manual') {
+  async executeManualRollback(
+    strategy = 'environment_switch',
+    reason = 'manual',
+  ) {
     const startTime = Date.now();
 
     logger.info(`执行手动回退: ${strategy}`, { reason });
 
     try {
-      const success = await this.rollbackManager.manualRollback(strategy, reason);
+      const success = await this.rollbackManager.manualRollback(
+        strategy,
+        reason,
+      );
 
       const duration = Date.now() - startTime;
       this.updateRollbackStats(success, duration);
@@ -101,7 +111,7 @@ class SmartRollbackCoordinator {
         logger.info(`✅ 手动回退成功完成`, {
           strategy,
           reason,
-          duration: `${duration}ms`
+          duration: `${duration}ms`,
         });
 
         await this.postRollbackVerification();
@@ -131,7 +141,7 @@ class SmartRollbackCoordinator {
     logger.info('健康状态检查完成', {
       status: healthStatus.status,
       consecutiveFailures: healthStatus.consecutiveFailures,
-      isRollingBack: healthStatus.isRollingBack
+      isRollingBack: healthStatus.isRollingBack,
     });
 
     return healthStatus;
@@ -146,7 +156,7 @@ class SmartRollbackCoordinator {
     try {
       await this.rollbackManager.triggerEmergencyRollback(reason, {
         triggeredBy: 'coordinator',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       logger.warn('紧急回退已执行');
@@ -190,7 +200,7 @@ class SmartRollbackCoordinator {
     try {
       const response = await fetch(this.options.healthCheckUrl, {
         timeout: 10000,
-        headers: { 'User-Agent': 'SmartRollback-Verification' }
+        headers: { 'User-Agent': 'SmartRollback-Verification' },
       });
 
       if (response.ok) {
@@ -198,19 +208,19 @@ class SmartRollbackCoordinator {
         return {
           healthy: healthData.status === 'healthy',
           responseTime: Date.now() - Date.parse(healthData.timestamp),
-          data: healthData
+          data: healthData,
         };
       } else {
         return {
           healthy: false,
           statusCode: response.status,
-          error: `Health check returned ${response.status}`
+          error: `Health check returned ${response.status}`,
         };
       }
     } catch (error) {
       return {
         healthy: false,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -228,8 +238,12 @@ class SmartRollbackCoordinator {
     }
 
     // 更新平均回退时间
-    const totalTime = this.rollbackStats.averageRollbackTime * (this.rollbackStats.totalRollbacks - 1) + duration;
-    this.rollbackStats.averageRollbackTime = totalTime / this.rollbackStats.totalRollbacks;
+    const totalTime =
+      this.rollbackStats.averageRollbackTime *
+        (this.rollbackStats.totalRollbacks - 1) +
+      duration;
+    this.rollbackStats.averageRollbackTime =
+      totalTime / this.rollbackStats.totalRollbacks;
   }
 
   /**
@@ -247,7 +261,7 @@ class SmartRollbackCoordinator {
       successfulRollbacks: this.rollbackStats.successfulRollbacks,
       failedRollbacks: this.rollbackStats.failedRollbacks,
       averageRollbackTime: `${Math.round(this.rollbackStats.averageRollbackTime)}ms`,
-      recentRollbacks: rollbackHistory.slice(-5).length
+      recentRollbacks: rollbackHistory.slice(-5).length,
     });
   }
 
@@ -263,12 +277,15 @@ class SmartRollbackCoordinator {
       coordinator: {
         environment: this.options.environment,
         autoRollbackEnabled: this.options.enableAutoRollback,
-        monitoringMode: this.options.monitoringMode
+        monitoringMode: this.options.monitoringMode,
       },
       healthStatus,
       rollbackStats: this.rollbackStats,
       rollbackHistory: rollbackHistory.slice(-10), // 最近10条记录
-      recommendations: this.generateRecommendations(healthStatus, rollbackHistory)
+      recommendations: this.generateRecommendations(
+        healthStatus,
+        rollbackHistory,
+      ),
     };
 
     return report;
@@ -285,7 +302,7 @@ class SmartRollbackCoordinator {
       recommendations.push({
         type: 'critical',
         message: '连续失败次数过多，建议检查系统配置和外部依赖',
-        action: 'investigate_system_configuration'
+        action: 'investigate_system_configuration',
       });
     }
 
@@ -293,33 +310,35 @@ class SmartRollbackCoordinator {
       recommendations.push({
         type: 'urgent',
         message: '系统健康状态不佳，建议立即执行回退',
-        action: 'execute_rollback'
+        action: 'execute_rollback',
       });
     }
 
     // 基于回退历史的建议
-    const recentRollbacks = rollbackHistory.filter(r =>
-      Date.now() - new Date(r.timestamp) < 24 * 60 * 60 * 1000 // 24小时内
+    const recentRollbacks = rollbackHistory.filter(
+      (r) => Date.now() - new Date(r.timestamp) < 24 * 60 * 60 * 1000, // 24小时内
     );
 
     if (recentRollbacks.length > 3) {
       recommendations.push({
         type: 'warning',
         message: '24小时内回退次数过多，建议检查代码质量和部署流程',
-        action: 'review_deployment_process'
+        action: 'review_deployment_process',
       });
     }
 
     // 基于成功率的建议
-    const successRate = this.rollbackStats.totalRollbacks > 0
-      ? this.rollbackStats.successfulRollbacks / this.rollbackStats.totalRollbacks
-      : 1;
+    const successRate =
+      this.rollbackStats.totalRollbacks > 0
+        ? this.rollbackStats.successfulRollbacks /
+          this.rollbackStats.totalRollbacks
+        : 1;
 
     if (successRate < 0.8) {
       recommendations.push({
         type: 'info',
         message: '回退成功率较低，建议优化回退策略和验证流程',
-        action: 'optimize_rollback_strategies'
+        action: 'optimize_rollback_strategies',
       });
     }
 
@@ -345,7 +364,7 @@ class SmartRollbackCoordinator {
    * 延迟函数
    */
   delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -405,35 +424,43 @@ frys 智能回退协调器
           await this.startMonitoring();
           break;
 
-        case 'rollback':
+        case 'rollback': {
           const strategy = args[1] || 'environment_switch';
-          const reason = args.find(arg => arg.startsWith('--reason='))?.split('=')[1] || 'manual';
+          const reason =
+            args.find((arg) => arg.startsWith('--reason='))?.split('=')[1] ||
+            'manual';
           const success = await this.executeManualRollback(strategy, reason);
           process.exit(success ? 0 : 1);
           break;
+        }
 
-        case 'emergency':
+        case 'emergency': {
           const emergencyReason = args[1] || 'emergency';
-          const emergencySuccess = await this.executeEmergencyRollback(emergencyReason);
+          const emergencySuccess =
+            await this.executeEmergencyRollback(emergencyReason);
           process.exit(emergencySuccess ? 0 : 1);
           break;
+        }
 
-        case 'health':
+        case 'health': {
           const healthResult = await this.checkSystemHealth();
           console.log(JSON.stringify(healthResult, null, 2));
           process.exit(healthResult.healthy ? 0 : 1);
           break;
+        }
 
-        case 'status':
+        case 'status': {
           this.reportStatus();
           const status = this.rollbackManager.getHealthStatus();
           console.log(JSON.stringify(status, null, 2));
           break;
+        }
 
-        case 'report':
+        case 'report': {
           const report = this.generateRollbackReport();
           console.log(JSON.stringify(report, null, 2));
           break;
+        }
 
         default:
           console.error(`未知命令: ${command}`);
@@ -452,7 +479,7 @@ const coordinator = new SmartRollbackCoordinator();
 
 // 解析命令行参数
 const args = process.argv.slice(2);
-let parsedOptions = {};
+const parsedOptions = {};
 
 for (let i = 0; i < args.length; i++) {
   const arg = args[i];
@@ -468,7 +495,7 @@ for (let i = 0; i < args.length; i++) {
 }
 
 const finalCoordinator = new SmartRollbackCoordinator(parsedOptions);
-finalCoordinator.run().catch(error => {
+finalCoordinator.run().catch((error) => {
   console.error('智能回退协调器运行失败:', error);
   process.exit(1);
 });

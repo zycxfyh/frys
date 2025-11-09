@@ -5,10 +5,10 @@
 
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import { User, Email, Username } from '../../entities/auth/User.js';
-import { JWTPayload, TokenPair, Session } from '../../entities/auth/Token.js';
-import { logger } from '../../../shared/utils/logger.js';
 import UUIDInspiredId from '../../../core/UUIDInspiredId.js';
+import { logger } from '../../../shared/utils/logger.js';
+import { JWTPayload, Session, TokenPair } from '../../entities/auth/Token.js';
+import { Email, User, Username } from '../../entities/auth/User.js';
 
 export class AuthenticationService {
   constructor(options = {}) {
@@ -26,6 +26,11 @@ export class AuthenticationService {
       sessionTimeout: options.sessionTimeout || 24 * 60 * 60 * 1000, // 24小时
       ...options,
     };
+
+    // 依赖注入的仓库
+    this.userRepository = options.userRepository;
+    this.tokenRepository = options.tokenRepository;
+    this.sessionRepository = options.sessionRepository;
 
     this.loginAttempts = new Map(); // 用户登录尝试计数
     this.idGenerator = new UUIDInspiredId(); // ID生成器

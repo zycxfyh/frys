@@ -4,9 +4,9 @@
  * 修复测试文件中的导入路径问题
  */
 
+import { execSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
 
 const __dirname = process.cwd();
 
@@ -28,7 +28,8 @@ function fixImportPath(filePath) {
   const content = readFileSync(fullPath, 'utf8');
 
   // 查找错误的导入语句
-  const importRegex = /import \{\s*setupStrictTestEnvironment[^}]*\} from ['"]([^'"]*)['"]/;
+  const importRegex =
+    /import \{\s*setupStrictTestEnvironment[^}]*\} from ['"]([^'"]*)['"]/;
   const match = content.match(importRegex);
 
   if (match) {
@@ -44,7 +45,7 @@ function fixImportPath(filePath) {
   strictAssert,
   withTimeout,
   createDetailedErrorReporter
-} from '${correctPath}'`
+} from '${correctPath}'`,
       );
 
       writeFileSync(fullPath, newContent, 'utf8');
@@ -63,7 +64,9 @@ function main() {
   console.log('🔧 开始修复测试文件导入路径...\n');
 
   // 获取所有测试文件
-  const testFiles = execSync('find tests -name "*.test.js"', { encoding: 'utf8' })
+  const testFiles = execSync('find tests -name "*.test.js"', {
+    encoding: 'utf8',
+  })
     .trim()
     .split('\n')
     .filter(Boolean);

@@ -6,8 +6,8 @@
 import axios from 'axios';
 import http from 'http';
 import https from 'https';
-import { AbstractResourcePool } from './AbstractResourcePool.js';
 import { logger } from '../../shared/utils/logger.js';
+import { AbstractResourcePool } from './AbstractResourcePool.js';
 
 export class HttpClientPool extends AbstractResourcePool {
   constructor(options = {}) {

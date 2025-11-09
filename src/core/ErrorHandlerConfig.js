@@ -5,8 +5,8 @@
 
 import * as Sentry from '@sentry/node';
 import * as Profiling from '@sentry/profiling-node';
-import { logger } from '../shared/utils/logger.js';
 import { config } from '../shared/utils/config.js';
+import { logger } from '../shared/utils/logger.js';
 
 // Sentry 配置 - 只有在配置了DSN时才启用
 const SENTRY_CONFIG = config.sentry?.dsn
@@ -32,7 +32,7 @@ const SENTRY_CONFIG = config.sentry?.dsn
       debug: config.env === 'development',
 
       // 敏感数据过滤
-      beforeSend(event, hint) {
+      beforeSend(event) {
         // 过滤敏感信息
         if (event.request) {
           if (event.request.headers) {
@@ -134,7 +134,7 @@ class ErrorHandler {
   /**
    * 初始化错误处理器
    */
-  async initialize() {
+  initialize() {
     initializeSentry();
     this.setupGlobalHandlers();
     this.initialized = true;
@@ -319,7 +319,7 @@ class ErrorHandler {
   /**
    * 健康检查
    */
-  async healthCheck() {
+  healthCheck() {
     return {
       healthy: true,
       sentry: {

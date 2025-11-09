@@ -3,6 +3,7 @@
  * 借鉴 Day.js 的轻量日期处理、Moment.js替代和格式化理念
  */
 
+import { logger } from '../../shared/utils/logger.js';
 import { BaseModule } from './BaseModule.js';
 
 class DayJSInspiredDate extends BaseModule {
@@ -22,18 +23,18 @@ class DayJSInspiredDate extends BaseModule {
     this.plugins = new Map();
   }
 
-  async onInitialize() {
+  onInitialize() {
     this.formats = new Map(); // 格式
     this.locales = new Map(); // 语言环境
     this.plugins = new Map(); // 插件
-    console.log('📅 Day.js风格日期处理模块已初始化');
+    logger.info('📅 Day.js风格日期处理模块已初始化');
   }
 
-  async onDestroy() {
+  onDestroy() {
     this.formats.clear();
     this.locales.clear();
     this.plugins.clear();
-    console.log('📅 Day.js风格日期处理模块已销毁');
+    logger.info('📅 Day.js风格日期处理模块已销毁');
   }
 
   /**
@@ -66,7 +67,7 @@ class DayJSInspiredDate extends BaseModule {
       isValid: () => !isNaN(date.getTime()),
     };
 
-    console.log(`📅 日期对象已创建: ${dateId}`);
+    logger.info(`📅 日期对象已创建: ${dateId}`);
     return dateObj;
   }
 
@@ -107,33 +108,35 @@ class DayJSInspiredDate extends BaseModule {
    */
   addDate(date, amount, unit) {
     const newDate = new Date(date);
-    switch (unit) {
-      case 'year':
-      case 'years':
-        newDate.setFullYear(newDate.getFullYear() + amount);
-        break;
-      case 'month':
-      case 'months':
-        newDate.setMonth(newDate.getMonth() + amount);
-        break;
-      case 'day':
-      case 'days':
-        newDate.setDate(newDate.getDate() + amount);
-        break;
-      case 'hour':
-      case 'hours':
-        newDate.setHours(newDate.getHours() + amount);
-        break;
-      case 'minute':
-      case 'minutes':
-        newDate.setMinutes(newDate.getMinutes() + amount);
-        break;
-      case 'second':
-      case 'seconds':
-        newDate.setSeconds(newDate.getSeconds() + amount);
-        break;
-    }
+    this._applyDateUnit(newDate, amount, unit);
     return this.day(newDate);
+  }
+
+  /**
+   * 应用日期单位修改
+   * @private
+   */
+  _applyDateUnit(date, amount, unit) {
+    const unitMap = {
+      year: 'setFullYear',
+      years: 'setFullYear',
+      month: 'setMonth',
+      months: 'setMonth',
+      day: 'setDate',
+      days: 'setDate',
+      hour: 'setHours',
+      hours: 'setHours',
+      minute: 'setMinutes',
+      minutes: 'setMinutes',
+      second: 'setSeconds',
+      seconds: 'setSeconds',
+    };
+
+    const method = unitMap[unit];
+    if (method) {
+      const currentValue = date[`get${method.slice(3)}`]();
+      date[method](currentValue + amount);
+    }
   }
 
   /**
@@ -156,29 +159,31 @@ class DayJSInspiredDate extends BaseModule {
    */
   diffDate(date1, date2, unit = 'day') {
     const diffMs = date1.getTime() - date2.getTime();
+    return this._calculateDateDiff(diffMs, unit);
+  }
 
-    switch (unit) {
-      case 'year':
-      case 'years':
-        return Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365));
-      case 'month':
-      case 'months':
-        return Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30));
-      case 'day':
-      case 'days':
-        return Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      case 'hour':
-      case 'hours':
-        return Math.floor(diffMs / (1000 * 60 * 60));
-      case 'minute':
-      case 'minutes':
-        return Math.floor(diffMs / (1000 * 60));
-      case 'second':
-      case 'seconds':
-        return Math.floor(diffMs / 1000);
-      default:
-        return diffMs;
-    }
+  /**
+   * 计算日期差值
+   * @private
+   */
+  _calculateDateDiff(diffMs, unit) {
+    const unitDivisors = {
+      year: 1000 * 60 * 60 * 24 * 365,
+      years: 1000 * 60 * 60 * 24 * 365,
+      month: 1000 * 60 * 60 * 24 * 30,
+      months: 1000 * 60 * 60 * 24 * 30,
+      day: 1000 * 60 * 60 * 24,
+      days: 1000 * 60 * 60 * 24,
+      hour: 1000 * 60 * 60,
+      hours: 1000 * 60 * 60,
+      minute: 1000 * 60,
+      minutes: 1000 * 60,
+      second: 1000,
+      seconds: 1000,
+    };
+
+    const divisor = unitDivisors[unit];
+    return divisor ? Math.floor(diffMs / divisor) : diffMs;
   }
 
   /**
@@ -208,7 +213,7 @@ class DayJSInspiredDate extends BaseModule {
    */
   extend(name, plugin) {
     this.plugins.set(name, plugin);
-    console.log(`🔌 插件已扩展: ${name}`);
+    logger.info(`🔌 插件已扩展: ${name}`);
   }
 
   /**

@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,13 +11,13 @@ import {
  * 测试完整的用户工作流程：认证 -> 数据处理 -> 状态管理 -> 消息传递
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
+import DayJSInspiredDate from '../../src/core/DayJSInspiredDate.js';
 import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
-import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
 import LodashInspiredUtils from '../../src/core/LodashInspiredUtils.js';
 import NATSInspiredMessaging from '../../src/core/NATSInspiredMessaging.js';
-import DayJSInspiredDate from '../../src/core/DayJSInspiredDate.js';
+import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
 
 describe('端到端工作流测试', () => {
   let http, jwt, state, utils, messaging, date;
@@ -45,7 +45,7 @@ describe('端到端工作流测试', () => {
     // 创建HTTP实例
     httpInstance = http.create({
       baseURL: 'https://api.workflow.local',
-      timeout: 10000
+      timeout: 10000,
     });
 
     // 创建消息队列连接
@@ -72,110 +72,126 @@ describe('端到端工作流测试', () => {
       stats: {
         totalWorkflows: 0,
         completedTasks: 0,
-        activeUsers: 0
+        activeUsers: 0,
       },
 
       // Actions
       login: (credentials) => {
-        const token = jwt.generateToken({
-          userId: credentials.userId,
-          username: credentials.username,
-          role: credentials.role || 'user'
-        }, 'workflow-key', { expiresIn: 3600 });
+        const token = jwt.generateToken(
+          {
+            userId: credentials.userId,
+            username: credentials.username,
+            role: credentials.role || 'user',
+          },
+          'workflow-key',
+          { expiresIn: 3600 },
+        );
 
         set({
           currentUser: {
             id: credentials.userId,
             username: credentials.username,
-            role: credentials.role || 'user'
+            role: credentials.role || 'user',
           },
           isAuthenticated: true,
           sessionToken: token,
-          lastActivity: Date.now()
+          lastActivity: Date.now(),
         });
 
         return token;
       },
 
-      logout: () => set({
-        currentUser: null,
-        isAuthenticated: false,
-        sessionToken: null
-      }),
+      logout: () =>
+        set({
+          currentUser: null,
+          isAuthenticated: false,
+          sessionToken: null,
+        }),
 
-      createWorkflow: (workflowData) => set(state => {
-        const workflowId = `wf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        const workflow = {
-          id: workflowId,
-          ...workflowData,
-          createdAt: Date.now(),
-          status: 'draft',
-          createdBy: state.currentUser?.id
-        };
+      createWorkflow: (workflowData) =>
+        set((state) => {
+          const workflowId = `wf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          const workflow = {
+            id: workflowId,
+            ...workflowData,
+            createdAt: Date.now(),
+            status: 'draft',
+            createdBy: state.currentUser?.id,
+          };
 
-        const newWorkflows = new Map(state.workflows);
-        newWorkflows.set(workflowId, workflow);
+          const newWorkflows = new Map(state.workflows);
+          newWorkflows.set(workflowId, workflow);
 
-        return {
-          workflows: newWorkflows,
+          return {
+            workflows: newWorkflows,
+            stats: {
+              ...state.stats,
+              totalWorkflows: state.stats.totalWorkflows + 1,
+            },
+            lastActivity: Date.now(),
+          };
+        }),
+
+      addTask: (taskData) =>
+        set((state) => ({
+          tasks: [
+            ...(state.tasks || []),
+            {
+              id: `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              ...taskData,
+              createdAt: Date.now(),
+              status: 'pending',
+              createdBy: state.currentUser?.id,
+            },
+          ],
+          lastActivity: Date.now(),
+        })),
+
+      completeTask: (taskId) =>
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === taskId
+              ? { ...task, status: 'completed', completedAt: Date.now() }
+              : task,
+          ),
           stats: {
             ...state.stats,
-            totalWorkflows: state.stats.totalWorkflows + 1
+            completedTasks: state.stats.completedTasks + 1,
           },
-          lastActivity: Date.now()
-        };
-      }),
+          lastActivity: Date.now(),
+        })),
 
-      addTask: (taskData) => set(state => ({
-        tasks: [...(state.tasks || []), {
-          id: `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          ...taskData,
-          createdAt: Date.now(),
-          status: 'pending',
-          createdBy: state.currentUser?.id
-        }],
-        lastActivity: Date.now()
-      })),
+      addNotification: (notification) =>
+        set((state) => ({
+          notifications: [
+            ...state.notifications,
+            {
+              id: `notif_${Date.now()}`,
+              ...notification,
+              timestamp: Date.now(),
+              read: false,
+            },
+          ],
+          lastActivity: Date.now(),
+        })),
 
-      completeTask: (taskId) => set(state => ({
-        tasks: state.tasks.map(task =>
-          task.id === taskId
-            ? { ...task, status: 'completed', completedAt: Date.now() }
-            : task
-        ),
-        stats: {
-          ...state.stats,
-          completedTasks: state.stats.completedTasks + 1
-        },
-        lastActivity: Date.now()
-      })),
-
-      addNotification: (notification) => set(state => ({
-        notifications: [...state.notifications, {
-          id: `notif_${Date.now()}`,
-          ...notification,
-          timestamp: Date.now(),
-          read: false
-        }],
-        lastActivity: Date.now()
-      })),
-
-      updateUserPresence: (userId, presence) => set(state => {
-        const newOnlineUsers = new Set(state.onlineUsers);
-        if (presence === 'online') {
-          newOnlineUsers.add(userId);
-        } else {
-          newOnlineUsers.delete(userId);
-        }
-
-        return {
-          onlineUsers: newOnlineUsers,
-          stats: {
-            ...state.stats,
-            activeUsers: newOnlineUsers.size
+      updateUserPresence: (userId, presence) =>
+        set((state) => {
+          const newOnlineUsers = new Set(state.onlineUsers);
+          if (presence === 'online') {
+            newOnlineUsers.add(userId);
+          } else {
+            newOnlineUsers.delete(userId);
           }
-        };
-      })
+
+          return {
+            onlineUsers: newOnlineUsers,
+            stats: {
+              ...state.stats,
+              activeUsers: newOnlineUsers.size,
+            },
+          };
+        }),
     }));
   });
 
@@ -203,7 +219,7 @@ describe('端到端工作流测试', () => {
       const userCredentials = {
         userId: 1,
         username: 'testuser',
-        role: 'developer'
+        role: 'developer',
       };
 
       // 1. 用户登录
@@ -225,9 +241,9 @@ describe('端到端工作流测试', () => {
         method: 'GET',
         url: '/api/user/profile',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'X-User-ID': userCredentials.userId.toString()
-        }
+          Authorization: `Bearer ${token}`,
+          'X-User-ID': userCredentials.userId.toString(),
+        },
       });
 
       expect(response.success).toBe(true);
@@ -239,31 +255,41 @@ describe('端到端工作流测试', () => {
       const token = workflowStore.login({
         userId: 2,
         username: 'shortsession',
-        role: 'user'
+        role: 'user',
       });
 
       // 验证初始状态
       expect(workflowStore.state.isAuthenticated).toBe(true);
 
       // 模拟令牌过期 - 创建已过期的令牌
-      const expiredToken = jwt.generateToken({
-        userId: 2,
-        username: 'shortsession',
-        role: 'user'
-      }, 'workflow-key', { expiresIn: -1 });
+      const expiredToken = jwt.generateToken(
+        {
+          userId: 2,
+          username: 'shortsession',
+          role: 'user',
+        },
+        'workflow-key',
+        { expiresIn: -1 },
+      );
 
       // 更新为过期令牌
       workflowStore.state.sessionToken = expiredToken;
 
       // 尝试验证过期令牌
-      expect(() => jwt.verifyToken(expiredToken, 'workflow-key')).toThrow('Token expired');
+      expect(() => jwt.verifyToken(expiredToken, 'workflow-key')).toThrow(
+        'Token expired',
+      );
 
       // 刷新令牌
-      const newToken = jwt.generateToken({
-        userId: 2,
-        username: 'shortsession',
-        role: 'user'
-      }, 'workflow-key', { expiresIn: 3600 });
+      const newToken = jwt.generateToken(
+        {
+          userId: 2,
+          username: 'shortsession',
+          role: 'user',
+        },
+        'workflow-key',
+        { expiresIn: 3600 },
+      );
 
       workflowStore.state.sessionToken = newToken;
 
@@ -280,7 +306,7 @@ describe('端到端工作流测试', () => {
       workflowStore.login({
         userId: 3,
         username: 'workflowuser',
-        role: 'manager'
+        role: 'manager',
       });
     });
 
@@ -289,7 +315,7 @@ describe('端到端工作流测试', () => {
         name: '用户注册流程',
         description: '新用户注册和激活流程',
         priority: 'high',
-        estimatedDuration: 3600000 // 1小时
+        estimatedDuration: 3600000, // 1小时
       };
 
       // 1. 创建工作流
@@ -316,14 +342,14 @@ describe('端到端工作流测试', () => {
         { title: '验证邮箱格式', description: '检查用户邮箱格式是否正确' },
         { title: '发送激活邮件', description: '发送账户激活邮件' },
         { title: '创建用户档案', description: '在数据库中创建用户档案' },
-        { title: '设置初始权限', description: '为新用户设置默认权限' }
+        { title: '设置初始权限', description: '为新用户设置默认权限' },
       ];
 
-      tasks.forEach(task => workflowStore.addTask(task));
+      tasks.forEach((task) => workflowStore.addTask(task));
 
       // 4. 验证任务创建
       expect(workflowStore.state.tasks).toHaveLength(4);
-      workflowStore.state.tasks.forEach(task => {
+      workflowStore.state.tasks.forEach((task) => {
         expect(task.status).toBe('pending');
         expect(task.createdBy).toBe(3);
         expect(task.createdAt).toBeDefined();
@@ -334,7 +360,9 @@ describe('端到端工作流测试', () => {
       workflowStore.completeTask(taskToComplete.id);
 
       // 6. 验证任务完成
-      const completedTask = workflowStore.state.tasks.find(t => t.id === taskToComplete.id);
+      const completedTask = workflowStore.state.tasks.find(
+        (t) => t.id === taskToComplete.id,
+      );
       expect(completedTask.status).toBe('completed');
       expect(completedTask.completedAt).toBeDefined();
       expect(workflowStore.state.stats.completedTasks).toBe(1);
@@ -346,10 +374,10 @@ describe('端到端工作流测试', () => {
         { name: '订单处理', priority: 'high', estimatedDuration: 1800000 },
         { name: '数据备份', priority: 'medium', estimatedDuration: 7200000 },
         { name: '报告生成', priority: 'low', estimatedDuration: 3600000 },
-        { name: '用户审核', priority: 'high', estimatedDuration: 900000 }
+        { name: '用户审核', priority: 'high', estimatedDuration: 900000 },
       ];
 
-      workflows.forEach(wf => workflowStore.createWorkflow(wf));
+      workflows.forEach((wf) => workflowStore.createWorkflow(wf));
 
       // 验证工作流统计
       expect(workflowStore.state.stats.totalWorkflows).toBe(4);
@@ -364,7 +392,10 @@ describe('端到端工作流测试', () => {
       expect(groupedByPriority.low).toHaveLength(1);
 
       // 计算平均工期
-      const totalDuration = allWorkflows.reduce((sum, wf) => sum + wf.estimatedDuration, 0);
+      const totalDuration = allWorkflows.reduce(
+        (sum, wf) => sum + wf.estimatedDuration,
+        0,
+      );
       const avgDuration = totalDuration / allWorkflows.length;
 
       expect(avgDuration).toBeGreaterThan(0);
@@ -384,7 +415,7 @@ describe('端到端工作流测试', () => {
       workflowStore.login({
         userId: 4,
         username: 'collaborator',
-        role: 'user'
+        role: 'user',
       });
 
       // 订阅协作消息
@@ -401,35 +432,44 @@ describe('端到端工作流测试', () => {
           } else if (update.type === 'notification') {
             workflowStore.addNotification(update);
           }
-        }
+        },
       );
     });
 
     afterEach(() => {
       if (collaborationSubscription) {
-        messaging.unsubscribe('collaboration.updates', collaborationSubscription.id);
+        messaging.unsubscribe(
+          'collaboration.updates',
+          collaborationSubscription.id,
+        );
       }
     });
 
     it('应该处理实时用户协作', async () => {
       // 1. 用户加入协作
-      await messaging.publish('collaboration.updates', JSON.stringify({
-        type: 'user_joined',
-        userId: 5,
-        username: 'collaborator2',
-        timestamp: Date.now()
-      }));
+      await messaging.publish(
+        'collaboration.updates',
+        JSON.stringify({
+          type: 'user_joined',
+          userId: 5,
+          username: 'collaborator2',
+          timestamp: Date.now(),
+        }),
+      );
 
       // 2. 发送通知
-      await messaging.publish('collaboration.updates', JSON.stringify({
-        type: 'notification',
-        title: '新任务分配',
-        message: '您被分配了一个新任务',
-        userId: 4
-      }));
+      await messaging.publish(
+        'collaboration.updates',
+        JSON.stringify({
+          type: 'notification',
+          title: '新任务分配',
+          message: '您被分配了一个新任务',
+          userId: 4,
+        }),
+      );
 
       // 等待消息处理
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // 3. 验证协作状态
       expect(workflowStore.state.onlineUsers.has(5)).toBe(true);
@@ -437,14 +477,17 @@ describe('端到端工作流测试', () => {
       expect(workflowStore.state.notifications).toHaveLength(1);
 
       // 4. 用户离开协作
-      await messaging.publish('collaboration.updates', JSON.stringify({
-        type: 'user_left',
-        userId: 5,
-        timestamp: Date.now()
-      }));
+      await messaging.publish(
+        'collaboration.updates',
+        JSON.stringify({
+          type: 'user_left',
+          userId: 5,
+          timestamp: Date.now(),
+        }),
+      );
 
       // 等待消息处理
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // 5. 验证用户离线
       expect(workflowStore.state.onlineUsers.has(5)).toBe(false);
@@ -455,7 +498,7 @@ describe('端到端工作流测试', () => {
       // 创建工作流
       workflowStore.createWorkflow({
         name: '同步测试工作流',
-        description: '测试实时状态同步'
+        description: '测试实时状态同步',
       });
 
       // 获取最新创建的工作流ID
@@ -471,31 +514,36 @@ describe('端到端工作流测试', () => {
           if (update.type === 'task_completed') {
             workflowStore.completeTask(update.taskId);
           }
-        }
+        },
       );
 
       // 添加任务
       workflowStore.addTask({
         title: '同步任务',
-        workflowId: workflowId
+        workflowId: workflowId,
       });
 
       const task = workflowStore.state.tasks[0];
 
       // 发布任务完成消息
-      await messaging.publish(`workflow.${workflowId}`, JSON.stringify({
-        type: 'task_completed',
-        taskId: task.id,
-        workflowId: workflowId,
-        completedBy: 4,
-        timestamp: Date.now()
-      }));
+      await messaging.publish(
+        `workflow.${workflowId}`,
+        JSON.stringify({
+          type: 'task_completed',
+          taskId: task.id,
+          workflowId: workflowId,
+          completedBy: 4,
+          timestamp: Date.now(),
+        }),
+      );
 
       // 等待同步
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // 验证任务完成
-      const updatedTask = workflowStore.state.tasks.find(t => t.id === task.id);
+      const updatedTask = workflowStore.state.tasks.find(
+        (t) => t.id === task.id,
+      );
       expect(updatedTask.status).toBe('completed');
       expect(updatedTask.completedAt).toBeDefined();
       expect(workflowStore.state.stats.completedTasks).toBe(1);
@@ -513,7 +561,7 @@ describe('端到端工作流测试', () => {
       const userToken = workflowStore.login({
         userId: 100,
         username: 'businessuser',
-        role: 'business_analyst'
+        role: 'business_analyst',
       });
 
       expect(workflowStore.state.isAuthenticated).toBe(true);
@@ -524,7 +572,7 @@ describe('端到端工作流测试', () => {
         description: '分析客户需求并制定解决方案',
         priority: 'high',
         businessValue: 50000,
-        deadline: date.day().add(30, 'days').valueOf()
+        deadline: date.day().add(30, 'days').valueOf(),
       });
 
       // 获取最新创建的项目ID
@@ -539,40 +587,43 @@ describe('端到端工作流测试', () => {
           title: '需求收集',
           description: '与客户沟通收集详细需求',
           priority: 'high',
-          estimatedHours: 8
+          estimatedHours: 8,
         },
         {
           title: '竞争分析',
           description: '分析竞争对手产品和服务',
           priority: 'medium',
-          estimatedHours: 6
+          estimatedHours: 6,
         },
         {
           title: '解决方案设计',
           description: '设计满足需求的解决方案',
           priority: 'high',
-          estimatedHours: 12
+          estimatedHours: 12,
         },
         {
           title: '原型开发',
           description: '开发解决方案原型',
           priority: 'medium',
-          estimatedHours: 20
+          estimatedHours: 20,
         },
         {
           title: '客户演示',
           description: '向客户演示解决方案',
           priority: 'high',
-          estimatedHours: 4
-        }
+          estimatedHours: 4,
+        },
       ];
 
-      businessTasks.forEach(task => workflowStore.addTask({ ...task, projectId }));
+      businessTasks.forEach((task) =>
+        workflowStore.addTask({ ...task, projectId }),
+      );
 
       // === 阶段4: 任务执行和进度跟踪 ===
       let completedCount = 0;
-      workflowStore.state.tasks.forEach(task => {
-        if (Math.random() > 0.3) { // 70%的任务被完成
+      workflowStore.state.tasks.forEach((task) => {
+        if (Math.random() > 0.3) {
+          // 70%的任务被完成
           workflowStore.completeTask(task.id);
           completedCount++;
         }
@@ -580,8 +631,8 @@ describe('端到端工作流测试', () => {
 
       // === 阶段5: 数据分析和报告 ===
       const allTasks = workflowStore.state.tasks;
-      const completedTasks = allTasks.filter(t => t.status === 'completed');
-      const pendingTasks = allTasks.filter(t => t.status === 'pending');
+      const completedTasks = allTasks.filter((t) => t.status === 'completed');
+      const pendingTasks = allTasks.filter((t) => t.status === 'pending');
 
       // 使用工具函数进行数据分析
       const tasksByPriority = utils.groupBy(allTasks, 'priority');
@@ -601,7 +652,7 @@ describe('端到端工作流测试', () => {
         completedByPriority,
         generatedAt: date.day().format('YYYY-MM-DD HH:mm:ss'),
         businessValue: 50000,
-        estimatedCompletion: date.day().add(15, 'days').format('YYYY-MM-DD')
+        estimatedCompletion: date.day().add(15, 'days').format('YYYY-MM-DD'),
       };
 
       // 发送报告到API
@@ -609,23 +660,26 @@ describe('端到端工作流测试', () => {
         method: 'POST',
         url: '/api/reports/business',
         headers: {
-          'Authorization': `Bearer ${userToken}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${userToken}`,
+          'Content-Type': 'application/json',
         },
-        data: businessReport
+        data: businessReport,
       });
 
       // === 阶段7: 通知利益相关者 ===
       const notificationMessage = `项目"${workflowStore.state.workflows.get(projectId).name}"完成率已达${businessReport.completionRate}%，预计${businessReport.estimatedCompletion}完成`;
 
-      await messaging.publish('notifications.business', JSON.stringify({
-        type: 'project_update',
-        projectId,
-        message: notificationMessage,
-        completionRate: businessReport.completionRate,
-        recipients: ['manager@example.com', 'stakeholders@example.com'],
-        timestamp: Date.now()
-      }));
+      await messaging.publish(
+        'notifications.business',
+        JSON.stringify({
+          type: 'project_update',
+          projectId,
+          message: notificationMessage,
+          completionRate: businessReport.completionRate,
+          recipients: ['manager@example.com', 'stakeholders@example.com'],
+          timestamp: Date.now(),
+        }),
+      );
 
       const perfResult = global.performanceMonitor.end(startTime);
 
@@ -676,8 +730,8 @@ describe('端到端工作流测试', () => {
         method: 'GET',
         url: '/api/unstable',
         headers: {
-          'Authorization': `Bearer ${workflowStore.state.sessionToken}`
-        }
+          Authorization: `Bearer ${workflowStore.state.sessionToken}`,
+        },
       });
 
       // 验证请求成功（即使重试）
@@ -690,15 +744,19 @@ describe('端到端工作流测试', () => {
       const token = workflowStore.login({
         userId: 999,
         username: 'erroruser',
-        role: 'user'
+        role: 'user',
       });
 
       // 模拟令牌过期
-      const expiredToken = jwt.generateToken({
-        userId: 999,
-        username: 'erroruser',
-        role: 'user'
-      }, 'workflow-key', { expiresIn: -1 });
+      const expiredToken = jwt.generateToken(
+        {
+          userId: 999,
+          username: 'erroruser',
+          role: 'user',
+        },
+        'workflow-key',
+        { expiresIn: -1 },
+      );
 
       // 更新为过期令牌
       workflowStore.state.sessionToken = expiredToken;
@@ -708,19 +766,23 @@ describe('端到端工作流测试', () => {
         method: 'GET',
         url: '/api/protected',
         headers: {
-          'Authorization': `Bearer ${expiredToken}`
-        }
+          Authorization: `Bearer ${expiredToken}`,
+        },
       });
 
       // 即使令牌过期，请求仍会发送（由服务器处理认证错误）
       expect(response).toBeDefined();
 
       // 重新认证
-      const newToken = jwt.generateToken({
-        userId: 999,
-        username: 'erroruser',
-        role: 'user'
-      }, 'workflow-key', { expiresIn: 3600 });
+      const newToken = jwt.generateToken(
+        {
+          userId: 999,
+          username: 'erroruser',
+          role: 'user',
+        },
+        'workflow-key',
+        { expiresIn: 3600 },
+      );
 
       workflowStore.state.sessionToken = newToken;
 

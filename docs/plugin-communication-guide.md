@@ -7,21 +7,25 @@ frys插件通信总线是借鉴VCPToolBox的核心协作理念实现的高性能
 ## ✨ 核心特性
 
 ### 🚀 高性能异步通信
+
 - **异步消息处理**：基于Promise和EventEmitter的异步架构
 - **智能调度**：自动负载均衡和资源管理
 - **并发控制**：防止消息风暴和系统过载
 
 ### 🎯 灵活的消息路由
+
 - **发布订阅模式**：支持一对多广播通信
 - **主题通配符**：`events.*`、`system.**`等模式匹配
 - **直接消息传递**：点对点通信
 
 ### 🔒 安全和监控
+
 - **消息过滤器**：可配置的安全过滤规则
 - **TTL机制**：消息过期自动清理
 - **通信日志**：完整的消息追踪和审计
 
 ### 🔄 请求响应模式
+
 - **同步通信**：支持请求-响应的同步交互
 - **超时控制**：可配置的响应超时时间
 - **错误处理**：完善的异常处理和重试机制
@@ -29,7 +33,9 @@ frys插件通信总线是借鉴VCPToolBox的核心协作理念实现的高性能
 ## 📋 基本概念
 
 ### 插件注册表
+
 每个插件都需要向通信总线注册，并实现标准接口：
+
 ```javascript
 interface PluginInterface {
   initializeCommunication(api): Promise<void>;  // 初始化通信
@@ -39,6 +45,7 @@ interface PluginInterface {
 ```
 
 ### 消息格式
+
 ```javascript
 {
   id: "msg_1234567890_abc123",      // 消息唯一ID
@@ -53,6 +60,7 @@ interface PluginInterface {
 ```
 
 ### 主题命名约定
+
 - 使用点号分隔：`module.action.subaction`
 - 支持通配符：`*`匹配单段，`**`匹配多段
 - 建议前缀：`pluginName.feature.action`
@@ -60,18 +68,20 @@ interface PluginInterface {
 ## 🛠️ 基本用法
 
 ### 初始化通信总线
+
 ```javascript
 import { PluginCommunicationBus } from './src/core/plugin/PluginCommunicationBus.js';
 
 const bus = new PluginCommunicationBus({
-  enableLogging: true,      // 启用通信日志
-  maxRetries: 3,           // 最大重试次数
-  messageTimeout: 30000,   // 消息超时时间
-  maxMessageQueue: 1000    // 最大队列长度
+  enableLogging: true, // 启用通信日志
+  maxRetries: 3, // 最大重试次数
+  messageTimeout: 30000, // 消息超时时间
+  maxMessageQueue: 1000, // 最大队列长度
 });
 ```
 
 ### 插件注册
+
 ```javascript
 class MyPlugin {
   async initializeCommunication(api) {
@@ -97,21 +107,23 @@ await bus.registerPlugin('my-plugin', new MyPlugin());
 ```
 
 ### 发布消息
+
 ```javascript
 // 发布主题消息
 await bus.publish('my-plugin', 'user.login', {
   userId: 123,
-  timestamp: new Date()
+  timestamp: new Date(),
 });
 
 // 广播消息给所有插件
 await bus.broadcast('my-plugin', {
   type: 'system-update',
-  version: '2.0.0'
+  version: '2.0.0',
 });
 ```
 
 ### 订阅消息
+
 ```javascript
 // 订阅特定主题
 bus.subscribe('subscriber-plugin', 'user.login', (message) => {
@@ -125,21 +137,27 @@ bus.subscribe('subscriber-plugin', 'system.*', (message) => {
 
 // 一次性订阅
 bus.subscribe('subscriber-plugin', 'one-time-event', handler, {
-  once: true  // 只处理一次
+  once: true, // 只处理一次
 });
 ```
 
 ### 请求响应模式
+
 ```javascript
 // 发送请求并等待响应
 try {
-  const response = await bus.request('requester', 'database-plugin', {
-    action: 'query',
-    table: 'users',
-    filter: { active: true }
-  }, {
-    timeout: 5000  // 5秒超时
-  });
+  const response = await bus.request(
+    'requester',
+    'database-plugin',
+    {
+      action: 'query',
+      table: 'users',
+      filter: { active: true },
+    },
+    {
+      timeout: 5000, // 5秒超时
+    },
+  );
 
   console.log('查询结果:', response.data);
 } catch (error) {
@@ -150,6 +168,7 @@ try {
 ## 🎨 高级用法
 
 ### 消息过滤器
+
 ```javascript
 // 添加安全过滤器
 bus.addMessageFilter('security-filter', (message) => {
@@ -168,6 +187,7 @@ bus.removeMessageFilter('security-filter');
 ```
 
 ### 复杂主题模式
+
 ```javascript
 // 订阅所有用户相关事件
 bus.subscribe('audit-plugin', 'user.*', handler);
@@ -180,6 +200,7 @@ bus.subscribe('coordinator', 'plugin.auth.*', handler);
 ```
 
 ### 插件间协作示例
+
 ```javascript
 class AuthPlugin {
   async initializeCommunication(api) {
@@ -193,7 +214,7 @@ class AuthPlugin {
       const userData = await this.api.request(
         'auth-plugin',
         'database-plugin',
-        { action: 'getUser', userId: message.payload.userId }
+        { action: 'getUser', userId: message.payload.userId },
       );
       // 处理用户数据...
     });
@@ -207,7 +228,7 @@ class AuthPlugin {
     await this.api.publish('auth.result', {
       userId: message.payload.userId,
       success: isValid,
-      token: isValid ? this.generateToken() : null
+      token: isValid ? this.generateToken() : null,
     });
   }
 }
@@ -227,12 +248,12 @@ class DatabasePlugin {
       const results = await this.query(message.payload);
       await this.api.publish(responseTopic, {
         success: true,
-        data: results
+        data: results,
       });
     } catch (error) {
       await this.api.publish(responseTopic, {
         success: false,
-        error: error.message
+        error: error.message,
       });
     }
   }
@@ -240,6 +261,7 @@ class DatabasePlugin {
 ```
 
 ### 监控和统计
+
 ```javascript
 // 获取通信统计
 const stats = bus.getStats();
@@ -247,12 +269,12 @@ console.log('通信统计:', {
   messagesSent: stats.messagesSent,
   messagesReceived: stats.messagesReceived,
   activePlugins: stats.activePlugins,
-  activeSubscriptions: stats.activeSubscriptions
+  activeSubscriptions: stats.activeSubscriptions,
 });
 
 // 获取通信日志
 const logs = bus.getCommunicationLog(50); // 最近50条日志
-logs.forEach(log => {
+logs.forEach((log) => {
   console.log(`${log.timestamp}: ${log.type} - ${log.topic}`);
 });
 ```
@@ -260,72 +282,78 @@ logs.forEach(log => {
 ## 🔧 配置选项
 
 ### 通信总线配置
+
 ```javascript
 const bus = new PluginCommunicationBus({
   // 基础配置
-  enableLogging: true,        // 启用通信日志
-  maxRetries: 3,             // 消息处理失败最大重试次数
-  retryDelay: 1000,          // 重试间隔(ms)
+  enableLogging: true, // 启用通信日志
+  maxRetries: 3, // 消息处理失败最大重试次数
+  retryDelay: 1000, // 重试间隔(ms)
 
   // 消息处理
-  messageTimeout: 30000,     // 消息处理超时时间
-  maxMessageQueue: 1000,     // 最大消息队列长度
+  messageTimeout: 30000, // 消息处理超时时间
+  maxMessageQueue: 1000, // 最大消息队列长度
 
   // 监控配置
-  monitoring: true,          // 启用性能监控
-  logInterval: 300000        // 日志记录间隔(ms)
+  monitoring: true, // 启用性能监控
+  logInterval: 300000, // 日志记录间隔(ms)
 });
 ```
 
 ### 消息选项
+
 ```javascript
 // 发布消息时的选项
 await bus.publish('publisher', 'topic', payload, {
-  ttl: 60000,              // 消息生存时间1分钟
-  priority: 'high',        // 消息优先级
-  headers: {               // 自定义头部
+  ttl: 60000, // 消息生存时间1分钟
+  priority: 'high', // 消息优先级
+  headers: {
+    // 自定义头部
     correlationId: 'req-123',
-    userId: 'user-456'
-  }
+    userId: 'user-456',
+  },
 });
 
 // 订阅消息时的选项
 bus.subscribe('subscriber', 'topic', handler, {
-  once: false,             // 是否只处理一次
-  priority: 'normal',      // 处理优先级
-  filter: (message) => true // 额外的过滤条件
+  once: false, // 是否只处理一次
+  priority: 'normal', // 处理优先级
+  filter: (message) => true, // 额外的过滤条件
 });
 ```
 
 ## 🛡️ 最佳实践
 
 ### 插件设计
+
 1. **清晰的职责分离**：每个插件专注于特定功能
 2. **标准接口实现**：确保插件实现所有必需的方法
 3. **错误处理**：妥善处理通信异常和超时
 4. **资源清理**：在shutdown中清理所有订阅和资源
 
 ### 主题命名
+
 ```javascript
 // ✅ 好的主题命名
-'user.auth.login'
-'database.query.success'
-'system.health.check'
+'user.auth.login';
+'database.query.success';
+'system.health.check';
 
 // ❌ 不好的主题命名
-'login'           // 太泛化
-'doSomething'     // 不够描述性
-'userLoginEvent'  // 不一致的分隔符
+'login'; // 太泛化
+'doSomething'; // 不够描述性
+'userLoginEvent'; // 不一致的分隔符
 ```
 
 ### 性能优化
+
 ```javascript
 // 使用TTL避免消息堆积
 await bus.publish('publisher', 'topic', data, { ttl: 30000 });
 
 // 合理设置超时时间
 const response = await bus.request('requester', 'target', data, {
-  timeout: 5000  // 根据实际需求设置
+  timeout: 5000, // 根据实际需求设置
 });
 
 // 监控通信性能
@@ -338,6 +366,7 @@ setInterval(() => {
 ```
 
 ### 安全考虑
+
 ```javascript
 // 验证消息来源
 bus.subscribe('secure-plugin', 'important.topic', (message) => {
@@ -360,6 +389,7 @@ bus.addMessageFilter('auth-filter', (message) => {
 ### 常见问题
 
 #### 消息没有被接收
+
 ```javascript
 // 检查主题是否正确
 console.log('已注册主题:', bus.getTopics());
@@ -374,21 +404,23 @@ bus.subscribe('debugger', 'test.topic', () => {
 ```
 
 #### 消息处理超时
+
 ```javascript
 // 增加超时时间
 const response = await bus.request('requester', 'target', data, {
-  timeout: 60000  // 增加到60秒
+  timeout: 60000, // 增加到60秒
 });
 
 // 检查目标插件是否正常运行
 const plugins = bus.getPlugins();
-const targetPlugin = plugins.find(p => p.id === 'target-plugin');
+const targetPlugin = plugins.find((p) => p.id === 'target-plugin');
 if (!targetPlugin) {
   console.error('目标插件未注册');
 }
 ```
 
 #### 内存泄漏
+
 ```javascript
 // 确保正确清理订阅
 class MyPlugin {
@@ -410,10 +442,11 @@ setInterval(() => {
 ## 📊 监控和调试
 
 ### 启用调试模式
+
 ```javascript
 const bus = new PluginCommunicationBus({
   enableLogging: true,
-  debug: true
+  debug: true,
 });
 
 // 监听通信事件
@@ -431,6 +464,7 @@ bus.on('message:processed', (data) => {
 ```
 
 ### 性能监控
+
 ```javascript
 // 监控通信性能
 setInterval(() => {
@@ -442,7 +476,7 @@ setInterval(() => {
     处理成功率: `${((stats.messagesProcessed / stats.messagesReceived) * 100).toFixed(1)}%`,
     活跃插件数: stats.activePlugins,
     活跃订阅数: stats.activeSubscriptions,
-    队列长度: stats.queuedMessages
+    队列长度: stats.queuedMessages,
   });
 }, 60000);
 ```

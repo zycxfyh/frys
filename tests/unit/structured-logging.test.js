@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from '../test-helpers.js';
 
 /**
@@ -11,9 +11,14 @@ import {
  * 验证结构化日志的功能和性能
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { logger, setGlobalLogContext, createRequestLogContext, logPerformance } from '../../src/shared/utils/logger.js';
 import { randomUUID } from 'crypto';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import {
+  createRequestLogContext,
+  logger,
+  logPerformance,
+  setGlobalLogContext,
+} from '../../src/shared/utils/logger.js';
 
 describe('结构化日志系统测试', () => {
   beforeAll(() => {
@@ -21,7 +26,7 @@ describe('结构化日志系统测试', () => {
     setGlobalLogContext({
       service: 'frys-test',
       version: '1.0.0-test',
-      environment: 'test'
+      environment: 'test',
     });
   });
 
@@ -37,7 +42,9 @@ describe('结构化日志系统测试', () => {
       // 测试不同日志级别
       logger.info(testMessage, testMeta);
       logger.warn('警告消息', { warningCode: 'TEST_WARNING' });
-      logger.error('错误消息', new Error('测试错误'), { errorCode: 'TEST_ERROR' });
+      logger.error('错误消息', new Error('测试错误'), {
+        errorCode: 'TEST_ERROR',
+      });
       logger.debug('调试消息', { debugData: { key: 'value' } });
 
       // 验证日志器存在且有正确的方法
@@ -61,7 +68,7 @@ describe('结构化日志系统测试', () => {
 
       logPerformance('math_operations', duration, {
         operationCount: 100000,
-        operationType: 'random'
+        operationType: 'random',
       });
 
       // 在现代CPU上，即使是10万个随机数操作也可能很快，所以我们放宽检查
@@ -76,7 +83,7 @@ describe('结构化日志系统测试', () => {
         method: 'GET',
         url: '/api/users',
         userAgent: 'test-agent',
-        ip: '127.0.0.1'
+        ip: '127.0.0.1',
       };
 
       // 创建请求上下文
@@ -86,7 +93,7 @@ describe('结构化日志系统测试', () => {
       // 更新请求上下文
       logger.updateRequestContext(requestId, {
         statusCode: 200,
-        responseSize: 1024
+        responseSize: 1024,
       });
 
       // 结束请求上下文
@@ -101,7 +108,7 @@ describe('结构化日志系统测试', () => {
       // 记录请求开始
       logger.requestStart(requestId, 'POST', '/api/users', {
         'user-agent': 'test-agent',
-        'x-forwarded-for': '192.168.1.1'
+        'x-forwarded-for': '192.168.1.1',
       });
 
       // 模拟处理时间
@@ -111,7 +118,7 @@ describe('结构化日志系统测试', () => {
         // 记录请求完成
         logger.requestEnd(requestId, 201, processingTime, {
           contentLength: '256',
-          contentType: 'application/json'
+          contentType: 'application/json',
         });
       }, 10);
 
@@ -133,7 +140,7 @@ describe('结构化日志系统测试', () => {
         array: [1, 2, 3],
         object: { nested: 'value' },
         null: null,
-        undefined: undefined
+        undefined: undefined,
       };
 
       logger.info('格式测试', testData);
@@ -151,7 +158,7 @@ describe('结构化日志系统测试', () => {
       testError.code = 'TEST_ERROR_CODE';
 
       logger.error('错误处理测试', testError, {
-        additionalContext: 'test context'
+        additionalContext: 'test context',
       });
 
       // 验证错误对象结构
@@ -177,18 +184,18 @@ describe('结构化日志系统测试', () => {
         { name: 'database_query', duration: 150 },
         { name: 'cache_lookup', duration: 5 },
         { name: 'api_call', duration: 200 },
-        { name: 'file_read', duration: 50 }
+        { name: 'file_read', duration: 50 },
       ];
 
-      operations.forEach(op => {
+      operations.forEach((op) => {
         logger.performance(op.name, op.duration, {
           category: 'test',
-          success: true
+          success: true,
         });
       });
 
       // 验证性能数据
-      operations.forEach(op => {
+      operations.forEach((op) => {
         expect(op.duration).toBeGreaterThan(0);
         expect(op.name).toBeDefined();
       });
@@ -203,7 +210,7 @@ describe('结构化日志系统测试', () => {
         logger.debug(`批量日志测试 ${i}`, {
           index: i,
           timestamp: Date.now(),
-          data: `test_data_${i}`
+          data: `test_data_${i}`,
         });
       }
 
@@ -224,7 +231,7 @@ describe('结构化日志系统测试', () => {
 
       const levels = ['trace', 'debug', 'info', 'warn', 'error'];
 
-      levels.forEach(level => {
+      levels.forEach((level) => {
         expect(() => {
           logger[level]('级别测试', { level, test: true });
         }).not.toThrow();
@@ -254,19 +261,29 @@ describe('结构化日志系统测试', () => {
         spanId,
         parentSpanId,
         method: 'GET',
-        url: '/api/test'
+        url: '/api/test',
       });
 
-      logger.info('追踪测试', {
-        traceId,
-        spanId,
-        parentSpanId
-      }, requestId);
+      logger.info(
+        '追踪测试',
+        {
+          traceId,
+          spanId,
+          parentSpanId,
+        },
+        requestId,
+      );
 
       // 验证追踪ID格式
-      expect(traceId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
-      expect(spanId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
-      expect(parentSpanId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+      expect(traceId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      );
+      expect(spanId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      );
+      expect(parentSpanId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      );
     });
 
     it('应该支持请求链路追踪', () => {
@@ -277,7 +294,7 @@ describe('结构化日志系统测试', () => {
         traceId: rootTraceId,
         spanId: randomUUID(),
         method: 'GET',
-        url: '/api/users'
+        url: '/api/users',
       });
 
       const request2 = logger.createRequestContext(randomUUID(), {
@@ -285,7 +302,7 @@ describe('结构化日志系统测试', () => {
         spanId: randomUUID(),
         parentSpanId: request1,
         method: 'GET',
-        url: '/api/users/123'
+        url: '/api/users/123',
       });
 
       logger.info('链路追踪测试 - 请求1', {}, request1);

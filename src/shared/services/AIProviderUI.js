@@ -3,14 +3,14 @@
  * 提供用户友好的界面来管理AI供应商配置
  */
 
-import { AIProviderManager } from './AIProviderManager.js';
 import {
   AI_PROVIDERS,
   getProviderInfo,
   recommendProviders,
 } from '../config/ai-providers.js';
-import { logger } from '../shared/utils/logger.js';
 import { eventSystem } from '../core/event/EventBus.js';
+import { logger } from '../shared/utils/logger.js';
+import { AIProviderManager } from './AIProviderManager.js';
 
 export class AIProviderUI {
   constructor(container, options = {}) {

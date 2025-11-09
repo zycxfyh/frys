@@ -3,12 +3,13 @@
  * 借鉴 Zod 的核心理念，增强输入验证和安全防护
  * 重构版本：应用SOLID原则，单一职责和开闭原则
  */
-import { sanitizeInput } from '../shared/utils/type-guards.js';
+
 import { logger } from '../shared/utils/logger.js';
+import { sanitizeInput } from '../shared/utils/type-guards.js';
 
 // 验证器接口 - 依赖倒置原则
 class BaseValidator {
-  validate(_data, _schema, _context) {
+  validate() {
     throw new Error('validate method must be implemented by subclass');
   }
 }
@@ -122,30 +123,43 @@ class ObjectValidator extends BaseValidator {
     }
 
     if (schema.properties) {
-      for (const [prop, propSchema] of Object.entries(schema.properties)) {
-        if (data.hasOwnProperty(prop)) {
-          // 递归验证嵌套属性
-          const nestedContext = { errors: [], warnings: [] };
-          const validators = [
-            new TypeValidator(),
-            new StringValidator(),
-            new NumberValidator(),
-          ];
-          for (const validator of validators) {
-            if (!validator.validate(data[prop], propSchema, nestedContext)) {
-              break;
-            }
-          }
-          context.errors.push(
-            ...nestedContext.errors.map((err) => `${prop}: ${err}`),
-          );
-        } else if (propSchema.required) {
-          context.errors.push(`Missing required property: ${prop}`);
-        }
-      }
+      this.validateProperties(data, schema.properties, context);
     }
 
     return context.errors.length === 0;
+  }
+
+  validateProperties(data, properties, context) {
+    for (const [prop, propSchema] of Object.entries(properties)) {
+      this.validateProperty(data, prop, propSchema, context);
+    }
+  }
+
+  validateProperty(data, prop, propSchema, context) {
+    if (Object.hasOwn(data, prop)) {
+      this.validateNestedProperty(data[prop], prop, propSchema, context);
+    } else if (propSchema.required) {
+      context.errors.push(`Missing required property: ${prop}`);
+    }
+  }
+
+  validateNestedProperty(propData, propName, propSchema, context) {
+    const nestedContext = { errors: [], warnings: [] };
+    const validators = [
+      new TypeValidator(),
+      new StringValidator(),
+      new NumberValidator(),
+    ];
+
+    for (const validator of validators) {
+      if (!validator.validate(propData, propSchema, nestedContext)) {
+        break;
+      }
+    }
+
+    context.errors.push(
+      ...nestedContext.errors.map((err) => `${propName}: ${err}`),
+    );
   }
 }
 
@@ -230,8 +244,8 @@ class ZodInspiredValidation {
     this.securityRules.set('xss_attack', {
       pattern:
         /(<script[^>]*>[\s\S]*?<\/script>|<iframe[^>]*>|<object[^>]*>|<embed[^>]*>|<form[^>]*>|<input[^>]*>|<meta[^>]*>|<link[^>]*>|<style[^>]*>)/gi,
-      severity: 'high',
-      message: '检测到潜在的XSS攻击向量',
+      severity: 'critical',
+      message: '检测到XSS攻击向量，验证失败',
     });
 
     // 命令注入防护规则
@@ -245,8 +259,8 @@ class ZodInspiredValidation {
     this.securityRules.set('path_traversal', {
       pattern:
         /(\.\.[/\\]|\.\.[/\\]|\/etc\/|\/bin\/|\/usr\/|\/var\/|\/home\/|\/root\/|\/boot\/|windows\/|system32\/)/gi,
-      severity: 'high',
-      message: '检测到潜在的路径遍历攻击',
+      severity: 'critical',
+      message: '检测到路径遍历攻击，验证失败',
     });
   }
 
@@ -324,7 +338,7 @@ class ZodInspiredValidation {
    * @param {Object} options - 检查选项
    * @returns {Object} 安全检查结果
    */
-  performSecurityChecks(data, options = {}) {
+  performSecurityChecks(data) {
     const result = {
       safe: true,
       errors: [],
@@ -336,7 +350,7 @@ class ZodInspiredValidation {
     // 递归检查对象和数组
     const checkValue = (value, path = '') => {
       if (typeof value === 'string') {
-        for (const [ruleName, rule] of this.securityRules) {
+        for (const [, rule] of this.securityRules) {
           if (rule.pattern.test(value)) {
             const message = `${rule.message}${path ? ` (路径: ${path})` : ''}`;
             if (rule.severity === 'critical') {

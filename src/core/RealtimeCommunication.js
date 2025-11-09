@@ -11,11 +11,11 @@
  */
 
 import { EventEmitter } from 'events';
-import { logger } from '../shared/utils/logger.js';
-import { frysError } from './error-handler.js';
-import WebSocket from 'ws';
 import fs from 'fs/promises';
 import path from 'path';
+import WebSocket from 'ws';
+import { logger } from '../shared/utils/logger.js';
+import { frysError } from './error-handler.js';
 
 class WebSocketManager extends EventEmitter {
   constructor(config = {}) {
@@ -77,7 +77,7 @@ class WebSocketManager extends EventEmitter {
     }
   }
 
-  async stop() {
+  stop() {
     if (!this.isRunning) return;
 
     try {
@@ -415,7 +415,7 @@ class WebSocketManager extends EventEmitter {
 
   broadcast(message, excludeClients = []) {
     let sentCount = 0;
-    for (const [clientId, connection] of this.connections) {
+    for (const [clientId] of this.connections) {
       if (!excludeClients.includes(clientId)) {
         if (this.sendToClient(clientId, message)) {
           sentCount++;
@@ -528,7 +528,7 @@ class WebDAVServer {
     }
   }
 
-  async stop() {
+  stop() {
     if (!this.isRunning) return;
 
     try {
@@ -786,7 +786,7 @@ export class RealtimeCommunication extends EventEmitter {
     };
   }
 
-  async initialize() {
+  initialize() {
     // 初始化实时通信系统
     logger.debug('RealtimeCommunication initialized');
   }
@@ -868,7 +868,7 @@ export class RealtimeCommunication extends EventEmitter {
   }
 
   // shutdown方法作为stop的别名
-  async shutdown() {
+  shutdown() {
     return this.stop();
   }
 

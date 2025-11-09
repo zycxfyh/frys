@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,10 +11,10 @@ import {
  * 验证多级缓存、策略和中间件功能
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import CacheService from '../../src/application/services/CacheService.js';
-import CacheMiddleware from '../../src/infrastructure/middleware/CacheMiddleware.js';
 import CacheManagementUseCase from '../../src/application/use-cases/CacheManagementUseCase.js';
+import CacheMiddleware from '../../src/infrastructure/middleware/CacheMiddleware.js';
 
 // Mock fetch for testing
 global.fetch = vi.fn();
@@ -29,7 +29,7 @@ describe('缓存系统集成测试', () => {
     cacheService = new CacheService({
       defaultTtl: 1000, // 1秒TTL用于测试
       enableRedis: false, // 测试时不启用Redis
-      maxMemorySize: 10 * 1024 * 1024 // 10MB内存限制
+      maxMemorySize: 10 * 1024 * 1024, // 10MB内存限制
     });
 
     await cacheService.initialize();
@@ -58,7 +58,9 @@ describe('缓存系统集成测试', () => {
       const value = { data: 'test_value', timestamp: Date.now() };
 
       // 设置缓存
-      const setResult = await cacheService.set(key, value, { strategy: 'default' });
+      const setResult = await cacheService.set(key, value, {
+        strategy: 'default',
+      });
       expect(setResult).toBe(true);
 
       // 获取缓存
@@ -93,7 +95,7 @@ describe('缓存系统集成测试', () => {
       expect(result).toBe(value);
 
       // 等待过期
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 150));
 
       // 获取应该返回null
       result = await cacheService.get(key);
@@ -114,7 +116,10 @@ describe('缓存系统集成测试', () => {
 
     it('应该使用API缓存策略', async () => {
       const key = 'api:/users';
-      const value = [{ id: 1, name: 'User 1' }, { id: 2, name: 'User 2' }];
+      const value = [
+        { id: 1, name: 'User 1' },
+        { id: 2, name: 'User 2' },
+      ];
 
       await cacheService.set(key, value, { strategy: 'api' });
       const result = await cacheService.get(key, { strategy: 'api' });
@@ -124,7 +129,11 @@ describe('缓存系统集成测试', () => {
 
     it('应该使用会话缓存策略', async () => {
       const key = 'session:user_123';
-      const value = { userId: 123, token: 'session_token', expires: Date.now() + 3600000 };
+      const value = {
+        userId: 123,
+        token: 'session_token',
+        expires: Date.now() + 3600000,
+      };
 
       await cacheService.set(key, value, { strategy: 'session' });
       const result = await cacheService.get(key, { strategy: 'session' });
@@ -154,7 +163,7 @@ describe('缓存系统集成测试', () => {
       const result = await cacheUseCase.setCacheValue({
         key: 'usecase:test',
         value: 'usecase_value',
-        strategy: 'default'
+        strategy: 'default',
       });
 
       expect(result.isSuccess).toBe(true);
@@ -166,12 +175,12 @@ describe('缓存系统集成测试', () => {
       // 先设置值
       await cacheUseCase.setCacheValue({
         key: 'usecase:get',
-        value: 'get_value'
+        value: 'get_value',
       });
 
       // 再获取值
       const result = await cacheUseCase.getCacheValue({
-        key: 'usecase:get'
+        key: 'usecase:get',
       });
 
       expect(result.isSuccess).toBe(true);
@@ -183,12 +192,12 @@ describe('缓存系统集成测试', () => {
       // 先设置值
       await cacheUseCase.setCacheValue({
         key: 'usecase:delete',
-        value: 'delete_value'
+        value: 'delete_value',
       });
 
       // 删除值
       const deleteResult = await cacheUseCase.deleteCacheValue({
-        key: 'usecase:delete'
+        key: 'usecase:delete',
       });
 
       expect(deleteResult.isSuccess).toBe(true);
@@ -196,7 +205,7 @@ describe('缓存系统集成测试', () => {
 
       // 验证已删除
       const getResult = await cacheUseCase.getCacheValue({
-        key: 'usecase:delete'
+        key: 'usecase:delete',
       });
 
       expect(getResult.data.found).toBe(false);
@@ -209,14 +218,18 @@ describe('缓存系统集成测试', () => {
 
       // 清空缓存
       const result = await cacheUseCase.clearCache({
-        pattern: 'clear:*'
+        pattern: 'clear:*',
       });
 
       expect(result.isSuccess).toBe(true);
 
       // 验证已清空
-      const getResult1 = await cacheUseCase.getCacheValue({ key: 'clear:test1' });
-      const getResult2 = await cacheUseCase.getCacheValue({ key: 'clear:test2' });
+      const getResult1 = await cacheUseCase.getCacheValue({
+        key: 'clear:test1',
+      });
+      const getResult2 = await cacheUseCase.getCacheValue({
+        key: 'clear:test2',
+      });
 
       expect(getResult1.data.found).toBe(false);
       expect(getResult2.data.found).toBe(false);
@@ -227,7 +240,7 @@ describe('缓存系统集成测试', () => {
         { type: 'set', key: 'batch:test1', value: 'value1' },
         { type: 'set', key: 'batch:test2', value: 'value2' },
         { type: 'get', key: 'batch:test1' },
-        { type: 'delete', key: 'batch:test2' }
+        { type: 'delete', key: 'batch:test2' },
       ];
 
       const result = await cacheUseCase.batchCacheOperation({ operations });
@@ -266,7 +279,7 @@ describe('缓存系统集成测试', () => {
         url: '/api/users',
         query: { page: 1 },
         body: {},
-        user: { id: '123' }
+        user: { id: '123' },
       };
 
       const cacheKey = cacheMiddleware.generateCacheKey(mockReq);
@@ -304,7 +317,7 @@ describe('缓存系统集成测试', () => {
 
       // 先设置缓存
       await cacheService.set(`http:GET:${url}:{}:{}:anonymous`, 'cached_data', {
-        strategy: 'api'
+        strategy: 'api',
       });
 
       // 清除缓存
@@ -374,7 +387,7 @@ describe('缓存系统集成测试', () => {
       const keyValuePairs = new Map([
         ['batch:key1', 'value1'],
         ['batch:key2', 'value2'],
-        ['batch:key3', 'value3']
+        ['batch:key3', 'value3'],
       ]);
 
       // 批量设置
@@ -382,7 +395,11 @@ describe('缓存系统集成测试', () => {
       expect(setResult).toBe(true);
 
       // 批量获取
-      const getResult = await cacheService.mget(['batch:key1', 'batch:key2', 'batch:key3']);
+      const getResult = await cacheService.mget([
+        'batch:key1',
+        'batch:key2',
+        'batch:key3',
+      ]);
       expect(getResult.get('batch:key1')).toBe('value1');
       expect(getResult.get('batch:key2')).toBe('value2');
       expect(getResult.get('batch:key3')).toBe('value3');
@@ -393,7 +410,7 @@ describe('缓存系统集成测试', () => {
 
       await cacheService.setWithSmartExpiry(key, 'value', {
         ttl: 1000,
-        accessPattern: 'frequent'
+        accessPattern: 'frequent',
       });
 
       const result = await cacheService.get(key);
@@ -410,7 +427,9 @@ describe('缓存系统集成测试', () => {
     it('应该处理缓存服务不可用', async () => {
       // 模拟缓存服务错误
       const originalSet = cacheService.cacheManager.set;
-      cacheService.cacheManager.set = vi.fn().mockRejectedValue(new Error('Service unavailable'));
+      cacheService.cacheManager.set = vi
+        .fn()
+        .mockRejectedValue(new Error('Service unavailable'));
 
       const result = await cacheService.set('error:test', 'value');
       expect(result).toBe(false);
@@ -425,7 +444,9 @@ describe('缓存系统集成测试', () => {
         throw new Error('Factory error');
       };
 
-      await expect(cacheService.getOrSet(key, factory)).rejects.toThrow('Factory error');
+      await expect(cacheService.getOrSet(key, factory)).rejects.toThrow(
+        'Factory error',
+      );
     });
 
     it('应该处理并发缓存操作', async () => {
@@ -435,18 +456,20 @@ describe('缓存系统集成测试', () => {
 
       // 创建5个并发请求，所有都返回相同的值
       for (let i = 0; i < 5; i++) {
-        promises.push(cacheService.getOrSet(key, async () => {
-          callCount++;
-          await new Promise(resolve => setTimeout(resolve, 10)); // 模拟延迟
-          return 'same_value';
-        }));
+        promises.push(
+          cacheService.getOrSet(key, async () => {
+            callCount++;
+            await new Promise((resolve) => setTimeout(resolve, 10)); // 模拟延迟
+            return 'same_value';
+          }),
+        );
       }
 
       const results = await Promise.all(promises);
 
       // 验证所有结果都相同
       const firstResult = results[0];
-      const allSame = results.every(r => r === firstResult);
+      const allSame = results.every((r) => r === firstResult);
       expect(allSame).toBe(true);
       expect(firstResult).toBe('same_value');
       // 注意：由于实现限制，可能不是严格的1次调用，但结果应该相同
@@ -460,7 +483,8 @@ describe('缓存系统集成测试', () => {
         name: 'Custom Strategy',
         description: 'Test custom strategy',
         get: async (key) => await cacheService.get(`custom:${key}`),
-        set: async (key, value) => await cacheService.set(`custom:${key}`, value)
+        set: async (key, value) =>
+          await cacheService.set(`custom:${key}`, value),
       };
 
       cacheService.registerStrategy('custom', customStrategy);

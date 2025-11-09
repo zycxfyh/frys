@@ -3,9 +3,9 @@
  * 管理数据库模式的版本控制和迁移
  */
 
-import { logger } from '../../shared/utils/logger.js';
 import fs from 'fs/promises';
 import path from 'path';
+import { logger } from '../../shared/utils/logger.js';
 
 export class MigrationManager {
   constructor(connectionPool, options = {}) {

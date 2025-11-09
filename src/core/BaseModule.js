@@ -27,27 +27,32 @@ export class BaseModule {
     return {
       enabled: true,
       debug: false,
-      timeout: 30000
+      timeout: 30000,
     };
   }
 
   /**
    * 初始化模块
    */
-  async initialize() {
+  initialize() {
     try {
       if (this.initialized) {
         this.logger.warn(`${this.name} already initialized`);
         return;
       }
 
-      await this.onInitialize();
+      this.onInitialize();
       this.initialized = true;
       this.logger.info(`${this.name} initialized successfully`);
-
     } catch (error) {
-      this.logger.error(`${this.name} initialization failed`, { error: error.message });
-      throw frysError.system(`${this.name} initialization failed: ${error.message}`, 'module_init_failed', { originalError: error });
+      this.logger.error(`${this.name} initialization failed`, {
+        error: error.message,
+      });
+      throw frysError.system(
+        `${this.name} initialization failed: ${error.message}`,
+        'module_init_failed',
+        { originalError: error },
+      );
     }
   }
 
@@ -59,10 +64,15 @@ export class BaseModule {
       await this.onDestroy();
       this.initialized = false;
       this.logger.info(`${this.name} destroyed successfully`);
-
     } catch (error) {
-      this.logger.error(`${this.name} destruction failed`, { error: error.message });
-      throw frysError.system(`${this.name} destruction failed: ${error.message}`, 'module_destroy_failed', { originalError: error });
+      this.logger.error(`${this.name} destruction failed`, {
+        error: error.message,
+      });
+      throw frysError.system(
+        `${this.name} destruction failed: ${error.message}`,
+        'module_destroy_failed',
+        { originalError: error },
+      );
     }
   }
 
@@ -85,7 +95,9 @@ export class BaseModule {
    */
   updateConfig(newConfig) {
     this.config = { ...this.config, ...newConfig };
-    this.logger.info(`${this.name} configuration updated`, { config: this.config });
+    this.logger.info(`${this.name} configuration updated`, {
+      config: this.config,
+    });
   }
 
   /**
@@ -96,40 +108,40 @@ export class BaseModule {
       name: this.name,
       initialized: this.initialized,
       config: this.config,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
   /**
    * 子类实现：初始化逻辑
    */
-  async onInitialize() {
+  onInitialize() {
     // 子类实现具体的初始化逻辑
   }
 
   /**
    * 子类实现：销毁逻辑
    */
-  async onDestroy() {
+  onDestroy() {
     // 子类实现具体的销毁逻辑
   }
 
   /**
    * 健康检查
    */
-  async healthCheck() {
+  healthCheck() {
     try {
       const status = this.getStatus();
       return {
         healthy: this.initialized,
         status,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       return {
         healthy: false,
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -141,8 +153,10 @@ export class BaseModule {
     return {
       name: this.name,
       initialized: this.initialized,
-      uptime: this.initialized ? Date.now() - (this._startTime || Date.now()) : 0,
-      config: this.config
+      uptime: this.initialized
+        ? Date.now() - (this._startTime || Date.now())
+        : 0,
+      config: this.config,
     };
   }
 

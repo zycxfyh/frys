@@ -97,6 +97,10 @@ export class BaseEntity {
    * 从对象创建实体（用于反序列化）
    */
   static fromObject(obj) {
-    return new this(obj.id, new Date(obj.createdAt), new Date(obj.updatedAt));
+    return new BaseEntity(
+      obj.id,
+      new Date(obj.createdAt),
+      new Date(obj.updatedAt),
+    );
   }
 }

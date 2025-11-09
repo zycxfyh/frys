@@ -5,20 +5,21 @@
  * 验证回退操作的完整性和正确性
  */
 
-import { logger } from '../src/utils/logger.js';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../src/utils/logger.js';
 
 class RollbackVerifier {
   constructor(options = {}) {
     this.options = {
-      environment: options.environment || process.env.DEPLOY_ENV || 'production',
+      environment:
+        options.environment || process.env.DEPLOY_ENV || 'production',
       verificationTimeout: options.verificationTimeout || 300000, // 5分钟
       healthCheckUrl: options.healthCheckUrl || 'http://localhost:3000/health',
       metricsUrl: options.metricsUrl || 'http://localhost:3000/metrics',
       maxRetries: options.maxRetries || 3,
-      ...options
+      ...options,
     };
 
     this.verificationResults = {
@@ -26,12 +27,12 @@ class RollbackVerifier {
       environment: this.options.environment,
       checks: [],
       overallStatus: 'unknown',
-      duration: 0
+      duration: 0,
     };
 
     logger.info('🔍 回退验证器已初始化', {
       environment: this.options.environment,
-      timeout: this.options.verificationTimeout
+      timeout: this.options.verificationTimeout,
     });
   }
 
@@ -68,14 +69,20 @@ class RollbackVerifier {
       this.verificationResults.duration = Date.now() - startTime;
       this.verificationResults.overallStatus = this.determineOverallStatus();
 
-      logger.info(`回退验证完成，状态: ${this.verificationResults.overallStatus}`, {
-        duration: `${this.verificationResults.duration}ms`,
-        checksPassed: this.verificationResults.checks.filter(c => c.status === 'passed').length,
-        checksFailed: this.verificationResults.checks.filter(c => c.status === 'failed').length
-      });
+      logger.info(
+        `回退验证完成，状态: ${this.verificationResults.overallStatus}`,
+        {
+          duration: `${this.verificationResults.duration}ms`,
+          checksPassed: this.verificationResults.checks.filter(
+            (c) => c.status === 'passed',
+          ).length,
+          checksFailed: this.verificationResults.checks.filter(
+            (c) => c.status === 'failed',
+          ).length,
+        },
+      );
 
       return this.verificationResults;
-
     } catch (error) {
       logger.error('回退验证失败', error);
       this.verificationResults.overallStatus = 'failed';
@@ -94,7 +101,7 @@ class RollbackVerifier {
       name,
       status,
       timestamp: new Date().toISOString(),
-      ...details
+      ...details,
     };
 
     this.verificationResults.checks.push(check);
@@ -115,7 +122,7 @@ class RollbackVerifier {
       if (!portCheck.available) {
         this.addCheckResult('端口可用性', 'failed', {
           port: 3000,
-          error: '应用端口未监听'
+          error: '应用端口未监听',
         });
         return;
       }
@@ -125,16 +132,15 @@ class RollbackVerifier {
       if (!httpCheck.success) {
         this.addCheckResult('HTTP响应', 'failed', {
           url: 'http://localhost:3000',
-          error: httpCheck.error
+          error: httpCheck.error,
         });
         return;
       }
 
       this.addCheckResult('基础可用性', 'passed', {
         port: 3000,
-        responseTime: httpCheck.responseTime
+        responseTime: httpCheck.responseTime,
       });
-
     } catch (error) {
       this.addCheckResult('基础可用性', 'failed', { error: error.message });
     }
@@ -147,12 +153,15 @@ class RollbackVerifier {
     logger.info('检查应用健康状态...');
 
     try {
-      const healthResponse = await this.checkHttpResponse(this.options.healthCheckUrl, 10000);
+      const healthResponse = await this.checkHttpResponse(
+        this.options.healthCheckUrl,
+        10000,
+      );
 
       if (!healthResponse.success) {
         this.addCheckResult('应用健康检查', 'failed', {
           url: this.options.healthCheckUrl,
-          error: healthResponse.error
+          error: healthResponse.error,
         });
         return;
       }
@@ -164,22 +173,24 @@ class RollbackVerifier {
         this.addCheckResult('应用健康状态', 'failed', {
           status: healthData.status,
           uptime: healthData.uptime,
-          version: healthData.version
+          version: healthData.version,
         });
         return;
       }
 
       // 检查各个健康组件
       const checks = healthData.checks || {};
-      const failedChecks = Object.entries(checks).filter(([_, check]) => check.status !== 'healthy');
+      const failedChecks = Object.entries(checks).filter(
+        ([_, check]) => check.status !== 'healthy',
+      );
 
       if (failedChecks.length > 0) {
         this.addCheckResult('健康组件检查', 'failed', {
           failedChecks: failedChecks.map(([name, check]) => ({
             name,
             status: check.status,
-            error: check.error
-          }))
+            error: check.error,
+          })),
         });
         return;
       }
@@ -188,9 +199,8 @@ class RollbackVerifier {
         status: healthData.status,
         uptime: healthData.uptime,
         version: healthData.version,
-        checksCount: Object.keys(checks).length
+        checksCount: Object.keys(checks).length,
       });
-
     } catch (error) {
       this.addCheckResult('应用健康检查', 'failed', { error: error.message });
     }
@@ -203,12 +213,15 @@ class RollbackVerifier {
     logger.info('检查性能指标...');
 
     try {
-      const metricsResponse = await this.checkHttpResponse(this.options.metricsUrl, 15000);
+      const metricsResponse = await this.checkHttpResponse(
+        this.options.metricsUrl,
+        15000,
+      );
 
       if (!metricsResponse.success) {
         this.addCheckResult('性能指标检查', 'warning', {
           url: this.options.metricsUrl,
-          error: '无法获取指标数据，但不影响基本功能'
+          error: '无法获取指标数据，但不影响基本功能',
         });
         return;
       }
@@ -222,7 +235,9 @@ class RollbackVerifier {
       const issues = [];
 
       if (keyMetrics.memoryUsage > 0.9) {
-        issues.push(`内存使用过高: ${(keyMetrics.memoryUsage * 100).toFixed(1)}%`);
+        issues.push(
+          `内存使用过高: ${(keyMetrics.memoryUsage * 100).toFixed(1)}%`,
+        );
       }
 
       if (keyMetrics.errorRate > 0.05) {
@@ -236,16 +251,15 @@ class RollbackVerifier {
       if (issues.length > 0) {
         this.addCheckResult('性能指标验证', 'warning', {
           issues,
-          metrics: keyMetrics
+          metrics: keyMetrics,
         });
       } else {
         this.addCheckResult('性能指标验证', 'passed', { metrics: keyMetrics });
       }
-
     } catch (error) {
       this.addCheckResult('性能指标检查', 'warning', {
         error: error.message,
-        note: '性能指标检查失败，但不影响回退验证'
+        note: '性能指标检查失败，但不影响回退验证',
       });
     }
   }
@@ -264,7 +278,7 @@ class RollbackVerifier {
       const missingServices = [];
 
       for (const service of requiredServices) {
-        const container = containers.find(c => c.name.includes(service));
+        const container = containers.find((c) => c.name.includes(service));
         if (!container || container.status !== 'running') {
           missingServices.push(service);
         }
@@ -273,7 +287,8 @@ class RollbackVerifier {
       if (missingServices.length > 0) {
         this.addCheckResult('依赖服务检查', 'failed', {
           missingServices,
-          runningContainers: containers.filter(c => c.status === 'running').length
+          runningContainers: containers.filter((c) => c.status === 'running')
+            .length,
         });
         return;
       }
@@ -281,23 +296,26 @@ class RollbackVerifier {
       // 检查数据库连接
       const dbCheck = await this.checkDatabaseConnection();
       if (!dbCheck.success) {
-        this.addCheckResult('数据库连接检查', 'failed', { error: dbCheck.error });
+        this.addCheckResult('数据库连接检查', 'failed', {
+          error: dbCheck.error,
+        });
         return;
       }
 
       // 检查缓存连接
       const cacheCheck = await this.checkCacheConnection();
       if (!cacheCheck.success) {
-        this.addCheckResult('缓存连接检查', 'failed', { error: cacheCheck.error });
+        this.addCheckResult('缓存连接检查', 'failed', {
+          error: cacheCheck.error,
+        });
         return;
       }
 
       this.addCheckResult('依赖服务检查', 'passed', {
         runningServices: requiredServices.length,
         databaseStatus: dbCheck.status,
-        cacheStatus: cacheCheck.status
+        cacheStatus: cacheCheck.status,
       });
-
     } catch (error) {
       this.addCheckResult('依赖服务检查', 'failed', { error: error.message });
     }
@@ -316,20 +334,19 @@ class RollbackVerifier {
       if (!consistencyCheck.success) {
         this.addCheckResult('数据一致性检查', 'failed', {
           error: consistencyCheck.error,
-          checksPerformed: consistencyCheck.checksPerformed
+          checksPerformed: consistencyCheck.checksPerformed,
         });
         return;
       }
 
       this.addCheckResult('数据一致性检查', 'passed', {
         checksPerformed: consistencyCheck.checksPerformed,
-        tablesChecked: consistencyCheck.tablesChecked
+        tablesChecked: consistencyCheck.tablesChecked,
       });
-
     } catch (error) {
       this.addCheckResult('数据一致性检查', 'warning', {
         error: error.message,
-        note: '数据一致性检查失败，但回退可能仍然有效'
+        note: '数据一致性检查失败，但回退可能仍然有效',
       });
     }
   }
@@ -346,7 +363,7 @@ class RollbackVerifier {
 
       if (!activeEnvironment) {
         this.addCheckResult('流量分布检查', 'failed', {
-          error: '无法确定活跃环境'
+          error: '无法确定活跃环境',
         });
         return;
       }
@@ -358,20 +375,19 @@ class RollbackVerifier {
         this.addCheckResult('流量路由验证', 'failed', {
           activeEnvironment,
           expectedEnvironment: trafficCheck.expected,
-          actualEnvironment: trafficCheck.actual
+          actualEnvironment: trafficCheck.actual,
         });
         return;
       }
 
       this.addCheckResult('流量分布检查', 'passed', {
         activeEnvironment,
-        trafficVerified: true
+        trafficVerified: true,
       });
-
     } catch (error) {
       this.addCheckResult('流量分布检查', 'warning', {
         error: error.message,
-        note: '流量检查失败，但回退可能仍然成功'
+        note: '流量检查失败，但回退可能仍然成功',
       });
     }
   }
@@ -388,9 +404,13 @@ class RollbackVerifier {
         environment: this.options.environment,
         verificationStatus: this.verificationResults.overallStatus,
         checksPerformed: this.verificationResults.checks.length,
-        checksPassed: this.verificationResults.checks.filter(c => c.status === 'passed').length,
-        checksFailed: this.verificationResults.checks.filter(c => c.status === 'failed').length,
-        duration: this.verificationResults.duration
+        checksPassed: this.verificationResults.checks.filter(
+          (c) => c.status === 'passed',
+        ).length,
+        checksFailed: this.verificationResults.checks.filter(
+          (c) => c.status === 'failed',
+        ).length,
+        duration: this.verificationResults.duration,
       };
 
       // 保存到回退历史文件
@@ -416,13 +436,12 @@ class RollbackVerifier {
 
       this.addCheckResult('回退事件记录', 'passed', {
         historyFile,
-        totalEvents: history.length
+        totalEvents: history.length,
       });
-
     } catch (error) {
       this.addCheckResult('回退事件记录', 'warning', {
         error: error.message,
-        note: '回退事件记录失败，但不影响回退有效性'
+        note: '回退事件记录失败，但不影响回退有效性',
       });
     }
   }
@@ -432,7 +451,9 @@ class RollbackVerifier {
    */
   async checkPortAvailability(port) {
     try {
-      const result = execSync(`netstat -tln | grep :${port}`, { encoding: 'utf8' });
+      const result = execSync(`netstat -tln | grep :${port}`, {
+        encoding: 'utf8',
+      });
       return { available: result.includes(`:${port}`) };
     } catch (error) {
       return { available: false, error: error.message };
@@ -451,7 +472,7 @@ class RollbackVerifier {
 
       const response = await fetch(url, {
         signal: controller.signal,
-        headers: { 'User-Agent': 'RollbackVerifier' }
+        headers: { 'User-Agent': 'RollbackVerifier' },
       });
 
       clearTimeout(timeoutId);
@@ -463,13 +484,13 @@ class RollbackVerifier {
         statusCode: response.status,
         responseTime,
         body,
-        headers: Object.fromEntries(response.headers.entries())
+        headers: Object.fromEntries(response.headers.entries()),
       };
     } catch (error) {
       return {
         success: false,
         error: error.message,
-        responseTime: timeout
+        responseTime: timeout,
       };
     }
   }
@@ -482,7 +503,7 @@ class RollbackVerifier {
       memoryUsage: 0,
       errorRate: 0,
       avgResponseTime: 0,
-      activeConnections: 0
+      activeConnections: 0,
     };
 
     try {
@@ -512,14 +533,16 @@ class RollbackVerifier {
   async getDockerContainerStatus() {
     try {
       const result = execSync('docker ps --format json', { encoding: 'utf8' });
-      const containers = result.trim().split('\n')
-        .filter(line => line.trim())
-        .map(line => JSON.parse(line));
+      const containers = result
+        .trim()
+        .split('\n')
+        .filter((line) => line.trim())
+        .map((line) => JSON.parse(line));
 
-      return containers.map(c => ({
+      return containers.map((c) => ({
         name: c.Names,
         status: c.State,
-        ports: c.Ports
+        ports: c.Ports,
       }));
     } catch (error) {
       logger.warn('获取Docker容器状态失败', error);
@@ -563,7 +586,7 @@ class RollbackVerifier {
       return {
         success: true,
         checksPerformed: ['table_existence', 'foreign_keys', 'data_integrity'],
-        tablesChecked: 5
+        tablesChecked: 5,
       };
     } catch (error) {
       return { success: false, error: error.message };
@@ -575,13 +598,19 @@ class RollbackVerifier {
    */
   async getActiveEnvironment() {
     try {
-      const result = execSync(`docker-compose -f docker-compose.${this.options.environment}.yml ps`, {
-        encoding: 'utf8'
-      });
+      const result = execSync(
+        `docker-compose -f docker-compose.${this.options.environment}.yml ps`,
+        {
+          encoding: 'utf8',
+        },
+      );
 
       if (result.includes('frys-blue') && !result.includes('frys-green')) {
         return 'blue';
-      } else if (result.includes('frys-green') && !result.includes('frys-blue')) {
+      } else if (
+        result.includes('frys-green') &&
+        !result.includes('frys-blue')
+      ) {
         return 'green';
       }
 
@@ -602,12 +631,12 @@ class RollbackVerifier {
       return {
         correct: true,
         expected: activeEnvironment,
-        actual: activeEnvironment
+        actual: activeEnvironment,
       };
     } catch (error) {
       return {
         correct: false,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -617,12 +646,14 @@ class RollbackVerifier {
    */
   determineOverallStatus() {
     const checks = this.verificationResults.checks;
-    const criticalChecks = checks.filter(c => c.name.includes('健康') || c.name.includes('可用性'));
-    const optionalChecks = checks.filter(c => !criticalChecks.includes(c));
+    const criticalChecks = checks.filter(
+      (c) => c.name.includes('健康') || c.name.includes('可用性'),
+    );
+    const optionalChecks = checks.filter((c) => !criticalChecks.includes(c));
 
     // 所有关键检查都必须通过
-    const criticalPassed = criticalChecks.every(c => c.status === 'passed');
-    const optionalPassed = optionalChecks.every(c => c.status === 'passed');
+    const criticalPassed = criticalChecks.every((c) => c.status === 'passed');
+    const optionalPassed = optionalChecks.every((c) => c.status === 'passed');
 
     if (criticalPassed && optionalPassed) {
       return 'passed';
@@ -641,12 +672,18 @@ class RollbackVerifier {
       ...this.verificationResults,
       summary: {
         totalChecks: this.verificationResults.checks.length,
-        passedChecks: this.verificationResults.checks.filter(c => c.status === 'passed').length,
-        failedChecks: this.verificationResults.checks.filter(c => c.status === 'failed').length,
-        warningChecks: this.verificationResults.checks.filter(c => c.status === 'warning').length,
-        overallStatus: this.verificationResults.overallStatus
+        passedChecks: this.verificationResults.checks.filter(
+          (c) => c.status === 'passed',
+        ).length,
+        failedChecks: this.verificationResults.checks.filter(
+          (c) => c.status === 'failed',
+        ).length,
+        warningChecks: this.verificationResults.checks.filter(
+          (c) => c.status === 'warning',
+        ).length,
+        overallStatus: this.verificationResults.overallStatus,
       },
-      recommendations: this.generateRecommendations()
+      recommendations: this.generateRecommendations(),
     };
 
     return report;
@@ -657,21 +694,23 @@ class RollbackVerifier {
    */
   generateRecommendations() {
     const recommendations = [];
-    const failedChecks = this.verificationResults.checks.filter(c => c.status === 'failed');
+    const failedChecks = this.verificationResults.checks.filter(
+      (c) => c.status === 'failed',
+    );
 
-    if (failedChecks.some(c => c.name.includes('健康'))) {
+    if (failedChecks.some((c) => c.name.includes('健康'))) {
       recommendations.push({
         priority: 'high',
         message: '应用健康检查失败，建议检查应用日志和配置',
-        action: 'check_application_logs'
+        action: 'check_application_logs',
       });
     }
 
-    if (failedChecks.some(c => c.name.includes('依赖'))) {
+    if (failedChecks.some((c) => c.name.includes('依赖'))) {
       recommendations.push({
         priority: 'high',
         message: '依赖服务检查失败，建议检查数据库和缓存服务',
-        action: 'verify_infrastructure'
+        action: 'verify_infrastructure',
       });
     }
 
@@ -679,7 +718,7 @@ class RollbackVerifier {
       recommendations.push({
         priority: 'medium',
         message: '回退成功但存在警告，建议监控系统性能',
-        action: 'monitor_performance'
+        action: 'monitor_performance',
       });
     }
 
@@ -705,16 +744,24 @@ class RollbackVerifier {
 
     console.log('\n📋 详细检查结果:');
     report.checks.forEach((check, index) => {
-      const status = check.status === 'passed' ? '✅' :
-                     check.status === 'failed' ? '❌' : '⚠️';
+      const status =
+        check.status === 'passed'
+          ? '✅'
+          : check.status === 'failed'
+            ? '❌'
+            : '⚠️';
       console.log(`   ${index + 1}. ${status} ${check.name}`);
     });
 
     if (report.recommendations.length > 0) {
       console.log('\n💡 建议行动:');
       report.recommendations.forEach((rec, index) => {
-        const priority = rec.priority === 'high' ? '🔴' :
-                        rec.priority === 'medium' ? '🟡' : '🟢';
+        const priority =
+          rec.priority === 'high'
+            ? '🔴'
+            : rec.priority === 'medium'
+              ? '🟡'
+              : '🟢';
         console.log(`   ${index + 1}. ${priority} ${rec.message}`);
       });
     }
@@ -780,13 +827,17 @@ frys 回退验证器
 const options = parseArgs();
 const verifier = new RollbackVerifier(options);
 
-verifier.verifyRollback()
-  .then(results => {
+verifier
+  .verifyRollback()
+  .then((results) => {
     verifier.printSummary();
 
     // 保存详细报告
     const report = verifier.generateReport();
-    const reportPath = path.join(process.cwd(), 'rollback-verification-report.json');
+    const reportPath = path.join(
+      process.cwd(),
+      'rollback-verification-report.json',
+    );
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
 
     logger.info(`详细报告已保存至: ${reportPath}`);
@@ -795,7 +846,7 @@ verifier.verifyRollback()
     const exitCode = results.overallStatus === 'passed' ? 0 : 1;
     process.exit(exitCode);
   })
-  .catch(error => {
+  .catch((error) => {
     logger.error('回退验证执行失败', error);
     process.exit(1);
   });

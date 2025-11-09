@@ -5,157 +5,184 @@
  * 生成详细的测试报告，包含覆盖率分析、趋势图表等
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, '..');
+const rootDir = path.resolve(__dirname, "..");
 
 class TestReportGenerator {
-  constructor() {
-    this.reports = {
-      coverage: null,
-      testResults: null,
-      performance: null,
-      trends: null,
-    };
-  }
+	constructor() {
+		this.reports = {
+			coverage: null,
+			testResults: null,
+			performance: null,
+			trends: null,
+		};
+	}
 
-  async generate() {
-    console.log('📊 生成测试报告...');
+	async generate() {
+		console.log("📊 生成测试报告...");
 
-    try {
-      await this.loadReports();
-      await this.generateSummaryReport();
-      await this.generateCoverageReport();
-      await this.generateTrendReport();
-      await this.generateHTMLReport();
+		try {
+			await this.loadReports();
+			await this.generateSummaryReport();
+			await this.generateCoverageReport();
+			await this.generateTrendReport();
+			await this.generateHTMLReport();
 
-      console.log('✅ 测试报告生成完成');
-    } catch (error) {
-      console.error('❌ 生成测试报告失败:', error.message);
-      process.exit(1);
-    }
-  }
+			console.log("✅ 测试报告生成完成");
+		} catch (error) {
+			console.error("❌ 生成测试报告失败:", error.message);
+			process.exit(1);
+		}
+	}
 
-  async loadReports() {
-    const coveragePath = path.join(rootDir, 'coverage', 'coverage-summary.json');
-    const testResultsPath = path.join(rootDir, 'test-results', 'test-results.json');
-    const performancePath = path.join(rootDir, 'test-results', 'performance-results.json');
+	async loadReports() {
+		const coveragePath = path.join(
+			rootDir,
+			"coverage",
+			"coverage-summary.json",
+		);
+		const testResultsPath = path.join(
+			rootDir,
+			"test-results",
+			"test-results.json",
+		);
+		const performancePath = path.join(
+			rootDir,
+			"test-results",
+			"performance-results.json",
+		);
 
-    if (fs.existsSync(coveragePath)) {
-      this.reports.coverage = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
-    }
+		if (fs.existsSync(coveragePath)) {
+			this.reports.coverage = JSON.parse(fs.readFileSync(coveragePath, "utf8"));
+		}
 
-    if (fs.existsSync(testResultsPath)) {
-      this.reports.testResults = JSON.parse(fs.readFileSync(testResultsPath, 'utf8'));
-    }
+		if (fs.existsSync(testResultsPath)) {
+			this.reports.testResults = JSON.parse(
+				fs.readFileSync(testResultsPath, "utf8"),
+			);
+		}
 
-    if (fs.existsSync(performancePath)) {
-      this.reports.performance = JSON.parse(fs.readFileSync(performancePath, 'utf8'));
-    }
+		if (fs.existsSync(performancePath)) {
+			this.reports.performance = JSON.parse(
+				fs.readFileSync(performancePath, "utf8"),
+			);
+		}
 
-    // 加载历史趋势数据
-    const trendsPath = path.join(rootDir, 'test-results', 'trends.json');
-    if (fs.existsSync(trendsPath)) {
-      this.reports.trends = JSON.parse(fs.readFileSync(trendsPath, 'utf8'));
-    } else {
-      this.reports.trends = [];
-    }
-  }
+		// 加载历史趋势数据
+		const trendsPath = path.join(rootDir, "test-results", "trends.json");
+		if (fs.existsSync(trendsPath)) {
+			this.reports.trends = JSON.parse(fs.readFileSync(trendsPath, "utf8"));
+		} else {
+			this.reports.trends = [];
+		}
+	}
 
-  async generateSummaryReport() {
-    const timestamp = new Date().toISOString();
-    const summary = {
-      timestamp,
-      coverage: this.reports.coverage?.total || {},
-      tests: this.reports.testResults?.numTotalTests || 0,
-      passed: this.reports.testResults?.numPassedTests || 0,
-      failed: this.reports.testResults?.numFailedTests || 0,
-      duration: this.reports.testResults?.duration || 0,
-      performance: this.reports.performance || {},
-    };
+	async generateSummaryReport() {
+		const timestamp = new Date().toISOString();
+		const summary = {
+			timestamp,
+			coverage: this.reports.coverage?.total || {},
+			tests: this.reports.testResults?.numTotalTests || 0,
+			passed: this.reports.testResults?.numPassedTests || 0,
+			failed: this.reports.testResults?.numFailedTests || 0,
+			duration: this.reports.testResults?.duration || 0,
+			performance: this.reports.performance || {},
+		};
 
-    const summaryPath = path.join(rootDir, 'test-results', 'summary.json');
-    fs.mkdirSync(path.dirname(summaryPath), { recursive: true });
-    fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2));
+		const summaryPath = path.join(rootDir, "test-results", "summary.json");
+		fs.mkdirSync(path.dirname(summaryPath), { recursive: true });
+		fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2));
 
-    console.log('📋 摘要报告已生成');
-  }
+		console.log("📋 摘要报告已生成");
+	}
 
-  async generateCoverageReport() {
-    if (!this.reports.coverage) {
-      console.log('⚠️  未找到覆盖率数据');
-      return;
-    }
+	async generateCoverageReport() {
+		if (!this.reports.coverage) {
+			console.log("⚠️  未找到覆盖率数据");
+			return;
+		}
 
-    const coverage = this.reports.coverage;
-    const report = {
-      timestamp: new Date().toISOString(),
-      total: coverage.total,
-      files: Object.entries(coverage).filter(([key]) => key !== 'total').map(([file, data]) => ({
-        file,
-        ...data,
-      })),
-    };
+		const coverage = this.reports.coverage;
+		const report = {
+			timestamp: new Date().toISOString(),
+			total: coverage.total,
+			files: Object.entries(coverage)
+				.filter(([key]) => key !== "total")
+				.map(([file, data]) => ({
+					file,
+					...data,
+				})),
+		};
 
-    // 计算覆盖率趋势
-    if (this.reports.trends.length > 0) {
-      const lastTrend = this.reports.trends[this.reports.trends.length - 1];
-      report.trend = {
-        lines: report.total.lines.pct - (lastTrend.coverage?.lines?.pct || 0),
-        functions: report.total.functions.pct - (lastTrend.coverage?.functions?.pct || 0),
-        branches: report.total.branches.pct - (lastTrend.coverage?.branches?.pct || 0),
-        statements: report.total.statements.pct - (lastTrend.coverage?.statements?.pct || 0),
-      };
-    }
+		// 计算覆盖率趋势
+		if (this.reports.trends.length > 0) {
+			const lastTrend = this.reports.trends[this.reports.trends.length - 1];
+			report.trend = {
+				lines: report.total.lines.pct - (lastTrend.coverage?.lines?.pct || 0),
+				functions:
+					report.total.functions.pct -
+					(lastTrend.coverage?.functions?.pct || 0),
+				branches:
+					report.total.branches.pct - (lastTrend.coverage?.branches?.pct || 0),
+				statements:
+					report.total.statements.pct -
+					(lastTrend.coverage?.statements?.pct || 0),
+			};
+		}
 
-    const coverageReportPath = path.join(rootDir, 'test-results', 'coverage-report.json');
-    fs.writeFileSync(coverageReportPath, JSON.stringify(report, null, 2));
+		const coverageReportPath = path.join(
+			rootDir,
+			"test-results",
+			"coverage-report.json",
+		);
+		fs.writeFileSync(coverageReportPath, JSON.stringify(report, null, 2));
 
-    console.log('📈 覆盖率报告已生成');
-  }
+		console.log("📈 覆盖率报告已生成");
+	}
 
-  async generateTrendReport() {
-    const currentSummary = {
-      timestamp: new Date().toISOString(),
-      coverage: this.reports.coverage?.total || {},
-      tests: this.reports.testResults?.numTotalTests || 0,
-      passed: this.reports.testResults?.numPassedTests || 0,
-      failed: this.reports.testResults?.numFailedTests || 0,
-      duration: this.reports.testResults?.duration || 0,
-    };
+	async generateTrendReport() {
+		const currentSummary = {
+			timestamp: new Date().toISOString(),
+			coverage: this.reports.coverage?.total || {},
+			tests: this.reports.testResults?.numTotalTests || 0,
+			passed: this.reports.testResults?.numPassedTests || 0,
+			failed: this.reports.testResults?.numFailedTests || 0,
+			duration: this.reports.testResults?.duration || 0,
+		};
 
-    this.reports.trends.push(currentSummary);
+		this.reports.trends.push(currentSummary);
 
-    // 只保留最近30天的趋势数据
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    this.reports.trends = this.reports.trends.filter(
-      item => new Date(item.timestamp) > thirtyDaysAgo
-    );
+		// 只保留最近30天的趋势数据
+		const thirtyDaysAgo = new Date();
+		thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+		this.reports.trends = this.reports.trends.filter(
+			(item) => new Date(item.timestamp) > thirtyDaysAgo,
+		);
 
-    const trendsPath = path.join(rootDir, 'test-results', 'trends.json');
-    fs.writeFileSync(trendsPath, JSON.stringify(this.reports.trends, null, 2));
+		const trendsPath = path.join(rootDir, "test-results", "trends.json");
+		fs.writeFileSync(trendsPath, JSON.stringify(this.reports.trends, null, 2));
 
-    console.log('📊 趋势报告已更新');
-  }
+		console.log("📊 趋势报告已更新");
+	}
 
-  async generateHTMLReport() {
-    const html = this.generateHTMLContent();
-    const htmlPath = path.join(rootDir, 'test-results', 'test-report.html');
-    fs.writeFileSync(htmlPath, html);
+	async generateHTMLReport() {
+		const html = this.generateHTMLContent();
+		const htmlPath = path.join(rootDir, "test-results", "test-report.html");
+		fs.writeFileSync(htmlPath, html);
 
-    console.log('🌐 HTML报告已生成');
-  }
+		console.log("🌐 HTML报告已生成");
+	}
 
-  generateHTMLContent() {
-    const coverage = this.reports.coverage?.total || {};
-    const testResults = this.reports.testResults || {};
+	generateHTMLContent() {
+		const coverage = this.reports.coverage?.total || {};
+		const testResults = this.reports.testResults || {};
 
-    return `
+		return `
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -194,11 +221,11 @@ class TestReportGenerator {
     <div class="container">
         <div class="header">
             <h1>🧪 frys 测试报告</h1>
-            <p>生成时间: ${new Date().toLocaleString('zh-CN')}</p>
+            <p>生成时间: ${new Date().toLocaleString("zh-CN")}</p>
         </div>
 
         <div class="stats">
-            <div class="stat-card ${testResults.numFailedTests > 0 ? 'status-failed' : 'status-passed'}">
+            <div class="stat-card ${testResults.numFailedTests > 0 ? "status-failed" : "status-passed"}">
                 <h3>测试总数</h3>
                 <div class="value">${testResults.numTotalTests || 0}<span class="unit">个</span></div>
             </div>
@@ -206,7 +233,7 @@ class TestReportGenerator {
                 <h3>通过测试</h3>
                 <div class="value">${testResults.numPassedTests || 0}<span class="unit">个</span></div>
             </div>
-            <div class="stat-card ${testResults.numFailedTests > 0 ? 'status-failed' : 'status-passed'}">
+            <div class="stat-card ${testResults.numFailedTests > 0 ? "status-failed" : "status-passed"}">
                 <h3>失败测试</h3>
                 <div class="value">${testResults.numFailedTests || 0}<span class="unit">个</span></div>
             </div>
@@ -256,7 +283,7 @@ class TestReportGenerator {
     </div>
 </body>
 </html>`;
-  }
+	}
 }
 
 // 执行生成

@@ -3,8 +3,8 @@
  * 演示如何使用LangChain、Cognee记忆系统和对话管理
  */
 
-import { LangChainService } from '../src/application/services/ai/LangChainService.js';
 import { CogneeMemoryService } from '../src/application/services/ai/CogneeMemoryService.js';
+import { LangChainService } from '../src/application/services/ai/LangChainService.js';
 import { ConversationManager } from '../src/application/services/ConversationManager.js';
 import { logger } from '../src/utils/logger.js';
 
@@ -30,7 +30,7 @@ async function langChainExample() {
 
 用户输入: {input}
 
-助手回复:`
+助手回复:`,
     });
 
     console.log('✅ 对话链创建成功:', chainResult);
@@ -39,16 +39,17 @@ async function langChainExample() {
     console.log('💬 执行对话...');
     const conversationResult = await langChainService.runConversation(
       chainResult.chainId,
-      '你好，请介绍一下自己'
+      '你好，请介绍一下自己',
     );
 
     console.log('✅ 对话结果:', conversationResult);
 
     // 获取对话历史
     console.log('📚 获取对话历史...');
-    const historyResult = await langChainService.getConversationHistory(chainResult.chainId);
+    const historyResult = await langChainService.getConversationHistory(
+      chainResult.chainId,
+    );
     console.log('✅ 对话历史:', historyResult);
-
   } catch (error) {
     console.error('❌ LangChain示例失败:', error.message);
   }
@@ -76,27 +77,23 @@ async function cogneeExample() {
       metadata: {
         userId: 'user123',
         confidence: 0.9,
-        source: 'conversation'
+        source: 'conversation',
       },
       userId: 'user123',
       sessionId: 'session456',
-      tags: ['preference', 'python', 'data-analysis']
+      tags: ['preference', 'python', 'data-analysis'],
     });
 
     console.log('✅ 记忆存储结果:', memoryResult);
 
     // 检索记忆
     console.log('🔍 检索记忆...');
-    const searchResult = await cogneeService.retrieveMemory(
-      '用户编程偏好',
-      {
-        userId: 'user123',
-        limit: 5
-      }
-    );
+    const searchResult = await cogneeService.retrieveMemory('用户编程偏好', {
+      userId: 'user123',
+      limit: 5,
+    });
 
     console.log('✅ 记忆检索结果:', searchResult);
-
   } catch (error) {
     console.error('❌ Cognee示例失败:', error.message);
   }
@@ -119,7 +116,7 @@ async function conversationExample() {
       model: 'openai',
       memory: true,
       persistMemory: true,
-      systemPrompt: '你是一个友好的AI助手，擅长解答技术问题。'
+      systemPrompt: '你是一个友好的AI助手，擅长解答技术问题。',
     });
 
     console.log('✅ 对话创建结果:', conversationResult);
@@ -128,7 +125,7 @@ async function conversationExample() {
     console.log('📨 发送消息...');
     const messageResult = await conversationManager.sendMessage(
       conversationResult.data.conversationId,
-      '请解释什么是微服务架构'
+      '请解释什么是微服务架构',
     );
 
     console.log('✅ 消息发送结果:', messageResult);
@@ -137,7 +134,7 @@ async function conversationExample() {
     console.log('📜 获取对话历史...');
     const historyResult = await conversationManager.getConversationHistory(
       conversationResult.data.conversationId,
-      { limit: 10 }
+      { limit: 10 },
     );
 
     console.log('✅ 对话历史:', historyResult);
@@ -145,7 +142,7 @@ async function conversationExample() {
     // 获取对话统计
     console.log('📊 获取对话统计...');
     const statsResult = await conversationManager.getConversationStats(
-      conversationResult.data.conversationId
+      conversationResult.data.conversationId,
     );
 
     console.log('✅ 对话统计:', statsResult);
@@ -153,11 +150,10 @@ async function conversationExample() {
     // 结束对话
     console.log('🏁 结束对话...');
     const endResult = await conversationManager.endConversation(
-      conversationResult.data.conversationId
+      conversationResult.data.conversationId,
     );
 
     console.log('✅ 对话结束结果:', endResult);
-
   } catch (error) {
     console.error('❌ 对话管理示例失败:', error.message);
   }
@@ -177,7 +173,7 @@ async function comprehensiveExample() {
       userId: 'demo_user',
       model: 'openai',
       memory: true,
-      persistMemory: true
+      persistMemory: true,
     });
 
     console.log('✅ 创建对话:', conversation.data);
@@ -187,34 +183,35 @@ async function comprehensiveExample() {
       '我叫张三，是一名软件工程师',
       '我主要使用Python和JavaScript',
       '我对AI和机器学习很感兴趣',
-      '请根据我们的对话，总结一下我的个人信息'
+      '请根据我们的对话，总结一下我的个人信息',
     ];
 
     for (const message of messages) {
       console.log(`📤 发送: ${message}`);
       const result = await conversationManager.sendMessage(
         conversation.data.conversationId,
-        message
+        message,
       );
-      console.log(`📥 回复: ${result.data.message.content.substring(0, 100)}...`);
+      console.log(
+        `📥 回复: ${result.data.message.content.substring(0, 100)}...`,
+      );
     }
 
     // 获取对话统计
     const stats = await conversationManager.getConversationStats(
-      conversation.data.conversationId
+      conversation.data.conversationId,
     );
 
     console.log('📊 对话统计:', {
       总消息数: stats.data.totalMessages,
       用户消息: stats.data.userMessages,
       助手消息: stats.data.assistantMessages,
-      平均响应时间: `${stats.data.averageResponseTime}ms`
+      平均响应时间: `${stats.data.averageResponseTime}ms`,
     });
 
     // 结束对话
     await conversationManager.endConversation(conversation.data.conversationId);
     console.log('✅ 综合演示完成');
-
   } catch (error) {
     console.error('❌ 综合演示失败:', error.message);
   }
@@ -229,15 +226,14 @@ async function main() {
 
   // 检查环境变量
   console.log('🔍 检查环境变量...');
-  const requiredEnvVars = [
-    'OPENAI_API_KEY',
-    'COGNEE_API_KEY'
-  ];
+  const requiredEnvVars = ['OPENAI_API_KEY', 'COGNEE_API_KEY'];
 
-  const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+  const missingVars = requiredEnvVars.filter(
+    (varName) => !process.env[varName],
+  );
   if (missingVars.length > 0) {
     console.log('⚠️  缺少必要的环境变量，请设置以下变量以获得最佳体验:');
-    missingVars.forEach(varName => console.log(`   - ${varName}`));
+    missingVars.forEach((varName) => console.log(`   - ${varName}`));
     console.log('继续演示，但某些功能可能不可用...\n');
   }
 
@@ -250,7 +246,6 @@ async function main() {
 
     console.log('\n🎉 所有演示完成！');
     console.log('💡 提示: 请确保设置了相应的API密钥以获得完整功能');
-
   } catch (error) {
     console.error('❌ 演示过程中发生错误:', error.message);
     process.exit(1);
@@ -259,7 +254,7 @@ async function main() {
 
 // 运行演示
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(error => {
+  main().catch((error) => {
     console.error('❌ 演示失败:', error.message);
     process.exit(1);
   });
@@ -269,5 +264,5 @@ export {
   langChainExample,
   cogneeExample,
   conversationExample,
-  comprehensiveExample
+  comprehensiveExample,
 };

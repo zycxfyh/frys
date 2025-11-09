@@ -11,10 +11,9 @@
  */
 
 import { EventEmitter } from 'events';
+import os from 'os';
 import { logger } from '../shared/utils/logger.js';
 import { frysError } from './error-handler.js';
-import os from 'os';
-import { performance } from 'perf_hooks';
 
 class NodeInfo {
   constructor(nodeId, config = {}) {
@@ -139,19 +138,19 @@ class LoadBalancer {
     return balancer(availableNodes, task);
   }
 
-  roundRobin(nodes, task) {
+  roundRobin(nodes) {
     const node = nodes[this.currentIndex % nodes.length];
     this.currentIndex = (this.currentIndex + 1) % nodes.length;
     return node;
   }
 
-  leastLoaded(nodes, task) {
+  leastLoaded(nodes) {
     return nodes.reduce((least, current) =>
       current.getLoadScore() < least.getLoadScore() ? current : least,
     );
   }
 
-  weightedRandom(nodes, task) {
+  weightedRandom(nodes) {
     // 根据负载评分计算权重（负载越低权重越高）
     const totalWeight = nodes.reduce(
       (sum, node) => sum + (1 - node.getLoadScore()),
@@ -317,7 +316,6 @@ class ResourceMonitor {
   }
 
   getNetworkStats() {
-    const networkInterfaces = os.networkInterfaces();
     const rxBytes = 0,
       txBytes = 0;
 
@@ -516,7 +514,7 @@ class TaskScheduler {
     }
   }
 
-  async completeTask(taskId, result) {
+  completeTask(taskId, result) {
     const task = this.running.get(taskId);
     if (!task) return;
 
@@ -539,7 +537,7 @@ class TaskScheduler {
     });
   }
 
-  async failTask(taskId, error) {
+  failTask(taskId, error) {
     const task = this.running.get(taskId);
     if (!task) return;
 
@@ -817,7 +815,7 @@ export class DistributedDeployment extends EventEmitter {
     }
   }
 
-  async stop() {
+  stop() {
     if (!this.isRunning) return;
 
     try {
@@ -848,7 +846,7 @@ export class DistributedDeployment extends EventEmitter {
     }
   }
 
-  async registerNode(nodeIdOrConfig, config = {}) {
+  registerNode(nodeIdOrConfig, config = {}) {
     let node;
 
     if (typeof nodeIdOrConfig === 'string') {
@@ -865,7 +863,7 @@ export class DistributedDeployment extends EventEmitter {
     }
   }
 
-  async unregisterNode(nodeId) {
+  unregisterNode(nodeId) {
     const node = this.nodes.get(nodeId);
     if (!node) return false;
 
@@ -970,8 +968,8 @@ export class DistributedDeployment extends EventEmitter {
     };
   }
 
-  async cleanup() {
-    await this.stop();
+  cleanup() {
+    this.stop();
 
     this.nodes.clear();
     this.taskScheduler = new TaskScheduler(this);

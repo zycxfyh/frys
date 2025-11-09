@@ -3,9 +3,9 @@
  */
 
 import express from 'express';
-import { AuthController } from '../controllers/AuthController.js';
-import { AuthenticationMiddleware } from '../../infrastructure/auth/AuthenticationMiddleware.js';
 import { AuthorizationService } from '../../domain/services/auth/AuthorizationService.js';
+import { AuthenticationMiddleware } from '../../infrastructure/auth/AuthenticationMiddleware.js';
+import { AuthController } from '../controllers/AuthController.js';
 
 export function createAuthRoutes(authService, authzService) {
   const router = express.Router();

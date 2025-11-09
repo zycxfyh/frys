@@ -20,13 +20,13 @@ export class SimpleMessageProcessor {
       enableVariableReplacement: options.enableVariableReplacement !== false,
       maxConcurrentTools: options.maxConcurrentTools || 3,
       toolTimeout: options.toolTimeout || 30000,
-      ...options
+      ...options,
     };
 
     // 核心组件
     this.pluginManager = new SimplePluginManager({
       timeout: this.options.toolTimeout,
-      maxConcurrent: this.options.maxConcurrentTools
+      maxConcurrent: this.options.maxConcurrentTools,
     });
 
     this.instructionParser = new TextInstructionParser();
@@ -37,7 +37,7 @@ export class SimpleMessageProcessor {
       messagesProcessed: 0,
       toolsExecuted: 0,
       variablesReplaced: 0,
-      errors: 0
+      errors: 0,
     };
 
     logger.info('SimpleMessageProcessor initialized');
@@ -48,7 +48,10 @@ export class SimpleMessageProcessor {
    */
   async initialize() {
     await this.pluginManager.discoverPlugins();
-    logger.info('Message processor initialized with plugins:', this.pluginManager.getPlugins().length);
+    logger.info(
+      'Message processor initialized with plugins:',
+      this.pluginManager.getPlugins().length,
+    );
   }
 
   /**
@@ -68,12 +71,18 @@ export class SimpleMessageProcessor {
 
       // 1. 变量替换
       if (this.options.enableVariableReplacement) {
-        processedMessage = await this.processVariables(processedMessage, context);
+        processedMessage = await this.processVariables(
+          processedMessage,
+          context,
+        );
       }
 
       // 2. 工具调用处理
       if (this.options.enableToolCalls) {
-        processedMessage = await this.processToolCalls(processedMessage, context);
+        processedMessage = await this.processToolCalls(
+          processedMessage,
+          context,
+        );
       }
 
       const processingTime = Date.now() - startTime;
@@ -81,11 +90,10 @@ export class SimpleMessageProcessor {
         originalLength: message.length,
         processedLength: processedMessage.length,
         processingTime,
-        toolsExecuted: this.stats.toolsExecuted
+        toolsExecuted: this.stats.toolsExecuted,
       });
 
       return processedMessage;
-
     } catch (error) {
       this.stats.errors++;
       logger.error('Message processing failed:', error);
@@ -112,14 +120,16 @@ export class SimpleMessageProcessor {
         // 可以添加更多动态变量
       };
 
-      const processedMessage = this.placeholderSystem.processString(message, variableContext);
+      const processedMessage = this.placeholderSystem.processString(
+        message,
+        variableContext,
+      );
 
       if (processedMessage !== message) {
         this.stats.variablesReplaced++;
       }
 
       return processedMessage;
-
     } catch (error) {
       logger.warn('Variable replacement failed:', error.message);
       return message; // 返回原文，不中断处理
@@ -141,8 +151,8 @@ export class SimpleMessageProcessor {
 
     // 执行所有工具调用
     const toolResults = [];
-    const toolPromises = instructions.map(instruction =>
-      this.executeToolInstruction(instruction, context)
+    const toolPromises = instructions.map((instruction) =>
+      this.executeToolInstruction(instruction, context),
     );
 
     const results = await Promise.allSettled(toolPromises);
@@ -156,26 +166,32 @@ export class SimpleMessageProcessor {
         toolResults.push({
           instruction: instruction.toolName,
           success: true,
-          result: result.value
+          result: result.value,
         });
         this.stats.toolsExecuted++;
       } else {
         toolResults.push({
           instruction: instruction.toolName,
           success: false,
-          error: result.reason.message
+          error: result.reason.message,
         });
-        logger.error(`Tool execution failed: ${instruction.toolName}`, result.reason);
+        logger.error(
+          `Tool execution failed: ${instruction.toolName}`,
+          result.reason,
+        );
       }
     }
 
     // 生成增强的回复
-    const enhancedMessage = this.enhanceMessageWithToolResults(message, toolResults);
+    const enhancedMessage = this.enhanceMessageWithToolResults(
+      message,
+      toolResults,
+    );
 
     // 移除已处理的指令
     const cleanedMessage = this.instructionParser.removeProcessedInstructions(
       enhancedMessage,
-      instructions
+      instructions,
     );
 
     return cleanedMessage;
@@ -184,11 +200,14 @@ export class SimpleMessageProcessor {
   /**
    * 执行单个工具指令
    */
-  async executeToolInstruction(instruction, context) {
+  async executeToolInstruction(instruction) {
     const { toolName, parameters } = instruction;
 
     // 格式化为VCPToolBox风格的指令文本
-    const instructionText = this.instructionParser.formatInstruction(toolName, parameters);
+    const instructionText = this.instructionParser.formatInstruction(
+      toolName,
+      parameters,
+    );
 
     // 执行工具
     const result = await this.pluginManager.executeTool(instructionText);
@@ -204,8 +223,8 @@ export class SimpleMessageProcessor {
    * 使用工具结果增强消息
    */
   enhanceMessageWithToolResults(originalMessage, toolResults) {
-    const successfulResults = toolResults.filter(r => r.success);
-    const failedResults = toolResults.filter(r => !r.success);
+    const successfulResults = toolResults.filter((r) => r.success);
+    const failedResults = toolResults.filter((r) => !r.success);
 
     if (successfulResults.length === 0 && failedResults.length === 0) {
       return originalMessage;
@@ -268,7 +287,7 @@ export class SimpleMessageProcessor {
     const processedResponse = await this.processMessage(response, {
       ...context,
       source: 'ai_response',
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     return processedResponse;
@@ -281,7 +300,7 @@ export class SimpleMessageProcessor {
     const processedInput = await this.processMessage(input, {
       ...context,
       source: 'user_input',
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     return processedInput;
@@ -299,11 +318,11 @@ export class SimpleMessageProcessor {
    * 获取可用工具列表
    */
   getAvailableTools() {
-    return this.pluginManager.getPlugins().map(plugin => ({
+    return this.pluginManager.getPlugins().map((plugin) => ({
       name: plugin.name,
       displayName: plugin.displayName,
       description: plugin.description,
-      capabilities: plugin.capabilities
+      capabilities: plugin.capabilities,
     }));
   }
 
@@ -314,7 +333,7 @@ export class SimpleMessageProcessor {
     return {
       ...this.stats,
       pluginStats: this.pluginManager.getStats(),
-      availableTools: this.getAvailableTools().length
+      availableTools: this.getAvailableTools().length,
     };
   }
 

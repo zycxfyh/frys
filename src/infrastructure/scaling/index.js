@@ -4,14 +4,14 @@
  */
 
 export { AutoScalingManager } from './AutoScalingManager.js';
-export { ScalingMetrics } from './ScalingMetrics.js';
+export { ContainerOrchestrator } from './ContainerOrchestrator.js';
+export { DockerContainerOrchestrator } from './DockerContainerOrchestrator.js';
 export { LoadBalancer } from './LoadBalancer.js';
+export { ScalingMetrics } from './ScalingMetrics.js';
 export {
-  ScalingPolicy,
+  CompositeScalingPolicy,
   CpuScalingPolicy,
   MemoryScalingPolicy,
   RequestScalingPolicy,
-  CompositeScalingPolicy,
+  ScalingPolicy,
 } from './ScalingPolicy.js';
-export { ContainerOrchestrator } from './ContainerOrchestrator.js';
-export { DockerContainerOrchestrator } from './DockerContainerOrchestrator.js';

@@ -2,9 +2,9 @@
  * frys Production - 用户服务
  */
 
-import { logger } from '../utils/logger.js';
-import { config } from '../utils/config.js';
 import messagingAdapter from '../../core/MessagingAdapter.js';
+import { config } from '../utils/config.js';
+import { logger } from '../utils/logger.js';
 
 export class UserService {
   constructor({ http, auth, state, messaging, date, utils }) {

@@ -16,7 +16,7 @@ services:
       - API_KEY=${API_KEY}
       - DEPLOYMENT_COLOR=blue
     ports:
-      - "127.0.0.1:3000:3000"  # 仅本地访问，通过nginx代理
+      - '127.0.0.1:3000:3000' # 仅本地访问，通过nginx代理
     volumes:
       - ./data:/app/data:ro
       - ./logs:/app/logs
@@ -27,7 +27,7 @@ services:
       - frys-prod
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -57,7 +57,7 @@ services:
       - API_KEY=${API_KEY}
       - DEPLOYMENT_COLOR=green
     ports:
-      - "127.0.0.1:3001:3000"  # 仅本地访问，通过nginx代理
+      - '127.0.0.1:3001:3000' # 仅本地访问，通过nginx代理
     volumes:
       - ./data:/app/data:ro
       - ./logs:/app/logs
@@ -68,7 +68,7 @@ services:
       - frys-prod
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -90,7 +90,7 @@ services:
     container_name: frys-prod-redis
     ports:
       # Redis端口仅限内部网络访问，提高安全性
-      - "127.0.0.1:6379:6379"
+      - '127.0.0.1:6379:6379'
     volumes:
       - redis_data:/data
       - ./redis/redis.conf:/etc/redis/redis.conf:ro
@@ -99,7 +99,7 @@ services:
       - frys-prod
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -122,7 +122,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_INITDB_ARGS=--encoding=UTF-8
     ports:
-      - "127.0.0.1:5432:5432"
+      - '127.0.0.1:5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -131,7 +131,7 @@ services:
       - frys-prod
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d frys_prod"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d frys_prod']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -149,8 +149,8 @@ services:
     image: nginx:1.25-alpine
     container_name: frys-prod-nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx/prod/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
@@ -163,7 +163,7 @@ services:
       - frys-prod
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -181,7 +181,7 @@ services:
     image: prom/prometheus:v2.45.0
     container_name: frys-prod-prometheus
     ports:
-      - "127.0.0.1:9090:9090"
+      - '127.0.0.1:9090:9090'
     volumes:
       - ./monitoring/prometheus/prod.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -215,7 +215,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
     ports:
-      - "127.0.0.1:3002:3000"
+      - '127.0.0.1:3002:3000'
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
@@ -240,7 +240,7 @@ services:
     image: prom/alertmanager:v0.25.0
     container_name: frys-prod-alertmanager
     ports:
-      - "127.0.0.1:9093:9093"
+      - '127.0.0.1:9093:9093'
     volumes:
       - ./monitoring/alertmanager/config.yml:/etc/alertmanager/config.yml:ro
       - alertmanager_data:/alertmanager
@@ -256,7 +256,7 @@ services:
     image: prom/node-exporter:v1.6.1
     container_name: frys-prod-node-exporter
     ports:
-      - "127.0.0.1:9100:9100"
+      - '127.0.0.1:9100:9100'
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro

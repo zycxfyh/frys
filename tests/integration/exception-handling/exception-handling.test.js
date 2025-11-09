@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,12 +11,21 @@ import {
  * 测试全局异常处理器、优雅关闭管理器、资源清理器等组件的集成功能
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi, beforeEach, afterEach } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
+import { CoreServiceProtector } from '../../../src/infrastructure/exception-handling/CoreServiceProtector.js';
+import { ExceptionRecoveryStrategies } from '../../../src/infrastructure/exception-handling/ExceptionRecoveryStrategies.js';
 import { GlobalExceptionHandler } from '../../../src/infrastructure/exception-handling/GlobalExceptionHandler.js';
 import { GracefulShutdownManager } from '../../../src/infrastructure/exception-handling/GracefulShutdownManager.js';
 import { ResourceCleaner } from '../../../src/infrastructure/exception-handling/ResourceCleaner.js';
-import { CoreServiceProtector } from '../../../src/infrastructure/exception-handling/CoreServiceProtector.js';
-import { ExceptionRecoveryStrategies } from '../../../src/infrastructure/exception-handling/ExceptionRecoveryStrategies.js';
 import { EventBus } from '../../../src/shared/kernel/EventBus.js';
 import { logger } from '../../../src/shared/utils/logger.js';
 
@@ -42,12 +51,12 @@ describe('异常处理集成测试', () => {
     // 重置所有组件
     globalHandler = new GlobalExceptionHandler({
       eventBus,
-      gracefulShutdown: vi.fn()
+      gracefulShutdown: vi.fn(),
     });
 
     shutdownManager = new GracefulShutdownManager({
       eventBus,
-      shutdownTimeout: 5000 // 5秒，用于测试
+      shutdownTimeout: 5000, // 5秒，用于测试
     });
 
     resourceCleaner = new ResourceCleaner();
@@ -55,12 +64,12 @@ describe('异常处理集成测试', () => {
 
     serviceProtector = new CoreServiceProtector({
       eventBus,
-      healthCheckInterval: 1000 // 1秒，用于测试
+      healthCheckInterval: 1000, // 1秒，用于测试
     });
 
     recoveryStrategies = new ExceptionRecoveryStrategies({
       eventBus,
-      recoveryTimeout: 2000 // 2秒，用于测试
+      recoveryTimeout: 2000, // 2秒，用于测试
     });
     recoveryStrategies.initializePresetStrategies();
   });
@@ -83,7 +92,7 @@ describe('异常处理集成测试', () => {
       const mockShutdown = vi.fn();
       globalHandler = new GlobalExceptionHandler({
         eventBus,
-        gracefulShutdown: mockShutdown
+        gracefulShutdown: mockShutdown,
       });
 
       globalHandler.install();
@@ -112,15 +121,21 @@ describe('异常处理集成测试', () => {
       globalHandler = new GlobalExceptionHandler({
         eventBus,
         gracefulShutdown: mockShutdown,
-        maxUnhandledRejections: 2
+        maxUnhandledRejections: 2,
       });
 
       globalHandler.install();
 
       // 触发两次未处理拒绝
       const testError = new Error('Test rejection');
-      globalHandler.handleUnhandledRejection(testError, Promise.reject(testError));
-      globalHandler.handleUnhandledRejection(testError, Promise.reject(testError));
+      globalHandler.handleUnhandledRejection(
+        testError,
+        Promise.reject(testError),
+      );
+      globalHandler.handleUnhandledRejection(
+        testError,
+        Promise.reject(testError),
+      );
 
       expect(mockShutdown).toHaveBeenCalled();
     });
@@ -139,21 +154,21 @@ describe('异常处理集成测试', () => {
         cleaner: async () => {
           cleanupOrder.push('high');
         },
-        priority: 10
+        priority: 10,
       });
 
       shutdownManager.registerResource('medium_priority', {
         cleaner: async () => {
           cleanupOrder.push('medium');
         },
-        priority: 50
+        priority: 50,
       });
 
       shutdownManager.registerResource('low_priority', {
         cleaner: async () => {
           cleanupOrder.push('low');
         },
-        priority: 100
+        priority: 100,
       });
 
       await shutdownManager.performGracefulShutdown('test');
@@ -166,7 +181,7 @@ describe('异常处理集成测试', () => {
         cleaner: async () => {
           throw new Error('Cleanup failed');
         },
-        priority: 10
+        priority: 10,
       });
 
       const result = await shutdownManager.performGracefulShutdown('test');
@@ -178,14 +193,14 @@ describe('异常处理集成测试', () => {
     it('应该在超时后强制完成', async () => {
       shutdownManager = new GracefulShutdownManager({
         eventBus,
-        shutdownTimeout: 100 // 100ms超时
+        shutdownTimeout: 100, // 100ms超时
       });
 
       shutdownManager.registerResource('slow_resource', {
         cleaner: async () => {
-          await new Promise(resolve => setTimeout(resolve, 200)); // 200ms延迟
+          await new Promise((resolve) => setTimeout(resolve, 200)); // 200ms延迟
         },
-        priority: 10
+        priority: 10,
       });
 
       const startTime = Date.now();
@@ -199,21 +214,25 @@ describe('异常处理集成测试', () => {
   describe('资源清理器集成', () => {
     it('应该清理指定类型的资源', async () => {
       // 注册不同类型的资源
-      resourceCleaner.register('timer1', 'timers', [setTimeout(() => {}, 1000)]);
-      resourceCleaner.register('timer2', 'timers', [setTimeout(() => {}, 1000)]);
+      resourceCleaner.register('timer1', 'timers', [
+        setTimeout(() => {}, 1000),
+      ]);
+      resourceCleaner.register('timer2', 'timers', [
+        setTimeout(() => {}, 1000),
+      ]);
       resourceCleaner.register('connection1', 'connections', { end: vi.fn() });
 
       const results = await resourceCleaner.cleanupByType('timers');
 
       expect(results.length).toBe(2);
-      expect(results.every(r => r.success)).toBe(true);
+      expect(results.every((r) => r.success)).toBe(true);
     });
 
     it('应该清理所有资源', async () => {
       // 注册各种资源
       resourceCleaner.register('timer', 'timers', [setTimeout(() => {}, 1000)]);
       resourceCleaner.register('connection', 'connections', {
-        end: vi.fn().mockResolvedValue(true)
+        end: vi.fn().mockResolvedValue(true),
       });
 
       const results = await resourceCleaner.cleanupAll();
@@ -228,14 +247,14 @@ describe('异常处理集成测试', () => {
 
       scope.register('scoped_timer', 'timers', [setTimeout(() => {}, 1000)]);
       scope.register('scoped_connection', 'connections', {
-        end: vi.fn().mockResolvedValue(true)
+        end: vi.fn().mockResolvedValue(true),
       });
 
       // 清理作用域
       const results = await scope.cleanup();
 
       expect(results.length).toBe(2);
-      expect(results.every(r => r.success)).toBe(true);
+      expect(results.every((r) => r.success)).toBe(true);
 
       // 作用域资源应该已被清理
       expect(scope.list()).toHaveLength(0);
@@ -249,21 +268,24 @@ describe('异常处理集成测试', () => {
         name: 'Database Service',
         healthCheck: vi.fn().mockResolvedValue(true),
         fallback: vi.fn().mockResolvedValue('fallback_data'),
-        timeout: 1000
+        timeout: 1000,
       });
 
       serviceProtector.registerService('cache', {
         name: 'Cache Service',
         healthCheck: vi.fn().mockResolvedValue(true),
         fallback: vi.fn().mockResolvedValue('cache_fallback'),
-        timeout: 1000
+        timeout: 1000,
       });
     });
 
     it('应该在服务正常时执行操作', async () => {
-      const result = await serviceProtector.executeProtected('database', async () => {
-        return 'operation_result';
-      });
+      const result = await serviceProtector.executeProtected(
+        'database',
+        async () => {
+          return 'operation_result';
+        },
+      );
 
       expect(result).toBe('operation_result');
 
@@ -272,9 +294,12 @@ describe('异常处理集成测试', () => {
     });
 
     it('应该在服务失败时使用降级方案', async () => {
-      const result = await serviceProtector.executeProtected('database', async () => {
-        throw new Error('Service unavailable');
-      });
+      const result = await serviceProtector.executeProtected(
+        'database',
+        async () => {
+          throw new Error('Service unavailable');
+        },
+      );
 
       expect(result).toBe('fallback_data');
 
@@ -298,9 +323,12 @@ describe('异常处理集成测试', () => {
       // 先打开断路器
       serviceProtector.forceOpenCircuit('database');
 
-      const result = await serviceProtector.executeProtected('database', async () => {
-        return 'should_not_execute';
-      });
+      const result = await serviceProtector.executeProtected(
+        'database',
+        async () => {
+          return 'should_not_execute';
+        },
+      );
 
       expect(result).toBe('fallback_data');
     });
@@ -309,7 +337,7 @@ describe('异常处理集成测试', () => {
       await serviceProtector.start();
 
       // 等待健康检查执行
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const status = serviceProtector.getServiceStatus('database');
       expect(status.health.status).toBe('healthy');
@@ -321,8 +349,8 @@ describe('异常处理集成测试', () => {
       const recoveryResult = await recoveryStrategies.recover(
         new Error('connect ECONNREFUSED 127.0.0.1:5432'),
         {
-          reconnect: vi.fn().mockResolvedValue('reconnected')
-        }
+          reconnect: vi.fn().mockResolvedValue('reconnected'),
+        },
       );
 
       expect(recoveryResult).toBe('reconnected');
@@ -333,12 +361,14 @@ describe('异常处理集成测试', () => {
     });
 
     it('应该在恢复失败后重新抛出异常', async () => {
-      await expect(recoveryStrategies.recover(
-        new Error('connect ECONNREFUSED 127.0.0.1:5432'),
-        {
-          reconnect: vi.fn().mockRejectedValue(new Error('Still failing'))
-        }
-      )).rejects.toThrow('Still failing');
+      await expect(
+        recoveryStrategies.recover(
+          new Error('connect ECONNREFUSED 127.0.0.1:5432'),
+          {
+            reconnect: vi.fn().mockRejectedValue(new Error('Still failing')),
+          },
+        ),
+      ).rejects.toThrow('Still failing');
 
       const history = recoveryStrategies.getRecoveryHistory();
       expect(history[0].status).toBe('failed');
@@ -346,7 +376,8 @@ describe('异常处理集成测试', () => {
 
     it('应该重试失败的恢复操作', async () => {
       let attempts = 0;
-      const mockReconnect = vi.fn()
+      const mockReconnect = vi
+        .fn()
         .mockImplementationOnce(() => {
           attempts++;
           throw new Error('Attempt 1 failed');
@@ -362,7 +393,7 @@ describe('异常处理集成测试', () => {
 
       const result = await recoveryStrategies.recover(
         new Error('connect ECONNREFUSED 127.0.0.1:5432'),
-        { reconnect: mockReconnect }
+        { reconnect: mockReconnect },
       );
 
       expect(result).toBe('success_on_third_try');
@@ -374,10 +405,16 @@ describe('异常处理集成测试', () => {
 
     it('应该正确分类异常类型', () => {
       const testCases = [
-        { error: new Error('connect ECONNREFUSED'), expected: 'connection_refused' },
-        { error: new Error('getaddrinfo ENOTFOUND'), expected: 'dns_lookup_failed' },
+        {
+          error: new Error('connect ECONNREFUSED'),
+          expected: 'connection_refused',
+        },
+        {
+          error: new Error('getaddrinfo ENOTFOUND'),
+          expected: 'dns_lookup_failed',
+        },
         { error: new Error('Validation failed'), expected: 'validation_error' },
-        { error: new Error('Some random error'), expected: 'generic_error' }
+        { error: new Error('Some random error'), expected: 'generic_error' },
       ];
 
       for (const { error, expected } of testCases) {
@@ -389,11 +426,11 @@ describe('异常处理集成测试', () => {
     it('应该提供恢复统计信息', async () => {
       // 执行几次恢复
       await recoveryStrategies.recover(new Error('connect ECONNREFUSED'), {
-        reconnect: vi.fn().mockResolvedValue('ok')
+        reconnect: vi.fn().mockResolvedValue('ok'),
       });
 
       await recoveryStrategies.recover(new Error('connect ECONNREFUSED'), {
-        reconnect: vi.fn().mockRejectedValue(new Error('fail'))
+        reconnect: vi.fn().mockRejectedValue(new Error('fail')),
       });
 
       const stats = recoveryStrategies.getRecoveryStats();
@@ -414,7 +451,7 @@ describe('异常处理集成测试', () => {
       serviceProtector.registerService('critical_service', {
         name: 'Critical Service',
         healthCheck: vi.fn().mockResolvedValue(false), // 模拟不健康
-        fallback: vi.fn().mockResolvedValue('service_fallback')
+        fallback: vi.fn().mockResolvedValue('service_fallback'),
       });
 
       // 3. 设置优雅关闭管理器
@@ -423,14 +460,17 @@ describe('异常处理集成测试', () => {
           logger.info('Cleaning test resource');
           return true;
         },
-        priority: 10
+        priority: 10,
       });
 
       // 4. 模拟服务调用失败并使用恢复策略
       try {
-        await serviceProtector.executeProtected('critical_service', async () => {
-          throw new Error('connect ECONNREFUSED 127.0.0.1:8080');
-        });
+        await serviceProtector.executeProtected(
+          'critical_service',
+          async () => {
+            throw new Error('connect ECONNREFUSED 127.0.0.1:8080');
+          },
+        );
       } catch (error) {
         // 服务调用失败，使用降级
         expect(error.message).toContain('ECONNREFUSED');
@@ -440,12 +480,13 @@ describe('异常处理集成测试', () => {
       await recoveryStrategies.recover(
         new Error('connect ECONNREFUSED 127.0.0.1:8080'),
         {
-          reconnect: vi.fn().mockResolvedValue('recovered_connection')
-        }
+          reconnect: vi.fn().mockResolvedValue('recovered_connection'),
+        },
       );
 
       // 6. 执行优雅关闭
-      const shutdownResult = await shutdownManager.performGracefulShutdown('integration_test');
+      const shutdownResult =
+        await shutdownManager.performGracefulShutdown('integration_test');
 
       // 验证结果
       expect(shutdownResult.successfulCleanups).toBeGreaterThan(0);

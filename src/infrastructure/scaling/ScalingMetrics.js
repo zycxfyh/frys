@@ -3,8 +3,8 @@
  * 收集和分析用于扩容决策的系统指标
  */
 
-import { logger } from '../../shared/utils/logger.js';
 import * as os from 'os';
+import { logger } from '../../shared/utils/logger.js';
 
 export class ScalingMetrics {
   constructor(config = {}) {

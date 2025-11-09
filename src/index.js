@@ -5,25 +5,22 @@
  * 企业级工作流管理系统 (基于开源项目重构)
  */
 
-import { logger } from './shared/utils/logger.js';
-import { config } from './shared/utils/config.js';
 import { pathToFileURL } from 'url';
-
-// 导入新的开源组件
-import { getContainer, registerValue } from './core/container.js';
-import { startServer, stopServer } from './core/server.js';
-import { getQueue, createWorker, closeAllQueues } from './core/queue.js';
-import { eventSystem } from './core/event/EventBus.js';
-import { errorHandler } from './core/ErrorHandlerConfig.js';
-import { pluginManager } from './core/PluginSystem.js';
-
 // 导入业务服务
 import { WorkflowEngine } from './application/services/WorkflowEngine.js';
+// 导入新的开源组件
+import { getContainer, registerValue } from './core/container.js';
+import { errorHandler } from './core/ErrorHandlerConfig.js';
+import { eventSystem } from './core/event/EventBus.js';
+import { pluginManager } from './core/PluginSystem.js';
+import { closeAllQueues, createWorker, getQueue } from './core/queue.js';
+import { startServer, stopServer } from './core/server.js';
 import { UserService } from './shared/services/UserService.js';
+import { config } from './shared/utils/config.js';
+import { logger } from './shared/utils/logger.js';
 
 // 获取依赖注入容器
 const container = await getContainer();
-
 
 // 注册全局值
 registerValue('eventSystem', eventSystem);
@@ -84,7 +81,6 @@ class frysProduction {
 
   async initializeCoreServices() {
     logger.debug('初始化核心服务...');
-
 
     // 初始化 HTTP 客户端
     const http = container.resolve('http');

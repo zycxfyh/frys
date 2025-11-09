@@ -3,8 +3,8 @@
  * 适用于任何类型的对象的池化管理
  */
 
-import { AbstractResourcePool } from './AbstractResourcePool.js';
 import { logger } from '../../shared/utils/logger.js';
+import { AbstractResourcePool } from './AbstractResourcePool.js';
 
 export class GenericObjectPool extends AbstractResourcePool {
   constructor(factory, options = {}) {

@@ -3,10 +3,10 @@
  * 借鉴 Zustand 的轻量级状态管理，并集成响应式特性
  */
 
-import { BaseModule } from './BaseModule.js';
 import { ReactiveState } from '../shared/utils/FunctionalUtils.js';
-import { frysError } from './error-handler.js';
 import { logger } from '../shared/utils/logger.js';
+import { BaseModule } from './BaseModule.js';
+import { frysError } from './error-handler.js';
 
 class ZustandInspiredState extends BaseModule {
   getDefaultConfig() {
@@ -28,7 +28,7 @@ class ZustandInspiredState extends BaseModule {
     this.actions = new Map();
   }
 
-  async onInitialize() {
+  onInitialize() {
     this.stores = new Map(); // 状态存储
     this.subscribers = new Map(); // 订阅者
     this.middlewares = new Map(); // 中间件
@@ -37,9 +37,9 @@ class ZustandInspiredState extends BaseModule {
     logger.info('响应式状态管理模块已初始化');
   }
 
-  async onDestroy() {
+  onDestroy() {
     // 清理所有订阅
-    for (const [storeId, subscribers] of this.subscribers) {
+    for (const [, subscribers] of this.subscribers) {
       subscribers.clear();
     }
 
@@ -47,6 +47,87 @@ class ZustandInspiredState extends BaseModule {
     this.subscribers.clear();
     this.middlewares.clear();
     this.actions.clear();
+  }
+
+  /**
+   * 获取存储
+   */
+  getStore(storeId) {
+    const store = this.stores.get(storeId);
+    if (!store) {
+      throw frysError.system(`状态存储不存在: ${storeId}`, 'store_not_found');
+    }
+    return store;
+  }
+
+  /**
+   * 验证更新器
+   */
+  validateUpdater(updater) {
+    if (updater === null || updater === undefined) {
+      throw frysError.validation('状态更新器不能为空', 'updater');
+    }
+  }
+
+  /**
+   * 计算新状态
+   */
+  computeNewState(updater, prevState) {
+    if (typeof updater === 'function') {
+      const result = updater(prevState);
+      return result && typeof result === 'object' && !Array.isArray(result)
+        ? { ...prevState, ...result }
+        : result;
+    } else {
+      return { ...prevState, ...updater };
+    }
+  }
+
+  /**
+   * 应用中间件
+   */
+  applyMiddlewares(storeId, newState, prevState, actionName) {
+    const middlewares = this.middlewares.get(storeId) || [];
+    let currentState = newState;
+
+    for (const middleware of middlewares) {
+      const result = middleware(currentState, prevState, actionName);
+      if (result !== undefined) {
+        currentState = result;
+      }
+    }
+
+    return currentState;
+  }
+
+  /**
+   * 记录并通知状态变更
+   */
+  recordAndNotify(storeId, actionName, prevState, newState, reactiveState) {
+    this._recordAction(storeId, actionName, prevState, newState);
+    this.notifySubscribers(storeId, newState, prevState);
+
+    if (reactiveState) {
+      reactiveState.setState(() => newState);
+    }
+
+    if (this.config.enableLogging) {
+      logger.debug(`状态已更新: ${storeId}`, { action: actionName });
+    }
+  }
+
+  /**
+   * 通知订阅者
+   */
+  notifySubscribers(storeId, newState, prevState) {
+    const subscribers = this.subscribers.get(storeId) || [];
+    for (const subscriber of subscribers) {
+      try {
+        subscriber(newState, prevState);
+      } catch (error) {
+        logger.error(`状态订阅者执行失败: ${storeId}`, error);
+      }
+    }
   }
 
   create(createFn, options = {}) {
@@ -62,61 +143,17 @@ class ZustandInspiredState extends BaseModule {
       : null;
 
     const setState = (updater, actionName = 'unknown') => {
-      const store = this.stores.get(storeId);
-      if (!store) {
-        throw frysError.system(`状态存储不存在: ${storeId}`, 'store_not_found');
-      }
-
-      if (updater === null || updater === undefined) {
-        throw frysError.validation('状态更新器不能为空', 'updater');
-      }
+      const store = this.getStore(storeId);
+      this.validateUpdater(updater);
 
       const prevState = store.state;
-      let newState;
 
       try {
-        if (typeof updater === 'function') {
-          const result = updater(prevState);
-          newState =
-            result && typeof result === 'object' && !Array.isArray(result)
-              ? { ...prevState, ...result }
-              : result;
-        } else {
-          newState = { ...prevState, ...updater };
-        }
-
-        // 应用中间件
-        const middlewares = this.middlewares.get(storeId) || [];
-        for (const middleware of middlewares) {
-          const result = middleware(newState, prevState, actionName);
-          if (result !== undefined) {
-            newState = result;
-          }
-        }
+        let newState = this.computeNewState(updater, prevState);
+        newState = this.applyMiddlewares(storeId, newState, prevState, actionName);
 
         store.state = newState;
-
-        // 记录动作
-        this._recordAction(storeId, actionName, prevState, newState);
-
-        // 通知订阅者
-        const subscribers = this.subscribers.get(storeId) || [];
-        for (const subscriber of subscribers) {
-          try {
-            subscriber(newState, prevState);
-          } catch (error) {
-            logger.error(`状态订阅者执行失败: ${storeId}`, error);
-          }
-        }
-
-        // 更新响应式状态
-        if (reactiveState) {
-          reactiveState.setState(() => newState);
-        }
-
-        if (this.config.enableLogging) {
-          logger.debug(`状态已更新: ${storeId}`, { action: actionName });
-        }
+        this.recordAndNotify(storeId, actionName, prevState, newState, reactiveState);
       } catch (error) {
         logger.error(`状态更新失败: ${storeId}`, error);
         throw error;
@@ -219,7 +256,7 @@ class ZustandInspiredState extends BaseModule {
   /**
    * 健康检查
    */
-  async onHealthCheck() {
+  onHealthCheck() {
     const storeCount = this.stores.size;
     const subscriberCount = Array.from(this.subscribers.values()).reduce(
       (sum, subs) => sum + subs.size,
@@ -242,16 +279,14 @@ class ZustandInspiredState extends BaseModule {
    * 获取统计信息
    */
   getStats() {
-    const storeStats = Array.from(this.stores.values()).map((store) => ({
-      id: store.id,
-      stateSize: JSON.stringify(store.state).length,
-      subscribers: this.subscribers.get(store.id)?.size || 0,
-      actions: this.actions.get(store.id)?.length || 0,
-      createdAt: store.createdAt,
-    }));
-
     return {
-      stores: this.stores.size,
+      stores: Array.from(this.stores.values()).map((store) => ({
+        id: store.id,
+        stateSize: JSON.stringify(store.state).length,
+        subscribers: this.subscribers.get(store.id)?.size || 0,
+        actions: this.actions.get(store.id)?.length || 0,
+        createdAt: store.createdAt,
+      })),
       subscribers: Array.from(this.subscribers.values()).reduce(
         (sum, subs) => sum + subs.size,
         0,

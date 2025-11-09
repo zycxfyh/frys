@@ -2,9 +2,9 @@
  * frys Production - 工作流引擎服务
  */
 
-import { logger } from '../../shared/utils/logger.js';
-import { config } from '../../shared/utils/config.js';
 import messagingAdapter from '../../core/MessagingAdapter.js';
+import { config } from '../../shared/utils/config.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class WorkflowEngine {
   constructor({ http, messaging, state, date, utils }) {

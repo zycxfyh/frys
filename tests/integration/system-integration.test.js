@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,15 +11,26 @@ import {
  * 验证整个frys系统的集成功能
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 // 动态导入以避免模块解析问题
-const LightweightContainer = (await import('../../../src/core/LightweightContainer.js')).LightweightContainer;
-const AxiosInspiredHTTP = (await import('../../../src/core/AxiosInspiredHTTP.js')).default;
-const JWTInspiredAuth = (await import('../../../src/core/JWTInspiredAuth.js')).default;
-const ZustandInspiredState = (await import('../../../src/core/ZustandInspiredState.js')).default;
-const LodashInspiredUtils = (await import('../../../src/core/LodashInspiredUtils.js')).default;
-const { errorHandler } = await import('../../../src/core/ErrorHandlerConfig.js');
+const LightweightContainer = (
+  await import('../../../src/core/LightweightContainer.js')
+).LightweightContainer;
+const AxiosInspiredHTTP = (
+  await import('../../../src/core/AxiosInspiredHTTP.js')
+).default;
+const JWTInspiredAuth = (await import('../../../src/core/JWTInspiredAuth.js'))
+  .default;
+const ZustandInspiredState = (
+  await import('../../../src/core/ZustandInspiredState.js')
+).default;
+const LodashInspiredUtils = (
+  await import('../../../src/core/LodashInspiredUtils.js')
+).default;
+const { errorHandler } = await import(
+  '../../../src/core/ErrorHandlerConfig.js'
+);
 
 describe('系统集成测试', () => {
   let container;
@@ -82,7 +93,7 @@ describe('系统集成测试', () => {
       // 测试HTTP客户端和认证模块的集成
       const token = auth.generateToken({
         userId: 'test-user',
-        role: 'admin'
+        role: 'admin',
       });
 
       expect(token).toBeDefined();
@@ -141,7 +152,8 @@ describe('系统集成测试', () => {
       ];
 
       // 使用链式调用
-      const result = utils.chain(data)
+      const result = utils
+        .chain(data)
         .filter((item) => item.active)
         .map((item) => item.name)
         .uniq()
@@ -167,9 +179,10 @@ describe('系统集成测试', () => {
       // 创建用户状态存储
       const userStore = state.create((set) => ({
         users: [],
-        addUser: (user) => set((state) => ({
-          users: [...state.users, user]
-        })),
+        addUser: (user) =>
+          set((state) => ({
+            users: [...state.users, user],
+          })),
       }));
 
       // 添加用户
@@ -187,9 +200,10 @@ describe('系统集成测试', () => {
       // 创建工作流状态存储
       const workflowStore = state.create((set) => ({
         workflows: [],
-        addWorkflow: (workflow) => set((state) => ({
-          workflows: [...state.workflows, workflow]
-        })),
+        addWorkflow: (workflow) =>
+          set((state) => ({
+            workflows: [...state.workflows, workflow],
+          })),
       }));
 
       // 添加工作流

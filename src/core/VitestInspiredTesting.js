@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * Vitest 风格的快速测试框架
  * 借鉴 Vitest 的快速测试执行和现代API理念
@@ -10,7 +12,7 @@ class VitestInspiredTesting {
     this.results = { passed: 0, failed: 0 };
   }
 
-  createSuite(name, _fn) {
+  createSuite(name) {
     const suite = {
       name,
       tests: [],
@@ -19,7 +21,7 @@ class VitestInspiredTesting {
     };
 
     this.suites.set(name, suite);
-    console.log(`✨ 测试套件已创建: ${name}`);
+    logger.info(`✨ 测试套件已创建: ${name}`);
     return suite;
   }
 
@@ -32,10 +34,10 @@ class VitestInspiredTesting {
     try {
       fn();
       this.results.passed++;
-      console.log('✅ $suiteName} > $testName}');
+      logger.info('✅ $suiteName} > $testName}');
     } catch (error) {
       this.results.failed++;
-      console.log('❌ $suiteName} > $testName}: $error.message}');
+      logger.info('❌ $suiteName} > $testName}: $error.message}');
     }
   }
 

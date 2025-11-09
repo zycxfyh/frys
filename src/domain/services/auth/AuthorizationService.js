@@ -14,6 +14,9 @@ export class AuthorizationService {
       ...options,
     };
 
+    // 依赖注入的仓库
+    this.userRepository = options.userRepository;
+
     this.permissionCache = new Map();
     this.roleCache = new Map();
   }

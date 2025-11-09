@@ -86,7 +86,7 @@ export class TraceContext {
         parentSpanId:
           carrier['x-parent-span-id'] || carrier['x-b3-parentspanid'],
         sampled: carrier['x-sampled'] !== '0',
-        baggage: this._extractBaggage(carrier),
+        baggage: TraceContext._extractBaggage(carrier),
       };
     } else if (format === 'binary') {
       return {
@@ -119,7 +119,7 @@ export class TraceContext {
       carrier['x-sampled'] = context.sampled ? '1' : '0';
 
       // 注入baggage
-      this._injectBaggage(context.baggage, carrier);
+      TraceContext._injectBaggage(context.baggage, carrier);
     } else if (format === 'binary') {
       carrier.traceId = context.traceId;
       carrier.spanId = context.spanId;

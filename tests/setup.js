@@ -3,7 +3,7 @@
  * 全局测试配置和辅助函数
  */
 
-import { beforeAll, afterAll, beforeEach } from 'vitest';
+import { afterAll, beforeAll, beforeEach } from 'vitest';
 
 // 设置全局测试超时
 beforeAll(() => {
@@ -28,9 +28,9 @@ global.performanceMonitor = {
     const duration = performance.now() - startTime;
     return {
       duration,
-      formatted: `${duration.toFixed(2)}ms`
+      formatted: `${duration.toFixed(2)}ms`,
     };
-  }
+  },
 };
 
 // 内存使用监控
@@ -41,14 +41,15 @@ global.memoryMonitor = {
       rss: `${(usage.rss / 1024 / 1024).toFixed(2)}MB`,
       heapUsed: `${(usage.heapUsed / 1024 / 1024).toFixed(2)}MB`,
       heapTotal: `${(usage.heapTotal / 1024 / 1024).toFixed(2)}MB`,
-      external: `${(usage.external / 1024 / 1024).toFixed(2)}MB`
+      external: `${(usage.external / 1024 / 1024).toFixed(2)}MB`,
     };
-  }
+  },
 };
 
 // 测试数据生成器
 global.testDataGenerator = {
-  uuid: () => `test-uuid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+  uuid: () =>
+    `test-uuid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
 
   workflow: () => ({
     id: global.testDataGenerator.uuid(),
@@ -56,7 +57,7 @@ global.testDataGenerator = {
     description: 'Generated test workflow',
     status: 'active',
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   }),
 
   user: () => ({
@@ -64,29 +65,29 @@ global.testDataGenerator = {
     username: `user_${Date.now()}`,
     email: `user_${Date.now()}@test.com`,
     role: 'developer',
-    createdAt: new Date()
+    createdAt: new Date(),
   }),
 
   config: () => ({
     database: {
       host: 'localhost',
       port: 5432,
-      database: 'test_db'
+      database: 'test_db',
     },
     cache: {
       host: 'localhost',
-      port: 6379
+      port: 6379,
     },
     logging: {
       level: 'info',
-      format: 'json'
-    }
-  })
+      format: 'json',
+    },
+  }),
 };
 
 // 异步操作辅助函数
 global.asyncHelpers = {
-  sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
+  sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 
   waitFor: async (condition, timeout = 5000, interval = 100) => {
     const startTime = Date.now();
@@ -117,13 +118,14 @@ global.asyncHelpers = {
     }
 
     throw lastError;
-  }
+  },
 };
 
 // 断言辅助函数
 global.assertionHelpers = {
   isValidUUID: (str) => {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(str);
   },
 
@@ -138,7 +140,7 @@ global.assertionHelpers = {
 
   deepEqual: (obj1, obj2) => {
     return JSON.stringify(obj1) === JSON.stringify(obj2);
-  }
+  },
 };
 
 // 模拟服务器辅助函数
@@ -164,9 +166,9 @@ global.mockServer = {
       stop: async () => {
         global.mockServer.running = false;
         console.log(`🛑 模拟服务器停止`);
-      }
+      },
     };
-  }
+  },
 };
 
 // 数据库测试辅助函数
@@ -182,7 +184,7 @@ global.databaseHelpers = {
           name,
           schema,
           records: [],
-          indexes: new Map()
+          indexes: new Map(),
         });
       },
 
@@ -194,7 +196,7 @@ global.databaseHelpers = {
           id: Date.now() + Math.random(),
           ...record,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
 
         table.records.push(recordWithId);
@@ -205,7 +207,7 @@ global.databaseHelpers = {
         const table = db.tables.get(tableName);
         if (!table) throw new Error(`Table ${tableName} not found`);
 
-        return table.records.filter(record => {
+        return table.records.filter((record) => {
           for (const [key, value] of Object.entries(query)) {
             if (record[key] !== value) return false;
           }
@@ -216,11 +218,11 @@ global.databaseHelpers = {
       cleanup: async () => {
         db.tables.clear();
         db.transactions = [];
-      }
+      },
     };
 
     return db;
-  }
+  },
 };
 
 // 导出全局变量供测试使用
@@ -231,5 +233,5 @@ global.testUtils = {
   asyncHelpers: global.asyncHelpers,
   assertionHelpers: global.assertionHelpers,
   mockServer: global.mockServer,
-  databaseHelpers: global.databaseHelpers
+  databaseHelpers: global.databaseHelpers,
 };

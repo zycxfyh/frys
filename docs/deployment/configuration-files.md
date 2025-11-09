@@ -112,7 +112,7 @@ services:
       context: ../..
       dockerfile: config/docker/Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=development
       - DEBUG=frys:*
@@ -128,7 +128,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     networks:
@@ -137,7 +137,7 @@ services:
   postgres:
     image: postgres:15-alpine
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       - POSTGRES_DB=frys_dev
       - POSTGRES_USER=frys
@@ -166,7 +166,7 @@ services:
   frys:
     image: frys:latest
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
     env_file:
@@ -200,8 +200,8 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ../../ssl:/etc/ssl:ro
@@ -462,18 +462,14 @@ export default defineConfig({
   // 测试环境
   test: {
     environment: 'node',
-    globals: true,  // 启用全局测试函数
+    globals: true, // 启用全局测试函数
 
     // 测试文件匹配
     include: [
       'tests/unit/**/*.{test,spec}.{js,mjs}',
-      'tests/integration/**/*.{test,spec}.{js,mjs}'
+      'tests/integration/**/*.{test,spec}.{js,mjs}',
     ],
-    exclude: [
-      'node_modules/**',
-      'dist/**',
-      'coverage/**'
-    ],
+    exclude: ['node_modules/**', 'dist/**', 'coverage/**'],
 
     // 覆盖率配置
     coverage: {
@@ -487,16 +483,16 @@ export default defineConfig({
         'scripts/',
         '**/*.config.js',
         '**/*.test.js',
-        '**/*.spec.js'
+        '**/*.spec.js',
       ],
       thresholds: {
         global: {
           branches: 80,
           functions: 80,
           lines: 80,
-          statements: 80
-        }
-      }
+          statements: 80,
+        },
+      },
     },
 
     // 测试超时
@@ -516,17 +512,17 @@ export default defineConfig({
     // 别名配置
     alias: {
       '@': path.resolve(__dirname, '../../src'),
-      '~': path.resolve(__dirname, '../../')
-    }
+      '~': path.resolve(__dirname, '../../'),
+    },
   },
 
   // 路径解析
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '../../src'),
-      '~': path.resolve(__dirname, '../../')
-    }
-  }
+      '~': path.resolve(__dirname, '../../'),
+    },
+  },
 });
 ```
 
@@ -552,7 +548,7 @@ export default defineConfig({
   reporter: [
     ['html'],
     ['json', { outputFile: 'test-results.json' }],
-    ['junit', { outputFile: 'test-results.xml' }]
+    ['junit', { outputFile: 'test-results.xml' }],
   ],
 
   // 共享设置
@@ -560,7 +556,7 @@ export default defineConfig({
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure'
+    video: 'retain-on-failure',
   },
 
   // 项目配置
@@ -828,42 +824,42 @@ spec:
         app: frys
     spec:
       containers:
-      - name: frys
-        image: frys:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: NODE_ENV
-          value: "production"
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: frys-secrets
-              key: database-url
-        - name: REDIS_URL
-          valueFrom:
-            secretKeyRef:
-              name: frys-secrets
-              key: redis-url
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: frys
+          image: frys:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: frys-secrets
+                  key: database-url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: frys-secrets
+                  key: redis-url
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '250m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
 ```
 
 ### Helm Chart
@@ -875,7 +871,7 @@ name: frys
 description: frys 工作流管理系统
 type: application
 version: 1.0.0
-appVersion: "1.0.0"
+appVersion: '1.0.0'
 
 # charts/frys/values.yaml
 replicaCount: 3
@@ -942,31 +938,31 @@ spec:
     matchLabels:
       app: frys
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  - from:
-    - podSelector:
-        matchLabels:
-          app: nginx
-    ports:
-    - protocol: TCP
-      port: 3000
+    - from:
+        - podSelector:
+            matchLabels:
+              app: nginx
+      ports:
+        - protocol: TCP
+          port: 3000
   egress:
-  - to:
-    - podSelector:
-        matchLabels:
-          app: postgres
-    ports:
-    - protocol: TCP
-      port: 5432
-  - to:
-    - podSelector:
-        matchLabels:
-          app: redis
-    ports:
-    - protocol: TCP
-      port: 6379
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - protocol: TCP
+          port: 6379
 ```
 
 ## 📋 配置验证
@@ -1108,6 +1104,6 @@ fi
 
 ---
 
-*最后更新: 2025年11月7日*
+_最后更新: 2025年11月7日_
 
 </div>

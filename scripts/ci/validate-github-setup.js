@@ -6,9 +6,8 @@
  */
 
 import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '..');
@@ -26,17 +25,20 @@ class GitHubSetupValidator {
       success: '\x1b[32m',
       error: '\x1b[31m',
       warning: '\x1b[33m',
-      reset: '\x1b[0m'
+      reset: '\x1b[0m',
     };
 
-    const prefix = {
-      info: 'ℹ️ ',
-      success: '✅ ',
-      error: '❌ ',
-      warning: '⚠️ '
-    }[type] || 'ℹ️ ';
+    const prefix =
+      {
+        info: 'ℹ️ ',
+        success: '✅ ',
+        error: '❌ ',
+        warning: '⚠️ ',
+      }[type] || 'ℹ️ ';
 
-    console.log(`${colors[type]}[${timestamp}] ${prefix}${message}${colors.reset}`);
+    console.log(
+      `${colors[type]}[${timestamp}] ${prefix}${message}${colors.reset}`,
+    );
   }
 
   checkFile(filePath, description) {
@@ -96,7 +98,10 @@ class GitHubSetupValidator {
     // 检查模板
     this.checkFile('.github/PULL_REQUEST_TEMPLATE/default.md', 'PR 模板');
     this.checkFile('.github/ISSUE_TEMPLATE/bug-report.yml', 'Bug 报告模板');
-    this.checkFile('.github/ISSUE_TEMPLATE/feature-request.yml', '功能请求模板');
+    this.checkFile(
+      '.github/ISSUE_TEMPLATE/feature-request.yml',
+      '功能请求模板',
+    );
 
     return this.issues.length === 0;
   }
@@ -121,7 +126,7 @@ class GitHubSetupValidator {
         'rollback:staging',
         'rollback:smart',
         'slo:check',
-        'github:setup'
+        'github:setup',
       ];
 
       for (const script of requiredScripts) {
@@ -179,7 +184,7 @@ class GitHubSetupValidator {
       'scripts/rollback.sh',
       'scripts/smart-rollback.js',
       'scripts/slo-check.js',
-      'scripts/setup-github-repo.sh'
+      'scripts/setup-github-repo.sh',
     ];
 
     for (const script of requiredScripts) {
@@ -197,27 +202,27 @@ class GitHubSetupValidator {
 
     if (this.successes.length > 0) {
       console.log('\n✅ 通过的项目:');
-      this.successes.forEach(item => console.log(`  • ${item}`));
+      this.successes.forEach((item) => console.log(`  • ${item}`));
     }
 
     if (this.issues.length > 0) {
       console.log('\n❌ 需要修复的问题:');
-      this.issues.forEach(issue => console.log(`  • ${issue}`));
+      this.issues.forEach((issue) => console.log(`  • ${issue}`));
     }
 
     console.log('\n💡 建议的修复步骤:');
 
-    if (this.issues.some(i => i.includes('工作流文件'))) {
+    if (this.issues.some((i) => i.includes('工作流文件'))) {
       console.log('  1. 确保 .github/workflows/ 目录存在');
       console.log('  2. 复制或创建 CI/CD 工作流文件');
     }
 
-    if (this.issues.some(i => i.includes('npm 脚本'))) {
+    if (this.issues.some((i) => i.includes('npm 脚本'))) {
       console.log('  1. 检查 package.json 中的 scripts 部分');
       console.log('  2. 添加缺失的 CI/CD 相关脚本');
     }
 
-    if (this.issues.some(i => i.includes('Git 钩子'))) {
+    if (this.issues.some((i) => i.includes('Git 钩子'))) {
       console.log('  1. 安装 lefthook: npm install -g @arkweid/lefthook');
       console.log('  2. 初始化 lefthook: lefthook install');
     }
@@ -249,7 +254,6 @@ class GitHubSetupValidator {
         this.log('❌ 配置验证失败，请修复上述问题。', 'error');
         process.exit(1);
       }
-
     } catch (error) {
       this.log(`验证过程出错: ${error.message}`, 'error');
       process.exit(1);
@@ -298,7 +302,7 @@ class YAML {
 
 // 执行验证
 const validator = new GitHubSetupValidator();
-validator.run().catch(error => {
+validator.run().catch((error) => {
   console.error('验证失败:', error);
   process.exit(1);
 });

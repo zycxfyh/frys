@@ -16,8 +16,8 @@ function createApiClient(baseURL = 'http://localhost:3000/api/v1') {
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
-      'User-Agent': 'frys-examples/1.0.0'
-    }
+      'User-Agent': 'frys-examples/1.0.0',
+    },
   });
 
   // 请求拦截器 - 添加认证头
@@ -29,7 +29,7 @@ function createApiClient(baseURL = 'http://localhost:3000/api/v1') {
       }
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
   );
 
   // 响应拦截器 - 处理通用错误
@@ -42,7 +42,7 @@ function createApiClient(baseURL = 'http://localhost:3000/api/v1') {
         console.warn('认证令牌已过期，请重新登录');
       }
       return Promise.reject(error);
-    }
+    },
   );
 
   return client;
@@ -80,13 +80,16 @@ class AuthAPI {
         email: userData.email,
         password: userData.password,
         name: userData.name,
-        role: userData.role || 'user'
+        role: userData.role || 'user',
       });
 
       console.log('✅ 用户注册成功:', response.data.data.email);
       return response.data.data;
     } catch (error) {
-      console.error('❌ 用户注册失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 用户注册失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -98,7 +101,7 @@ class AuthAPI {
     try {
       const response = await this.client.post('/auth/login', {
         email: credentials.email,
-        password: credentials.password
+        password: credentials.password,
       });
 
       const { accessToken, refreshToken, expiresIn } = response.data.data;
@@ -110,10 +113,13 @@ class AuthAPI {
       return {
         accessToken,
         refreshToken,
-        expiresIn
+        expiresIn,
       };
     } catch (error) {
-      console.error('❌ 用户登录失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 用户登录失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -124,7 +130,7 @@ class AuthAPI {
   async refreshToken(refreshToken) {
     try {
       const response = await this.client.post('/auth/refresh', {
-        refreshToken
+        refreshToken,
       });
 
       const { accessToken, expiresIn } = response.data.data;
@@ -135,10 +141,13 @@ class AuthAPI {
       console.log('✅ 令牌刷新成功');
       return {
         accessToken,
-        expiresIn
+        expiresIn,
       };
     } catch (error) {
-      console.error('❌ 令牌刷新失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 令牌刷新失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -151,7 +160,10 @@ class AuthAPI {
       const response = await this.client.get('/auth/me');
       return response.data.data;
     } catch (error) {
-      console.error('❌ 获取用户信息失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 获取用户信息失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -173,7 +185,10 @@ class UserAPI {
       const response = await this.client.get('/users', { params });
       return response.data.data;
     } catch (error) {
-      console.error('❌ 获取用户列表失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 获取用户列表失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -186,7 +201,10 @@ class UserAPI {
       const response = await this.client.get(`/users/${userId}`);
       return response.data.data;
     } catch (error) {
-      console.error('❌ 获取用户信息失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 获取用户信息失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -200,7 +218,10 @@ class UserAPI {
       console.log('✅ 用户创建成功:', response.data.data.email);
       return response.data.data;
     } catch (error) {
-      console.error('❌ 创建用户失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 创建用户失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -214,7 +235,10 @@ class UserAPI {
       console.log('✅ 用户更新成功:', response.data.data.email);
       return response.data.data;
     } catch (error) {
-      console.error('❌ 更新用户失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 更新用户失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -227,7 +251,10 @@ class UserAPI {
       await this.client.delete(`/users/${userId}`);
       console.log('✅ 用户删除成功');
     } catch (error) {
-      console.error('❌ 删除用户失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 删除用户失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -249,7 +276,10 @@ class WorkflowAPI {
       const response = await this.client.get('/workflows', { params });
       return response.data.data;
     } catch (error) {
-      console.error('❌ 获取工作流列表失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 获取工作流列表失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -262,7 +292,10 @@ class WorkflowAPI {
       const response = await this.client.get(`/workflows/${workflowId}`);
       return response.data.data;
     } catch (error) {
-      console.error('❌ 获取工作流详情失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 获取工作流详情失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -276,7 +309,10 @@ class WorkflowAPI {
       console.log('✅ 工作流创建成功:', response.data.data.name);
       return response.data.data;
     } catch (error) {
-      console.error('❌ 创建工作流失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 创建工作流失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -286,11 +322,17 @@ class WorkflowAPI {
    */
   async updateWorkflow(workflowId, updateData) {
     try {
-      const response = await this.client.put(`/workflows/${workflowId}`, updateData);
+      const response = await this.client.put(
+        `/workflows/${workflowId}`,
+        updateData,
+      );
       console.log('✅ 工作流更新成功:', response.data.data.name);
       return response.data.data;
     } catch (error) {
-      console.error('❌ 更新工作流失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 更新工作流失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -303,7 +345,10 @@ class WorkflowAPI {
       await this.client.delete(`/workflows/${workflowId}`);
       console.log('✅ 工作流删除成功');
     } catch (error) {
-      console.error('❌ 删除工作流失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 删除工作流失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -313,14 +358,17 @@ class WorkflowAPI {
    */
   async executeWorkflow(workflowId, inputData, options = {}) {
     try {
-      const response = await this.client.post(`/workflows/${workflowId}/execute`, {
-        input: inputData,
-        options: {
-          async: options.async !== false, // 默认异步执行
-          timeout: options.timeout || 30000,
-          ...options
-        }
-      });
+      const response = await this.client.post(
+        `/workflows/${workflowId}/execute`,
+        {
+          input: inputData,
+          options: {
+            async: options.async !== false, // 默认异步执行
+            timeout: options.timeout || 30000,
+            ...options,
+          },
+        },
+      );
 
       const result = response.data.data;
 
@@ -336,7 +384,10 @@ class WorkflowAPI {
       console.log('✅ 工作流执行完成');
       return result;
     } catch (error) {
-      console.error('❌ 执行工作流失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 执行工作流失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -346,10 +397,15 @@ class WorkflowAPI {
    */
   async getExecutionStatus(executionId) {
     try {
-      const response = await this.client.get(`/workflows/executions/${executionId}`);
+      const response = await this.client.get(
+        `/workflows/executions/${executionId}`,
+      );
       return response.data.data;
     } catch (error) {
-      console.error('❌ 获取执行状态失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 获取执行状态失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -359,7 +415,7 @@ class WorkflowAPI {
    */
   listenToExecution(executionId, callbacks = {}) {
     const eventSource = new EventSource(
-      `${this.client.defaults.baseURL}/workflows/executions/${executionId}/events`
+      `${this.client.defaults.baseURL}/workflows/executions/${executionId}/events`,
     );
 
     eventSource.onmessage = (event) => {
@@ -441,7 +497,10 @@ class SystemAPI {
       const response = await this.client.get('/info');
       return response.data.data;
     } catch (error) {
-      console.error('❌ 获取系统信息失败:', error.response?.data?.message || error.message);
+      console.error(
+        '❌ 获取系统信息失败:',
+        error.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -453,8 +512,8 @@ class SystemAPI {
     try {
       const response = await this.client.get('/metrics', {
         headers: {
-          'Accept': 'text/plain'
-        }
+          Accept: 'text/plain',
+        },
       });
       return response.data;
     } catch (error) {
@@ -512,7 +571,7 @@ async function demonstrateAuthentication(api) {
     const newUser = await api.auth.register({
       email: 'demo@example.com',
       password: 'DemoPass123!',
-      name: 'Demo User'
+      name: 'Demo User',
     });
     console.log('用户ID:', newUser.id);
     console.log();
@@ -521,7 +580,7 @@ async function demonstrateAuthentication(api) {
     console.log('🔑 用户登录...');
     const tokens = await api.auth.login({
       email: 'demo@example.com',
-      password: 'DemoPass123!'
+      password: 'DemoPass123!',
     });
     console.log('访问令牌长度:', tokens.accessToken.length);
     console.log();
@@ -533,7 +592,6 @@ async function demonstrateAuthentication(api) {
     console.log();
 
     return tokens;
-
   } catch (error) {
     console.error('❌ 认证流程演示失败:', error.message);
     throw error;
@@ -559,7 +617,7 @@ async function demonstrateUserManagement(api) {
       email: 'test@example.com',
       password: 'TestPass123!',
       name: 'Test User',
-      role: 'user'
+      role: 'user',
     });
     console.log('新用户ID:', newUser.id);
     console.log();
@@ -573,7 +631,7 @@ async function demonstrateUserManagement(api) {
     // 4. 更新用户信息
     console.log('✏️  更新用户信息...');
     const updatedUser = await api.users.updateUser(newUser.id, {
-      name: 'Updated Test User'
+      name: 'Updated Test User',
     });
     console.log('更新后的姓名:', updatedUser.name);
     console.log();
@@ -583,7 +641,6 @@ async function demonstrateUserManagement(api) {
     await api.users.deleteUser(newUser.id);
     console.log('用户删除成功');
     console.log();
-
   } catch (error) {
     console.error('❌ 用户管理演示失败:', error.message);
     throw error;
@@ -610,9 +667,9 @@ async function demonstrateWorkflowOperations(api) {
             type: 'validation',
             config: {
               schema: {
-                message: 'required|string'
-              }
-            }
+                message: 'required|string',
+              },
+            },
           },
           {
             id: 'process-message',
@@ -622,12 +679,12 @@ async function demonstrateWorkflowOperations(api) {
               service: 'messageService',
               method: 'process',
               parameters: {
-                content: '${input.message}'
-              }
-            }
-          }
-        ]
-      }
+                content: '${input.message}',
+              },
+            },
+          },
+        ],
+      },
     });
     console.log('工作流ID:', workflow.id);
     console.log();
@@ -641,32 +698,37 @@ async function demonstrateWorkflowOperations(api) {
     // 3. 执行工作流
     console.log('▶️  执行工作流...');
     const execution = await api.workflows.executeWorkflow(workflow.id, {
-      message: 'Hello from API demo!'
+      message: 'Hello from API demo!',
     });
     console.log('执行ID:', execution.executionId);
     console.log();
 
     // 4. 监听执行状态
     console.log('📡 监听执行状态...');
-    const stopListening = api.workflows.listenToExecution(execution.executionId, {
-      onMessage: (data) => console.log('📨 事件:', data.type),
-      onCompleted: (data) => {
-        console.log('✅ 工作流执行完成');
-        console.log('执行时间:', data.executionTime, 'ms');
+    const stopListening = api.workflows.listenToExecution(
+      execution.executionId,
+      {
+        onMessage: (data) => console.log('📨 事件:', data.type),
+        onCompleted: (data) => {
+          console.log('✅ 工作流执行完成');
+          console.log('执行时间:', data.executionTime, 'ms');
+        },
+        onFailed: (data) => {
+          console.error('❌ 工作流执行失败:', data.error);
+        },
       },
-      onFailed: (data) => {
-        console.error('❌ 工作流执行失败:', data.error);
-      }
-    });
+    );
 
     // 等待执行完成
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     stopListening();
     console.log();
 
     // 5. 获取执行状态
     console.log('📊 获取执行状态...');
-    const status = await api.workflows.getExecutionStatus(execution.executionId);
+    const status = await api.workflows.getExecutionStatus(
+      execution.executionId,
+    );
     console.log('执行状态:', status.status);
     console.log();
 
@@ -675,7 +737,6 @@ async function demonstrateWorkflowOperations(api) {
     await api.workflows.deleteWorkflow(workflow.id);
     console.log('工作流删除成功');
     console.log();
-
   } catch (error) {
     console.error('❌ 工作流操作演示失败:', error.message);
     throw error;
@@ -709,7 +770,6 @@ async function demonstrateSystemMonitoring(api) {
     console.log('前200个字符预览:');
     console.log(metrics.substring(0, 200) + '...');
     console.log();
-
   } catch (error) {
     console.error('❌ 系统监控演示失败:', error.message);
     throw error;
@@ -721,7 +781,7 @@ async function demonstrateSystemMonitoring(api) {
  */
 async function demonstrateAPIBasics() {
   console.log('🚀 frys REST API 基础使用示例\n');
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
 
   const api = new FrysAPI('http://localhost:3000/api/v1');
 
@@ -729,24 +789,23 @@ async function demonstrateAPIBasics() {
     // 演示认证流程
     await demonstrateAuthentication(api);
 
-    console.log('=' .repeat(60));
+    console.log('='.repeat(60));
 
     // 演示用户管理
     await demonstrateUserManagement(api);
 
-    console.log('=' .repeat(60));
+    console.log('='.repeat(60));
 
     // 演示工作流操作
     await demonstrateWorkflowOperations(api);
 
-    console.log('=' .repeat(60));
+    console.log('='.repeat(60));
 
     // 演示系统监控
     await demonstrateSystemMonitoring(api);
 
-    console.log('=' .repeat(60));
+    console.log('='.repeat(60));
     console.log('🎉 所有 API 演示完成！');
-
   } catch (error) {
     console.error('❌ API 演示过程中发生错误:', error.message);
     console.log('\n💡 可能的原因:');
@@ -765,7 +824,7 @@ async function demonstrateAPIBasics() {
 
 // 等待函数
 function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // 重试函数
@@ -796,5 +855,5 @@ export {
   demonstrateAuthentication,
   demonstrateUserManagement,
   demonstrateWorkflowOperations,
-  demonstrateSystemMonitoring
+  demonstrateSystemMonitoring,
 };

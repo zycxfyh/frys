@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * OpenAPIInspiredDocs 风格的系统
  * 借鉴 OpenAPI 的核心理念
@@ -24,7 +26,7 @@ class OpenAPIInspiredDocs {
   addPath(method, path, spec) {
     const pathKey = `${method}:${path}`;
     this.paths.set(pathKey, spec);
-    console.log(`📄 API路径已添加: ${pathKey}`);
+    logger.info(`📄 API路径已添加: ${pathKey}`);
   }
 
   /**
@@ -34,7 +36,7 @@ class OpenAPIInspiredDocs {
    */
   addComponent(name, component) {
     this.components.set(name, component);
-    console.log(`🧩 组件已添加: ${name}`);
+    logger.info(`🧩 组件已添加: ${name}`);
   }
 
   /**
@@ -43,7 +45,7 @@ class OpenAPIInspiredDocs {
    */
   addServer(server) {
     this.servers.push(server);
-    console.log(`🖥️ 服务器已添加: ${server.url}`);
+    logger.info(`🖥️ 服务器已添加: ${server.url}`);
   }
 
   /**
@@ -73,7 +75,7 @@ class OpenAPIInspiredDocs {
       spec.paths[path][method.toLowerCase()] = pathSpec;
     }
 
-    console.log(`📋 OpenAPI规范已生成`);
+    logger.info(`📋 OpenAPI规范已生成`);
     return spec;
   }
 

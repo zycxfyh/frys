@@ -3,8 +3,8 @@
  * 集成性能指标收集、告警和健康检查
  */
 
-import PrometheusInspiredMetrics from '../../core/PrometheusInspiredMetrics.js';
 import CacheService from '../../application/services/CacheService.js';
+import PrometheusInspiredMetrics from '../../core/PrometheusInspiredMetrics.js';
 import CacheMiddleware from '../../infrastructure/middleware/CacheMiddleware.js';
 import { logger, logPerformance } from '../../shared/utils/logger.js';
 

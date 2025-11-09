@@ -1,12 +1,13 @@
 // Authentication Service Integration Tests
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
+
 
 /**
  * Tests for user authentication, registration, and token management
  */
 import jwt from 'jsonwebtoken';
-import { AuthenticationService } from '../../../src/domain/services/auth/AuthenticationService.js';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { User } from '../../../src/domain/entities/auth/User.js';
+import { AuthenticationService } from '../../../src/domain/services/auth/AuthenticationService.js';
 import {
   setupStrictTestEnvironment,
   withTimeout

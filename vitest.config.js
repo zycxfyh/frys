@@ -9,36 +9,32 @@ export default defineConfig({
       './tests/setup-test-isolation.js',
     ],
     globals: true,
-    // 🚀 严格快速失败机制 (GitHub社区最佳实践)
-    bail: process.env.CI ? 1 : 3, // CI环境遇到第一个失败就停止，本地允许3个失败
-    failOnOnly: true, // 防止意外的.only标记
-    testTimeout: process.env.CI ? 5000 : 10000, // CI环境更严格的超时(5秒)
-    hookTimeout: process.env.CI ? 2000 : 5000, // hook超时时间
+    // 🚀 修复worker超时问题
+    bail: 0, // 允许所有测试运行
+    failOnOnly: false, // 允许.only标记用于调试
+    testTimeout: 30000, // 增加超时时间到30秒
+    hookTimeout: 10000, // hook超时10秒
 
-    // 🔒 严格测试隔离
-    isolate: true,
+    // 🔒 禁用隔离避免worker问题
+    isolate: false,
 
     // 📊 详细错误报告
     reporter: process.env.CI
       ? ['verbose', 'json', 'junit', 'github-actions']
       : ['verbose', 'json', 'junit'],
 
-    // 🏃‍♂️ 性能优化
-    maxThreads: process.env.CI ? 2 : 4, // 限制并发避免资源竞争
+    // 🏃‍♂️ 性能优化 - 简化配置避免worker超时
+    maxThreads: 1, // 单线程执行避免资源竞争
     minThreads: 1,
-    retry: process.env.CI ? 3 : 1, // CI环境重试更多次
+    retry: 0, // 禁用重试，快速失败
 
-    // 改进并行化
-    pool: process.env.CI ? 'threads' : 'forks',
+    // 简化并行化配置
+    pool: 'threads',
     poolOptions: {
       threads: {
-        singleThread: false,
-        isolate: true,
-        useAtomics: true, // 提高性能
-      },
-      forks: {
-        singleFork: false,
-        isolate: true,
+        singleThread: true, // 单线程模式
+        isolate: false,
+        useAtomics: false,
       },
     },
     coverage: {

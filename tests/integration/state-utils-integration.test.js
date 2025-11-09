@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,9 +11,9 @@ import {
  * 测试状态更新中的数据处理和转换操作
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import LodashInspiredUtils from '../../src/core/LodashInspiredUtils.js';
+import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
 
 describe('状态管理与工具函数集成测试', () => {
   let state;
@@ -35,96 +35,120 @@ describe('状态管理与工具函数集成测试', () => {
       stats: {
         totalUsers: 0,
         totalTasks: 0,
-        completedTasks: 0
+        completedTasks: 0,
       },
       settings: {
         theme: 'light',
         notifications: true,
-        language: 'zh-CN'
+        language: 'zh-CN',
       },
       // 定义actions
-      addUsers: (newUsers) => set(state => ({
-        users: [...(state.users || []), ...newUsers],
-        stats: { ...state.stats, totalUsers: (state.users || []).length + newUsers.length }
-      })),
+      addUsers: (newUsers) =>
+        set((state) => ({
+          users: [...(state.users || []), ...newUsers],
+          stats: {
+            ...state.stats,
+            totalUsers: (state.users || []).length + newUsers.length,
+          },
+        })),
       setTasks: (newTasks) => set({ tasks: newTasks }),
-      addTasks: (newTasks) => set(state => ({ tasks: [...state.tasks, ...newTasks] })),
-      updateStats: (newStats) => set(state => ({
-        stats: { ...state.stats, ...newStats }
-      })),
-      addNotification: (notification) => set(state => ({
-        notifications: [...(state.notifications || []), notification],
-        stats: { ...state.stats, notificationsCount: (state.stats.notificationsCount || 0) + 1 }
-      })),
-      updateUser: (userData) => set(state => ({
-        users: state.users.map(user =>
-          user.id === userData.id ? { ...user, ...userData } : user
-        )
-      })),
-      setConnectionStatus: (connected) => set(state => ({
-        realtime: { ...state.realtime, connected }
-      })),
-      setWorkflowStatus: (workflowId, status) => set(state => ({
-        workflows: {
-          ...state.workflows,
-          [workflowId]: { ...state.workflows?.[workflowId], status }
-        }
-      })),
-      setWorkflow: (workflowId, workflow) => set(state => ({
-        workflows: {
-          ...state.workflows,
-          [workflowId]: workflow
-        }
-      })),
-      updateWorkflow: (workflowId, updates) => set(state => ({
-        workflows: {
-          ...state.workflows,
-          [workflowId]: { ...state.workflows?.[workflowId], ...updates }
-        }
-      })),
+      addTasks: (newTasks) =>
+        set((state) => ({ tasks: [...state.tasks, ...newTasks] })),
+      updateStats: (newStats) =>
+        set((state) => ({
+          stats: { ...state.stats, ...newStats },
+        })),
+      addNotification: (notification) =>
+        set((state) => ({
+          notifications: [...(state.notifications || []), notification],
+          stats: {
+            ...state.stats,
+            notificationsCount: (state.stats.notificationsCount || 0) + 1,
+          },
+        })),
+      updateUser: (userData) =>
+        set((state) => ({
+          users: state.users.map((user) =>
+            user.id === userData.id ? { ...user, ...userData } : user,
+          ),
+        })),
+      setConnectionStatus: (connected) =>
+        set((state) => ({
+          realtime: { ...state.realtime, connected },
+        })),
+      setWorkflowStatus: (workflowId, status) =>
+        set((state) => ({
+          workflows: {
+            ...state.workflows,
+            [workflowId]: { ...state.workflows?.[workflowId], status },
+          },
+        })),
+      setWorkflow: (workflowId, workflow) =>
+        set((state) => ({
+          workflows: {
+            ...state.workflows,
+            [workflowId]: workflow,
+          },
+        })),
+      updateWorkflow: (workflowId, updates) =>
+        set((state) => ({
+          workflows: {
+            ...state.workflows,
+            [workflowId]: { ...state.workflows?.[workflowId], ...updates },
+          },
+        })),
       setLargeDataset: (dataset) => set({ largeDataset: dataset }),
       setProcessedData: (data) => set({ processedData: data }),
       setComplexObject: (obj) => set({ complexObject: obj }),
-      clearDataset: () => set({
-        largeDataset: [],
-        processedData: {}
-      }),
+      clearDataset: () =>
+        set({
+          largeDataset: [],
+          processedData: {},
+        }),
       setCounter: (value) => set({ counter: value }),
-      incrementCounter: () => set(state => ({ counter: (state.counter || 0) + 1 })),
-      addUser: (user) => set(state => ({
-        users: [...state.users, user],
-        stats: { ...state.stats, totalUsers: state.users.length + 1 }
-      })),
+      incrementCounter: () =>
+        set((state) => ({ counter: (state.counter || 0) + 1 })),
+      addUser: (user) =>
+        set((state) => ({
+          users: [...state.users, user],
+          stats: { ...state.stats, totalUsers: state.users.length + 1 },
+        })),
       setComplexState: (complexState) => set({ complexState }),
       setItemsByTag: (itemsByTag) => set({ itemsByTag }),
-      addCollaborator: (username, data) => set(state => ({
-        collaborators: {
-          ...state.collaborators,
-          [username]: { username, ...data }
-        }
-      })),
-      updateCollaborator: (username, updates) => set(state => ({
-        collaborators: {
-          ...state.collaborators,
-          [username]: { ...state.collaborators?.[username], ...updates }
-        }
-      })),
-      addWorkflowEvent: (event) => set(state => ({
-        workflowEvents: [...(state.workflowEvents || []), event]
-      })),
-      addPersistentEvent: (event) => set(state => ({
-        persistentEvents: [...(state.persistentEvents || []), event]
-      })),
-      addReliableMessage: (message) => set(state => ({
-        reliableMessages: [...(state.reliableMessages || []), message]
-      })),
-      addBackupMessage: (message) => set(state => ({
-        backupMessages: [...(state.backupMessages || []), message]
-      })),
+      addCollaborator: (username, data) =>
+        set((state) => ({
+          collaborators: {
+            ...state.collaborators,
+            [username]: { username, ...data },
+          },
+        })),
+      updateCollaborator: (username, updates) =>
+        set((state) => ({
+          collaborators: {
+            ...state.collaborators,
+            [username]: { ...state.collaborators?.[username], ...updates },
+          },
+        })),
+      addWorkflowEvent: (event) =>
+        set((state) => ({
+          workflowEvents: [...(state.workflowEvents || []), event],
+        })),
+      addPersistentEvent: (event) =>
+        set((state) => ({
+          persistentEvents: [...(state.persistentEvents || []), event],
+        })),
+      addReliableMessage: (message) =>
+        set((state) => ({
+          reliableMessages: [...(state.reliableMessages || []), message],
+        })),
+      addBackupMessage: (message) =>
+        set((state) => ({
+          backupMessages: [...(state.backupMessages || []), message],
+        })),
       recoverFromEvents: (events) => {
         const recovered = {
           eventCount: events.length,
-          lastEventId: events.length > 0 ? events[events.length - 1].id : null
+          lastEventId: events.length > 0 ? events[events.length - 1].id : null,
         };
         set({ recoveredState: recovered });
         return recovered;
@@ -133,7 +157,7 @@ describe('状态管理与工具函数集成测试', () => {
         const reconstructed = { events, reconstructed: true };
         set({ rebuiltState: reconstructed });
         return reconstructed;
-      }
+      },
     }));
   });
 
@@ -157,7 +181,7 @@ describe('状态管理与工具函数集成测试', () => {
         { id: 2, name: 'Bob', email: 'bob@example.com', role: 'user' },
         { id: 1, name: 'Alice', email: 'alice@example.com', role: 'admin' }, // 重复
         { id: 3, name: 'Charlie', email: 'charlie@example.com', role: 'user' },
-        { id: 4, name: 'Diana', email: 'diana@example.com', role: 'moderator' }
+        { id: 4, name: 'Diana', email: 'diana@example.com', role: 'moderator' },
       ];
 
       // 使用工具函数处理数据：去重并按角色分组
@@ -168,7 +192,7 @@ describe('状态管理与工具函数集成测试', () => {
       store.addUsers(uniqueUsers);
       store.updateStats({
         totalUsers: uniqueUsers.length,
-        usersByRole: groupedByRole
+        usersByRole: groupedByRole,
       });
 
       // 验证状态更新
@@ -185,15 +209,45 @@ describe('状态管理与工具函数集成测试', () => {
 
     it('应该处理复杂的数据转换管道', () => {
       const rawTasks = [
-        { id: 1, title: 'Task A', status: 'pending', priority: 'high', assignee: 'alice' },
-        { id: 2, title: 'Task B', status: 'completed', priority: 'medium', assignee: 'bob' },
-        { id: 3, title: 'Task C', status: 'pending', priority: 'low', assignee: 'alice' },
-        { id: 4, title: 'Task D', status: 'completed', priority: 'high', assignee: 'charlie' },
-        { id: 5, title: 'Task E', status: 'pending', priority: 'medium', assignee: 'bob' }
+        {
+          id: 1,
+          title: 'Task A',
+          status: 'pending',
+          priority: 'high',
+          assignee: 'alice',
+        },
+        {
+          id: 2,
+          title: 'Task B',
+          status: 'completed',
+          priority: 'medium',
+          assignee: 'bob',
+        },
+        {
+          id: 3,
+          title: 'Task C',
+          status: 'pending',
+          priority: 'low',
+          assignee: 'alice',
+        },
+        {
+          id: 4,
+          title: 'Task D',
+          status: 'completed',
+          priority: 'high',
+          assignee: 'charlie',
+        },
+        {
+          id: 5,
+          title: 'Task E',
+          status: 'pending',
+          priority: 'medium',
+          assignee: 'bob',
+        },
       ];
 
       // 数据处理管道：过滤 -> 分组 -> 统计
-      const pendingTasks = rawTasks.filter(task => task.status === 'pending');
+      const pendingTasks = rawTasks.filter((task) => task.status === 'pending');
       const groupedByAssignee = utils.groupBy(pendingTasks, 'assignee');
       const groupedByPriority = utils.groupBy(pendingTasks, 'priority');
 
@@ -204,7 +258,7 @@ describe('状态管理与工具函数集成测试', () => {
         pending: pendingTasks.length,
         completed: processedTasks.length - pendingTasks.length,
         byAssignee: groupedByAssignee,
-        byPriority: groupedByPriority
+        byPriority: groupedByPriority,
       };
 
       // 更新状态
@@ -241,7 +295,7 @@ describe('状态管理与工具函数集成测试', () => {
       // 添加初始任务
       const initialTasks = [
         { id: 1, title: 'Task 1', status: 'pending' },
-        { id: 2, title: 'Task 2', status: 'completed' }
+        { id: 2, title: 'Task 2', status: 'completed' },
       ];
 
       store.setTasks(initialTasks);
@@ -255,7 +309,7 @@ describe('状态管理与工具函数集成测试', () => {
       const moreTasks = [
         { id: 3, title: 'Task 3', status: 'pending' },
         { id: 4, title: 'Task 4', status: 'completed' },
-        { id: 5, title: 'Task 5', status: 'pending' }
+        { id: 5, title: 'Task 5', status: 'pending' },
       ];
 
       store.addTasks(moreTasks);
@@ -273,7 +327,7 @@ describe('状态管理与工具函数集成测试', () => {
       const metrics = {
         processingTime: [],
         memoryUsage: [],
-        operationCount: 0
+        operationCount: 0,
       };
 
       // 订阅状态变化进行性能监控
@@ -287,21 +341,33 @@ describe('状态管理与工具函数集成测试', () => {
 
       // 批量添加用户
       const userBatches = [
-        Array.from({ length: 50 }, (_, i) => ({ id: i + 1, name: `User ${i + 1}`, active: true })),
-        Array.from({ length: 50 }, (_, i) => ({ id: i + 51, name: `User ${i + 51}`, active: false })),
-        Array.from({ length: 50 }, (_, i) => ({ id: i + 101, name: `User ${i + 101}`, active: true }))
+        Array.from({ length: 50 }, (_, i) => ({
+          id: i + 1,
+          name: `User ${i + 1}`,
+          active: true,
+        })),
+        Array.from({ length: 50 }, (_, i) => ({
+          id: i + 51,
+          name: `User ${i + 51}`,
+          active: false,
+        })),
+        Array.from({ length: 50 }, (_, i) => ({
+          id: i + 101,
+          name: `User ${i + 101}`,
+          active: true,
+        })),
       ];
 
       // 处理每个批次
       userBatches.forEach((batch, index) => {
         const uniqueBatch = utils.uniq(batch);
-        const activeUsers = uniqueBatch.filter(user => user.active);
+        const activeUsers = uniqueBatch.filter((user) => user.active);
 
         store.addUsers(uniqueBatch);
         store.updateStats({
           totalUsers: store.state.users.length,
           activeUsers: activeUsers.length,
-          batchIndex: index
+          batchIndex: index,
         });
       });
 
@@ -330,7 +396,7 @@ describe('状态管理与工具函数集成测试', () => {
         id: i + 1,
         data: `Item ${i + 1}`,
         timestamp: Date.now(),
-        metadata: { size: Math.random() * 1000, category: i % 10 }
+        metadata: { size: Math.random() * 1000, category: i % 10 },
       }));
 
       const initialMemory = process.memoryUsage().heapUsed;
@@ -339,10 +405,15 @@ describe('状态管理与工具函数集成测试', () => {
       store.setLargeDataset(largeDataset);
 
       const afterAddMemory = process.memoryUsage().heapUsed;
-      console.log(`添加数据集后内存使用: ${(afterAddMemory - initialMemory) / 1024 / 1024}MB`);
+      console.log(
+        `添加数据集后内存使用: ${(afterAddMemory - initialMemory) / 1024 / 1024}MB`,
+      );
 
       // 使用工具函数处理数据
-      const processed = utils.groupBy(largeDataset, (item) => item.metadata.category);
+      const processed = utils.groupBy(
+        largeDataset,
+        (item) => item.metadata.category,
+      );
       store.setProcessedData(processed);
 
       // 验证数据处理
@@ -353,7 +424,9 @@ describe('状态管理与工具函数集成测试', () => {
       store.clearDataset();
 
       const afterClearMemory = process.memoryUsage().heapUsed;
-      console.log(`清理数据后内存使用: ${(afterClearMemory - afterAddMemory) / 1024 / 1024}MB`);
+      console.log(
+        `清理数据后内存使用: ${(afterClearMemory - afterAddMemory) / 1024 / 1024}MB`,
+      );
 
       // 验证清理结果
       expect(store.state.largeDataset).toEqual([]);
@@ -398,13 +471,17 @@ describe('状态管理与工具函数集成测试', () => {
       // 创建多个并发更新
       for (let i = 0; i < updateCount; i++) {
         updates.push(
-          new Promise(resolve => {
+          new Promise((resolve) => {
             setTimeout(() => {
-              const newUser = { id: i + 1, name: `Concurrent User ${i + 1}`, timestamp: Date.now() };
+              const newUser = {
+                id: i + 1,
+                name: `Concurrent User ${i + 1}`,
+                timestamp: Date.now(),
+              };
               store.addUser(newUser);
               resolve(newUser);
             }, Math.random() * 10); // 随机延迟
-          })
+          }),
         );
       }
 
@@ -419,7 +496,7 @@ describe('状态管理与工具函数集成测试', () => {
       expect(results).toHaveLength(updateCount);
 
       // 验证数据一致性（所有用户都有唯一ID）
-      const userIds = store.state.users.map(user => user.id);
+      const userIds = store.state.users.map((user) => user.id);
       const uniqueIds = utils.uniq(userIds);
       expect(uniqueIds).toHaveLength(updateCount);
 
@@ -438,26 +515,26 @@ describe('状态管理与工具函数集成测试', () => {
           version: '1.0.0',
           settings: {
             theme: 'dark',
-            features: ['auth', 'api', 'storage']
-          }
+            features: ['auth', 'api', 'storage'],
+          },
         },
         user: {
           profile: {
             id: 123,
             preferences: {
               language: 'zh-CN',
-              timezone: 'Asia/Shanghai'
-            }
+              timezone: 'Asia/Shanghai',
+            },
           },
-          permissions: ['read', 'write', 'admin']
+          permissions: ['read', 'write', 'admin'],
         },
         data: {
           items: Array.from({ length: 100 }, (_, i) => ({
             id: i + 1,
             value: Math.random(),
-            tags: [`tag${i % 5}`, `category${i % 3}`]
-          }))
-        }
+            tags: [`tag${i % 5}`, `category${i % 3}`],
+          })),
+        },
       };
 
       // 深度克隆以避免引用问题
@@ -472,14 +549,14 @@ describe('状态管理与工具函数集成测试', () => {
       // 使用工具函数处理嵌套数据
       const itemsByTag = utils.groupBy(
         store.state.complexState.data.items,
-        (item) => item.tags[0]
+        (item) => item.tags[0],
       );
 
       store.setItemsByTag(itemsByTag);
 
       // 验证分组结果
       expect(Object.keys(store.state.itemsByTag)).toHaveLength(5); // 5个不同的tag
-      Object.values(store.state.itemsByTag).forEach(tagGroup => {
+      Object.values(store.state.itemsByTag).forEach((tagGroup) => {
         expect(tagGroup.length).toBeGreaterThan(15); // 每个tag大约20个项目
       });
 

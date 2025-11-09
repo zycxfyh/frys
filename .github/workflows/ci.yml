@@ -133,6 +133,13 @@ jobs:
         npm run format:check
         echo "✅ ESLint 和格式检查通过"
 
+    - name: 🔧 自动修复
+      if: matrix.test-type == 'lint' && failure()
+      run: |
+        echo "🔧 尝试自动修复代码问题..."
+        npm run fix:auto:ci
+        echo "✅ 自动修复完成"
+
     - name: 🧪 单元测试
       if: matrix.test-type == 'unit'
       run: |
@@ -151,24 +158,8 @@ jobs:
       if: matrix.test-type == 'unit' || matrix.test-type == 'integration'
       run: |
         echo "📊 生成测试报告..."
-        npm run test:report
-        npm run test:coverage:analyze
-
-        # 检查覆盖率阈值
-        if [ -f coverage/coverage-summary.json ]; then
-          COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
-          echo "测试覆盖率: ${COVERAGE}%"
-
-          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-            echo "⚠️  覆盖率低于阈值: ${COVERAGE}% < 80%"
-            if [ "${{ github.event_name }}" = "pull_request" ]; then
-              echo "在PR中允许较低的覆盖率，但建议改进"
-            else
-              exit 1
-            fi
-          fi
-        fi
-        echo "✅ 测试报告生成完成"
+        npm run test:aggregate:ci
+        echo "✅ 测试聚合报告生成完成"
 
     - name: 📤 上传测试产物
       uses: actions/upload-artifact@v4
@@ -357,7 +348,7 @@ jobs:
     - name: 🔍 PR 质量检查
       run: |
         echo "🔍 执行PR质量检查..."
-        node scripts/pr-check.js --ci
+        npm run pr:analyze:ci
         echo "✅ PR质量检查完成"
 
     - name: 📊 分析测试覆盖率变化

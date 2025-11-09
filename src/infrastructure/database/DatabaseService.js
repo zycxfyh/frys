@@ -5,9 +5,9 @@
 
 import { logger } from '../../shared/utils/logger.js';
 import DatabaseConnectionPool from './DatabaseConnectionPool.js';
+import DatabaseMonitor from './DatabaseMonitor.js';
 import DatabaseOptimizer from './DatabaseOptimizer.js';
 import MigrationManager from './MigrationManager.js';
-import DatabaseMonitor from './DatabaseMonitor.js';
 
 export class DatabaseService {
   constructor(options = {}) {

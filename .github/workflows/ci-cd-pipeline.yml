@@ -3,9 +3,9 @@ name: 🚀 frys CI/CD Pipeline
 # 触发条件
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   workflow_dispatch:
     inputs:
       environment:
@@ -14,8 +14,8 @@ on:
         default: 'staging'
         type: choice
         options:
-        - staging
-        - production
+          - staging
+          - production
       skip_tests:
         description: '跳过测试'
         required: false
@@ -41,43 +41,43 @@ jobs:
     timeout-minutes: 10
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
-    - name: 🛠️ 设置 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: 🛠️ 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: 📦 安装依赖
+        run: npm ci
 
-    - name: 🔍 ESLint 检查
-      run: npm run lint -- --quiet --max-warnings=0
+      - name: 🔍 ESLint 检查
+        run: npm run lint -- --quiet --max-warnings=0
 
-    - name: 🎨 Prettier 格式检查
-      run: npm run format:check
+      - name: 🎨 Prettier 格式检查
+        run: npm run format:check
 
-    - name: 📋 提交信息格式检查
-      if: github.event_name == 'pull_request'
-      run: |
-        if ! echo "${{ github.event.pull_request.title }}" | grep -E "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .{1,}" > /dev/null; then
-          echo "❌ PR标题格式不符合规范: ${{ github.event.pull_request.title }}"
-          echo "请使用: type(scope): description"
-          echo "例如: feat(auth): add login validation"
-          exit 1
-        fi
+      - name: 📋 提交信息格式检查
+        if: github.event_name == 'pull_request'
+        run: |
+          if ! echo "${{ github.event.pull_request.title }}" | grep -E "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .{1,}" > /dev/null; then
+            echo "❌ PR标题格式不符合规范: ${{ github.event.pull_request.title }}"
+            echo "请使用: type(scope): description"
+            echo "例如: feat(auth): add login validation"
+            exit 1
+          fi
 
-    - name: 🏷️ 上传 ESLint 结果
-      uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: eslint-results
-        path: eslint-results.json
-        retention-days: 7
+      - name: 🏷️ 上传 ESLint 结果
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: eslint-results
+          path: eslint-results.json
+          retention-days: 7
 
   # 2️⃣ 自动化测试 - 全面测试套件
   automated-testing:
@@ -107,53 +107,53 @@ jobs:
           --health-retries 5
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
 
-    - name: 🛠️ 设置 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: 🛠️ 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: 📦 安装依赖
+        run: npm ci
 
-    - name: 🧪 单元测试
-      run: npm run test:ci:unit
-      env:
-        NODE_ENV: test
+      - name: 🧪 单元测试
+        run: npm run test:ci:unit
+        env:
+          NODE_ENV: test
 
-    - name: 🔗 集成测试
-      run: npm run test:ci:integration
-      env:
-        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_db
-        REDIS_URL: redis://localhost:6379
+      - name: 🔗 集成测试
+        run: npm run test:ci:integration
+        env:
+          DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379
 
-    - name: ⚡ 性能测试
-      run: npm run test:performance:ci
-      continue-on-error: true
+      - name: ⚡ 性能测试
+        run: npm run test:performance:ci
+        continue-on-error: true
 
-    - name: 📊 生成测试报告
-      run: npm run test:report
+      - name: 📊 生成测试报告
+        run: npm run test:report
 
-    - name: 🏷️ 上传测试结果
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results-${{ github.run_id }}
-        path: |
-          test-results/
-          reports/
-        retention-days: 30
+      - name: 🏷️ 上传测试结果
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ github.run_id }}
+          path: |
+            test-results/
+            reports/
+          retention-days: 30
 
-    - name: 📈 上传覆盖率到 Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./coverage/lcov.info
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
+      - name: 📈 上传覆盖率到 Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
 
   # 3️⃣ 安全检查 - 依赖和代码安全扫描
   security-checks:
@@ -163,45 +163,45 @@ jobs:
     needs: local-validation
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # 需要完整历史用于安全扫描
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 需要完整历史用于安全扫描
 
-    - name: 🛠️ 设置 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: 🛠️ 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: 📦 安装依赖
+        run: npm ci
 
-    - name: 🔒 npm 审计
-      run: npm audit --audit-level moderate
-      continue-on-error: true
+      - name: 🔒 npm 审计
+        run: npm audit --audit-level moderate
+        continue-on-error: true
 
-    - name: 🛡️ 工业级安全审计
-      run: node scripts/security-audit.js --ci
-      env:
-        CI: true
+      - name: 🛡️ 工业级安全审计
+        run: node scripts/security-audit.js --ci
+        env:
+          CI: true
 
-    - name: 🔍 CodeQL 分析
-      uses: github/codeql-action/init@v3
-      with:
-        languages: javascript
+      - name: 🔍 CodeQL 分析
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
 
-    - name: 🚀 执行 CodeQL 分析
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:javascript"
+      - name: 🚀 执行 CodeQL 分析
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:javascript'
 
-    - name: 🏷️ 上传安全审计结果
-      uses: actions/upload-artifact@v4
-      with:
-        name: security-audit-results
-        path: security-audit-report.json
-        retention-days: 30
+      - name: 🏷️ 上传安全审计结果
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-results
+          path: security-audit-report.json
+          retention-days: 30
 
   # 4️⃣ 集成测试 - 端到端和环境测试
   integration-testing:
@@ -231,58 +231,58 @@ jobs:
           --health-retries 5
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
 
-    - name: 🛠️ 设置 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: 🛠️ 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: 📦 安装依赖
+        run: npm ci
 
-    - name: 🏗️ 构建应用
-      run: npm run build
+      - name: 🏗️ 构建应用
+        run: npm run build
 
-    - name: 🌐 启动测试环境
-      run: |
-        docker-compose -f docker-compose.staging.yml up -d --build
-        timeout 300 bash -c 'until curl -f http://localhost:3000/health; do sleep 5; done'
+      - name: 🌐 启动测试环境
+        run: |
+          docker-compose -f docker-compose.staging.yml up -d --build
+          timeout 300 bash -c 'until curl -f http://localhost:3000/health; do sleep 5; done'
 
-    - name: 🎭 端到端测试
-      run: npm run test:e2e:ci
-      env:
-        BASE_URL: http://localhost:3000
-      continue-on-error: true
+      - name: 🎭 端到端测试
+        run: npm run test:e2e:ci
+        env:
+          BASE_URL: http://localhost:3000
+        continue-on-error: true
 
-    - name: 🔄 API 集成测试
-      run: npm run test:e2e:api
-      env:
-        API_BASE_URL: http://localhost:3000/api
+      - name: 🔄 API 集成测试
+        run: npm run test:e2e:api
+        env:
+          API_BASE_URL: http://localhost:3000/api
 
-    - name: 🎨 视觉回归测试
-      run: npm run test:visual
-      continue-on-error: true
+      - name: 🎨 视觉回归测试
+        run: npm run test:visual
+        continue-on-error: true
 
-    - name: ♿ 无障碍测试
-      run: npm run test:accessibility
-      continue-on-error: true
+      - name: ♿ 无障碍测试
+        run: npm run test:accessibility
+        continue-on-error: true
 
-    - name: 🧹 清理测试环境
-      if: always()
-      run: docker-compose -f docker-compose.staging.yml down -v
+      - name: 🧹 清理测试环境
+        if: always()
+        run: docker-compose -f docker-compose.staging.yml down -v
 
-    - name: 🏷️ 上传集成测试结果
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: integration-test-results
-        path: |
-          playwright-report/
-          test-results/
-        retention-days: 30
+      - name: 🏷️ 上传集成测试结果
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
 
   # 5️⃣ PR审核 - 代码审查和合规检查
   pr-review:
@@ -293,66 +293,66 @@ jobs:
     needs: [automated-testing, security-checks, integration-testing]
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: 🛠️ 设置 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: 🛠️ 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: 📦 安装依赖
+        run: npm ci
 
-    - name: 📋 PR 检查
-      run: node scripts/pr-check.js --pr ${{ github.event.pull_request.number }}
-      env:
-        PR_NUMBER: ${{ github.event.pull_request.number }}
-        GITHUB_HEAD_REF: ${{ github.head_ref }}
-        GITHUB_BASE_REF: ${{ github.base_ref }}
+      - name: 📋 PR 检查
+        run: node scripts/pr-check.js --pr ${{ github.event.pull_request.number }}
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
 
-    - name: 📊 质量检查
-      run: npm run quality:ci
+      - name: 📊 质量检查
+        run: npm run quality:ci
 
-    - name: 🔍 代码审查检查
-      uses: dorny/paths-filter@v3
-      id: changes
-      with:
-        filters: |
-          core:
-            - 'src/core/**'
-          security:
-            - 'SECURITY.md'
-            - 'scripts/security-audit.js'
-          tests:
-            - 'tests/**'
+      - name: 🔍 代码审查检查
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            core:
+              - 'src/core/**'
+            security:
+              - 'SECURITY.md'
+              - 'scripts/security-audit.js'
+            tests:
+              - 'tests/**'
 
-    - name: ⚠️ 核心代码变更警告
-      if: steps.changes.outputs.core == 'true'
-      run: |
-        echo "⚠️ 检测到核心代码变更，需要额外审查"
-        echo "请确保："
-        echo "- 所有测试通过"
-        echo "- 性能基准测试无显著下降"
-        echo "- 安全审计无新增漏洞"
+      - name: ⚠️ 核心代码变更警告
+        if: steps.changes.outputs.core == 'true'
+        run: |
+          echo "⚠️ 检测到核心代码变更，需要额外审查"
+          echo "请确保："
+          echo "- 所有测试通过"
+          echo "- 性能基准测试无显著下降"
+          echo "- 安全审计无新增漏洞"
 
-    - name: 🔒 安全相关变更警告
-      if: steps.changes.outputs.security == 'true'
-      run: |
-        echo "🔒 检测到安全相关变更"
-        echo "请确保："
-        echo "- 安全审计已审查"
-        echo "- 没有引入新的安全风险"
+      - name: 🔒 安全相关变更警告
+        if: steps.changes.outputs.security == 'true'
+        run: |
+          echo "🔒 检测到安全相关变更"
+          echo "请确保："
+          echo "- 安全审计已审查"
+          echo "- 没有引入新的安全风险"
 
-    - name: 🧪 测试覆盖率检查
-      run: |
-        if [ $(jq '.total.lines.pct' < coverage/coverage-summary.json) -lt 80 ]; then
-          echo "❌ 测试覆盖率低于 80%: $(jq '.total.lines.pct' < coverage/coverage-summary.json)%"
-          exit 1
-        fi
+      - name: 🧪 测试覆盖率检查
+        run: |
+          if [ $(jq '.total.lines.pct' < coverage/coverage-summary.json) -lt 80 ]; then
+            echo "❌ 测试覆盖率低于 80%: $(jq '.total.lines.pct' < coverage/coverage-summary.json)%"
+            exit 1
+          fi
 
   # 6️⃣ Staging部署 - 测试环境自动部署
   staging-deployment:
@@ -366,54 +366,54 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
 
-    - name: 🛠️ 设置 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: 🛠️ 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: 📦 安装依赖
+        run: npm ci
 
-    - name: 🏗️ 构建应用
-      run: npm run build:prod
+      - name: 🏗️ 构建应用
+        run: npm run build:prod
 
-    - name: 🐳 构建 Docker 镜像
-      run: |
-        docker build -t frys-staging:${{ github.sha }} .
-        docker tag frys-staging:${{ github.sha }} frys-staging:latest
+      - name: 🐳 构建 Docker 镜像
+        run: |
+          docker build -t frys-staging:${{ github.sha }} .
+          docker tag frys-staging:${{ github.sha }} frys-staging:latest
 
-    - name: 🚀 部署到 Staging
-      run: |
-        echo "部署到 staging 环境..."
-        # 这里可以集成实际的部署命令
-        # 例如：kubectl、docker-compose、AWS等
+      - name: 🚀 部署到 Staging
+        run: |
+          echo "部署到 staging 环境..."
+          # 这里可以集成实际的部署命令
+          # 例如：kubectl、docker-compose、AWS等
 
-    - name: ✅ 部署验证
-      run: node scripts/verify-deployment.js
-      env:
-        DEPLOY_ENV: staging
-        DEPLOY_URL: ${{ secrets.STAGING_URL }}
+      - name: ✅ 部署验证
+        run: node scripts/verify-deployment.js
+        env:
+          DEPLOY_ENV: staging
+          DEPLOY_URL: ${{ secrets.STAGING_URL }}
 
-    - name: 📊 性能基准测试
-      run: node scripts/performance-benchmark.js --baseline
+      - name: 📊 性能基准测试
+        run: node scripts/performance-benchmark.js --baseline
 
-    - name: 📈 SLO 检查
-      run: node scripts/slo-check.js --baseline
-      env:
-        DEPLOY_ENV: staging
+      - name: 📈 SLO 检查
+        run: node scripts/slo-check.js --baseline
+        env:
+          DEPLOY_ENV: staging
 
-    - name: 🔔 部署通知
-      if: always()
-      run: |
-        if [ ${{ job.status }} == 'success' ]; then
-          echo "✅ Staging 部署成功"
-        else
-          echo "❌ Staging 部署失败"
-        fi
+      - name: 🔔 部署通知
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ Staging 部署成功"
+          else
+            echo "❌ Staging 部署失败"
+          fi
 
   # 7️⃣ 回归测试 - 生产部署后验证
   regression-testing:
@@ -424,41 +424,41 @@ jobs:
     needs: production-deployment
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
 
-    - name: 🛠️ 设置 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: 🛠️ 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: 📦 安装依赖
+        run: npm ci
 
-    - name: 🔄 回归测试矩阵
-      run: node scripts/regression-matrix.js
-      env:
-        PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
-        API_BASE_URL: ${{ secrets.PRODUCTION_API_URL }}
+      - name: 🔄 回归测试矩阵
+        run: node scripts/regression-matrix.js
+        env:
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+          API_BASE_URL: ${{ secrets.PRODUCTION_API_URL }}
 
-    - name: 📊 性能回归检查
-      run: node scripts/performance-monitor.js --regression
-      env:
-        DEPLOY_ENV: production
+      - name: 📊 性能回归检查
+        run: node scripts/performance-monitor.js --regression
+        env:
+          DEPLOY_ENV: production
 
-    - name: 🔍 错误率监控
-      run: |
-        # 检查错误率是否在可接受范围内
-        if [ $(curl -s ${{ secrets.PRODUCTION_HEALTH_URL }} | jq '.error_rate') -gt 0.05 ]; then
-          echo "❌ 错误率过高: $(curl -s ${{ secrets.PRODUCTION_HEALTH_URL }} | jq '.error_rate')"
-          exit 1
-        fi
+      - name: 🔍 错误率监控
+        run: |
+          # 检查错误率是否在可接受范围内
+          if [ $(curl -s ${{ secrets.PRODUCTION_HEALTH_URL }} | jq '.error_rate') -gt 0.05 ]; then
+            echo "❌ 错误率过高: $(curl -s ${{ secrets.PRODUCTION_HEALTH_URL }} | jq '.error_rate')"
+            exit 1
+          fi
 
-    - name: ✅ 业务功能验证
-      run: |
-        # 关键业务流程验证
-        npm run test:smoke:api
+      - name: ✅ 业务功能验证
+        run: |
+          # 关键业务流程验证
+          npm run test:smoke:api
 
   # 8️⃣ 生产部署 - 蓝绿部署策略
   production-deployment:
@@ -472,58 +472,58 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
 
-    - name: 🛠️ 设置 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: 🛠️ 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: 📦 安装依赖
+        run: npm ci
 
-    - name: 🏗️ 生产构建
-      run: npm run build:prod
-      env:
-        NODE_ENV: production
+      - name: 🏗️ 生产构建
+        run: npm run build:prod
+        env:
+          NODE_ENV: production
 
-    - name: 🐳 构建生产镜像
-      run: |
-        docker build -t frys-production:${{ github.sha }} .
-        docker tag frys-production:${{ github.sha }} frys-production:latest
+      - name: 🐳 构建生产镜像
+        run: |
+          docker build -t frys-production:${{ github.sha }} .
+          docker tag frys-production:${{ github.sha }} frys-production:latest
 
-    - name: 🔐 验证部署权限
-      run: |
-        # 验证是否有生产部署权限
-        echo "验证部署权限..."
+      - name: 🔐 验证部署权限
+        run: |
+          # 验证是否有生产部署权限
+          echo "验证部署权限..."
 
-    - name: 🚀 蓝绿部署
-      run: |
-        echo "执行蓝绿部署..."
-        # 这里调用实际的部署脚本
-        # ./scripts/deploy.sh --env production
+      - name: 🚀 蓝绿部署
+        run: |
+          echo "执行蓝绿部署..."
+          # 这里调用实际的部署脚本
+          # ./scripts/deploy.sh --env production
 
-    - name: 🔍 部署后验证
-      run: node scripts/verify-deployment.js
-      env:
-        DEPLOY_ENV: production
-        DEPLOY_URL: ${{ secrets.PRODUCTION_URL }}
+      - name: 🔍 部署后验证
+        run: node scripts/verify-deployment.js
+        env:
+          DEPLOY_ENV: production
+          DEPLOY_URL: ${{ secrets.PRODUCTION_URL }}
 
-    - name: 📊 部署指标收集
-      run: |
-        echo "收集部署指标..."
-        # 收集部署时间、成功率等指标
+      - name: 📊 部署指标收集
+        run: |
+          echo "收集部署指标..."
+          # 收集部署时间、成功率等指标
 
-    - name: 🔔 部署通知
-      if: always()
-      run: |
-        if [ ${{ job.status }} == 'success' ]; then
-          echo "🎉 生产部署成功！"
-        else
-          echo "🚨 生产部署失败！"
-        fi
+      - name: 🔔 部署通知
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "🎉 生产部署成功！"
+          else
+            echo "🚨 生产部署失败！"
+          fi
 
   # 9️⃣ 监控回溯 - 实时监控和自动回滚
   monitoring-rollback:
@@ -534,99 +534,110 @@ jobs:
     needs: production-deployment
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
 
-    - name: 🛠️ 设置 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: 🛠️ 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: 📦 安装依赖
+        run: npm ci
 
-    - name: 👀 启动健康监控
-      run: node scripts/smart-rollback.js monitor --env production &
-      env:
-        HEALTH_CHECK_URL: ${{ secrets.PRODUCTION_HEALTH_URL }}
+      - name: 👀 启动健康监控
+        run: node scripts/smart-rollback.js monitor --env production &
+        env:
+          HEALTH_CHECK_URL: ${{ secrets.PRODUCTION_HEALTH_URL }}
 
-    - name: ⏱️ 监控观察期
-      run: |
-        echo "观察部署后的系统稳定性..."
-        sleep 300  # 5分钟观察期
+      - name: ⏱️ 监控观察期
+        run: |
+          echo "观察部署后的系统稳定性..."
+          sleep 300  # 5分钟观察期
 
-    - name: 📊 健康状态检查
-      run: |
-        health_status=$(node scripts/smart-rollback.js health)
-        if echo "$health_status" | jq -e '.healthy == false' > /dev/null; then
-          echo "❌ 检测到健康问题，触发回滚"
-          node scripts/smart-rollback.js rollback environment_switch --reason "post-deployment health check failed"
-          exit 1
-        fi
+      - name: 📊 健康状态检查
+        run: |
+          health_status=$(node scripts/smart-rollback.js health)
+          if echo "$health_status" | jq -e '.healthy == false' > /dev/null; then
+            echo "❌ 检测到健康问题，触发回滚"
+            node scripts/smart-rollback.js rollback environment_switch --reason "post-deployment health check failed"
+            exit 1
+          fi
 
-    - name: 📈 性能监控
-      run: |
-        # 检查性能指标
-        if node scripts/performance-monitor.js --check --threshold 0.9; then
-          echo "✅ 性能指标正常"
-        else
-          echo "⚠️ 性能下降，记录警告"
-        fi
+      - name: 📈 性能监控
+        run: |
+          # 检查性能指标
+          if node scripts/performance-monitor.js --check --threshold 0.9; then
+            echo "✅ 性能指标正常"
+          else
+            echo "⚠️ 性能下降，记录警告"
+          fi
 
-    - name: 🔄 自动回滚检查
-      run: node scripts/smart-rollback.js status
-      env:
-        DEPLOY_ENV: production
+      - name: 🔄 自动回滚检查
+        run: node scripts/smart-rollback.js status
+        env:
+          DEPLOY_ENV: production
 
-    - name: 🏷️ 上传监控结果
-      uses: actions/upload-artifact@v4
-      with:
-        name: monitoring-results
-        path: |
-          rollback-stats.json
-          monitoring-report.json
-        retention-days: 30
+      - name: 🏷️ 上传监控结果
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitoring-results
+          path: |
+            rollback-stats.json
+            monitoring-report.json
+          retention-days: 30
 
   # 🎯 工作流总结
   workflow-summary:
     name: '🎯 工作流总结'
     runs-on: ubuntu-latest
     if: always()
-    needs: [local-validation, automated-testing, security-checks, integration-testing, pr-review, staging-deployment, regression-testing, production-deployment, monitoring-rollback]
+    needs:
+      [
+        local-validation,
+        automated-testing,
+        security-checks,
+        integration-testing,
+        pr-review,
+        staging-deployment,
+        regression-testing,
+        production-deployment,
+        monitoring-rollback,
+      ]
 
     steps:
-    - name: 📊 生成工作流报告
-      run: |
-        echo "# 🚀 frys CI/CD Pipeline 执行报告" > workflow-report.md
-        echo "" >> workflow-report.md
-        echo "## 执行摘要" >> workflow-report.md
-        echo "- **触发事件**: ${{ github.event_name }}" >> workflow-report.md
-        echo "- **分支**: ${{ github.ref }}" >> workflow-report.md
-        echo "- **提交**: ${{ github.sha }}" >> workflow-report.md
-        echo "- **执行时间**: $(date)" >> workflow-report.md
-        echo "" >> workflow-report.md
-        echo "## 阶段状态" >> workflow-report.md
-        echo "| 阶段 | 状态 | 持续时间 |" >> workflow-report.md
-        echo "|------|------|----------|" >> workflow-report.md
+      - name: 📊 生成工作流报告
+        run: |
+          echo "# 🚀 frys CI/CD Pipeline 执行报告" > workflow-report.md
+          echo "" >> workflow-report.md
+          echo "## 执行摘要" >> workflow-report.md
+          echo "- **触发事件**: ${{ github.event_name }}" >> workflow-report.md
+          echo "- **分支**: ${{ github.ref }}" >> workflow-report.md
+          echo "- **提交**: ${{ github.sha }}" >> workflow-report.md
+          echo "- **执行时间**: $(date)" >> workflow-report.md
+          echo "" >> workflow-report.md
+          echo "## 阶段状态" >> workflow-report.md
+          echo "| 阶段 | 状态 | 持续时间 |" >> workflow-report.md
+          echo "|------|------|----------|" >> workflow-report.md
 
-        # 这里可以添加更多详细的报告生成逻辑
+          # 这里可以添加更多详细的报告生成逻辑
 
-    - name: 📤 上传工作流报告
-      uses: actions/upload-artifact@v4
-      with:
-        name: workflow-report
-        path: workflow-report.md
-        retention-days: 7
+      - name: 📤 上传工作流报告
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-report
+          path: workflow-report.md
+          retention-days: 7
 
-    - name: 🎉 成功通知
-      if: success()
-      run: |
-        echo "🎉 所有 CI/CD 阶段执行成功！"
-        echo "✅ 代码已成功部署到生产环境"
+      - name: 🎉 成功通知
+        if: success()
+        run: |
+          echo "🎉 所有 CI/CD 阶段执行成功！"
+          echo "✅ 代码已成功部署到生产环境"
 
-    - name: 🚨 失败通知
-      if: failure()
-      run: |
-        echo "🚨 CI/CD 流水线执行失败"
-        echo "请检查上述错误信息并修复问题"
+      - name: 🚨 失败通知
+        if: failure()
+        run: |
+          echo "🚨 CI/CD 流水线执行失败"
+          echo "请检查上述错误信息并修复问题"

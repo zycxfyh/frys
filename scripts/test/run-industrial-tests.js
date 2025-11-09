@@ -5,134 +5,137 @@
  * 全面测试AI服务集成、性能和可靠性
  */
 
-import { execSync, spawn } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import os from 'os';
+import { execSync, spawn } from "child_process";
+import fs from "fs";
+import os from "os";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 class IndustrialTestSuite {
-  constructor() {
-    this.results = {
-      timestamp: new Date().toISOString(),
-      tests: [],
-      summary: {
-        total: 0,
-        passed: 0,
-        failed: 0,
-        skipped: 0,
-        duration: 0
-      },
-      performance: {},
-      reliability: {}
-    };
+	constructor() {
+		this.results = {
+			timestamp: new Date().toISOString(),
+			tests: [],
+			summary: {
+				total: 0,
+				passed: 0,
+				failed: 0,
+				skipped: 0,
+				duration: 0,
+			},
+			performance: {},
+			reliability: {},
+		};
 
-    this.startTime = Date.now();
-    this.logFile = path.join(__dirname, '../logs/industrial-test.log');
-    this.tempDir = path.join(__dirname, '../tmp');
+		this.startTime = Date.now();
+		this.logFile = path.join(__dirname, "../logs/industrial-test.log");
+		this.tempDir = path.join(__dirname, "../tmp");
 
-    // 确保临时目录存在
-    if (!fs.existsSync(this.tempDir)) {
-      fs.mkdirSync(this.tempDir, { recursive: true });
-    }
-  }
+		// 确保临时目录存在
+		if (!fs.existsSync(this.tempDir)) {
+			fs.mkdirSync(this.tempDir, { recursive: true });
+		}
+	}
 
-  log(message, level = 'info') {
-    const timestamp = new Date().toISOString();
-    const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+	log(message, level = "info") {
+		const timestamp = new Date().toISOString();
+		const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
 
-    console.log(logMessage);
+		console.log(logMessage);
 
-    // 写入日志文件
-    fs.appendFileSync(this.logFile, logMessage + '\n');
-  }
+		// 写入日志文件
+		fs.appendFileSync(this.logFile, logMessage + "\n");
+	}
 
-  async runCommand(command, options = {}) {
-    const { cwd = process.cwd(), timeout = 300000, description = '' } = options;
+	async runCommand(command, options = {}) {
+		const { cwd = process.cwd(), timeout = 300000, description = "" } = options;
 
-    this.log(`执行命令: ${command} ${description ? `(${description})` : ''}`);
+		this.log(`执行命令: ${command} ${description ? `(${description})` : ""}`);
 
-    return new Promise((resolve, reject) => {
-      try {
-        const result = execSync(command, {
-          cwd,
-          timeout,
-          encoding: 'utf8',
-          stdio: 'pipe'
-        });
-        resolve(result);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
+		return new Promise((resolve, reject) => {
+			try {
+				const result = execSync(command, {
+					cwd,
+					timeout,
+					encoding: "utf8",
+					stdio: "pipe",
+				});
+				resolve(result);
+			} catch (error) {
+				reject(error);
+			}
+		});
+	}
 
-  async runTest(testName, testFunction) {
-    const testStart = Date.now();
-    const testResult = {
-      name: testName,
-      status: 'running',
-      duration: 0,
-      error: null,
-      output: null
-    };
+	async runTest(testName, testFunction) {
+		const testStart = Date.now();
+		const testResult = {
+			name: testName,
+			status: "running",
+			duration: 0,
+			error: null,
+			output: null,
+		};
 
-    this.results.tests.push(testResult);
-    this.results.summary.total++;
+		this.results.tests.push(testResult);
+		this.results.summary.total++;
 
-    this.log(`开始测试: ${testName}`);
+		this.log(`开始测试: ${testName}`);
 
-    try {
-      const result = await testFunction();
-      testResult.status = 'passed';
-      testResult.output = result;
-      this.results.summary.passed++;
-      this.log(`✅ 测试通过: ${testName}`);
-    } catch (error) {
-      testResult.status = 'failed';
-      testResult.error = error.message;
-      this.results.summary.failed++;
-      this.log(`❌ 测试失败: ${testName} - ${error.message}`);
-    }
+		try {
+			const result = await testFunction();
+			testResult.status = "passed";
+			testResult.output = result;
+			this.results.summary.passed++;
+			this.log(`✅ 测试通过: ${testName}`);
+		} catch (error) {
+			testResult.status = "failed";
+			testResult.error = error.message;
+			this.results.summary.failed++;
+			this.log(`❌ 测试失败: ${testName} - ${error.message}`);
+		}
 
-    testResult.duration = Date.now() - testStart;
-    this.log(`测试完成: ${testName} (${testResult.duration}ms)`);
-  }
+		testResult.duration = Date.now() - testStart;
+		this.log(`测试完成: ${testName} (${testResult.duration}ms)`);
+	}
 
-  // 1. 基础功能测试
-  async testBasicFunctionality() {
-    await this.runTest('基础功能测试', async () => {
-      // 测试服务启动
-      const result = await this.runCommand('npm run build', {
-        description: '构建项目'
-      });
+	// 1. 基础功能测试
+	async testBasicFunctionality() {
+		await this.runTest("基础功能测试", async () => {
+			// 测试服务启动
+			const result = await this.runCommand("npm run build", {
+				description: "构建项目",
+			});
 
-      // 测试基本导入
-      const testCode = `
+			// 测试基本导入
+			const testCode = `
         import { LangChainService } from '../src/application/services/ai/LangChainService.js';
         import { CogneeMemoryService } from '../src/application/services/ai/CogneeMemoryService.js';
         import { ConversationManager } from '../src/application/services/ConversationManager.js';
         console.log('所有AI服务导入成功');
       `;
 
-      fs.writeFileSync(path.join(this.tempDir, 'test-import.js'), testCode);
+			fs.writeFileSync(path.join(this.tempDir, "test-import.js"), testCode);
 
-      await this.runCommand(`node "${path.join(this.tempDir, 'test-import.js')}"`, {
-        description: '测试模块导入'
-      });
+			await this.runCommand(
+				`node "${path.join(this.tempDir, "test-import.js")}"`,
+				{
+					description: "测试模块导入",
+				},
+			);
 
-      return '基础功能测试通过';
-    });
-  }
+			return "基础功能测试通过";
+		});
+	}
 
-  // 2. AI服务集成测试
-  async testAIServiceIntegration() {
-    await this.runTest('AI服务集成测试', async () => {
-      // 测试LangChain服务
-      const langChainTest = `
+	// 2. AI服务集成测试
+	async testAIServiceIntegration() {
+		await this.runTest("AI服务集成测试", async () => {
+			// 测试LangChain服务
+			const langChainTest = `
         import { LangChainService } from '../src/application/services/ai/LangChainService.js';
 
         const service = new LangChainService();
@@ -142,13 +145,19 @@ class IndustrialTestSuite {
         console.log('LangChain统计信息:', JSON.stringify(stats, null, 2));
       `;
 
-      fs.writeFileSync(path.join(this.tempDir, 'test-langchain.js'), langChainTest);
-      await this.runCommand(`node "${path.join(this.tempDir, 'test-langchain.js')}"`, {
-        description: '测试LangChain服务'
-      });
+			fs.writeFileSync(
+				path.join(this.tempDir, "test-langchain.js"),
+				langChainTest,
+			);
+			await this.runCommand(
+				`node "${path.join(this.tempDir, "test-langchain.js")}"`,
+				{
+					description: "测试LangChain服务",
+				},
+			);
 
-      // 测试Cognee服务（模拟模式）
-      const cogneeTest = `
+			// 测试Cognee服务（模拟模式）
+			const cogneeTest = `
         import { CogneeMemoryService } from '../src/application/services/ai/CogneeMemoryService.js';
 
         const service = new CogneeMemoryService();
@@ -158,13 +167,16 @@ class IndustrialTestSuite {
         console.log('Cognee统计信息:', JSON.stringify(stats, null, 2));
       `;
 
-      fs.writeFileSync(path.join(this.tempDir, 'test-cognee.js'), cogneeTest);
-      await this.runCommand(`node "${path.join(this.tempDir, 'test-cognee.js')}"`, {
-        description: '测试Cognee服务'
-      });
+			fs.writeFileSync(path.join(this.tempDir, "test-cognee.js"), cogneeTest);
+			await this.runCommand(
+				`node "${path.join(this.tempDir, "test-cognee.js")}"`,
+				{
+					description: "测试Cognee服务",
+				},
+			);
 
-      // 测试对话管理器
-      const conversationTest = `
+			// 测试对话管理器
+			const conversationTest = `
         import { ConversationManager } from '../src/application/services/ConversationManager.js';
 
         const manager = new ConversationManager({});
@@ -174,51 +186,56 @@ class IndustrialTestSuite {
         console.log('对话管理器统计信息:', JSON.stringify(stats, null, 2));
       `;
 
-      fs.writeFileSync(path.join(this.tempDir, 'test-conversation.js'), conversationTest);
-      await this.runCommand(`node "${path.join(this.tempDir, 'test-conversation.js')}"`, {
-        description: '测试对话管理器'
-      });
+			fs.writeFileSync(
+				path.join(this.tempDir, "test-conversation.js"),
+				conversationTest,
+			);
+			await this.runCommand(
+				`node "${path.join(this.tempDir, "test-conversation.js")}"`,
+				{
+					description: "测试对话管理器",
+				},
+			);
 
-      return 'AI服务集成测试通过';
-    });
-  }
+			return "AI服务集成测试通过";
+		});
+	}
 
-  // 3. API端点测试
-  async testAPIEndpoints() {
-    await this.runTest('API端点测试', async () => {
-      // 简化测试：由于服务器启动复杂性较高，我们验证服务器代码可以正常加载和初始化
-      console.log('正在验证服务器启动能力...');
+	// 3. API端点测试
+	async testAPIEndpoints() {
+		await this.runTest("API端点测试", async () => {
+			// 简化测试：由于服务器启动复杂性较高，我们验证服务器代码可以正常加载和初始化
+			console.log("正在验证服务器启动能力...");
 
-      try {
-        // 简单验证：尝试加载服务器模块
-        const { createFastifyApp } = await import('../src/core/server.js');
-        const app = createFastifyApp();
+			try {
+				// 简单验证：尝试加载服务器模块
+				const { createFastifyApp } = await import("../src/core/server.js");
+				const app = createFastifyApp();
 
-        if (app && typeof app.listen === 'function') {
-          console.log('✓ 服务器模块加载成功');
-          return 'API端点测试通过 (服务器模块验证成功)';
-        } else {
-          throw new Error('服务器模块加载失败');
-        }
+				if (app && typeof app.listen === "function") {
+					console.log("✓ 服务器模块加载成功");
+					return "API端点测试通过 (服务器模块验证成功)";
+				} else {
+					throw new Error("服务器模块加载失败");
+				}
+			} catch (error) {
+				console.error("API测试失败:", error.message);
+				throw new Error(`API端点测试失败: ${error.message}`);
+			}
+		});
+	}
 
-      } catch (error) {
-        console.error('API测试失败:', error.message);
-        throw new Error(`API端点测试失败: ${error.message}`);
-      }
-    });
-  }
+	// 4. 性能测试
+	async testPerformance() {
+		await this.runTest("性能测试", async () => {
+			const performanceResults = {
+				memoryUsage: {},
+				responseTime: {},
+				throughput: {},
+			};
 
-  // 4. 性能测试
-  async testPerformance() {
-    await this.runTest('性能测试', async () => {
-      const performanceResults = {
-        memoryUsage: {},
-        responseTime: {},
-        throughput: {}
-      };
-
-      // 内存使用测试
-      const memoryTest = `
+			// 内存使用测试
+			const memoryTest = `
         import { ConversationManager } from '../src/application/services/ConversationManager.js';
 
         const manager = new ConversationManager({});
@@ -246,49 +263,58 @@ class IndustrialTestSuite {
         console.log('内存使用统计:', JSON.stringify(stats, null, 2));
       `;
 
-      fs.writeFileSync(path.join(this.tempDir, 'test-performance.js'), memoryTest);
-      const memoryResult = await this.runCommand(`node "${path.join(this.tempDir, 'test-performance.js')}"`, {
-        description: '内存使用测试'
-      });
+			fs.writeFileSync(
+				path.join(this.tempDir, "test-performance.js"),
+				memoryTest,
+			);
+			const memoryResult = await this.runCommand(
+				`node "${path.join(this.tempDir, "test-performance.js")}"`,
+				{
+					description: "内存使用测试",
+				},
+			);
 
-      // 从输出中提取JSON - 查找"内存使用统计:"后面的JSON字符串
-      const memoryStatsIndex = memoryResult.indexOf('内存使用统计:');
-      if (memoryStatsIndex !== -1) {
-        const jsonStart = memoryResult.indexOf('{', memoryStatsIndex);
-        if (jsonStart !== -1) {
-          // 从第一个'{'开始，找到匹配的结束'}'
-          let braceCount = 0;
-          let jsonEnd = jsonStart;
-          for (let i = jsonStart; i < memoryResult.length; i++) {
-            if (memoryResult[i] === '{') braceCount++;
-            if (memoryResult[i] === '}') braceCount--;
-            if (braceCount === 0) {
-              jsonEnd = i;
-              break;
-            }
-          }
+			// 从输出中提取JSON - 查找"内存使用统计:"后面的JSON字符串
+			const memoryStatsIndex = memoryResult.indexOf("内存使用统计:");
+			if (memoryStatsIndex !== -1) {
+				const jsonStart = memoryResult.indexOf("{", memoryStatsIndex);
+				if (jsonStart !== -1) {
+					// 从第一个'{'开始，找到匹配的结束'}'
+					let braceCount = 0;
+					let jsonEnd = jsonStart;
+					for (let i = jsonStart; i < memoryResult.length; i++) {
+						if (memoryResult[i] === "{") braceCount++;
+						if (memoryResult[i] === "}") braceCount--;
+						if (braceCount === 0) {
+							jsonEnd = i;
+							break;
+						}
+					}
 
-          const jsonString = memoryResult.substring(jsonStart, jsonEnd + 1);
-          try {
-            performanceResults.memoryUsage = JSON.parse(jsonString);
-          } catch (parseError) {
-            performanceResults.memoryUsage = { error: 'JSON解析失败', raw: jsonString.substring(0, 100) + '...' };
-          }
-        } else {
-          performanceResults.memoryUsage = { error: '未找到JSON开始标记' };
-        }
-      } else {
-        performanceResults.memoryUsage = { error: '未找到内存使用统计标记' };
-      }
+					const jsonString = memoryResult.substring(jsonStart, jsonEnd + 1);
+					try {
+						performanceResults.memoryUsage = JSON.parse(jsonString);
+					} catch (parseError) {
+						performanceResults.memoryUsage = {
+							error: "JSON解析失败",
+							raw: jsonString.substring(0, 100) + "...",
+						};
+					}
+				} else {
+					performanceResults.memoryUsage = { error: "未找到JSON开始标记" };
+				}
+			} else {
+				performanceResults.memoryUsage = { error: "未找到内存使用统计标记" };
+			}
 
-      return performanceResults;
-    });
-  }
+			return performanceResults;
+		});
+	}
 
-  // 5. 并发测试
-  async testConcurrency() {
-    await this.runTest('并发测试', async () => {
-      const concurrencyTest = `
+	// 5. 并发测试
+	async testConcurrency() {
+		await this.runTest("并发测试", async () => {
+			const concurrencyTest = `
         import { ConversationManager } from '../src/application/services/ConversationManager.js';
 
         const manager = new ConversationManager({});
@@ -338,19 +364,25 @@ class IndustrialTestSuite {
         runConcurrencyTest();
       `;
 
-      fs.writeFileSync(path.join(this.tempDir, 'test-concurrency.js'), concurrencyTest);
-      const result = await this.runCommand(`node "${path.join(this.tempDir, 'test-concurrency.js')}"`, {
-        description: '并发测试'
-      });
+			fs.writeFileSync(
+				path.join(this.tempDir, "test-concurrency.js"),
+				concurrencyTest,
+			);
+			const result = await this.runCommand(
+				`node "${path.join(this.tempDir, "test-concurrency.js")}"`,
+				{
+					description: "并发测试",
+				},
+			);
 
-      return '并发测试完成';
-    });
-  }
+			return "并发测试完成";
+		});
+	}
 
-  // 6. 可靠性测试
-  async testReliability() {
-    await this.runTest('可靠性测试', async () => {
-      const reliabilityTest = `
+	// 6. 可靠性测试
+	async testReliability() {
+		await this.runTest("可靠性测试", async () => {
+			const reliabilityTest = `
         import { ConversationManager } from '../src/application/services/ConversationManager.js';
 
         const manager = new ConversationManager({});
@@ -395,19 +427,25 @@ class IndustrialTestSuite {
         testErrorRecovery();
       `;
 
-      fs.writeFileSync(path.join(this.tempDir, 'test-reliability.js'), reliabilityTest);
-      const result = await this.runCommand(`node "${path.join(this.tempDir, 'test-reliability.js')}"`, {
-        description: '可靠性测试'
-      });
+			fs.writeFileSync(
+				path.join(this.tempDir, "test-reliability.js"),
+				reliabilityTest,
+			);
+			const result = await this.runCommand(
+				`node "${path.join(this.tempDir, "test-reliability.js")}"`,
+				{
+					description: "可靠性测试",
+				},
+			);
 
-      return '可靠性测试完成';
-    });
-  }
+			return "可靠性测试完成";
+		});
+	}
 
-  // 7. 端到端测试
-  async testEndToEnd() {
-    await this.runTest('端到端测试', async () => {
-      const e2eTest = `
+	// 7. 端到端测试
+	async testEndToEnd() {
+		await this.runTest("端到端测试", async () => {
+			const e2eTest = `
         import { ConversationManager } from '../src/application/services/ConversationManager.js';
         import { CogneeMemoryService } from '../src/application/services/ai/CogneeMemoryService.js';
 
@@ -487,19 +525,22 @@ class IndustrialTestSuite {
         runE2ETest();
       `;
 
-      fs.writeFileSync(path.join(this.tempDir, 'test-e2e.js'), e2eTest);
-      const result = await this.runCommand(`node "${path.join(this.tempDir, 'test-e2e.js')}"`, {
-        description: '端到端测试'
-      });
+			fs.writeFileSync(path.join(this.tempDir, "test-e2e.js"), e2eTest);
+			const result = await this.runCommand(
+				`node "${path.join(this.tempDir, "test-e2e.js")}"`,
+				{
+					description: "端到端测试",
+				},
+			);
 
-      return '端到端测试完成';
-    });
-  }
+			return "端到端测试完成";
+		});
+	}
 
-  // 8. 压力测试
-  async testStress() {
-    await this.runTest('压力测试', async () => {
-      const stressTest = `
+	// 8. 压力测试
+	async testStress() {
+		await this.runTest("压力测试", async () => {
+			const stressTest = `
         import { ConversationManager } from '../src/application/services/ConversationManager.js';
 
         async function runStressTest() {
@@ -574,49 +615,58 @@ class IndustrialTestSuite {
         runStressTest();
       `;
 
-      fs.writeFileSync(path.join(this.tempDir, 'test-stress.js'), stressTest);
-      const result = await this.runCommand(`node "${path.join(this.tempDir, 'test-stress.js')}"`, {
-        description: '压力测试'
-      });
+			fs.writeFileSync(path.join(this.tempDir, "test-stress.js"), stressTest);
+			const result = await this.runCommand(
+				`node "${path.join(this.tempDir, "test-stress.js")}"`,
+				{
+					description: "压力测试",
+				},
+			);
 
-      return '压力测试完成';
-    });
-  }
+			return "压力测试完成";
+		});
+	}
 
-  // 生成测试报告
-  generateReport() {
-    const endTime = Date.now();
-    this.results.summary.duration = endTime - this.startTime;
+	// 生成测试报告
+	generateReport() {
+		const endTime = Date.now();
+		this.results.summary.duration = endTime - this.startTime;
 
-    const reportPath = path.join(__dirname, '../reports/industrial-test-report.json');
-    const htmlReportPath = path.join(__dirname, '../reports/industrial-test-report.html');
+		const reportPath = path.join(
+			__dirname,
+			"../reports/industrial-test-report.json",
+		);
+		const htmlReportPath = path.join(
+			__dirname,
+			"../reports/industrial-test-report.html",
+		);
 
-    // 确保reports目录存在
-    const reportsDir = path.dirname(reportPath);
-    if (!fs.existsSync(reportsDir)) {
-      fs.mkdirSync(reportsDir, { recursive: true });
-    }
+		// 确保reports目录存在
+		const reportsDir = path.dirname(reportPath);
+		if (!fs.existsSync(reportsDir)) {
+			fs.mkdirSync(reportsDir, { recursive: true });
+		}
 
-    // 生成JSON报告
-    fs.writeFileSync(reportPath, JSON.stringify(this.results, null, 2));
+		// 生成JSON报告
+		fs.writeFileSync(reportPath, JSON.stringify(this.results, null, 2));
 
-    // 生成HTML报告
-    const htmlReport = this.generateHTMLReport();
-    fs.writeFileSync(htmlReportPath, htmlReport);
+		// 生成HTML报告
+		const htmlReport = this.generateHTMLReport();
+		fs.writeFileSync(htmlReportPath, htmlReport);
 
-    this.log(`测试报告已生成: ${reportPath}`);
-    this.log(`HTML报告已生成: ${htmlReportPath}`);
+		this.log(`测试报告已生成: ${reportPath}`);
+		this.log(`HTML报告已生成: ${htmlReportPath}`);
 
-    return {
-      jsonReport: reportPath,
-      htmlReport: htmlReportPath
-    };
-  }
+		return {
+			jsonReport: reportPath,
+			htmlReport: htmlReportPath,
+		};
+	}
 
-  generateHTMLReport() {
-    const { summary, tests, performance, reliability } = this.results;
+	generateHTMLReport() {
+		const { summary, tests, performance, reliability } = this.results;
 
-    return `
+		return `
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -701,7 +751,7 @@ class IndustrialTestSuite {
     <div class="container">
         <div class="header">
             <h1>🚀 frys 工业级测试报告</h1>
-            <p>生成时间: ${new Date().toLocaleString('zh-CN')}</p>
+            <p>生成时间: ${new Date().toLocaleString("zh-CN")}</p>
             <p>测试持续时间: ${(summary.duration / 1000).toFixed(2)} 秒</p>
         </div>
 
@@ -720,25 +770,29 @@ class IndustrialTestSuite {
             </div>
             <div class="metric">
                 <h3>成功率</h3>
-                <div class="value" style="color: ${summary.total > 0 ? (summary.passed / summary.total * 100 >= 80 ? '#28a745' : '#ffc107') : '#666'};">${summary.total > 0 ? (summary.passed / summary.total * 100).toFixed(1) : 0}%</div>
+                <div class="value" style="color: ${summary.total > 0 ? ((summary.passed / summary.total) * 100 >= 80 ? "#28a745" : "#ffc107") : "#666"};">${summary.total > 0 ? ((summary.passed / summary.total) * 100).toFixed(1) : 0}%</div>
             </div>
         </div>
 
         <div class="tests">
             <h2>📋 测试详情</h2>
-            ${tests.map(test => `
+            ${tests
+							.map(
+								(test) => `
                 <div class="test-item test-${test.status}">
                     <div>
                         <strong>${test.name}</strong>
                         <br>
                         <small>耗时: ${test.duration}ms</small>
-                        ${test.error ? `<br><small style="color: #dc3545;">错误: ${test.error}</small>` : ''}
+                        ${test.error ? `<br><small style="color: #dc3545;">错误: ${test.error}</small>` : ""}
                     </div>
                     <div>
                         <span class="status status-${test.status}">${test.status.toUpperCase()}</span>
                     </div>
                 </div>
-            `).join('')}
+            `,
+							)
+							.join("")}
         </div>
 
         <div class="footer">
@@ -748,79 +802,87 @@ class IndustrialTestSuite {
     </div>
 </body>
 </html>`;
-  }
+	}
 
-  async runAllTests() {
-    this.log('🚀 开始frys工业级测试套件');
+	async runAllTests() {
+		this.log("🚀 开始frys工业级测试套件");
 
-    try {
-      // 创建日志目录
-      const logsDir = path.dirname(this.logFile);
-      if (!fs.existsSync(logsDir)) {
-        fs.mkdirSync(logsDir, { recursive: true });
-      }
+		try {
+			// 创建日志目录
+			const logsDir = path.dirname(this.logFile);
+			if (!fs.existsSync(logsDir)) {
+				fs.mkdirSync(logsDir, { recursive: true });
+			}
 
-      // 运行所有测试
-      await this.testBasicFunctionality();
-      await this.testAIServiceIntegration();
-      await this.testAPIEndpoints();
-      await this.testPerformance();
-      await this.testConcurrency();
-      await this.testReliability();
-      await this.testEndToEnd();
-      await this.testStress();
+			// 运行所有测试
+			await this.testBasicFunctionality();
+			await this.testAIServiceIntegration();
+			await this.testAPIEndpoints();
+			await this.testPerformance();
+			await this.testConcurrency();
+			await this.testReliability();
+			await this.testEndToEnd();
+			await this.testStress();
 
-      // 生成报告
-      const reports = this.generateReport();
+			// 生成报告
+			const reports = this.generateReport();
 
-      this.log(`🎉 所有测试完成！`);
-      this.log(`📊 通过: ${this.results.summary.passed}/${this.results.summary.total}`);
-      this.log(`📄 详细报告: ${reports.jsonReport}`);
-      this.log(`🌐 HTML报告: ${reports.htmlReport}`);
+			this.log(`🎉 所有测试完成！`);
+			this.log(
+				`📊 通过: ${this.results.summary.passed}/${this.results.summary.total}`,
+			);
+			this.log(`📄 详细报告: ${reports.jsonReport}`);
+			this.log(`🌐 HTML报告: ${reports.htmlReport}`);
 
-      // 输出最终结果
-      console.log('\n' + '='.repeat(60));
-      console.log('🎯 测试结果总结');
-      console.log('='.repeat(60));
-      console.log(`总测试数: ${this.results.summary.total}`);
-      console.log(`通过: ${this.results.summary.passed}`);
-      console.log(`失败: ${this.results.summary.failed}`);
-      console.log(`跳过: ${this.results.summary.skipped}`);
-      console.log(`成功率: ${(this.results.summary.passed / this.results.summary.total * 100).toFixed(1)}%`);
-      console.log(`总耗时: ${(this.results.summary.duration / 1000).toFixed(2)}秒`);
-      console.log('='.repeat(60));
+			// 输出最终结果
+			console.log("\n" + "=".repeat(60));
+			console.log("🎯 测试结果总结");
+			console.log("=".repeat(60));
+			console.log(`总测试数: ${this.results.summary.total}`);
+			console.log(`通过: ${this.results.summary.passed}`);
+			console.log(`失败: ${this.results.summary.failed}`);
+			console.log(`跳过: ${this.results.summary.skipped}`);
+			console.log(
+				`成功率: ${((this.results.summary.passed / this.results.summary.total) * 100).toFixed(1)}%`,
+			);
+			console.log(
+				`总耗时: ${(this.results.summary.duration / 1000).toFixed(2)}秒`,
+			);
+			console.log("=".repeat(60));
 
-      if (this.results.summary.failed === 0) {
-        console.log('🎉 所有测试通过！系统准备好用于生产环境。');
-      } else {
-        console.log('⚠️  有测试失败，请检查详细报告。');
-        process.exit(1);
-      }
-
-    } catch (error) {
-      this.log(`❌ 测试套件执行失败: ${error.message}`, 'error');
-      process.exit(1);
-    }
-  }
+			if (this.results.summary.failed === 0) {
+				console.log("🎉 所有测试通过！系统准备好用于生产环境。");
+			} else {
+				console.log("⚠️  有测试失败，请检查详细报告。");
+				process.exit(1);
+			}
+		} catch (error) {
+			this.log(`❌ 测试套件执行失败: ${error.message}`, "error");
+			process.exit(1);
+		}
+	}
 }
 
 // 如果直接运行此脚本
-import { pathToFileURL } from 'url';
+import { pathToFileURL } from "url";
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  console.log('🚀 启动工业级测试套件...');
-  const testSuite = new IndustrialTestSuite();
-  console.log('✅ 测试套件实例创建成功');
+	console.log("🚀 启动工业级测试套件...");
+	const testSuite = new IndustrialTestSuite();
+	console.log("✅ 测试套件实例创建成功");
 
-  testSuite.runAllTests().then(() => {
-    console.log('🎉 测试套件执行完成');
-  }).catch(error => {
-    console.error('❌ 测试套件运行失败:', error.message);
-    console.error('Stack:', error.stack);
-    process.exit(1);
-  });
+	testSuite
+		.runAllTests()
+		.then(() => {
+			console.log("🎉 测试套件执行完成");
+		})
+		.catch((error) => {
+			console.error("❌ 测试套件运行失败:", error.message);
+			console.error("Stack:", error.stack);
+			process.exit(1);
+		});
 } else {
-  console.log('❌ 脚本执行条件不满足');
+	console.log("❌ 脚本执行条件不满足");
 }
 
 export { IndustrialTestSuite };

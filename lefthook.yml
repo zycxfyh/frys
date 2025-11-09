@@ -1,0 +1,48 @@
+# Lefthook Configuration
+# https://github.com/evilmartians/lefthook
+
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      glob: '*.{js,json}'
+      run: pnpm run lint
+      stage_fixed: true
+
+    format-check:
+      glob: '*.{js,json,md}'
+      run: pnpm run format:check
+      stage_fixed: true
+
+    test-quick:
+      run: pnpm run test:unit
+      skip:
+        - merge
+        - rebase
+
+pre-push:
+  parallel: false
+  commands:
+    test-full:
+      run: pnpm run test
+      skip:
+        - merge
+        - rebase
+
+    quality-check:
+      run: pnpm run quality:quick
+      skip:
+        - merge
+        - rebase
+
+commit-msg:
+  commands:
+    check-message:
+      run: |
+        # Check commit message format (Conventional Commits)
+        if ! grep -qE "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .{1,}" "$1"; then
+          echo "❌ Commit message does not follow Conventional Commits format"
+          echo "Format: <type>(<scope>): <subject>"
+          echo "Example: feat(auth): add login functionality"
+          exit 1
+        fi

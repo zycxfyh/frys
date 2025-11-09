@@ -3,9 +3,9 @@
  * 提供高层数据库管理接口
  */
 
-import { BaseApplicationService } from '../../shared/kernel/BaseApplicationService.js';
 import DatabaseService from '../../infrastructure/database/DatabaseService.js';
-import { Success, Failure } from '../../shared/kernel/Result.js';
+import { BaseApplicationService } from '../../shared/kernel/BaseApplicationService.js';
+import { Failure, Success } from '../../shared/kernel/Result.js';
 import { logger } from '../../shared/utils/logger.js';
 
 export class DatabaseManagementService extends BaseApplicationService {

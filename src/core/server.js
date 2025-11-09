@@ -5,9 +5,9 @@
 
 import Fastify from 'fastify';
 import fastifyPlugin from 'fastify-plugin';
-import { resolve } from './container.js';
-import { logger } from '../shared/utils/logger.js';
 import { config } from '../shared/utils/config.js';
+import { logger } from '../shared/utils/logger.js';
+import { resolve } from './container.js';
 
 // 导入插件
 import { pluginManager } from './PluginSystem.js';
@@ -35,9 +35,9 @@ function createFastifyApp() {
 async function configureApp(app) {
   // 注册自定义插件
   app.register(
-    fastifyPlugin(async (fastify, options) => {
+    fastifyPlugin(async (fastify) => {
       // 添加请求日志中间件
-      fastify.addHook('onRequest', async (request, reply) => {
+      fastify.addHook('onRequest', async (request) => {
         const start = Date.now();
         request.startTime = start;
 
@@ -132,7 +132,8 @@ async function configureRoutes(app) {
 
   const workflowEngine = container.resolve('workflowEngine');
   const userService = container.resolve('userService');
-  const auth = container.resolve('auth');
+  const authService = container.resolve('authenticationService');
+  const conversationManager = container.resolve('conversationManager');
 
   // 健康检查路由 (不需要认证)
   app.get('/health', async (request, reply) => {
@@ -140,7 +141,52 @@ async function configureRoutes(app) {
     reply.status(health.healthy ? 200 : 503).send(health);
   });
 
-  // API 路由组 (需要认证)
+  // 认证路由 (Fastify格式)
+  app.post('/api/auth/register', async (request, reply) => {
+    try {
+      const result = await authService.register(request.body);
+      reply.code(201).send(result);
+    } catch (error) {
+      reply.code(400).send({ error: error.message });
+    }
+  });
+
+  app.post('/api/auth/login', async (request, reply) => {
+    try {
+      const result = await authService.login(request.body);
+      reply.send(result);
+    } catch (error) {
+      reply.code(401).send({ error: error.message });
+    }
+  });
+
+  // AI路由 (Fastify格式)
+  app.post('/api/ai/conversations', async (request, reply) => {
+    try {
+      const result = await conversationManager.createConversation(request.body);
+      reply.code(201).send(result);
+    } catch (error) {
+      reply.code(400).send({ error: error.message });
+    }
+  });
+
+  app.post(
+    '/api/ai/conversations/:conversationId/messages',
+    async (request, reply) => {
+      try {
+        const result = await conversationManager.sendMessage(
+          request.params.conversationId,
+          request.body.message,
+          { userId: 'test-user' },
+        );
+        reply.send(result);
+      } catch (error) {
+        reply.code(400).send({ error: error.message });
+      }
+    },
+  );
+
+  // API v1 路由组 (需要认证)
   app.register(
     async (apiRoutes) => {
       // JWT 认证中间件
@@ -152,8 +198,9 @@ async function configureRoutes(app) {
 
         const token = authHeader.substring(7);
         try {
-          const payload = auth.verifyToken(token);
-          request.user = payload;
+          const payload = authService.verifyAccessToken(token);
+          request.user = payload.user;
+          request.sessionId = payload.sessionId;
         } catch (error) {
           return reply.status(401).send({ error: 'Invalid token' });
         }
@@ -205,7 +252,6 @@ async function configureRoutes(app) {
     },
     { prefix: '/api/v1' },
   );
-
 }
 
 /**

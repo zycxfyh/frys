@@ -86,7 +86,7 @@ export const TAG_PRIORITIES = {
  * @returns {number} 优先级分数，越小越优先
  */
 export function getTestPriority(tags) {
-  const priorities = tags.map(tag => TAG_PRIORITIES[tag] || 999);
+  const priorities = tags.map((tag) => TAG_PRIORITIES[tag] || 999);
   return Math.min(...priorities);
 }
 
@@ -98,7 +98,7 @@ export function getTestPriority(tags) {
  */
 export function hasTags(testTags, requiredTags) {
   const required = Array.isArray(requiredTags) ? requiredTags : [requiredTags];
-  return required.every(tag => testTags.includes(tag));
+  return required.every((tag) => testTags.includes(tag));
 }
 
 /**

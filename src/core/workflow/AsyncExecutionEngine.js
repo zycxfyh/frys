@@ -22,7 +22,7 @@ export class AsyncExecutionEngine extends EventEmitter {
       resourcePoolSize: options.resourcePoolSize || 20,
       adaptiveConcurrency: options.adaptiveConcurrency || true,
       monitoring: options.monitoring || true,
-      ...options
+      ...options,
     };
 
     // 执行队列
@@ -34,7 +34,7 @@ export class AsyncExecutionEngine extends EventEmitter {
     this.resourcePool = {
       available: this.options.resourcePoolSize,
       used: 0,
-      max: this.options.resourcePoolSize
+      max: this.options.resourcePoolSize,
     };
 
     // 性能监控
@@ -43,7 +43,7 @@ export class AsyncExecutionEngine extends EventEmitter {
       totalFailed: 0,
       averageExecutionTime: 0,
       peakConcurrency: 0,
-      resourceUtilization: 0
+      resourceUtilization: 0,
     };
 
     // 并发控制
@@ -67,7 +67,7 @@ export class AsyncExecutionEngine extends EventEmitter {
 
     logger.info('AsyncExecutionEngine initialized', {
       maxConcurrency: this.maxConcurrency,
-      resourcePoolSize: this.options.resourcePoolSize
+      resourcePoolSize: this.options.resourcePoolSize,
     });
   }
 
@@ -88,13 +88,13 @@ export class AsyncExecutionEngine extends EventEmitter {
       strategy: options.strategy || 'parallel', // parallel, serial, adaptive
       priority: options.priority || false,
       timeout: options.timeout || 300000, // 5分钟
-      ...options
+      ...options,
     };
 
     logger.info('Starting task execution', {
       taskCount: tasks.length,
       strategy: executionOptions.strategy,
-      maxConcurrency: this.maxConcurrency
+      maxConcurrency: this.maxConcurrency,
     });
 
     try {
@@ -150,14 +150,16 @@ export class AsyncExecutionEngine extends EventEmitter {
       while (this.executionQueue.length > 0 && this.canStartMoreTasks()) {
         const task = this.executionQueue.shift();
         executing.add(task.id);
-        this.executeTaskAsync(task, options).then(result => {
-          results.push(result);
-          executing.delete(task.id);
-          this.completedTasks.add(task.id);
-        }).catch(error => {
-          logger.error('Task execution failed', { taskId: task.id, error });
-          executing.delete(task.id);
-        });
+        this.executeTaskAsync(task, options)
+          .then((result) => {
+            results.push(result);
+            executing.delete(task.id);
+            this.completedTasks.add(task.id);
+          })
+          .catch((error) => {
+            logger.error('Task execution failed', { taskId: task.id, error });
+            executing.delete(task.id);
+          });
       }
 
       // 等待任务完成
@@ -182,7 +184,7 @@ export class AsyncExecutionEngine extends EventEmitter {
     // 使用调整后的并发度执行
     const parallelResults = await this.executeParallel({
       ...options,
-      maxConcurrency: this.maxConcurrency
+      maxConcurrency: this.maxConcurrency,
     });
 
     results.push(...parallelResults);
@@ -201,7 +203,10 @@ export class AsyncExecutionEngine extends EventEmitter {
 
       // 设置超时
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error(`Task timeout: ${task.id}`)), options.timeout);
+        setTimeout(
+          () => reject(new Error(`Task timeout: ${task.id}`)),
+          options.timeout,
+        );
       });
 
       // 执行任务
@@ -214,7 +219,7 @@ export class AsyncExecutionEngine extends EventEmitter {
       logger.info('Task completed', {
         taskId: task.id,
         executionTime,
-        result: typeof result
+        result: typeof result,
       });
 
       return {
@@ -222,9 +227,8 @@ export class AsyncExecutionEngine extends EventEmitter {
         success: true,
         result,
         executionTime,
-        completedAt: new Date()
+        completedAt: new Date(),
       };
-
     } catch (error) {
       const executionTime = Date.now() - startTime;
       this.metrics.totalFailed++;
@@ -232,7 +236,7 @@ export class AsyncExecutionEngine extends EventEmitter {
       logger.error('Task failed', {
         taskId: task.id,
         executionTime,
-        error: error.message
+        error: error.message,
       });
 
       return {
@@ -240,9 +244,8 @@ export class AsyncExecutionEngine extends EventEmitter {
         success: false,
         error: error.message,
         executionTime,
-        failedAt: new Date()
+        failedAt: new Date(),
       };
-
     } finally {
       // 释放资源
       this.releaseResource();
@@ -254,9 +257,7 @@ export class AsyncExecutionEngine extends EventEmitter {
    */
   async executeTaskAsync(task, options) {
     return new Promise((resolve, reject) => {
-      this.executeTask(task, options)
-        .then(resolve)
-        .catch(reject);
+      this.executeTask(task, options).then(resolve).catch(reject);
     });
   }
 
@@ -266,10 +267,10 @@ export class AsyncExecutionEngine extends EventEmitter {
   async runTask(task) {
     // 任务执行逻辑
     if (typeof task.execute === 'function') {
-      return await task.execute(task.context || {});
+      return task.execute(task.context || {});
     } else if (task.action) {
       // 内置任务类型
-      return await this.executeBuiltInTask(task);
+      return this.executeBuiltInTask(task);
     } else {
       throw new Error(`Unknown task type: ${task.type}`);
     }
@@ -281,11 +282,13 @@ export class AsyncExecutionEngine extends EventEmitter {
   async executeBuiltInTask(task) {
     switch (task.action) {
       case 'delay':
-        return new Promise(resolve => setTimeout(resolve, task.delay || 1000));
+        return new Promise((resolve) =>
+          setTimeout(resolve, task.delay || 1000),
+        );
       case 'http':
-        return await this.executeHttpTask(task);
+        return this.executeHttpTask(task);
       case 'script':
-        return await this.executeScriptTask(task);
+        return this.executeScriptTask(task);
       default:
         throw new Error(`Unknown built-in action: ${task.action}`);
     }
@@ -300,7 +303,7 @@ export class AsyncExecutionEngine extends EventEmitter {
       method: task.method || 'GET',
       url: task.url,
       data: task.data,
-      timeout: task.timeout || 30000
+      timeout: task.timeout || 30000,
     });
     return response.data;
   }
@@ -322,9 +325,11 @@ export class AsyncExecutionEngine extends EventEmitter {
    * 判断是否可以启动更多任务
    */
   canStartMoreTasks() {
-    return this.currentConcurrency < this.maxConcurrency &&
-           this.resourcePool.available > 0 &&
-           !this.isPaused;
+    return (
+      this.currentConcurrency < this.maxConcurrency &&
+      this.resourcePool.available > 0 &&
+      !this.isPaused
+    );
   }
 
   /**
@@ -338,7 +343,7 @@ export class AsyncExecutionEngine extends EventEmitter {
         throw new Error('Task execution timeout');
       }
 
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       // 检查是否有任务完成
       for (const taskId of executingTasks) {
@@ -379,7 +384,7 @@ export class AsyncExecutionEngine extends EventEmitter {
     return {
       cpu: (load.user + load.system) / 1000000, // CPU使用率
       memory: process.memoryUsage(),
-      concurrency: this.currentConcurrency / this.maxConcurrency
+      concurrency: this.currentConcurrency / this.maxConcurrency,
     };
   }
 
@@ -395,7 +400,10 @@ export class AsyncExecutionEngine extends EventEmitter {
     }
     // CPU使用率较低，提高并发度
     else if (cpu < 0.3 && concurrency < 0.5) {
-      this.maxConcurrency = Math.min(this.options.maxConcurrency, this.maxConcurrency + 1);
+      this.maxConcurrency = Math.min(
+        this.options.maxConcurrency,
+        this.maxConcurrency + 1,
+      );
     }
 
     // 内存使用率过高，降低并发度
@@ -412,12 +420,17 @@ export class AsyncExecutionEngine extends EventEmitter {
     if (executionTime) {
       this.metrics.totalExecuted++;
       this.metrics.averageExecutionTime =
-        (this.metrics.averageExecutionTime * (this.metrics.totalExecuted - 1) + executionTime) /
+        (this.metrics.averageExecutionTime * (this.metrics.totalExecuted - 1) +
+          executionTime) /
         this.metrics.totalExecuted;
     }
 
-    this.metrics.peakConcurrency = Math.max(this.metrics.peakConcurrency, this.currentConcurrency);
-    this.metrics.resourceUtilization = this.resourcePool.used / this.resourcePool.max;
+    this.metrics.peakConcurrency = Math.max(
+      this.metrics.peakConcurrency,
+      this.currentConcurrency,
+    );
+    this.metrics.resourceUtilization =
+      this.resourcePool.used / this.resourcePool.max;
 
     // 发出监控事件
     this.emit('metrics:updated', { ...this.metrics });
@@ -461,7 +474,7 @@ export class AsyncExecutionEngine extends EventEmitter {
       queueLength: this.executionQueue.length,
       runningTasks: Array.from(this.runningTasks.keys()),
       resourcePool: { ...this.resourcePool },
-      metrics: { ...this.metrics }
+      metrics: { ...this.metrics },
     };
   }
 

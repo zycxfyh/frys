@@ -16,9 +16,9 @@ groups:
           slo: api_availability
           target: 99.9%
         annotations:
-          summary: "API 可用性 SLO 违反"
-          description: "API 可用性低于 99.9% (当前: {{ $value | printf \"%.3f\" }})"
-          runbook_url: "https://docs.frys.com/runbooks/slo-violation"
+          summary: 'API 可用性 SLO 违反'
+          description: 'API 可用性低于 99.9% (当前: {{ $value | printf "%.3f" }})'
+          runbook_url: 'https://docs.frys.com/runbooks/slo-violation'
 
       # API 响应时间 SLO - 95% 请求在 500ms 内完成
       - alert: SLOAPIResponseTimeViolation
@@ -32,9 +32,9 @@ groups:
           slo: api_response_time
           target: 500ms@95%
         annotations:
-          summary: "API 响应时间 SLO 违反"
-          description: "95% API 请求响应时间超过 500ms"
-          runbook_url: "https://docs.frys.com/runbooks/slo-violation"
+          summary: 'API 响应时间 SLO 违反'
+          description: '95% API 请求响应时间超过 500ms'
+          runbook_url: 'https://docs.frys.com/runbooks/slo-violation'
 
       # 错误预算消耗过快
       - alert: SLOErrorBudgetBurnRate
@@ -47,9 +47,9 @@ groups:
           severity: warning
           slo: error_budget
         annotations:
-          summary: "错误预算消耗过快"
-          description: "错误率超过每月 0.1% 预算的消耗速度"
-          runbook_url: "https://docs.frys.com/runbooks/error-budget"
+          summary: '错误预算消耗过快'
+          description: '错误率超过每月 0.1% 预算的消耗速度'
+          runbook_url: 'https://docs.frys.com/runbooks/error-budget'
 
   # SLO 指标计算
   - name: slo_metrics

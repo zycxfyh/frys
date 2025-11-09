@@ -39,22 +39,22 @@ docker buildx build \
 
 ### 构建时变量
 
-| 变量 | 描述 | 默认值 |
-|------|------|--------|
-| `VERSION` | 镜像版本标签 | `latest` |
-| `PLATFORMS` | 目标平台 | `linux/amd64,linux/arm64,linux/arm/v7` |
-| `PUSH_IMAGE` | 是否推送镜像 | `true` |
-| `LOAD_IMAGE` | 是否加载到本地 | `false` |
+| 变量         | 描述           | 默认值                                 |
+| ------------ | -------------- | -------------------------------------- |
+| `VERSION`    | 镜像版本标签   | `latest`                               |
+| `PLATFORMS`  | 目标平台       | `linux/amd64,linux/arm64,linux/arm/v7` |
+| `PUSH_IMAGE` | 是否推送镜像   | `true`                                 |
+| `LOAD_IMAGE` | 是否加载到本地 | `false`                                |
 
 ### 运行时变量
 
-| 变量 | 描述 | 默认值 |
-|------|------|--------|
-| `NODE_ENV` | Node.js 环境 | `production` |
-| `PORT` | 服务端口 | `3000` |
-| `DATABASE_URL` | 数据库连接URL | - |
-| `REDIS_URL` | Redis 连接URL | `redis://redis:6379` |
-| `JWT_SECRET` | JWT 密钥 | - |
+| 变量           | 描述          | 默认值               |
+| -------------- | ------------- | -------------------- |
+| `NODE_ENV`     | Node.js 环境  | `production`         |
+| `PORT`         | 服务端口      | `3000`               |
+| `DATABASE_URL` | 数据库连接URL | -                    |
+| `REDIS_URL`    | Redis 连接URL | `redis://redis:6379` |
+| `JWT_SECRET`   | JWT 密钥      | -                    |
 
 ## 🏭 生产部署
 
@@ -90,37 +90,37 @@ spec:
         app: frys
     spec:
       containers:
-      - name: frys
-        image: ghcr.io/your-org/frys:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: NODE_ENV
-          value: "production"
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: frys-secrets
-              key: database-url
-        resources:
-          limits:
-            cpu: "2"
-            memory: "2Gi"
-          requests:
-            cpu: "0.5"
-            memory: "512Mi"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: frys
+          image: ghcr.io/your-org/frys:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: frys-secrets
+                  key: database-url
+          resources:
+            limits:
+              cpu: '2'
+              memory: '2Gi'
+            requests:
+              cpu: '0.5'
+              memory: '512Mi'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
 ---
 apiVersion: v1
 kind: Service
@@ -130,8 +130,8 @@ spec:
   selector:
     app: frys
   ports:
-  - port: 80
-    targetPort: 3000
+    - port: 80
+      targetPort: 3000
   type: LoadBalancer
 ```
 
@@ -193,6 +193,7 @@ docker-compose -f config/docker/docker-compose.multiarch.yml logs -f frys
 - **AlertManager** - 告警管理
 
 访问地址：
+
 - Grafana: http://localhost:3002 (admin/admin)
 - Prometheus: http://localhost:9090
 
@@ -232,20 +233,20 @@ REDIS_PASSWORD=redis-pass
 name: 🔨 多架构构建
 on:
   push:
-    branches: [ main ]
-    tags: [ 'v*' ]
+    branches: [main]
+    tags: ['v*']
 
 jobs:
   build-multiarch:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: 🏗️ 构建并推送多架构镜像
-      uses: docker/build-push-action@v5
-      with:
-        platforms: linux/amd64,linux/arm64,linux/arm/v7
-        push: true
-        tags: ghcr.io/${{ github.repository }}:latest
+      - uses: actions/checkout@v4
+      - name: 🏗️ 构建并推送多架构镜像
+        uses: docker/build-push-action@v5
+        with:
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest
 ```
 
 ### Jenkins 流水线
@@ -321,20 +322,20 @@ docker network inspect frys-network
 # Kubernetes 资源配置
 resources:
   limits:
-    cpu: "2"
-    memory: "2Gi"
+    cpu: '2'
+    memory: '2Gi'
   requests:
-    cpu: "0.5"
-    memory: "512Mi"
+    cpu: '0.5'
+    memory: '512Mi'
 ```
 
 ### 架构选择
 
-| 架构 | 优势 | 适用场景 |
-|------|------|----------|
-| amd64 | 最高性能，最好兼容性 | 云服务器，桌面环境 |
-| arm64 | 能效比高，成本低 | 边缘计算，移动设备 |
-| arm/v7 | 低功耗，广泛支持 | IoT设备，嵌入式系统 |
+| 架构   | 优势                 | 适用场景            |
+| ------ | -------------------- | ------------------- |
+| amd64  | 最高性能，最好兼容性 | 云服务器，桌面环境  |
+| arm64  | 能效比高，成本低     | 边缘计算，移动设备  |
+| arm/v7 | 低功耗，广泛支持     | IoT设备，嵌入式系统 |
 
 ## 📚 参考资料
 

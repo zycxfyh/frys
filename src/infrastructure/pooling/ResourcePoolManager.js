@@ -3,11 +3,11 @@
  * 统一管理所有类型的资源池
  */
 
-import { DatabaseConnectionPool } from '../database/DatabaseConnectionPool.js';
-import { HttpClientPool } from './HttpClientPool.js';
-import { GenericObjectPool, ObjectPoolFactories } from './GenericObjectPool.js';
-import { WorkerPool } from './WorkerPool.js';
 import { logger } from '../../shared/utils/logger.js';
+import { DatabaseConnectionPool } from '../database/DatabaseConnectionPool.js';
+import { GenericObjectPool, ObjectPoolFactories } from './GenericObjectPool.js';
+import { HttpClientPool } from './HttpClientPool.js';
+import { WorkerPool } from './WorkerPool.js';
 
 export class ResourcePoolManager {
   constructor(options = {}) {

@@ -3,8 +3,8 @@
  * 专门用于测试系统在极端条件下的表现
  */
 
-import { LoadTester } from './LoadTester.js';
 import { logger } from '../../shared/utils/logger.js';
+import { LoadTester } from './LoadTester.js';
 
 export class StressTester extends LoadTester {
   constructor(options = {}) {

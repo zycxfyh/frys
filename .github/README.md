@@ -30,6 +30,7 @@
 在仓库设置中配置以下密钥：
 
 #### 数据库相关
+
 ```
 TEST_DATABASE_URL=postgresql://user:password@localhost:5432/test_db
 STAGING_DATABASE_URL=postgresql://user:password@staging-db:5432/staging_db
@@ -37,12 +38,14 @@ PRODUCTION_DATABASE_URL=postgresql://user:password@prod-db:5432/prod_db
 ```
 
 #### Redis 相关
+
 ```
 TEST_REDIS_URL=redis://localhost:6379
 STAGING_REDIS_URL=redis://staging-redis:6379
 ```
 
 #### 部署相关
+
 ```
 STAGING_URL=https://staging.yourdomain.com
 PRODUCTION_URL=https://yourdomain.com
@@ -51,6 +54,7 @@ DOCKER_PASSWORD=your-dockerhub-password
 ```
 
 #### 监控相关
+
 ```
 PROMETHEUS_URL=https://prometheus.yourdomain.com
 MONITORING_ENDPOINT=https://monitoring.yourdomain.com
@@ -60,6 +64,7 @@ RESPONSE_TIME_THRESHOLD=1000
 ```
 
 #### 第三方服务
+
 ```
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
@@ -80,6 +85,7 @@ DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 ### Main 分支保护
 
 **必需状态检查:**
+
 - `local-validation`
 - `automated-testing`
 - `security-checks`
@@ -88,6 +94,7 @@ DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 - `monitoring-rollback`
 
 **分支保护:**
+
 - ✅ 需要 PR
 - ✅ 需要 2 个审查者
 - ✅ 要求代码所有者审查
@@ -99,6 +106,7 @@ DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 ### Develop 分支保护
 
 **必需状态检查:**
+
 - `local-validation`
 - `automated-testing`
 - `security-checks`
@@ -107,6 +115,7 @@ DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 - `regression-testing`
 
 **分支保护:**
+
 - ✅ 需要 PR
 - ✅ 需要 1 个审查者
 - ✅ 需要最新状态检查
@@ -188,16 +197,19 @@ DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 ### 常见问题
 
 #### 工作流不触发
+
 1. 检查分支名称是否正确
 2. 验证 YAML 语法
 3. 检查仓库权限
 
 #### 部署失败
+
 1. 验证环境密钥
 2. 检查网络连接
 3. 查看详细日志
 
 #### 缓存问题
+
 1. 清除 GitHub Actions 缓存
 2. 检查缓存键格式
 3. 验证文件路径

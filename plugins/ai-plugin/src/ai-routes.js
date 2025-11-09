@@ -4,15 +4,15 @@
  */
 
 import fastifySwagger from '@fastify/swagger';
-import { logger } from '../../utils/logger.js';
-import { OpenAIService } from '../../application/services/ai/OpenAIService.js';
-import { ClaudeService } from '../../application/services/ai/ClaudeService.js';
-import { GeminiService } from '../../application/services/ai/GeminiService.js';
-import { DeepSeekService } from '../../application/services/ai/DeepSeekService.js';
 import { AlibabaService } from '../../application/services/ai/AlibabaService.js';
-import { LangChainService } from '../../application/services/ai/LangChainService.js';
+import { ClaudeService } from '../../application/services/ai/ClaudeService.js';
 import { CogneeMemoryService } from '../../application/services/ai/CogneeMemoryService.js';
+import { DeepSeekService } from '../../application/services/ai/DeepSeekService.js';
+import { GeminiService } from '../../application/services/ai/GeminiService.js';
+import { LangChainService } from '../../application/services/ai/LangChainService.js';
+import { OpenAIService } from '../../application/services/ai/OpenAIService.js';
 import { ConversationManager } from '../../application/services/ConversationManager.js';
+import { logger } from '../../utils/logger.js';
 
 // 服务实例缓存
 const services = new Map();

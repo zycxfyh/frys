@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from '../test-helpers.js';
 
 /**
@@ -11,14 +11,18 @@ import {
  * 验证安全配置和防护措施的有效性
  */
 
-import { describe, it, expect } from 'vitest';
-import { sanitizeInput, validateObject, createTypeGuard } from '../../src/shared/utils/type-guards.js';
+import { describe, expect, it } from 'vitest';
+import {
+  createTypeGuard,
+  sanitizeInput,
+  validateObject,
+} from '../../src/shared/utils/type-guards.js';
 
 describe('安全基线测试套件', () => {
-
   describe('输入验证和数据清洗', () => {
     it('应该正确清理XSS攻击向量', () => {
-      const maliciousInput = '<script>alert("xss")</script><img src=x onerror=alert(1)>';
+      const maliciousInput =
+        '<script>alert("xss")</script><img src=x onerror=alert(1)>';
       const sanitized = sanitizeInput(maliciousInput);
 
       expect(sanitized).not.toContain('<script>');
@@ -31,19 +35,19 @@ describe('安全基线测试套件', () => {
       const userSchema = {
         id: createTypeGuard('number'),
         name: createTypeGuard('string'),
-        email: (value) => typeof value === 'string' && value.includes('@')
+        email: (value) => typeof value === 'string' && value.includes('@'),
       };
 
       const validUser = {
         id: 1,
         name: 'John Doe',
-        email: 'john@example.com'
+        email: 'john@example.com',
       };
 
       const invalidUser = {
         id: '1',
         name: 123,
-        email: 'invalid-email'
+        email: 'invalid-email',
       };
 
       expect(validateObject(validUser, userSchema)).toBe(true);
@@ -52,14 +56,14 @@ describe('安全基线测试套件', () => {
 
     it('应该防止原型污染攻击', () => {
       const maliciousPayload = {
-        '__proto__': {
-          isAdmin: true
+        __proto__: {
+          isAdmin: true,
         },
-        'constructor': {
+        constructor: {
           prototype: {
-            isAdmin: true
-          }
-        }
+            isAdmin: true,
+          },
+        },
       };
 
       // 模拟对象合并
@@ -76,13 +80,16 @@ describe('安全基线测试套件', () => {
     it('应该验证JWT令牌完整性', () => {
       // 这个测试需要JWT模块
       // 这里只是一个占位符，实际实现需要根据JWT模块调整
-      const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+      const mockToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
       // 验证JWT格式
       expect(mockToken.split('.')).toHaveLength(3);
 
       // 验证Header部分
-      const header = JSON.parse(Buffer.from(mockToken.split('.')[0], 'base64').toString());
+      const header = JSON.parse(
+        Buffer.from(mockToken.split('.')[0], 'base64').toString(),
+      );
       expect(header.alg).toBe('HS256');
       expect(header.typ).toBe('JWT');
     });
@@ -90,18 +97,18 @@ describe('安全基线测试套件', () => {
     it('应该防止会话固定攻击', () => {
       const sessionManager = {
         sessions: new Map(),
-        createSession: function(userId) {
+        createSession: function (userId) {
           const sessionId = `session_${Date.now()}_${Math.random()}`;
           this.sessions.set(sessionId, {
             userId,
             created: new Date(),
-            lastActivity: new Date()
+            lastActivity: new Date(),
           });
           return sessionId;
         },
-        invalidateSession: function(sessionId) {
+        invalidateSession: function (sessionId) {
           return this.sessions.delete(sessionId);
-        }
+        },
       };
 
       const sessionId = sessionManager.createSession(123);
@@ -118,12 +125,14 @@ describe('安全基线测试套件', () => {
       roles: {
         admin: ['read', 'write', 'delete', 'manage_users'],
         user: ['read', 'write'],
-        guest: ['read']
+        guest: ['read'],
       },
 
-      checkPermission: function(userRole, permission) {
-        return this.roles[userRole] && this.roles[userRole].includes(permission);
-      }
+      checkPermission: function (userRole, permission) {
+        return (
+          this.roles[userRole] && this.roles[userRole].includes(permission)
+        );
+      },
     };
 
     it('应该正确执行角色-based访问控制', () => {
@@ -137,19 +146,21 @@ describe('安全基线测试套件', () => {
       const userContext = {
         id: 123,
         role: 'user',
-        permissions: ['read', 'write']
+        permissions: ['read', 'write'],
       };
 
       // 模拟权限检查
-      const hasAdminAccess = userContext.role === 'admin' ||
-                            userContext.permissions.includes('manage_users');
+      const hasAdminAccess =
+        userContext.role === 'admin' ||
+        userContext.permissions.includes('manage_users');
 
       expect(hasAdminAccess).toBe(false);
 
       // 即使修改了permissions数组，也不应该获得管理员权限
       userContext.permissions.push('manage_users');
-      const stillNotAdmin = userContext.role === 'admin' ||
-                           userContext.permissions.includes('manage_users');
+      const stillNotAdmin =
+        userContext.role === 'admin' ||
+        userContext.permissions.includes('manage_users');
 
       expect(stillNotAdmin).toBe(true); // 因为角色检查优先
     });
@@ -162,7 +173,7 @@ describe('安全基线测试套件', () => {
         windowMs: 60000, // 1分钟
         maxRequests: 100,
 
-        checkLimit: function(identifier) {
+        checkLimit: function (identifier) {
           const now = Date.now();
           const key = `${identifier}_${Math.floor(now / this.windowMs)}`;
 
@@ -180,9 +191,9 @@ describe('安全基线测试套件', () => {
           return {
             allowed: true,
             remaining: this.maxRequests - limit.count,
-            resetTime: limit.resetTime
+            resetTime: limit.resetTime,
           };
-        }
+        },
       };
 
       const clientId = 'test-client';
@@ -199,7 +210,9 @@ describe('安全基线测试套件', () => {
       expect(finalResult.allowed).toBe(true); // 仍在限制内
 
       // 超出限制
-      rateLimiter.limits.get(`test-client_${Math.floor(Date.now() / 60000)}`).count = 100;
+      rateLimiter.limits.get(
+        `test-client_${Math.floor(Date.now() / 60000)}`,
+      ).count = 100;
       const blockedResult = rateLimiter.checkLimit(clientId);
       expect(blockedResult.allowed).toBe(false);
     });
@@ -210,24 +223,26 @@ describe('安全基线测试套件', () => {
         timeWindow: 10000, // 10秒
         threshold: 100, // 每10秒最多100个请求
 
-        analyzeTraffic: function(clientId, timestamp = Date.now()) {
+        analyzeTraffic: function (clientId, timestamp = Date.now()) {
           // 清理过期请求
-          this.requests = this.requests.filter(req =>
-            timestamp - req.timestamp < this.timeWindow
+          this.requests = this.requests.filter(
+            (req) => timestamp - req.timestamp < this.timeWindow,
           );
 
           // 添加新请求
           this.requests.push({ clientId, timestamp });
 
           // 统计客户端请求数
-          const clientRequests = this.requests.filter(req => req.clientId === clientId);
+          const clientRequests = this.requests.filter(
+            (req) => req.clientId === clientId,
+          );
 
           return {
             requestCount: clientRequests.length,
             isSuspicious: clientRequests.length > this.threshold,
-            timeWindow: this.timeWindow
+            timeWindow: this.timeWindow,
           };
-        }
+        },
       };
 
       const suspiciousClient = 'attacker';
@@ -253,7 +268,7 @@ describe('安全基线测试套件', () => {
       const sensitiveData = {
         password: 'secret123',
         creditCard: '4111111111111111',
-        ssn: '123-45-6789'
+        ssn: '123-45-6789',
       };
 
       // 验证敏感数据不应该以明文形式存在
@@ -271,23 +286,23 @@ describe('安全基线测试套件', () => {
       const encryptedData = {
         password: 'encrypted_' + 'x'.repeat(32),
         creditCard: 'encrypted_' + 'x'.repeat(32),
-        ssn: 'encrypted_' + 'x'.repeat(32)
+        ssn: 'encrypted_' + 'x'.repeat(32),
       };
 
-      Object.values(encryptedData).forEach(value => {
+      Object.values(encryptedData).forEach((value) => {
         expect(isEncrypted(value)).toBe(true);
       });
     });
 
     it('应该验证密码强度', () => {
       const passwordValidator = {
-        validate: function(password) {
+        validate: (password) => {
           const checks = {
             length: password.length >= 8,
             uppercase: /[A-Z]/.test(password),
             lowercase: /[a-z]/.test(password),
             numbers: /\d/.test(password),
-            specialChars: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+            specialChars: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
           };
 
           const score = Object.values(checks).filter(Boolean).length;
@@ -295,9 +310,9 @@ describe('安全基线测试套件', () => {
           return {
             isValid: score >= 4,
             score,
-            checks
+            checks,
           };
-        }
+        },
       };
 
       expect(passwordValidator.validate('weak').isValid).toBe(false);
@@ -314,7 +329,7 @@ describe('安全基线测试套件', () => {
         'X-Content-Type-Options': 'nosniff',
         'X-XSS-Protection': '1; mode=block',
         'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-        'Content-Security-Policy': "default-src 'self'"
+        'Content-Security-Policy': "default-src 'self'",
       };
 
       // 验证关键安全头存在
@@ -327,7 +342,7 @@ describe('安全基线测试套件', () => {
     it('应该防止信息泄露', () => {
       const errorResponse = {
         message: 'Internal server error',
-        status: 500
+        status: 500,
       };
 
       // 验证错误响应不包含敏感信息
@@ -345,35 +360,29 @@ describe('安全基线测试套件', () => {
 
       const packageJson = {
         dependencies: {
-          'axios': '^1.4.0',
-          'lodash': '^4.17.21'
+          axios: '^1.4.0',
+          lodash: '^4.17.21',
         },
         devDependencies: {
-          'vitest': '^4.0.7',
-          'eslint': '^8.44.0'
-        }
+          vitest: '^4.0.7',
+          eslint: '^8.44.0',
+        },
       };
 
       // 验证版本号格式正确
-      Object.values(packageJson.dependencies).forEach(version => {
+      Object.values(packageJson.dependencies).forEach((version) => {
         expect(version).toMatch(/^[\^~]?[\d]+\.[\d]+\.[\d]+/);
       });
 
-      Object.values(packageJson.devDependencies).forEach(version => {
+      Object.values(packageJson.devDependencies).forEach((version) => {
         expect(version).toMatch(/^[\^~]?[\d]+\.[\d]+\.[\d]+/);
       });
     });
 
     it('应该检测已知的安全漏洞模式', () => {
-      const vulnerablePatterns = [
-        'eval(',
-        'Function('
-      ];
+      const vulnerablePatterns = ['eval(', 'Function('];
 
-      const safePatterns = [
-        'setTimeout(',
-        'setInterval('
-      ];
+      const safePatterns = ['setTimeout(', 'setInterval('];
 
       const safeCode = `
         const timeout = setTimeout(() => console.log('safe'), 1000);
@@ -388,18 +397,24 @@ describe('安全基线测试套件', () => {
       `;
 
       // 检查危险模式
-      vulnerablePatterns.forEach(pattern => {
-        expect(unsafeCode).toMatch(new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+      vulnerablePatterns.forEach((pattern) => {
+        expect(unsafeCode).toMatch(
+          new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+        );
       });
 
       // 检查安全模式（这些本身不是威胁）
-      safePatterns.forEach(pattern => {
-        expect(safeCode).toMatch(new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+      safePatterns.forEach((pattern) => {
+        expect(safeCode).toMatch(
+          new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+        );
       });
 
       // 确保安全代码不包含危险模式
-      vulnerablePatterns.forEach(pattern => {
-        expect(safeCode).not.toMatch(new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+      vulnerablePatterns.forEach((pattern) => {
+        expect(safeCode).not.toMatch(
+          new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+        );
       });
     });
   });

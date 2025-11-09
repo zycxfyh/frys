@@ -5,12 +5,14 @@
 **构建企业级的结构化日志系统，实现全面的日志收集、处理、存储和分析能力，为系统监控、故障排查和业务分析提供可靠的数据基础。**
 
 ### 核心价值
+
 - **可观测性**：360度系统运行状态可视化
 - **故障排查**：毫秒级日志检索和关联分析
 - **业务洞察**：基于日志的用户行为和业务指标分析
 - **合规审计**：完整的操作日志和安全审计能力
 
 ### 成功标准
+
 - 日志收集覆盖率>98%
 - 日志查询响应时间<2秒
 - 日志存储成本降低40%
@@ -23,12 +25,15 @@
 ### 1.3.1.1 日志架构设计 (2周)
 
 #### 目标
+
 设计高性能、可扩展的日志系统架构。
 
 #### 具体任务
 
 **1.3.1.1.1 日志数据模型**
+
 - **结构化日志格式**：
+
   ```typescript
   interface StructuredLog {
     // 基础字段
@@ -76,11 +81,12 @@
     INFO = 2,
     WARN = 3,
     ERROR = 4,
-    FATAL = 5
+    FATAL = 5,
   }
   ```
 
 **1.3.1.1.2 分层日志架构**
+
 - **应用层日志**：
   - 业务逻辑日志
   - 用户操作日志
@@ -100,7 +106,9 @@
   - 外部服务调用日志
 
 **1.3.1.1.3 日志处理流水线**
+
 - **日志收集器**：
+
   ```typescript
   class LogCollector {
     private collectors: Map<string, LogSource> = new Map();
@@ -148,6 +156,7 @@
   ```
 
 #### 验收标准
+
 - ✅ 日志数据模型完整定义
 - ✅ 分层架构清晰设计
 - ✅ 处理流水线高性能实现
@@ -158,31 +167,35 @@
 ### 1.3.1.2 日志存储和索引 (3周)
 
 #### 目标
+
 实现高效的日志存储、索引和检索系统。
 
 #### 具体任务
 
 **1.3.1.2.1 多层存储架构**
-- **热数据层** (最近7天)**：
+
+- **热数据层** (最近7天)\*\*：
   - 高性能SSD存储
   - 实时索引和查询
   - 完整数据保留
   - 快速检索优化
 
-- **温数据层** (7天-90天)**：
+- **温数据层** (7天-90天)\*\*：
   - 大容量HDD存储
   - 压缩存储格式
   - 聚合索引
   - 批量查询优化
 
-- **冷数据层** (90天+)**：
+- **冷数据层** (90天+)\*\*：
   - 对象存储 (S3, OSS)
   - 高压缩比
   - 归档索引
   - 按需查询
 
 **1.3.1.2.2 智能索引策略**
+
 - **倒排索引**：
+
   ```typescript
   class InvertedIndex {
     private index: Map<string, Set<string>> = new Map();
@@ -205,16 +218,18 @@
 
     search(query: string): SearchResult[] {
       const terms = this.tokenizeAndNormalize(query);
-      const docSets = terms.map(term => this.index.get(term) || new Set());
+      const docSets = terms.map((term) => this.index.get(term) || new Set());
 
       // 交集运算找到包含所有词项的文档
       const resultDocs = this.intersectSets(docSets);
 
       // 计算相关性得分
-      return Array.from(resultDocs).map(docId => ({
-        docId,
-        score: this.calculateScore(docId, terms)
-      })).sort((a, b) => b.score - a.score);
+      return Array.from(resultDocs)
+        .map((docId) => ({
+          docId,
+          score: this.calculateScore(docId, terms),
+        }))
+        .sort((a, b) => b.score - a.score);
     }
 
     private calculateScore(docId: string, terms: string[]): number {
@@ -234,15 +249,20 @@
   ```
 
 **1.3.1.2.3 压缩和归档策略**
+
 - **日志压缩算法**：
   - LZ4: 快速压缩，适用于热数据
   - ZSTD: 高压缩比，适用于温数据
   - GZIP: 标准压缩，适用于冷数据
 
 - **智能归档**：
+
   ```typescript
   class LogArchiver {
-    async archive(logs: StructuredLog[], period: TimePeriod): Promise<ArchiveResult> {
+    async archive(
+      logs: StructuredLog[],
+      period: TimePeriod,
+    ): Promise<ArchiveResult> {
       // 1. 数据预处理
       const processedLogs = await this.preprocessForArchival(logs);
 
@@ -253,7 +273,10 @@
       const compressedData = await compression.compress(processedLogs);
 
       // 4. 生成索引
-      const index = await this.createArchiveIndex(processedLogs, compressedData);
+      const index = await this.createArchiveIndex(
+        processedLogs,
+        compressedData,
+      );
 
       // 5. 存储到归档存储
       const archiveUri = await this.storeArchive(compressedData, index, period);
@@ -265,7 +288,7 @@
         originalSize: JSON.stringify(logs).length,
         compressedSize: compressedData.length,
         logCount: logs.length,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
 
       return { uri: archiveUri, metadata: {} };
@@ -287,7 +310,9 @@
   ```
 
 **1.3.1.2.4 查询优化系统**
+
 - **查询规划器**：
+
   ```typescript
   class QueryPlanner {
     async plan(query: LogQuery): Promise<QueryPlan> {
@@ -298,10 +323,17 @@
       const dataSources = await this.selectDataSources(parsedQuery);
 
       // 3. 索引选择
-      const indexStrategy = await this.selectIndexStrategy(parsedQuery, dataSources);
+      const indexStrategy = await this.selectIndexStrategy(
+        parsedQuery,
+        dataSources,
+      );
 
       // 4. 执行计划生成
-      const executionPlan = await this.generateExecutionPlan(parsedQuery, dataSources, indexStrategy);
+      const executionPlan = await this.generateExecutionPlan(
+        parsedQuery,
+        dataSources,
+        indexStrategy,
+      );
 
       // 5. 成本估算
       const cost = await this.estimateCost(executionPlan);
@@ -311,7 +343,7 @@
         dataSources,
         indexStrategy,
         executionPlan,
-        estimatedCost: cost
+        estimatedCost: cost,
       };
     }
 
@@ -335,6 +367,7 @@
   ```
 
 #### 验收标准
+
 - ✅ 多层存储架构稳定运行
 - ✅ 智能索引查询效率>90%
 - ✅ 数据压缩率>60%
@@ -345,23 +378,28 @@
 ### 1.3.1.3 日志分析和可视化 (2周)
 
 #### 目标
+
 实现强大的日志分析和可视化功能。
 
 #### 具体任务
 
 **1.3.1.3.1 实时日志分析**
+
 - **流处理分析**：
+
   ```typescript
   class StreamLogAnalyzer {
     private patterns: LogPattern[];
     private aggregators: LogAggregator[];
     private alerts: LogAlert[];
 
-    async analyze(logStream: AsyncIterable<StructuredLog>): Promise<AnalysisResult> {
+    async analyze(
+      logStream: AsyncIterable<StructuredLog>,
+    ): Promise<AnalysisResult> {
       const results: AnalysisResult = {
         patterns: [],
         aggregations: {},
-        alerts: []
+        alerts: [],
       };
 
       for await (const log of logStream) {
@@ -393,7 +431,7 @@
             patternId: pattern.id,
             log: log,
             match: match,
-            timestamp: new Date()
+            timestamp: new Date(),
           });
         }
       }
@@ -404,12 +442,17 @@
   ```
 
 **1.3.1.3.2 日志聚合和统计**
+
 - **多维度聚合**：
+
   ```typescript
   class LogAggregator {
     private aggregations: Map<string, Aggregation> = new Map();
 
-    async aggregate(logs: StructuredLog[], dimensions: string[]): Promise<AggregatedData> {
+    async aggregate(
+      logs: StructuredLog[],
+      dimensions: string[],
+    ): Promise<AggregatedData> {
       const result: AggregatedData = {};
 
       // 按维度分组
@@ -419,22 +462,28 @@
       for (const [key, groupLogs] of grouped) {
         result[key] = {
           count: groupLogs.length,
-          errorCount: groupLogs.filter(l => l.level >= LogLevel.ERROR).length,
+          errorCount: groupLogs.filter((l) => l.level >= LogLevel.ERROR).length,
           avgDuration: this.calculateAvgDuration(groupLogs),
-          uniqueUsers: new Set(groupLogs.map(l => l.userId).filter(Boolean)).size,
+          uniqueUsers: new Set(groupLogs.map((l) => l.userId).filter(Boolean))
+            .size,
           timeDistribution: this.calculateTimeDistribution(groupLogs),
-          topMessages: this.findTopMessages(groupLogs, 10)
+          topMessages: this.findTopMessages(groupLogs, 10),
         };
       }
 
       return result;
     }
 
-    private groupByDimensions(logs: StructuredLog[], dimensions: string[]): Map<string, StructuredLog[]> {
+    private groupByDimensions(
+      logs: StructuredLog[],
+      dimensions: string[],
+    ): Map<string, StructuredLog[]> {
       const groups = new Map<string, StructuredLog[]>();
 
       for (const log of logs) {
-        const key = dimensions.map(dim => this.getDimensionValue(log, dim)).join('|');
+        const key = dimensions
+          .map((dim) => this.getDimensionValue(log, dim))
+          .join('|');
 
         if (!groups.has(key)) {
           groups.set(key, []);
@@ -448,6 +497,7 @@
   ```
 
 **1.3.1.3.3 日志可视化面板**
+
 - **仪表板组件**：
   - 时间序列图表 (错误率趋势、性能指标)
   - 饼图和柱状图 (日志级别分布、服务状态)
@@ -455,13 +505,17 @@
   - 表格视图 (详细日志条目、聚合统计)
 
 - **交互式查询界面**：
+
   ```typescript
   class LogDashboard {
     private charts: ChartComponent[];
     private filters: FilterComponent[];
     private queryBuilder: QueryBuilder;
 
-    async renderDashboard(query: LogQuery, timeRange: TimeRange): Promise<DashboardData> {
+    async renderDashboard(
+      query: LogQuery,
+      timeRange: TimeRange,
+    ): Promise<DashboardData> {
       // 1. 执行查询
       const logs = await this.executeQuery(query, timeRange);
 
@@ -478,11 +532,13 @@
         charts: this.createCharts(filteredData),
         summary: this.createSummary(filteredData),
         alerts: await this.generateAlerts(filteredData),
-        exportOptions: this.getExportOptions(filteredData)
+        exportOptions: this.getExportOptions(filteredData),
       };
     }
 
-    private async generateChartData(data: AggregatedData): Promise<ChartData[]> {
+    private async generateChartData(
+      data: AggregatedData,
+    ): Promise<ChartData[]> {
       const charts: ChartData[] = [];
 
       // 错误率趋势图
@@ -491,7 +547,7 @@
         title: 'Error Rate Trend',
         data: this.transformToTimeSeries(data.errorRates, 'errorRate'),
         xAxis: 'timestamp',
-        yAxis: 'rate'
+        yAxis: 'rate',
       });
 
       // 服务状态分布
@@ -499,7 +555,7 @@
         type: 'pie',
         title: 'Log Level Distribution',
         data: this.transformToPieData(data.levelDistribution),
-        colors: this.getLevelColors()
+        colors: this.getLevelColors(),
       });
 
       // 性能指标图
@@ -508,7 +564,7 @@
         title: 'Performance Metrics',
         data: this.transformToBarData(data.performanceMetrics),
         xAxis: 'metric',
-        yAxis: 'value'
+        yAxis: 'value',
       });
 
       return charts;
@@ -517,7 +573,9 @@
   ```
 
 **1.3.1.3.4 智能日志洞察**
+
 - **异常检测**：
+
   ```typescript
   class LogAnomalyDetector {
     private baseline: LogBaseline;
@@ -543,7 +601,7 @@
             description: this.generateDescription(deviation),
             affectedLogs: deviation.logs,
             recommendedActions: this.generateRecommendations(deviation),
-            confidence: anomalyScore
+            confidence: anomalyScore,
           });
         }
       }
@@ -554,17 +612,21 @@
     private calculateStatistics(logs: StructuredLog[]): LogStatistics {
       return {
         totalCount: logs.length,
-        errorRate: logs.filter(l => l.level >= LogLevel.ERROR).length / logs.length,
-        avgDuration: this.calculateAvg(logs.map(l => l.duration).filter(Boolean)),
-        uniqueUsers: new Set(logs.map(l => l.userId).filter(Boolean)).size,
+        errorRate:
+          logs.filter((l) => l.level >= LogLevel.ERROR).length / logs.length,
+        avgDuration: this.calculateAvg(
+          logs.map((l) => l.duration).filter(Boolean),
+        ),
+        uniqueUsers: new Set(logs.map((l) => l.userId).filter(Boolean)).size,
         topMessages: this.findTopMessages(logs, 10),
-        timeDistribution: this.calculateTimeDistribution(logs)
+        timeDistribution: this.calculateTimeDistribution(logs),
       };
     }
   }
   ```
 
 #### 验收标准
+
 - ✅ 实时分析延迟<500ms
 - ✅ 日志聚合准确率>95%
 - ✅ 可视化界面响应<2秒
@@ -577,6 +639,7 @@
 ### 架构设计
 
 #### 日志系统架构总览
+
 ```
 应用服务 → 日志收集器 → 日志处理器 → 存储引擎 → 查询引擎 → 可视化界面
     ↓          ↓            ↓          ↓          ↓          ↓
@@ -605,7 +668,7 @@ class LogCollector {
       collected: 0,
       processed: 0,
       shipped: 0,
-      errors: []
+      errors: [],
     };
 
     for (const [sourceId, source] of this.sources) {
@@ -641,7 +704,7 @@ class LogStorageEngine {
     const results = await Promise.all([
       this.hotStorage.store(categorized.hot),
       this.warmStorage.store(categorized.warm),
-      this.coldStorage.store(categorized.cold)
+      this.coldStorage.store(categorized.cold),
     ]);
 
     // 3. 更新索引
@@ -650,7 +713,7 @@ class LogStorageEngine {
     return {
       stored: results.reduce((sum, r) => sum + r.stored, 0),
       indexed: logs.length,
-      compressionRatio: this.calculateCompressionRatio(results)
+      compressionRatio: this.calculateCompressionRatio(results),
     };
   }
 }
@@ -659,18 +722,21 @@ class LogStorageEngine {
 ### 性能优化策略
 
 #### 写入优化
+
 - **批量写入**：累积多个日志条目批量写入
 - **异步写入**：非阻塞的后台写入操作
 - **缓冲区管理**：智能缓冲区大小调整
 - **压缩写入**：实时压缩减少I/O开销
 
 #### 查询优化
+
 - **索引策略**：多级索引和复合索引
 - **缓存机制**：热点查询结果缓存
 - **查询重写**：自动优化查询执行计划
 - **并行查询**：多节点并行查询处理
 
 #### 存储优化
+
 - **数据分片**：基于时间和服务的智能分片
 - **压缩算法**：自适应压缩算法选择
 - **去重机制**：相似日志的智能去重
@@ -681,18 +747,21 @@ class LogStorageEngine {
 ## 📅 时间安排
 
 ### Week 1-2: 日志架构设计
+
 - 日志数据模型和格式设计
 - 分层日志架构规划
 - 处理流水线设计和实现
 - 基础测试和验证
 
 ### Week 3-5: 日志存储和索引
+
 - 多层存储架构实现
 - 智能索引策略开发
 - 压缩和归档功能
 - 查询优化系统构建
 
 ### Week 6-7: 日志分析和可视化
+
 - 实时日志分析引擎
 - 日志聚合和统计功能
 - 可视化面板开发
@@ -703,24 +772,28 @@ class LogStorageEngine {
 ## 🎯 验收标准
 
 ### 功能验收
+
 - [ ] 完整的结构化日志系统
 - [ ] 多层存储和索引机制
 - [ ] 实时日志分析能力
 - [ ] 丰富的可视化界面
 
 ### 性能验收
+
 - [ ] 日志收集延迟<100ms
 - [ ] 查询响应时间<2秒
 - [ ] 存储吞吐量>10,000 logs/s
 - [ ] 系统资源占用<25%
 
 ### 质量验收
+
 - [ ] 日志覆盖率>98%
 - [ ] 数据完整性>99.9%
 - [ ] 查询准确率>95%
 - [ ] 界面可用性>90%
 
 ### 用户验收
+
 - [ ] 故障排查时间减少80%
 - [ ] 日志分析效率提升300%
 - [ ] 用户满意度>4.5/5
@@ -733,6 +806,7 @@ class LogStorageEngine {
 ### 技术风险
 
 **1. 日志数据量爆炸**
+
 - **风险等级**：高
 - **影响**：存储成本激增，查询性能下降
 - **应对策略**：
@@ -742,6 +816,7 @@ class LogStorageEngine {
   - 监控存储使用情况
 
 **2. 查询性能瓶颈**
+
 - **风险等级**：中
 - **影响**：用户查询响应慢，体验差
 - **应对策略**：
@@ -751,6 +826,7 @@ class LogStorageEngine {
   - 定期性能监控和调优
 
 **3. 日志安全和隐私**
+
 - **风险等级**：中
 - **影响**：敏感信息泄露，合规风险
 - **应对策略**：
@@ -762,6 +838,7 @@ class LogStorageEngine {
 ### 业务风险
 
 **1. 日志系统宕机**
+
 - **风险等级**：中
 - **影响**：系统可观测性完全丢失
 - **应对策略**：
@@ -771,6 +848,7 @@ class LogStorageEngine {
   - 完善监控和告警
 
 **2. 日志分析价值不明显**
+
 - **风险等级**：低
 - **影响**：用户觉得功能鸡肋
 - **应对策略**：
@@ -784,11 +862,13 @@ class LogStorageEngine {
 ## 👥 团队配置
 
 ### 核心团队 (4人)
+
 - **后端工程师**：2人 (日志收集，存储系统)
 - **前端工程师**：1人 (可视化界面，查询界面)
 - **DevOps工程师**：1人 (基础设施，监控部署)
 
 ### 外部支持
+
 - **大数据专家**：日志处理和存储优化
 - **前端架构师**：可视化界面设计和性能优化
 - **安全专家**：日志安全和合规审查
@@ -798,12 +878,14 @@ class LogStorageEngine {
 ## 💰 预算规划
 
 ### 人力成本 (7周)
+
 - 后端工程师：2人 × ¥28,000/月 × 2个月 = ¥112,000
 - 前端工程师：1人 × ¥25,000/月 × 2个月 = ¥50,000
 - DevOps工程师：1人 × ¥28,000/月 × 2个月 = ¥56,000
 - **人力小计**：¥218,000
 
 ### 技术成本
+
 - 日志存储基础设施：¥60,000 (Elasticsearch集群)
 - 可视化工具：¥40,000 (Grafana, Kibana)
 - 数据处理工具：¥30,000 (Logstash, Fluentd)
@@ -811,6 +893,7 @@ class LogStorageEngine {
 - **技术小计**：¥180,000
 
 ### 其他成本
+
 - 培训和认证：¥20,000 (日志系统培训)
 - 安全评估：¥15,000 (日志安全审计)
 - 性能测试：¥10,000 (负载测试工具)
@@ -823,24 +906,28 @@ class LogStorageEngine {
 ## 📈 关键指标
 
 ### 性能指标
+
 - **收集性能**：日志收集延迟<100ms，吞吐量>10,000 logs/s
 - **存储性能**：写入延迟<50ms，压缩率>60%
 - **查询性能**：简单查询<500ms，复杂查询<2秒
 - **可视化性能**：界面加载<2秒，交互响应<100ms
 
 ### 可靠性指标
+
 - **数据完整性**：日志丢失率<0.001%，数据损坏率<0.0001%
 - **系统可用性**：日志系统可用性>99.9%
 - **数据持久性**：数据保留期>1年，灾难恢复<4小时
 - **一致性**：多副本数据一致性>99.99%
 
 ### 可观测性指标
+
 - **覆盖率**：日志收集覆盖率>98%，关键路径100%
 - **粒度**：支持trace/span级别关联，业务指标完整
 - **实时性**：实时日志延迟<1秒，实时分析<5秒
 - **关联性**：分布式链路追踪准确率>95%
 
 ### 业务价值指标
+
 - **故障排查效率**：平均故障定位时间从小时降到分钟
 - **运维效率**：日志分析工作量减少70%
 - **业务洞察**：基于日志的业务指标准确率>90%
@@ -851,17 +938,20 @@ class LogStorageEngine {
 ## 🎯 后续规划
 
 ### Phase 1.3.2 衔接
+
 - 基于完善的日志系统，实现性能指标监控
 - 利用日志数据，增强性能监控指标
 - 通过日志分析，为监控系统提供智能化洞察
 
 ### 持续优化计划
+
 1. **智能化分析**：AI驱动的日志异常检测和根本原因分析
 2. **实时流处理**：毫秒级别的日志流分析和告警
 3. **多租户支持**：企业级多租户日志隔离和管理
 4. **云原生集成**：深度集成云服务日志和监控
 
 ### 长期演进
+
 - **统一观测平台**：日志、指标、链路追踪的统一平台
 - **预测性分析**：基于历史日志的故障预测和预防
 - **自动化运维**：日志驱动的自动化故障恢复和优化

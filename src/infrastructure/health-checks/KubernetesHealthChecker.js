@@ -3,9 +3,9 @@
  * 专门为Kubernetes环境优化的健康检查实现
  */
 
-import { HealthChecker } from './HealthChecker.js';
 import { logger } from '../../shared/utils/logger.js';
 import { run_terminal_cmd } from '../../utils/terminal.js';
+import { HealthChecker } from './HealthChecker.js';
 
 export class KubernetesHealthChecker extends HealthChecker {
   constructor(config = {}) {

@@ -1,11 +1,11 @@
 fail_on_severity: moderate
 allow_ghsa_ids:
-  - GHSA-xxxx-xxxx-xxxx  # 允许的已知安全问题ID
+  - GHSA-xxxx-xxxx-xxxx # 允许的已知安全问题ID
 
 fail_on_scopes:
   - runtime
 
-license_check: false  # 暂时禁用许可证检查
+license_check: false # 暂时禁用许可证检查
 
 vulnerability_check: true
 dependency_check: true

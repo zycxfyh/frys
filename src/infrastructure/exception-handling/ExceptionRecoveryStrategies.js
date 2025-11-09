@@ -3,8 +3,8 @@
  * 提供各种异常恢复机制和自动修复策略
  */
 
-import { logger } from '../../shared/utils/logger.js';
 import { EventBus } from '../../shared/kernel/EventBus.js';
+import { logger } from '../../shared/utils/logger.js';
 
 export class ExceptionRecoveryStrategies {
   constructor(config = {}) {
@@ -189,7 +189,7 @@ export class ExceptionRecoveryStrategies {
 
         // 如果不是最后一次尝试，等待退避时间
         if (attempt < strategy.maxRetries) {
-          const backoffTime = strategy.backoffMs * Math.pow(2, attempt - 1); // 指数退避
+          const backoffTime = strategy.backoffMs * 2 ** (attempt - 1); // 指数退避
           await new Promise((resolve) => setTimeout(resolve, backoffTime));
         }
       }
@@ -275,9 +275,7 @@ export class ExceptionRecoveryStrategies {
               await context.testConnection(host);
               return host;
             }
-          } catch (e) {
-            continue;
-          }
+          } catch (e) {}
         }
         throw new Error('所有备用主机都不可用');
       },

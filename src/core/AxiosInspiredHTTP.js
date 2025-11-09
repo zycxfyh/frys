@@ -4,9 +4,9 @@
  */
 
 import axios from 'axios';
+import { logger } from '../shared/utils/logger.js';
 import { BaseModule } from './BaseModule.js';
 import { frysError } from './error-handler.js';
-import { logger } from '../shared/utils/logger.js';
 
 class AxiosInspiredHTTP extends BaseModule {
   getDefaultConfig() {
@@ -36,7 +36,7 @@ class AxiosInspiredHTTP extends BaseModule {
     this.testMode = options.testMode || false;
   }
 
-  async onInitialize() {
+  onInitialize() {
     // 创建axios实例
     this.client = axios.create({
       baseURL: this.config.baseURL,
@@ -66,7 +66,7 @@ class AxiosInspiredHTTP extends BaseModule {
     logger.info('HTTP客户端初始化完成', { baseURL: this.config.baseURL });
   }
 
-  async onDestroy() {
+  onDestroy() {
     this.client = null;
     logger.info('HTTP客户端已销毁');
   }

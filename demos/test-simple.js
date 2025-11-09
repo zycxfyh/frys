@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { TextInstructionParser } from './src/core/plugin/TextInstructionParser.js';
 import { SimplePluginManager } from './src/core/plugin/SimplePluginManager.js';
+import { TextInstructionParser } from './src/core/plugin/TextInstructionParser.js';
 
 async function testParser() {
   console.log('🧪 测试指令解析器...\n');
@@ -9,8 +9,12 @@ async function testParser() {
   const parser = new TextInstructionParser();
 
   // 使用formatInstruction生成正确的指令
-  const weatherInstruction = parser.formatInstruction('WeatherTool', { city: '北京' });
-  const calcInstruction = parser.formatInstruction('CalculatorTool', { expression: '2+3*4' });
+  const weatherInstruction = parser.formatInstruction('WeatherTool', {
+    city: '北京',
+  });
+  const calcInstruction = parser.formatInstruction('CalculatorTool', {
+    expression: '2+3*4',
+  });
 
   console.log('🌤️ 测试天气指令:');
   console.log(weatherInstruction);
@@ -34,9 +38,12 @@ async function testParser() {
     console.log('✅ 参数:', calcResult[0].parameters);
   }
 
-  return (weatherResult.length === 1 && calcResult.length === 1 &&
-          weatherResult[0].toolName === 'WeatherTool' &&
-          calcResult[0].toolName === 'CalculatorTool');
+  return (
+    weatherResult.length === 1 &&
+    calcResult.length === 1 &&
+    weatherResult[0].toolName === 'WeatherTool' &&
+    calcResult[0].toolName === 'CalculatorTool'
+  );
 }
 
 async function testPluginManager() {
@@ -49,14 +56,16 @@ async function testPluginManager() {
   const plugins = manager.getPlugins();
 
   console.log(`📦 发现 ${plugins.length} 个插件：`);
-  plugins.forEach(plugin => {
+  plugins.forEach((plugin) => {
     console.log(`  - ${plugin.name}: ${plugin.displayName}`);
   });
 
   // 测试工具执行
   if (plugins.length > 0) {
     const parser = new TextInstructionParser();
-    const weatherInstruction = parser.formatInstruction('WeatherTool', { city: '北京' });
+    const weatherInstruction = parser.formatInstruction('WeatherTool', {
+      city: '北京',
+    });
 
     console.log('\n🔧 测试天气工具执行...');
     console.log('指令:', weatherInstruction);
@@ -87,7 +96,6 @@ async function main() {
 
     const totalOk = parserOk && pluginOk;
     console.log(`\n🎯 总体结果: ${totalOk ? '✅ 通过' : '❌ 失败'}`);
-
   } catch (error) {
     console.error('\n❌ 测试失败:', error);
   }

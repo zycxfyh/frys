@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from '../test-helpers.js';
 
 /**
@@ -11,11 +11,11 @@ import {
  * 使用随机和异常输入测试系统鲁棒性
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
-import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
+import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
 import SQLiteInspiredDatabase from '../../src/core/SQLiteInspiredDatabase.js';
+import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
 
 describe('模糊测试', () => {
   let redTeam;
@@ -46,8 +46,8 @@ describe('模糊测试', () => {
             input: payload.input,
             result: result,
             crashed: isCrashed,
-            fuzzType: payload.fuzzType
-          }
+            fuzzType: payload.fuzzType,
+          },
         };
       } catch (error) {
         return {
@@ -58,8 +58,8 @@ describe('模糊测试', () => {
             input: payload.input,
             error: error.message,
             crashed: true,
-            fuzzType: payload.fuzzType
-          }
+            fuzzType: payload.fuzzType,
+          },
         };
       }
     });
@@ -131,7 +131,7 @@ describe('模糊测试', () => {
         method: input.method || 'GET',
         headers: input.headers || {},
         data: input.data,
-        timeout: input.timeout || 5000
+        timeout: input.timeout || 5000,
       };
 
       // 这里只是模拟，不实际发送请求
@@ -202,10 +202,13 @@ describe('模糊测试', () => {
       const payload = {
         target: 'auth',
         input: '',
-        fuzzType: 'empty_string'
+        fuzzType: 'empty_string',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.FUZZ_ATTACK,
+        payload,
+      );
 
       expect(result.success).toBe(false); // 空字符串不应该导致崩溃
       expect(result.blocked).toBe(true);
@@ -215,10 +218,13 @@ describe('模糊测试', () => {
       const payload = {
         target: 'auth',
         input: null,
-        fuzzType: 'null_input'
+        fuzzType: 'null_input',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.FUZZ_ATTACK,
+        payload,
+      );
 
       expect(result.success).toBe(false);
       expect(result.blocked).toBe(true);
@@ -228,10 +234,13 @@ describe('模糊测试', () => {
       const payload = {
         target: 'auth',
         input: undefined,
-        fuzzType: 'undefined_input'
+        fuzzType: 'undefined_input',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.FUZZ_ATTACK,
+        payload,
+      );
 
       expect(result.success).toBe(false);
       expect(result.blocked).toBe(true);
@@ -242,10 +251,13 @@ describe('模糊测试', () => {
       const payload = {
         target: 'auth',
         input: longString,
-        fuzzType: 'long_string'
+        fuzzType: 'long_string',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.FUZZ_ATTACK,
+        payload,
+      );
 
       expect(result.success).toBe(false);
       expect(result.blocked).toBe(true);
@@ -267,23 +279,29 @@ describe('模糊测试', () => {
       { input: Symbol('test'), type: 'symbol' },
       { input: () => {}, type: 'function' },
       { input: new Date(), type: 'date_object' },
-      { input: new RegExp('test'), type: 'regex_object' },
-      { input: Buffer.from('test'), type: 'buffer' }
+      { input: /test/, type: 'regex_object' },
+      { input: Buffer.from('test'), type: 'buffer' },
     ];
 
-    it.each(typeConfusionInputs)('应该处理 $type 类型输入', async ({ input, type }) => {
-      const payload = {
-        target: 'auth',
-        input: input,
-        fuzzType: type
-      };
+    it.each(typeConfusionInputs)(
+      '应该处理 $type 类型输入',
+      async ({ input, type }) => {
+        const payload = {
+          target: 'auth',
+          input: input,
+          fuzzType: type,
+        };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+        const result = await redTeam.executeAttack(
+          AttackVectors.FUZZ_ATTACK,
+          payload,
+        );
 
-      expect(result.success).toBe(false);
-      expect(result.blocked).toBe(true);
-      expect(result.details.fuzzType).toBe(type);
-    });
+        expect(result.success).toBe(false);
+        expect(result.blocked).toBe(true);
+        expect(result.details.fuzzType).toBe(type);
+      },
+    );
   });
 
   describe('格式化字符串模糊测试', () => {
@@ -297,17 +315,20 @@ describe('模糊测试', () => {
       '%%',
       '%*s',
       '%.*s',
-      '%*.*s'
+      '%*.*s',
     ];
 
     it.each(formatStrings)('应该处理格式化字符串: %s', async (formatStr) => {
       const payload = {
         target: 'auth',
         input: formatStr,
-        fuzzType: 'format_string'
+        fuzzType: 'format_string',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.FUZZ_ATTACK,
+        payload,
+      );
 
       expect(result.success).toBe(false);
       expect(result.blocked).toBe(true);
@@ -326,21 +347,27 @@ describe('模糊测试', () => {
       { input: '\\u000A', type: 'newline_unicode' },
       { input: '\u0000', type: 'null_char' },
       { input: '\u000A', type: 'newline_char' },
-      { input: '\uFFFF', type: 'max_unicode' }
+      { input: '\uFFFF', type: 'max_unicode' },
     ];
 
-    it.each(encodingInputs)('应该处理 $type 编码输入', async ({ input, type }) => {
-      const payload = {
-        target: 'auth',
-        input: input,
-        fuzzType: type
-      };
+    it.each(encodingInputs)(
+      '应该处理 $type 编码输入',
+      async ({ input, type }) => {
+        const payload = {
+          target: 'auth',
+          input: input,
+          fuzzType: type,
+        };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+        const result = await redTeam.executeAttack(
+          AttackVectors.FUZZ_ATTACK,
+          payload,
+        );
 
-      expect(result.success).toBe(false);
-      expect(result.blocked).toBe(true);
-    });
+        expect(result.success).toBe(false);
+        expect(result.blocked).toBe(true);
+      },
+    );
   });
 
   describe('路径遍历模糊测试', () => {
@@ -354,17 +381,20 @@ describe('模糊测试', () => {
       '..%5C..%5C..%5Cwindows%5Csystem32%5Cconfig%5Csam',
       '/etc/passwd%00.jpg',
       '../../../etc/passwd%00',
-      '/etc/passwd/../../../etc/shadow'
+      '/etc/passwd/../../../etc/shadow',
     ];
 
     it.each(pathTraversalInputs)('应该处理路径遍历: %s', async (path) => {
       const payload = {
         target: 'auth',
         input: path,
-        fuzzType: 'path_traversal'
+        fuzzType: 'path_traversal',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.FUZZ_ATTACK,
+        payload,
+      );
 
       expect(result.success).toBe(false);
       expect(result.blocked).toBe(true);
@@ -380,7 +410,10 @@ describe('模糊测试', () => {
       '{"number": 123, "boolean": true, "null": null}',
       '{"unicode": "测试字符串"}',
       '{"escape": "quote: \\"hello\\" and slash: \\\\"}',
-      '{"deeply": ' + '{"nested": '.repeat(10) + '{}'.repeat(10) + '}'.repeat(10),
+      '{"deeply": ' +
+        '{"nested": '.repeat(10) +
+        '{}'.repeat(10) +
+        '}'.repeat(10),
       '{"circular": ', // 无效JSON
       '{"trailing": "comma",}',
       '{"duplicate": "key", "duplicate": "value"}',
@@ -390,17 +423,20 @@ describe('模糊测试', () => {
       'true',
       'false',
       '"string"',
-      '123'
+      '123',
     ];
 
     it.each(jsonInputs)('应该处理JSON输入: %s', async (jsonStr) => {
       const payload = {
         target: 'json',
         input: jsonStr,
-        fuzzType: 'json_fuzz'
+        fuzzType: 'json_fuzz',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.FUZZ_ATTACK,
+        payload,
+      );
 
       // JSON解析错误不应该被视为系统崩溃
       expect(result.success).toBe(false);
@@ -420,20 +456,27 @@ describe('模糊测试', () => {
       '<root><!-- comment --></root>',
       '<root><empty></empty></root>',
       '<root xmlns="http://example.com">namespaced</root>',
-      '<root>' + '<nested>'.repeat(10) + 'deep' + '</nested>'.repeat(10) + '</root>',
+      '<root>' +
+        '<nested>'.repeat(10) +
+        'deep' +
+        '</nested>'.repeat(10) +
+        '</root>',
       '<root>&invalid-entity;</root>',
       '<root><unclosed-nested></root>',
-      '<root><wrong-closing></wrong></root>'
+      '<root><wrong-closing></wrong></root>',
     ];
 
     it.each(xmlInputs)('应该处理XML输入: %s', async (xmlStr) => {
       const payload = {
         target: 'xml',
         input: xmlStr,
-        fuzzType: 'xml_fuzz'
+        fuzzType: 'xml_fuzz',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.FUZZ_ATTACK,
+        payload,
+      );
 
       expect(result.success).toBe(false);
       expect(result.blocked).toBe(true);
@@ -491,10 +534,13 @@ describe('模糊测试', () => {
       const payload = {
         target: 'regex',
         input: regexStr,
-        fuzzType: 'regex_fuzz'
+        fuzzType: 'regex_fuzz',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.FUZZ_ATTACK,
+        payload,
+      );
 
       // 正则表达式错误不应该被视为系统崩溃
       expect(result.success).toBe(false);
@@ -509,23 +555,46 @@ describe('模糊测试', () => {
         case 'string':
           return Math.random().toString(36).repeat(length);
         case 'binary':
-          return Buffer.from(Array.from({length}, () => Math.floor(Math.random() * 256)));
+          return Buffer.from(
+            Array.from({ length }, () => Math.floor(Math.random() * 256)),
+          );
         case 'unicode':
-          return String.fromCharCode(...Array.from({length}, () => Math.floor(Math.random() * 0xFFFF)));
+          return String.fromCharCode(
+            ...Array.from({ length }, () => Math.floor(Math.random() * 0xffff)),
+          );
         case 'control':
-          return String.fromCharCode(...Array.from({length}, () => Math.floor(Math.random() * 32)));
-        case 'mixed':
+          return String.fromCharCode(
+            ...Array.from({ length }, () => Math.floor(Math.random() * 32)),
+          );
+        case 'mixed': {
           const chars = [];
           for (let i = 0; i < length; i++) {
             const type = Math.floor(Math.random() * 4);
             switch (type) {
-              case 0: chars.push(String.fromCharCode(Math.floor(Math.random() * 128))); break; // ASCII
-              case 1: chars.push(String.fromCharCode(Math.floor(Math.random() * 0xFFFF))); break; // Unicode
-              case 2: chars.push(String.fromCharCode(Math.floor(Math.random() * 32))); break; // 控制字符
-              case 3: chars.push(['<', '>', '"', "'", '&', '%', '\\', '/'][Math.floor(Math.random() * 8)]); break; // 特殊字符
+              case 0:
+                chars.push(
+                  String.fromCharCode(Math.floor(Math.random() * 128)),
+                );
+                break; // ASCII
+              case 1:
+                chars.push(
+                  String.fromCharCode(Math.floor(Math.random() * 0xffff)),
+                );
+                break; // Unicode
+              case 2:
+                chars.push(String.fromCharCode(Math.floor(Math.random() * 32)));
+                break; // 控制字符
+              case 3:
+                chars.push(
+                  ['<', '>', '"', "'", '&', '%', '\\', '/'][
+                    Math.floor(Math.random() * 8)
+                  ],
+                );
+                break; // 特殊字符
             }
           }
           return chars.join('');
+        }
         default:
           return Math.random().toString(36);
       }
@@ -538,10 +607,13 @@ describe('模糊测试', () => {
       const payload = {
         target: 'auth',
         input: randomData,
-        fuzzType: `random_${type}`
+        fuzzType: `random_${type}`,
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.FUZZ_ATTACK,
+        payload,
+      );
 
       expect(result.success).toBe(false);
       expect(result.blocked).toBe(true);
@@ -554,11 +626,14 @@ describe('模糊测试', () => {
       const payload = {
         target: 'auth',
         input: largeInput,
-        fuzzType: 'performance_fuzz'
+        fuzzType: 'performance_fuzz',
       };
 
       const startTime = performance.now();
-      const result = await redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.FUZZ_ATTACK,
+        payload,
+      );
       const endTime = performance.now();
 
       expect(result.success).toBe(false);
@@ -572,16 +647,18 @@ describe('模糊测试', () => {
         const payload = {
           target: 'auth',
           input: `fuzz_input_${i}_${Math.random()}`,
-          fuzzType: 'high_frequency'
+          fuzzType: 'high_frequency',
         };
-        promises.push(redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload));
+        promises.push(
+          redTeam.executeAttack(AttackVectors.FUZZ_ATTACK, payload),
+        );
       }
 
       const startTime = performance.now();
       const results = await Promise.all(promises);
       const endTime = performance.now();
 
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.success).toBe(false);
         expect(result.blocked).toBe(true);
       });

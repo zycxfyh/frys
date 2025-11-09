@@ -3,10 +3,10 @@
  * Tests for user authentication, registration, and token management
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import jwt from 'jsonwebtoken';
-import { AuthenticationService } from '../../../src/domain/services/auth/AuthenticationService.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { User } from '../../../src/domain/entities/auth/User.js';
+import { AuthenticationService } from '../../../src/domain/services/auth/AuthenticationService.js';
 
 /**
  * Test fixtures and helpers
@@ -18,7 +18,7 @@ const createTestUser = (overrides = {}) => {
     email: 'test@example.com',
     roles: ['user'],
     profile: { firstName: 'Test', lastName: 'User' },
-    ...overrides
+    ...overrides,
   });
 };
 
@@ -27,7 +27,7 @@ const createTestCredentials = (overrides = {}) => ({
   password: 'password123',
   ipAddress: '127.0.0.1',
   userAgent: 'Test Browser',
-  ...overrides
+  ...overrides,
 });
 
 // Mock repositories
@@ -35,7 +35,7 @@ const mockUserRepository = {
   findByUsername: vi.fn(),
   findByEmail: vi.fn(),
   findById: vi.fn(),
-  save: vi.fn()
+  save: vi.fn(),
 };
 
 const mockTokenRepository = {
@@ -43,14 +43,14 @@ const mockTokenRepository = {
   findByUserId: vi.fn(),
   findByValue: vi.fn(),
   save: vi.fn(),
-  revoke: vi.fn()
+  revoke: vi.fn(),
 };
 
 const mockSessionRepository = {
   findById: vi.fn(),
   findBySessionId: vi.fn(),
   findByUserId: vi.fn(),
-  save: vi.fn()
+  save: vi.fn(),
 };
 
 describe('Authentication Service Integration', () => {
@@ -67,14 +67,14 @@ describe('Authentication Service Integration', () => {
       jwtIssuer: 'test-issuer',
       jwtAudience: 'test-audience',
       accessTokenExpiry: '15m',
-      refreshTokenExpiry: '7d'
+      refreshTokenExpiry: '7d',
     });
 
     // Setup dependencies
     authService.setDependencies(
       mockUserRepository,
       mockTokenRepository,
-      mockSessionRepository
+      mockSessionRepository,
     );
 
     // Setup JWT spy for verification tests
@@ -92,7 +92,7 @@ describe('Authentication Service Integration', () => {
         username: 'testuser',
         email: 'test@example.com',
         password: 'password123',
-        profile: { firstName: 'Test', lastName: 'User' }
+        profile: { firstName: 'Test', lastName: 'User' },
       };
 
       mockUserRepository.findByUsername.mockResolvedValue(null);
@@ -109,8 +109,8 @@ describe('Authentication Service Integration', () => {
       expect(mockUserRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'testuser',
-          email: 'test@example.com'
-        })
+          email: 'test@example.com',
+        }),
       );
     });
 
@@ -118,27 +118,27 @@ describe('Authentication Service Integration', () => {
       // Given
       const userData = {
         ...createTestCredentials(),
-        email: 'test@example.com'
+        email: 'test@example.com',
       };
       mockUserRepository.findByUsername.mockResolvedValue(createTestUser());
 
       // When & Then
-      await expect(authService.register(userData))
-        .rejects
-        .toThrow('Username already exists');
+      await expect(authService.register(userData)).rejects.toThrow(
+        'Username already exists',
+      );
     });
 
     it('should reject registration with invalid email format', async () => {
       // Given
       const userData = {
         ...createTestCredentials(),
-        email: 'invalid-email'
+        email: 'invalid-email',
       };
 
       // When & Then
-      await expect(authService.register(userData))
-        .rejects
-        .toThrow('Invalid email format');
+      await expect(authService.register(userData)).rejects.toThrow(
+        'Invalid email format',
+      );
     });
   });
 
@@ -171,9 +171,9 @@ describe('Authentication Service Integration', () => {
       mockUserRepository.findByUsername.mockResolvedValue(null);
 
       // When & Then
-      await expect(authService.login(credentials))
-        .rejects
-        .toThrow('Invalid username or password');
+      await expect(authService.login(credentials)).rejects.toThrow(
+        'Invalid username or password',
+      );
     });
   });
 
@@ -183,7 +183,7 @@ describe('Authentication Service Integration', () => {
       const user = createTestUser();
       const session = {
         id: 'session-123',
-        sessionId: 'session-123'
+        sessionId: 'session-123',
       };
 
       // When
@@ -216,9 +216,9 @@ describe('Authentication Service Integration', () => {
           exp: Math.floor(Date.now() / 1000) + 900, // 15 minutes
           iss: 'test-issuer',
           aud: 'test-audience',
-          sessionId: 'session-123'
+          sessionId: 'session-123',
         },
-        'test-secret-key'
+        'test-secret-key',
       );
 
       jwtVerifySpy.mockReturnValue({
@@ -231,7 +231,7 @@ describe('Authentication Service Integration', () => {
         exp: Math.floor(Date.now() / 1000) + 900,
         iss: 'test-issuer',
         aud: 'test-audience',
-        sessionId: 'session-123'
+        sessionId: 'session-123',
       });
 
       // Mock user repository to return the test user
@@ -248,7 +248,7 @@ describe('Authentication Service Integration', () => {
       expect(result.user).toBeDefined();
       expect(jwtVerifySpy).toHaveBeenCalledWith(validToken, 'test-secret-key', {
         issuer: 'test-issuer',
-        audience: 'test-audience'
+        audience: 'test-audience',
       });
     });
   });

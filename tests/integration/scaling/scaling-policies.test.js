@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from './test-helpers.js';
 
 /**
@@ -11,13 +11,21 @@ import {
  * 测试各种扩容策略的决策逻辑
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi, beforeEach } from 'vitest';
 import {
-  ScalingPolicy,
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
+import {
+  CompositeScalingPolicy,
   CpuScalingPolicy,
   MemoryScalingPolicy,
   RequestScalingPolicy,
-  CompositeScalingPolicy
+  ScalingPolicy,
 } from '../../../src/infrastructure/scaling/ScalingPolicy.js';
 import { logger } from '../../../src/shared/utils/logger.js';
 
@@ -43,7 +51,7 @@ describe('扩容策略集成测试', () => {
         scaleDownThreshold: 0.3,
         minInstances: 1,
         maxInstances: 10,
-        scaleFactor: 1.5
+        scaleFactor: 1.5,
       });
     });
 
@@ -98,7 +106,7 @@ describe('扩容策略集成测试', () => {
     beforeEach(() => {
       policy = new CpuScalingPolicy({
         scaleUpThreshold: 0.75,
-        scaleDownThreshold: 0.25
+        scaleDownThreshold: 0.25,
       });
     });
 
@@ -126,7 +134,7 @@ describe('扩容策略集成测试', () => {
     beforeEach(() => {
       policy = new MemoryScalingPolicy({
         scaleUpThreshold: 0.85,
-        scaleDownThreshold: 0.35
+        scaleDownThreshold: 0.35,
       });
     });
 
@@ -154,7 +162,7 @@ describe('扩容策略集成测试', () => {
     beforeEach(() => {
       policy = new RequestScalingPolicy({
         scaleUpThreshold: 0.9,
-        scaleDownThreshold: 0.4
+        scaleDownThreshold: 0.4,
       });
     });
 
@@ -200,7 +208,9 @@ describe('扩容策略集成测试', () => {
       const decision = compositePolicy.shouldScaleDown(lowMetrics, 4);
 
       expect(decision.shouldScale).toBe(true);
-      expect(decision.reason).toContain('All composite policies agree to scale down');
+      expect(decision.reason).toContain(
+        'All composite policies agree to scale down',
+      );
     });
 
     it('不应该在策略不一致时缩容', () => {
@@ -208,7 +218,9 @@ describe('扩容策略集成测试', () => {
       const decision = compositePolicy.shouldScaleDown(mixedMetrics, 4);
 
       expect(decision.shouldScale).toBe(false);
-      expect(decision.reason).toContain('Composite policies do not all agree to scale down');
+      expect(decision.reason).toContain(
+        'Composite policies do not all agree to scale down',
+      );
     });
   });
 
@@ -220,7 +232,7 @@ describe('扩容策略集成测试', () => {
         name: 'custom-policy',
         type: 'custom',
         scaleUpThreshold: 0.7,
-        scaleDownThreshold: 0.3
+        scaleDownThreshold: 0.3,
       });
     });
 
@@ -269,7 +281,7 @@ describe('扩容策略集成测试', () => {
       policy.updateConfig({
         scaleUpThreshold: 0.9,
         scaleDownThreshold: 0.2,
-        enabled: false
+        enabled: false,
       });
 
       expect(policy.scaleUpThreshold).toBe(0.9);
@@ -297,7 +309,7 @@ describe('扩容策略集成测试', () => {
     it('应该处理极端阈值', () => {
       const policy = new ScalingPolicy({
         scaleUpThreshold: 0.95,
-        scaleDownThreshold: 0.05
+        scaleDownThreshold: 0.05,
       });
 
       const scaleUpDecision = policy.shouldScaleUp({ cpuUsage: 0.96 }, 2);

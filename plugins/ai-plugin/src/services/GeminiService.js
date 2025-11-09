@@ -3,10 +3,10 @@
  * 提供Google Gemini相关的所有API接口和业务逻辑
  */
 
-import { logger } from '../../../utils/logger.js';
-import { config } from '../../../utils/config.js';
 import { errorHandler } from '../../../core/error-handler.js';
 import { eventSystem } from '../../../core/events.js';
+import { config } from '../../../utils/config.js';
+import { logger } from '../../../utils/logger.js';
 
 export class GeminiService {
   constructor(options = {}) {

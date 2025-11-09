@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * FastifyInspiredFramework 风格的系统
  * 借鉴 Fastify 的核心理念
@@ -23,7 +25,7 @@ class FastifyInspiredFramework {
   route(method, path, handler) {
     const routeKey = `${method}:${path}`;
     this.routes.set(routeKey, handler);
-    console.log(`🛣️ 路由已注册: ${routeKey}`);
+    logger.info(`🛣️ 路由已注册: ${routeKey}`);
   }
 
   /**
@@ -33,7 +35,7 @@ class FastifyInspiredFramework {
    */
   register(name, plugin) {
     this.plugins.set(name, plugin);
-    console.log(`🔌 插件已注册: ${name}`);
+    logger.info(`🔌 插件已注册: ${name}`);
   }
 
   /**
@@ -46,7 +48,7 @@ class FastifyInspiredFramework {
       this.hooks.set(hook, []);
     }
     this.hooks.get(hook).push(handler);
-    console.log(`🪝 钩子已添加: ${hook}`);
+    logger.info(`🪝 钩子已添加: ${hook}`);
   }
 
   /**

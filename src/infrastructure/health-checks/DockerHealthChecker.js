@@ -3,15 +3,15 @@
  * 专门为Docker容器环境优化的健康检查实现
  */
 
-import {
-  HealthChecker,
-  databaseHealthCheck,
-  redisHealthCheck,
-  memoryHealthCheck,
-  cpuHealthCheck,
-} from './HealthChecker.js';
 import { logger } from '../../shared/utils/logger.js';
 import { run_terminal_cmd } from '../../utils/terminal.js';
+import {
+  cpuHealthCheck,
+  databaseHealthCheck,
+  HealthChecker,
+  memoryHealthCheck,
+  redisHealthCheck,
+} from './HealthChecker.js';
 
 export class DockerHealthChecker extends HealthChecker {
   constructor(config = {}) {

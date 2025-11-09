@@ -10,7 +10,7 @@ const config = {
   env: process.env.NODE_ENV || 'development',
   port: process.env.PORT || 3000,
   mode: process.env.LIGHT_MODE || 'full', // full/minimal/micro
-  features: process.env.FEATURE_FLAGS?.split(',') || []
+  features: process.env.FEATURE_FLAGS?.split(',') || [],
 };
 
 // 轻量化启动逻辑
@@ -37,7 +37,6 @@ async function lightStart() {
     await startMonitoring();
 
     console.log(`✅ 服务已启动: http://localhost:${config.port}`);
-
   } catch (error) {
     console.error('❌ 启动失败:', error.message);
     process.exit(1);
@@ -51,7 +50,7 @@ async function healthCheck() {
   const checks = [
     { name: 'Node.js', cmd: 'node --version' },
     { name: 'NPM', cmd: 'npm --version' },
-    { name: 'Git', cmd: 'git --version' }
+    { name: 'Git', cmd: 'git --version' },
   ];
 
   for (const check of checks) {

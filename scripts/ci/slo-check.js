@@ -5,9 +5,8 @@
  * 检查服务水平目标 (Service Level Objectives)
  */
 
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { join } from 'path';
-import { dirname } from 'path';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -19,27 +18,27 @@ class SLOChecker {
       availability: {
         target: 99.9, // 99.9% 可用性
         window: '30d', // 30天窗口
-        current: 100.0
+        current: 100.0,
       },
 
       // 性能 SLO
       latency: {
         p95: 500, // P95 响应时间 <= 500ms
         p99: 1000, // P99 响应时间 <= 1000ms
-        target: 95 // 95% 的请求满足性能目标
+        target: 95, // 95% 的请求满足性能目标
       },
 
       // 错误率 SLO
       error_rate: {
         target: 0.1, // 错误率 <= 0.1%
-        window: '1h' // 1小时窗口
+        window: '1h', // 1小时窗口
       },
 
       // 吞吐量 SLO
       throughput: {
         min_rps: 100, // 最小每秒请求数
-        target: 1000 // 目标每秒请求数
-      }
+        target: 1000, // 目标每秒请求数
+      },
     };
 
     this.baselineFile = join(process.cwd(), 'slo-baseline.json');
@@ -48,7 +47,7 @@ class SLOChecker {
       environment: process.env.NODE_ENV || 'development',
       slo_checks: {},
       overall_status: 'UNKNOWN',
-      recommendations: []
+      recommendations: [],
     };
   }
 
@@ -59,17 +58,20 @@ class SLOChecker {
       success: '\x1b[32m',
       error: '\x1b[31m',
       warning: '\x1b[33m',
-      reset: '\x1b[0m'
+      reset: '\x1b[0m',
     };
 
-    const prefix = {
-      info: 'ℹ️ ',
-      success: '✅ ',
-      error: '❌ ',
-      warning: '⚠️ '
-    }[type] || 'ℹ️ ';
+    const prefix =
+      {
+        info: 'ℹ️ ',
+        success: '✅ ',
+        error: '❌ ',
+        warning: '⚠️ ',
+      }[type] || 'ℹ️ ';
 
-    console.log(`${colors[type]}[${timestamp}] ${prefix}${message}${colors.reset}`);
+    console.log(
+      `${colors[type]}[${timestamp}] ${prefix}${message}${colors.reset}`,
+    );
   }
 
   /**
@@ -92,15 +94,17 @@ class SLOChecker {
         current: uptime,
         target,
         score,
-        message: `可用性 ${uptime}% (目标: ${target}%)`
+        message: `可用性 ${uptime}% (目标: ${target}%)`,
       };
 
-      this.log(`可用性 SLO: ${status} - ${uptime}%`, status === 'PASS' ? 'success' : 'error');
-
+      this.log(
+        `可用性 SLO: ${status} - ${uptime}%`,
+        status === 'PASS' ? 'success' : 'error',
+      );
     } catch (error) {
       this.results.slo_checks.availability = {
         status: 'ERROR',
-        error: error.message
+        error: error.message,
       };
       this.log(`可用性检查失败: ${error.message}`, 'error');
     }
@@ -119,21 +123,24 @@ class SLOChecker {
 
       const p95Status = metrics.p95 <= config.p95 ? 'PASS' : 'FAIL';
       const p99Status = metrics.p99 <= config.p99 ? 'PASS' : 'FAIL';
-      const overallStatus = p95Status === 'PASS' && p99Status === 'PASS' ? 'PASS' : 'FAIL';
+      const overallStatus =
+        p95Status === 'PASS' && p99Status === 'PASS' ? 'PASS' : 'FAIL';
 
       this.results.slo_checks.latency = {
         status: overallStatus,
         p95: { value: metrics.p95, target: config.p95, status: p95Status },
         p99: { value: metrics.p99, target: config.p99, status: p99Status },
-        message: `P95: ${metrics.p95}ms, P99: ${metrics.p99}ms`
+        message: `P95: ${metrics.p95}ms, P99: ${metrics.p99}ms`,
       };
 
-      this.log(`性能 SLO: ${overallStatus}`, overallStatus === 'PASS' ? 'success' : 'error');
-
+      this.log(
+        `性能 SLO: ${overallStatus}`,
+        overallStatus === 'PASS' ? 'success' : 'error',
+      );
     } catch (error) {
       this.results.slo_checks.latency = {
         status: 'ERROR',
-        error: error.message
+        error: error.message,
       };
       this.log(`性能检查失败: ${error.message}`, 'error');
     }
@@ -155,15 +162,17 @@ class SLOChecker {
         status,
         current: errorRate,
         target,
-        message: `错误率 ${errorRate}% (目标: ≤${target}%)`
+        message: `错误率 ${errorRate}% (目标: ≤${target}%)`,
       };
 
-      this.log(`错误率 SLO: ${status} - ${errorRate}%`, status === 'PASS' ? 'success' : 'error');
-
+      this.log(
+        `错误率 SLO: ${status} - ${errorRate}%`,
+        status === 'PASS' ? 'success' : 'error',
+      );
     } catch (error) {
       this.results.slo_checks.error_rate = {
         status: 'ERROR',
-        error: error.message
+        error: error.message,
       };
       this.log(`错误率检查失败: ${error.message}`, 'error');
     }
@@ -186,15 +195,17 @@ class SLOChecker {
         current: throughput,
         target: config.target,
         minimum: config.min_rps,
-        message: `吞吐量 ${throughput} RPS (最小要求: ${config.min_rps})`
+        message: `吞吐量 ${throughput} RPS (最小要求: ${config.min_rps})`,
       };
 
-      this.log(`吞吐量 SLO: ${status} - ${throughput} RPS`, status === 'PASS' ? 'success' : 'error');
-
+      this.log(
+        `吞吐量 SLO: ${status} - ${throughput} RPS`,
+        status === 'PASS' ? 'success' : 'error',
+      );
     } catch (error) {
       this.results.slo_checks.throughput = {
         status: 'ERROR',
-        error: error.message
+        error: error.message,
       };
       this.log(`吞吐量检查失败: ${error.message}`, 'error');
     }
@@ -215,7 +226,7 @@ class SLOChecker {
     // 模拟正常的延迟指标
     return {
       p95: 450, // 450ms
-      p99: 850  // 850ms
+      p99: 850, // 850ms
     };
   }
 
@@ -247,13 +258,12 @@ class SLOChecker {
           availability: this.simulateUptimeCheck(),
           latency: this.simulateLatencyCheck(),
           error_rate: this.simulateErrorRateCheck(),
-          throughput: this.simulateThroughputCheck()
-        }
+          throughput: this.simulateThroughputCheck(),
+        },
       };
 
       writeFileSync(this.baselineFile, JSON.stringify(baseline, null, 2));
       this.log(`基准线数据已保存: ${this.baselineFile}`, 'success');
-
     } catch (error) {
       this.log(`保存基准线失败: ${error.message}`, 'error');
     }
@@ -285,12 +295,16 @@ class SLOChecker {
 
     // 可用性建议
     if (checks.availability?.status === 'FAIL') {
-      this.results.recommendations.push('提高系统可用性，检查服务依赖和故障恢复机制');
+      this.results.recommendations.push(
+        '提高系统可用性，检查服务依赖和故障恢复机制',
+      );
     }
 
     // 性能建议
     if (checks.latency?.status === 'FAIL') {
-      this.results.recommendations.push('优化响应性能，检查数据库查询和缓存策略');
+      this.results.recommendations.push(
+        '优化响应性能，检查数据库查询和缓存策略',
+      );
     }
 
     // 错误率建议
@@ -300,7 +314,9 @@ class SLOChecker {
 
     // 吞吐量建议
     if (checks.throughput?.status === 'FAIL') {
-      this.results.recommendations.push('提升系统吞吐量，考虑水平扩展和性能优化');
+      this.results.recommendations.push(
+        '提升系统吞吐量，考虑水平扩展和性能优化',
+      );
     }
 
     // 默认建议
@@ -314,7 +330,9 @@ class SLOChecker {
    */
   calculateOverallStatus() {
     const checks = Object.values(this.results.slo_checks);
-    const hasFailures = checks.some(check => check.status === 'FAIL' || check.status === 'ERROR');
+    const hasFailures = checks.some(
+      (check) => check.status === 'FAIL' || check.status === 'ERROR',
+    );
 
     this.results.overall_status = hasFailures ? 'FAIL' : 'PASS';
   }
@@ -329,17 +347,24 @@ class SLOChecker {
 
     console.log(`⏱️  检查时间: ${this.results.timestamp}`);
     console.log(`🌍 环境: ${this.results.environment}`);
-    console.log(`📈 总体状态: ${this.results.overall_status === 'PASS' ? '✅ 通过' : '❌ 失败'}`);
+    console.log(
+      `📈 总体状态: ${this.results.overall_status === 'PASS' ? '✅ 通过' : '❌ 失败'}`,
+    );
 
     console.log('\n📋 SLO 检查详情:');
     Object.entries(this.results.slo_checks).forEach(([name, check]) => {
-      const status = check.status === 'PASS' ? '✅' : check.status === 'FAIL' ? '❌' : '⚠️';
-      const nameFormatted = name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-      console.log(`  ${status} ${nameFormatted}: ${check.message || '检查失败'}`);
+      const status =
+        check.status === 'PASS' ? '✅' : check.status === 'FAIL' ? '❌' : '⚠️';
+      const nameFormatted = name
+        .replace('_', ' ')
+        .replace(/\b\w/g, (l) => l.toUpperCase());
+      console.log(
+        `  ${status} ${nameFormatted}: ${check.message || '检查失败'}`,
+      );
     });
 
     console.log('\n💡 建议:');
-    this.results.recommendations.forEach(rec => {
+    this.results.recommendations.forEach((rec) => {
       console.log(`  • ${rec}`);
     });
 
@@ -373,7 +398,7 @@ class SLOChecker {
         this.checkAvailability(),
         this.checkLatency(),
         this.checkErrorRate(),
-        this.checkThroughput()
+        this.checkThroughput(),
       ]);
 
       // 生成建议
@@ -396,7 +421,6 @@ class SLOChecker {
       // 设置退出码
       const exitCode = this.results.overall_status === 'PASS' ? 0 : 1;
       process.exit(exitCode);
-
     } catch (error) {
       this.log(`SLO 检查执行失败: ${error.message}`, 'error');
       process.exit(1);
@@ -406,7 +430,7 @@ class SLOChecker {
 
 // 命令行接口
 const checker = new SLOChecker();
-checker.run().catch(error => {
+checker.run().catch((error) => {
   console.error('SLO 检查失败:', error);
   process.exit(1);
 });

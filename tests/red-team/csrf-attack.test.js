@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from '../test-helpers.js';
 
 /**
@@ -11,9 +11,9 @@ import {
  * 模拟各种CSRF攻击向量
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
+import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
 
 describe('CSRF跨站请求伪造攻击测试', () => {
   let redTeam;
@@ -33,7 +33,8 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         const hasSameSiteProtection = checkSameSiteProtection(payload.cookie);
 
         // CSRF攻击成功条件：没有有效的CSRF令牌且没有来源检查
-        const csrfSuccessful = !isValidToken && !hasOriginCheck && !hasSameSiteProtection;
+        const csrfSuccessful =
+          !isValidToken && !hasOriginCheck && !hasSameSiteProtection;
 
         return {
           success: csrfSuccessful,
@@ -44,16 +45,16 @@ describe('CSRF跨站请求伪造攻击测试', () => {
             originCheck: hasOriginCheck,
             sameSiteProtection: hasSameSiteProtection,
             headers: payload.headers,
-            attackType: payload.attackType
-          }
+            attackType: payload.attackType,
+          },
         };
       } catch (error) {
         return {
           success: false,
           blocked: true,
           details: {
-            error: error.message
-          }
+            error: error.message,
+          },
         };
       }
     });
@@ -84,7 +85,9 @@ describe('CSRF跨站请求伪造攻击测试', () => {
   // 检查SameSite保护
   function checkSameSiteProtection(cookie) {
     if (!cookie) return false;
-    return cookie.includes('SameSite=Strict') || cookie.includes('SameSite=Lax');
+    return (
+      cookie.includes('SameSite=Strict') || cookie.includes('SameSite=Lax')
+    );
   }
 
   // 提取域名
@@ -103,13 +106,16 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         method: 'POST',
         url: '/api/user/update',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: 'name=evil&email=hacker@example.com',
-        attackType: 'basic_csrf'
+        attackType: 'basic_csrf',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -121,13 +127,16 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         url: '/api/user/delete',
         origin: 'http://evil-domain.com',
         headers: {
-          'Origin': 'http://evil-domain.com'
+          Origin: 'http://evil-domain.com',
         },
         csrfToken: 'invalid-token',
-        attackType: 'cross_origin'
+        attackType: 'cross_origin',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -139,10 +148,13 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         url: '/api/admin/reset',
         headers: {},
         csrfToken: null,
-        attackType: 'no_referer'
+        attackType: 'no_referer',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -156,10 +168,13 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         url: '/api/user/delete?id=123',
         origin: 'http://evil-domain.com',
         referer: 'http://evil-domain.com/malicious.html',
-        attackType: 'get_csrf'
+        attackType: 'get_csrf',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -170,14 +185,17 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         method: 'POST',
         url: '/api/user/update',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ name: 'evil', role: 'admin' }),
         origin: 'http://evil-domain.com',
-        attackType: 'json_csrf'
+        attackType: 'json_csrf',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -189,14 +207,17 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         url: '/api/user/transfer',
         headers: {
           'X-Requested-With': 'XMLHttpRequest',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ toUser: 'attacker', amount: 1000 }),
         origin: 'http://evil-domain.com',
-        attackType: 'ajax_csrf'
+        attackType: 'ajax_csrf',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -209,14 +230,17 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         method: 'POST',
         url: '/api/user/update',
         headers: {
-          'X-CSRF-Token': 'invalid-token-123'
+          'X-CSRF-Token': 'invalid-token-123',
         },
         csrfToken: 'invalid-token-123',
         origin: 'http://trusted-domain.com',
-        attackType: 'invalid_token'
+        attackType: 'invalid_token',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -227,14 +251,17 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         method: 'POST',
         url: '/api/user/update',
         headers: {
-          'X-CSRF-Token': 'expired-token-abc123'
+          'X-CSRF-Token': 'expired-token-abc123',
         },
         csrfToken: 'expired-token-abc123',
         origin: 'http://trusted-domain.com',
-        attackType: 'expired_token'
+        attackType: 'expired_token',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -245,14 +272,17 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         method: 'POST',
         url: '/api/user/update',
         headers: {
-          'X-CSRF-Token': 'stolen-token-def456'
+          'X-CSRF-Token': 'stolen-token-def456',
         },
         csrfToken: 'stolen-token-def456',
         origin: 'http://evil-domain.com',
-        attackType: 'stolen_token'
+        attackType: 'stolen_token',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -266,10 +296,13 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         url: '/api/user/update',
         origin: 'http://api.trusted-domain.com.evil-domain.com',
         referer: 'http://api.trusted-domain.com.evil-domain.com',
-        attackType: 'subdomain_bypass'
+        attackType: 'subdomain_bypass',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -281,10 +314,13 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         url: '/api/user/update',
         origin: 'http://192.168.1.100',
         referer: 'http://192.168.1.100',
-        attackType: 'ip_bypass'
+        attackType: 'ip_bypass',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -296,10 +332,13 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         url: '/api/user/update',
         origin: 'http://localhost:3000',
         referer: 'http://localhost:3000',
-        attackType: 'localhost_bypass'
+        attackType: 'localhost_bypass',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -313,10 +352,13 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         url: '/api/user/update',
         cookie: 'session=abc123; path=/',
         origin: 'http://evil-domain.com',
-        attackType: 'no_samesite'
+        attackType: 'no_samesite',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -328,11 +370,15 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         url: '/api/user/update',
         cookie: 'session=abc123; SameSite=Strict; path=/',
         origin: 'http://trusted-domain.com',
-        csrfToken: 'valid-csrf-token-1234567890123456789012345678901234567890123456789012345678901234',
-        attackType: 'samesite_strict'
+        csrfToken:
+          'valid-csrf-token-1234567890123456789012345678901234567890123456789012345678901234',
+        attackType: 'samesite_strict',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true); // 即使有SameSite保护，也要验证CSRF令牌
       expect(result.success).toBe(false);
@@ -345,39 +391,42 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         method: 'POST',
         url: '/api/user/change-password',
         body: 'oldPassword=123&newPassword=hacked',
-        attackType: 'password_change'
+        attackType: 'password_change',
       },
       {
         method: 'POST',
         url: '/api/user/transfer-money',
         body: 'toAccount=attacker&amount=1000',
         origin: 'http://evil-bank.com',
-        attackType: 'money_transfer'
+        attackType: 'money_transfer',
       },
       {
         method: 'POST',
         url: '/api/admin/delete-user',
         body: 'userId=123',
         referer: 'http://evil-admin.com',
-        attackType: 'admin_action'
+        attackType: 'admin_action',
       },
       {
         method: 'GET',
         url: '/api/user/logout',
         origin: 'http://evil-domain.com',
-        attackType: 'logout_csrf'
+        attackType: 'logout_csrf',
       },
       {
         method: 'POST',
         url: '/api/settings/update',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ theme: 'evil', notifications: false }),
-        attackType: 'settings_update'
-      }
+        attackType: 'settings_update',
+      },
     ];
 
     it.each(csrfPayloads)('应该阻止CSRF攻击: %s', async (payload) => {
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -390,11 +439,14 @@ describe('CSRF跨站请求伪造攻击测试', () => {
         method: 'POST',
         url: '/api/user/update',
         origin: 'http://evil-domain.com',
-        attackType: 'performance_test'
+        attackType: 'performance_test',
       };
 
       const startTime = performance.now();
-      const result = await redTeam.executeAttack(AttackVectors.CSRF_ATTACK, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.CSRF_ATTACK,
+        payload,
+      );
       const endTime = performance.now();
 
       expect(result.blocked).toBe(true);

@@ -1,4 +1,8 @@
-import { PostgreSqlContainer, RedisContainer } from 'testcontainers';
+import {
+  GenericContainer,
+  PostgreSqlContainer,
+  RedisContainer,
+} from 'testcontainers';
 
 /**
  * Testcontainers setup for integration tests
@@ -8,6 +12,7 @@ class TestEnvironment {
   constructor() {
     this.postgresContainer = null;
     this.redisContainer = null;
+    this.rabbitmqContainer = null;
     this.containers = [];
     this.started = false;
   }
@@ -22,7 +27,9 @@ class TestEnvironment {
 
     try {
       // 启动PostgreSQL容器
-      this.postgresContainer = await new PostgreSqlContainer('postgres:15-alpine')
+      this.postgresContainer = await new PostgreSqlContainer(
+        'postgres:15-alpine',
+      )
         .withDatabase('testdb')
         .withUsername('testuser')
         .withPassword('testpass')
@@ -44,6 +51,22 @@ class TestEnvironment {
 
       console.log(`✅ Redis容器启动: ${redisHost}:${redisPort}`);
 
+      // 启动RabbitMQ容器
+      this.rabbitmqContainer = await new GenericContainer(
+        'rabbitmq:3-management-alpine',
+      )
+        .withExposedPorts(5672, 15672)
+        .withEnvironment({
+          RABBITMQ_DEFAULT_USER: 'guest',
+          RABBITMQ_DEFAULT_PASS: 'guest',
+        })
+        .start();
+
+      const rabbitmqHost = this.rabbitmqContainer.getHost();
+      const rabbitmqPort = this.rabbitmqContainer.getMappedPort(5672);
+
+      console.log(`✅ RabbitMQ容器启动: ${rabbitmqHost}:${rabbitmqPort}`);
+
       // 设置环境变量供测试使用
       process.env.TEST_POSTGRES_HOST = postgresHost;
       process.env.TEST_POSTGRES_PORT = postgresPort.toString();
@@ -54,7 +77,16 @@ class TestEnvironment {
       process.env.TEST_REDIS_HOST = redisHost;
       process.env.TEST_REDIS_PORT = redisPort.toString();
 
-      this.containers = [this.postgresContainer, this.redisContainer];
+      process.env.TEST_RABBITMQ_HOST = rabbitmqHost;
+      process.env.TEST_RABBITMQ_PORT = rabbitmqPort.toString();
+      process.env.TEST_RABBITMQ_USER = 'guest';
+      process.env.TEST_RABBITMQ_PASS = 'guest';
+
+      this.containers = [
+        this.postgresContainer,
+        this.redisContainer,
+        this.rabbitmqContainer,
+      ];
       this.started = true;
 
       console.log('🎉 测试容器环境启动完成');
@@ -105,6 +137,13 @@ class TestEnvironment {
         host: process.env.TEST_REDIS_HOST,
         port: process.env.TEST_REDIS_PORT,
       },
+      rabbitmq: {
+        host: process.env.TEST_RABBITMQ_HOST,
+        port: process.env.TEST_RABBITMQ_PORT,
+        username: process.env.TEST_RABBITMQ_USER,
+        password: process.env.TEST_RABBITMQ_PASS,
+        vhost: '/',
+      },
     };
   }
 
@@ -115,6 +154,7 @@ class TestEnvironment {
     return {
       postgres: `postgresql://${info.postgres.user}:${info.postgres.password}@${info.postgres.host}:${info.postgres.port}/${info.postgres.database}`,
       redis: `redis://${info.redis.host}:${info.redis.port}`,
+      rabbitmq: `amqp://${info.rabbitmq.username}:${info.rabbitmq.password}@${info.rabbitmq.host}:${info.rabbitmq.port}${info.rabbitmq.vhost}`,
     };
   }
 }
@@ -125,7 +165,11 @@ let globalTestEnvironment = null;
 // Vitest全局设置
 export async function setup() {
   // 只在需要时启动容器
-  if (!process.env.CI && !process.env.SKIP_TEST_CONTAINERS && !globalTestEnvironment) {
+  if (
+    !process.env.CI &&
+    !process.env.SKIP_TEST_CONTAINERS &&
+    !globalTestEnvironment
+  ) {
     globalTestEnvironment = new TestEnvironment();
     await globalTestEnvironment.start();
   }

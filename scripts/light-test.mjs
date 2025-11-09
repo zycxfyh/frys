@@ -13,7 +13,7 @@ const testConfig = {
   parallel: process.env.TEST_PARALLEL !== 'false',
   incremental: process.env.TEST_INCREMENTAL !== 'false',
   coverage: process.env.TEST_COVERAGE !== 'false',
-  timeout: parseInt(process.env.TEST_TIMEOUT) || 30000
+  timeout: parseInt(process.env.TEST_TIMEOUT) || 30000,
 };
 
 async function lightTest() {
@@ -45,7 +45,6 @@ async function lightTest() {
     await generateTestReport(results, startTime);
 
     console.log(`✅ 测试完成 (${Date.now() - startTime}ms)`);
-
   } catch (error) {
     console.error('❌ 测试失败:', error.message);
     process.exit(1);
@@ -57,12 +56,13 @@ async function preTest() {
 
   // 检查测试环境
   const testDir = 'tests';
-  if (!await fileExists(testDir)) {
+  if (!(await fileExists(testDir))) {
     throw new Error(`测试目录不存在: ${testDir}`);
   }
 
   // 检查是否有测试文件
-  const testFiles = await $`find tests -name "*.test.js" -o -name "*.spec.js" | wc -l`;
+  const testFiles =
+    await $`find tests -name "*.test.js" -o -name "*.spec.js" | wc -l`;
   console.log(`发现测试文件: ${testFiles.stdout.trim()} 个`);
 
   // 准备测试数据库（如果需要）
@@ -77,7 +77,7 @@ async function runSmartTests() {
   const results = {
     unit: { status: 'pending', duration: 0 },
     integration: { status: 'pending', duration: 0 },
-    e2e: { status: 'pending', duration: 0 }
+    e2e: { status: 'pending', duration: 0 },
   };
 
   // 1. 快速单元测试
@@ -130,7 +130,7 @@ async function runFastTests() {
   console.log('🏃 执行快速测试...');
 
   const results = {
-    unit: { status: 'pending', duration: 0 }
+    unit: { status: 'pending', duration: 0 },
   };
 
   const startTime = Date.now();
@@ -150,7 +150,7 @@ async function runFullTests() {
   console.log('📋 执行完整测试...');
 
   const results = {
-    comprehensive: { status: 'pending', duration: 0 }
+    comprehensive: { status: 'pending', duration: 0 },
   };
 
   const startTime = Date.now();
@@ -215,10 +215,13 @@ async function generateTestReport(results, startTime) {
     results,
     summary: {
       total: Object.keys(results).length,
-      passed: Object.values(results).filter(r => r.status === 'passed').length,
-      failed: Object.values(results).filter(r => r.status === 'failed').length,
-      skipped: Object.values(results).filter(r => r.status === 'skipped').length
-    }
+      passed: Object.values(results).filter((r) => r.status === 'passed')
+        .length,
+      failed: Object.values(results).filter((r) => r.status === 'failed')
+        .length,
+      skipped: Object.values(results).filter((r) => r.status === 'skipped')
+        .length,
+    },
   };
 
   const fs = require('fs');

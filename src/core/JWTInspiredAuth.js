@@ -3,9 +3,9 @@
  * 借鉴 JWT 的无状态认证和安全令牌理念
  */
 
-import { BaseModule } from './BaseModule.js';
-import { frysError, errorHandler } from './error-handler.js';
 import { logger } from '../shared/utils/logger.js';
+import { BaseModule } from './BaseModule.js';
+import { errorHandler, frysError } from './error-handler.js';
 
 class JWTInspiredAuth extends BaseModule {
   getDefaultConfig() {
@@ -30,7 +30,7 @@ class JWTInspiredAuth extends BaseModule {
     };
   }
 
-  async onInitialize() {
+  onInitialize() {
     this.secrets = new Map();
     this.tokens = new Map();
     this.tokenCount = 0;
@@ -39,7 +39,7 @@ class JWTInspiredAuth extends BaseModule {
     this.startCleanupTask();
   }
 
-  async onDestroy() {
+  onDestroy() {
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer);
     }
@@ -65,7 +65,8 @@ class JWTInspiredAuth extends BaseModule {
    * Base64 URL编码
    */
   base64UrlEncode(str) {
-    return Buffer.from(str, 'utf8').toString('base64')
+    return Buffer.from(str, 'utf8')
+      .toString('base64')
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=/g, '');
@@ -238,7 +239,7 @@ class JWTInspiredAuth extends BaseModule {
   /**
    * 健康检查
    */
-  async onHealthCheck() {
+  onHealthCheck() {
     const secretCount = this.secrets.size;
     const tokenCount = this.tokens.size;
 
@@ -305,7 +306,8 @@ class JWTInspiredAuth extends BaseModule {
       hash = hash & hash;
     }
     // 转换为base64url格式（使用Buffer替代btoa）
-    return Buffer.from(Math.abs(hash).toString(), 'utf8').toString('base64')
+    return Buffer.from(Math.abs(hash).toString(), 'utf8')
+      .toString('base64')
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=/g, '');

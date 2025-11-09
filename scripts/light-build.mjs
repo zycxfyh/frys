@@ -3,15 +3,15 @@
 // 🏗️ 轻量化构建脚本 - 支持多目标、增量构建、优化打包
 
 import 'dotenv/config';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { $ } from 'zx';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
 
 const config = {
   target: process.env.BUILD_TARGET || 'node', // node/browser/both
   mode: process.env.BUILD_MODE || 'development', // development/production
   optimize: process.env.BUILD_OPTIMIZE !== 'false', // 是否优化
   incremental: process.env.BUILD_INCREMENTAL !== 'false', // 增量构建
-  builder: process.env.BUILDER || 'esbuild' // esbuild/swc
+  builder: process.env.BUILDER || 'esbuild', // esbuild/swc
 };
 
 async function lightBuild() {
@@ -45,7 +45,6 @@ async function lightBuild() {
 
     const duration = Date.now() - startTime;
     console.log(`✅ 构建完成 (${duration}ms)`);
-
   } catch (error) {
     console.error('❌ 构建失败:', error.message);
     process.exit(1);
@@ -88,7 +87,7 @@ async function buildNodeWithEsbuild() {
     '--platform=node',
     '--format=esm',
     '--outfile=dist/index.js',
-    '--loader:.node=file'
+    '--loader:.node=file',
   ];
 
   if (config.mode === 'production') {
@@ -103,12 +102,7 @@ async function buildNodeWithEsbuild() {
 }
 
 async function buildNodeWithSWC() {
-  const swcCmd = [
-    'swc',
-    'src/index.js',
-    '-o',
-    'dist/index.js'
-  ];
+  const swcCmd = ['swc', 'src/index.js', '-o', 'dist/index.js'];
 
   // SWC配置通过.sswcrc文件处理
   if (config.mode === 'production') {
@@ -125,7 +119,6 @@ async function buildNodeWithSWC() {
     await $`mv dist/index.bundle.js dist/index.js`;
   }
 }
-
 
 async function buildBrowser() {
   console.log('🌐 构建浏览器版本...');
@@ -165,18 +158,18 @@ async function generateReport(startTime) {
       duration: Date.now() - startTime,
       target: config.target,
       mode: config.mode,
-      optimize: config.optimize
+      optimize: config.optimize,
     },
-    artifacts: {}
+    artifacts: {},
   };
 
-    // 分析构建产物
+  // 分析构建产物
   const fs = require('fs');
   if (existsSync('dist')) {
     const files = await $`find dist -type f -exec ls -lh {} \\;`;
     report.artifacts = {
       files: files.stdout.trim().split('\n').filter(Boolean),
-      total_size: (await $`du -sb dist/`).stdout.trim().split('\t')[0]
+      total_size: (await $`du -sb dist/`).stdout.trim().split('\t')[0],
     };
   }
 

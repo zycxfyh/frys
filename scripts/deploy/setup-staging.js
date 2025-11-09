@@ -5,9 +5,9 @@
  * 自动配置staging环境
  */
 
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname.replace(/^\/[A-Za-z]:/, ''));
 

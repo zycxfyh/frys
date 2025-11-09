@@ -50,10 +50,11 @@ class MockConversationChain {
 }
 class MockBufferMemory {}
 class MockPromptTemplate {}
-import { logger } from '../../../utils/logger.js';
-import { config } from '../../../utils/config.js';
+
 import { errorHandler } from '../../../core/error-handler.js';
 import { eventSystem } from '../../../core/events.js';
+import { config } from '../../../utils/config.js';
+import { logger } from '../../../utils/logger.js';
 
 export class LangChainService {
   constructor(options = {}) {
@@ -393,11 +394,12 @@ export class LangChainService {
       let result;
 
       switch (step.type) {
-        case 'prompt':
+        case 'prompt': {
           const prompt = new MockPromptTemplate(step.template);
           const formattedPrompt = await prompt.format({ input });
           result = await llm.call([{ role: 'user', content: formattedPrompt }]);
           break;
+        }
 
         case 'chat':
           result = await llm.call([{ role: 'user', content: input }]);

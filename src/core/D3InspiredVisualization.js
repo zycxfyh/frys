@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * D3.js 风格的数据可视化
  * 借鉴 D3.js 的数据驱动文档和可视化理念
@@ -19,7 +21,7 @@ class D3InspiredVisualization {
     };
 
     this.selections.set(selector, selection);
-    console.log(`��� 选择器已创建: ${selector}`);
+    logger.info(`��� 选择器已创建: ${selector}`);
     return selection;
   }
 
@@ -36,13 +38,13 @@ class D3InspiredVisualization {
 
     const scaleId = `scale_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     this.scales.set(scaleId, scale);
-    console.log(`��� 线性比例尺已创建`);
+    logger.info(`��� 线性比例尺已创建`);
     return scale;
   }
 
   bindData(selection, data) {
     selection.data = data;
-    console.log(`��� 数据已绑定: ${data.length} 个数据点`);
+    logger.info(`��� 数据已绑定: ${data.length} 个数据点`);
     return selection;
   }
 

@@ -4,9 +4,9 @@
  * 批量修复所有测试文件的导入路径
  */
 
+import { execSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
 
 const __dirname = process.cwd();
 
@@ -31,7 +31,8 @@ function fixTestHelpersImport(filePath) {
   const content = readFileSync(fullPath, 'utf8');
 
   // 检查是否包含test-helpers导入
-  const importRegex = /import \{\s*setupStrictTestEnvironment[^}]*\} from ['"]([^'"]*test-helpers\.js)['"]/;
+  const importRegex =
+    /import \{\s*setupStrictTestEnvironment[^}]*\} from ['"]([^'"]*test-helpers\.js)['"]/;
   const match = content.match(importRegex);
 
   if (match) {
@@ -47,7 +48,7 @@ function fixTestHelpersImport(filePath) {
   strictAssert,
   withTimeout,
   createDetailedErrorReporter
-} from '${correctPath}'`
+} from '${correctPath}'`,
       );
 
       writeFileSync(fullPath, newContent, 'utf8');
@@ -69,19 +70,19 @@ function fixOtherImports(filePath) {
   let changed = false;
 
   // 修复logger导入路径
-  if (content.includes('from \'../../src/utils/logger.js\'')) {
+  if (content.includes("from '../../src/utils/logger.js'")) {
     content = content.replace(
       /from ['"]\.\.\/\.\.\/src\/utils\/logger\.js['"]/g,
-      'from \'../../src/shared/utils/logger.js\''
+      "from '../../src/shared/utils/logger.js'",
     );
     changed = true;
   }
 
   // 修复其他可能的路径问题
-  if (content.includes('from \'../../src/utils/')) {
+  if (content.includes("from '../../src/utils/")) {
     content = content.replace(
       /from ['"]\.\.\/\.\.\/src\/utils\//g,
-      'from \'../../src/shared/utils/'
+      "from '../../src/shared/utils/",
     );
     changed = true;
   }
@@ -101,7 +102,9 @@ function main() {
   console.log('🔧 开始批量修复测试文件导入路径...\n');
 
   // 获取所有测试文件
-  const testFiles = execSync('find tests -name "*.test.js"', { encoding: 'utf8' })
+  const testFiles = execSync('find tests -name "*.test.js"', {
+    encoding: 'utf8',
+  })
     .trim()
     .split('\n')
     .filter(Boolean);

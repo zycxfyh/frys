@@ -10,7 +10,7 @@
 
 import { spawn } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
-import { join, dirname } from 'path';
+import { join } from 'path';
 import { logger } from '../../shared/utils/logger.js';
 import { TextInstructionParser } from './TextInstructionParser.js';
 
@@ -20,7 +20,7 @@ export class SimplePluginManager {
       pluginDir: options.pluginDir || join(process.cwd(), 'plugins'),
       timeout: options.timeout || 30000,
       maxConcurrent: options.maxConcurrent || 5,
-      ...options
+      ...options,
     };
 
     this.plugins = new Map(); // 插件注册表
@@ -30,12 +30,12 @@ export class SimplePluginManager {
       totalPlugins: 0,
       executedTools: 0,
       failedTools: 0,
-      avgExecutionTime: 0
+      avgExecutionTime: 0,
     };
 
     logger.info('SimplePluginManager initialized', {
       pluginDir: this.options.pluginDir,
-      timeout: this.options.timeout
+      timeout: this.options.timeout,
     });
   }
 
@@ -56,27 +56,35 @@ export class SimplePluginManager {
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
-        const pluginPath = join(pluginDir, entry.name);
-        const manifestPath = join(pluginPath, 'plugin-manifest.json');
-
-        if (existsSync(manifestPath)) {
-          try {
-            const manifestContent = readFileSync(manifestPath, 'utf-8');
-            const manifest = JSON.parse(manifestContent);
-
-            if (this.validateManifest(manifest)) {
-              this.registerPlugin(manifest);
-              logger.info(`Plugin discovered: ${manifest.name}`);
-            }
-          } catch (error) {
-            logger.error(`Failed to load plugin ${entry.name}:`, error.message);
-          }
-        }
+        await this._loadPluginFromDirectory(pluginDir, entry.name);
       }
     }
 
     this.stats.totalPlugins = this.plugins.size;
-    logger.info(`Plugin discovery completed. Found ${this.plugins.size} plugins`);
+    logger.info(
+      `Plugin discovery completed. Found ${this.plugins.size} plugins`,
+    );
+  }
+
+  async _loadPluginFromDirectory(pluginDir, pluginName) {
+    const pluginPath = join(pluginDir, pluginName);
+    const manifestPath = join(pluginPath, 'plugin-manifest.json');
+
+    if (!existsSync(manifestPath)) {
+      return;
+    }
+
+    try {
+      const manifestContent = readFileSync(manifestPath, 'utf-8');
+      const manifest = JSON.parse(manifestContent);
+
+      if (this.validateManifest(manifest)) {
+        this.registerPlugin(manifest);
+        logger.info(`Plugin discovered: ${manifest.name}`);
+      }
+    } catch (error) {
+      logger.error(`Failed to load plugin ${pluginName}:`, error.message);
+    }
   }
 
   /**
@@ -102,7 +110,7 @@ export class SimplePluginManager {
       registeredAt: new Date(),
       executionCount: 0,
       errorCount: 0,
-      totalExecutionTime: 0
+      totalExecutionTime: 0,
     };
 
     this.plugins.set(manifest.name, pluginInfo);
@@ -148,11 +156,10 @@ export class SimplePluginManager {
 
       logger.info(`Tool executed: ${toolName}`, {
         executionTime,
-        success: true
+        success: true,
       });
 
       return result;
-
     } catch (error) {
       const executionTime = Date.now() - startTime;
 
@@ -161,13 +168,13 @@ export class SimplePluginManager {
 
       logger.error('Tool execution failed:', {
         error: error.message,
-        executionTime
+        executionTime,
       });
 
       return {
         status: 'error',
         error: error.message,
-        executionTime
+        executionTime,
       };
     }
   }
@@ -195,13 +202,15 @@ export class SimplePluginManager {
 
       // 准备命令和参数
       const command = plugin.entryPoint.command || 'node';
-      const args = plugin.entryPoint.args || [join(plugin.basePath, 'index.js')];
+      const args = plugin.entryPoint.args || [
+        join(plugin.basePath, 'index.js'),
+      ];
 
       // 创建子进程
       const child = spawn(command, args, {
         cwd: plugin.basePath,
         stdio: ['pipe', 'pipe', 'pipe'],
-        timeout: timeout
+        timeout,
       });
 
       const processId = `${plugin.name}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
@@ -227,7 +236,7 @@ export class SimplePluginManager {
       });
 
       // 处理进程结束
-      child.on('exit', (code, signal) => {
+      child.on('exit', (code) => {
         clearTimeout(timeoutId);
         this.activeProcesses.delete(processId);
 
@@ -259,8 +268,8 @@ export class SimplePluginManager {
           _metadata: {
             executionId: processId,
             timestamp: new Date().toISOString(),
-            pluginVersion: plugin.version
-          }
+            pluginVersion: plugin.version,
+          },
         });
 
         child.stdin.write(input);
@@ -289,9 +298,11 @@ export class SimplePluginManager {
         stats: {
           executionCount: plugin.executionCount,
           errorCount: plugin.errorCount,
-          avgExecutionTime: plugin.executionCount > 0 ?
-            plugin.totalExecutionTime / plugin.executionCount : 0
-        }
+          avgExecutionTime:
+            plugin.executionCount > 0
+              ? plugin.totalExecutionTime / plugin.executionCount
+              : 0,
+        },
       });
     }
     return pluginList;
@@ -309,11 +320,17 @@ export class SimplePluginManager {
       stats: {
         executionCount: plugin.executionCount,
         errorCount: plugin.errorCount,
-        successRate: plugin.executionCount > 0 ?
-          ((plugin.executionCount - plugin.errorCount) / plugin.executionCount * 100) : 0,
-        avgExecutionTime: plugin.executionCount > 0 ?
-          plugin.totalExecutionTime / plugin.executionCount : 0
-      }
+        successRate:
+          plugin.executionCount > 0
+            ? ((plugin.executionCount - plugin.errorCount) /
+                plugin.executionCount) *
+              100
+            : 0,
+        avgExecutionTime:
+          plugin.executionCount > 0
+            ? plugin.totalExecutionTime / plugin.executionCount
+            : 0,
+      },
     };
   }
 
@@ -324,7 +341,7 @@ export class SimplePluginManager {
     return {
       ...this.stats,
       activeProcesses: this.activeProcesses.size,
-      plugins: this.getPlugins()
+      plugins: this.getPlugins(),
     };
   }
 
@@ -355,7 +372,7 @@ export class SimplePluginManager {
         processInfo.child.kill('SIGTERM');
 
         // 等待一段时间让进程优雅退出
-        await new Promise(resolve => {
+        await new Promise((resolve) => {
           const timeout = setTimeout(() => {
             processInfo.child.kill('SIGKILL'); // 强制终止
             resolve();
@@ -369,7 +386,10 @@ export class SimplePluginManager {
 
         logger.debug(`Terminated plugin process: ${processId}`);
       } catch (error) {
-        logger.error(`Failed to terminate plugin process ${processId}:`, error.message);
+        logger.error(
+          `Failed to terminate plugin process ${processId}:`,
+          error.message,
+        );
       }
     }
 

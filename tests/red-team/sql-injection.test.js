@@ -1,9 +1,9 @@
 import {
-  setupStrictTestEnvironment,
+  createDetailedErrorReporter,
   createStrictTestCleanup,
+  setupStrictTestEnvironment,
   strictAssert,
   withTimeout,
-  createDetailedErrorReporter
 } from '../test-helpers.js';
 
 /**
@@ -11,9 +11,9 @@ import {
  * 模拟各种SQL注入攻击向量
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import SQLiteInspiredDatabase from '../../src/core/SQLiteInspiredDatabase.js';
+import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
 
 describe('SQL注入攻击测试', () => {
   let redTeam;
@@ -38,8 +38,8 @@ describe('SQL注入攻击测试', () => {
           details: {
             query: maliciousQuery,
             result: result,
-            injected: true
-          }
+            injected: true,
+          },
         };
       } catch (error) {
         return {
@@ -47,8 +47,8 @@ describe('SQL注入攻击测试', () => {
           blocked: true,
           details: {
             error: error.message,
-            injected: false
-          }
+            injected: false,
+          },
         };
       }
     });
@@ -62,10 +62,13 @@ describe('SQL注入攻击测试', () => {
     it('应该阻止单引号注入', async () => {
       const payload = {
         username: "admin' --",
-        password: ""
+        password: '',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -74,10 +77,13 @@ describe('SQL注入攻击测试', () => {
     it('应该阻止UNION注入', async () => {
       const payload = {
         username: "admin' UNION SELECT * FROM sensitive_data --",
-        password: ""
+        password: '',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -86,10 +92,13 @@ describe('SQL注入攻击测试', () => {
     it('应该阻止DROP TABLE注入', async () => {
       const payload = {
         username: "admin'; DROP TABLE users; --",
-        password: ""
+        password: '',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -98,10 +107,13 @@ describe('SQL注入攻击测试', () => {
     it('应该阻止盲注攻击', async () => {
       const payload = {
         username: "admin' AND 1=1 --",
-        password: ""
+        password: '',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -110,11 +122,14 @@ describe('SQL注入攻击测试', () => {
     it('应该阻止时间延迟注入', async () => {
       const payload = {
         username: "admin' AND SLEEP(5) --",
-        password: ""
+        password: '',
       };
 
       const startTime = Date.now();
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
       const endTime = Date.now();
 
       expect(result.blocked).toBe(true);
@@ -127,10 +142,13 @@ describe('SQL注入攻击测试', () => {
     it('应该阻止注释绕过', async () => {
       const payload = {
         username: "admin'/**/UNION/**/SELECT/**/*/**/FROM/**/users--",
-        password: ""
+        password: '',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -138,11 +156,15 @@ describe('SQL注入攻击测试', () => {
 
     it('应该阻止十六进制编码注入', async () => {
       const payload = {
-        username: "admin' UNION SELECT 0x73656c656374202a2066726f6d207573657273 --",
-        password: ""
+        username:
+          "admin' UNION SELECT 0x73656c656374202a2066726f6d207573657273 --",
+        password: '',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -151,10 +173,13 @@ describe('SQL注入攻击测试', () => {
     it('应该阻止Base64编码注入', async () => {
       const payload = {
         username: "admin'; EXEC('c2VsZWN0ICogZnJvbSB1c2Vycw==') --",
-        password: ""
+        password: '',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -164,11 +189,14 @@ describe('SQL注入攻击测试', () => {
   describe('特殊字符注入攻击', () => {
     it('应该阻止反引号注入', async () => {
       const payload = {
-        username: "`admin`",
-        password: "`password`"
+        username: '`admin`',
+        password: '`password`',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -177,10 +205,13 @@ describe('SQL注入攻击测试', () => {
     it('应该阻止括号注入', async () => {
       const payload = {
         username: "admin' AND (1=1) --",
-        password: ""
+        password: '',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -189,10 +220,13 @@ describe('SQL注入攻击测试', () => {
     it('应该阻止分号注入', async () => {
       const payload = {
         username: "admin'; SELECT * FROM users;",
-        password: ""
+        password: '',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -202,11 +236,14 @@ describe('SQL注入攻击测试', () => {
   describe('宽字节注入攻击', () => {
     it('应该阻止宽字节编码注入', async () => {
       const payload = {
-        username: "admin%df%27", // %df%27 是宽字节编码的 '
-        password: ""
+        username: 'admin%df%27', // %df%27 是宽字节编码的 '
+        password: '',
       };
 
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -215,20 +252,30 @@ describe('SQL注入攻击测试', () => {
 
   describe('批量注入测试', () => {
     const injectionPayloads = [
-      { username: "' OR '1'='1", password: "" },
-      { username: "admin' OR 1=1 --", password: "" },
-      { username: "'; EXEC xp_cmdshell('dir') --", password: "" },
-      { username: "admin' ; --", password: "" },
-      { username: "admin' UNION SELECT password FROM users --", password: "" },
-      { username: "1' ORDER BY 1 --", password: "" },
-      { username: "1' GROUP BY 1 --", password: "" },
-      { username: "1' HAVING 1=1 --", password: "" },
-      { username: "admin' AND SUBSTRING((SELECT @@VERSION),1,1)='M' --", password: "" },
-      { username: "admin' AND ASCII(SUBSTRING((SELECT password FROM users LIMIT 1),1,1))>64 --", password: "" }
+      { username: "' OR '1'='1", password: '' },
+      { username: "admin' OR 1=1 --", password: '' },
+      { username: "'; EXEC xp_cmdshell('dir') --", password: '' },
+      { username: "admin' ; --", password: '' },
+      { username: "admin' UNION SELECT password FROM users --", password: '' },
+      { username: "1' ORDER BY 1 --", password: '' },
+      { username: "1' GROUP BY 1 --", password: '' },
+      { username: "1' HAVING 1=1 --", password: '' },
+      {
+        username: "admin' AND SUBSTRING((SELECT @@VERSION),1,1)='M' --",
+        password: '',
+      },
+      {
+        username:
+          "admin' AND ASCII(SUBSTRING((SELECT password FROM users LIMIT 1),1,1))>64 --",
+        password: '',
+      },
     ];
 
     it.each(injectionPayloads)('应该阻止SQL注入攻击: %j', async (payload) => {
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.success).toBe(false);
@@ -239,11 +286,14 @@ describe('SQL注入攻击测试', () => {
     it('应该快速检测和阻止注入攻击', async () => {
       const payload = {
         username: "admin' UNION SELECT * FROM users --",
-        password: ""
+        password: '',
       };
 
       const startTime = performance.now();
-      const result = await redTeam.executeAttack(AttackVectors.SQL_INJECTION, payload);
+      const result = await redTeam.executeAttack(
+        AttackVectors.SQL_INJECTION,
+        payload,
+      );
       const endTime = performance.now();
 
       expect(result.blocked).toBe(true);

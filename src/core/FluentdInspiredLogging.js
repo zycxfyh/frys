@@ -1,3 +1,5 @@
+import { logger } from '../../shared/utils/logger.js';
+
 /**
  * FluentdInspiredLogging 风格的系统
  * 借鉴 Fluentd 的核心理念
@@ -22,7 +24,7 @@ class FluentdInspiredLogging {
    */
   addInput(name, plugin) {
     this.inputs.set(name, plugin);
-    console.log(`📥 输入插件已添加: ${name}`);
+    logger.info(`📥 输入插件已添加: ${name}`);
   }
 
   /**
@@ -32,7 +34,7 @@ class FluentdInspiredLogging {
    */
   addOutput(name, plugin) {
     this.outputs.set(name, plugin);
-    console.log(`📤 输出插件已添加: ${name}`);
+    logger.info(`📤 输出插件已添加: ${name}`);
   }
 
   /**
@@ -42,7 +44,7 @@ class FluentdInspiredLogging {
    */
   addFilter(name, plugin) {
     this.filters.set(name, plugin);
-    console.log(`🔍 过滤插件已添加: ${name}`);
+    logger.info(`🔍 过滤插件已添加: ${name}`);
   }
 
   /**
@@ -69,7 +71,7 @@ class FluentdInspiredLogging {
         if (filtered === false) return; // 过滤掉
         if (filtered) logEntry.meta = { ...logEntry.meta, ...filtered };
       } catch (error) {
-        console.error(`过滤器 ${name} 错误:`, error);
+        logger.error(`过滤器 ${name} 错误:`, error);
       }
     }
 
@@ -78,11 +80,11 @@ class FluentdInspiredLogging {
       try {
         output(logEntry);
       } catch (error) {
-        console.error(`输出插件 ${name} 错误:`, error);
+        logger.error(`输出插件 ${name} 错误:`, error);
       }
     }
 
-    console.log(`📝 日志已记录: [${level}] ${message}`);
+    logger.info(`📝 日志已记录: [${level}] ${message}`);
   }
 
   /**

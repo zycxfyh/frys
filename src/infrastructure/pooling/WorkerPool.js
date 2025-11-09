@@ -3,10 +3,10 @@
  * 管理工作线程的创建、分配和生命周期
  */
 
-import { Worker } from 'worker_threads';
 import path from 'path';
-import { AbstractResourcePool } from './AbstractResourcePool.js';
+import { Worker } from 'worker_threads';
 import { logger } from '../../shared/utils/logger.js';
+import { AbstractResourcePool } from './AbstractResourcePool.js';
 
 export class WorkerPool extends AbstractResourcePool {
   constructor(workerScript, options = {}) {

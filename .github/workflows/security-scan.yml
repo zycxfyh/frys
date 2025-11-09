@@ -3,14 +3,14 @@ name: 🔒 安全扫描
 # 安全扫描触发条件
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
       - 'src/**'
       - 'package.json'
       - 'package-lock.json'
       - 'SECURITY.md'
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
       - 'src/**'
       - 'package.json'
@@ -33,50 +33,50 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
 
-    - name: 🛠️ 设置 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: 🛠️ 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: 📦 安装依赖
+        run: npm ci
 
-    - name: 🔍 npm 审计
-      run: npm audit --audit-level moderate
-      continue-on-error: true
+      - name: 🔍 npm 审计
+        run: npm audit --audit-level moderate
+        continue-on-error: true
 
-    - name: 🛡️ Snyk 安全扫描
-      uses: snyk/actions/node@master
-      continue-on-error: true
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --severity-threshold=high
+      - name: 🛡️ Snyk 安全扫描
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
 
-    - name: 🔒 OWASP Dependency Check
-      uses: dependency-check/Dependency-Check_Action@main
-      with:
-        project: 'frys'
-        path: '.'
-        format: 'ALL'
-        args: >
-          --enableRetired
-          --enableExperimental
-          --nvdValidForHours 24
+      - name: 🔒 OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'frys'
+          path: '.'
+          format: 'ALL'
+          args: >
+            --enableRetired
+            --enableExperimental
+            --nvdValidForHours 24
 
-    - name: 🏷️ 上传依赖扫描结果
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: dependency-scan-results
-        path: |
-          reports/
-          dependency-check-report.html
-        retention-days: 30
+      - name: 🏷️ 上传依赖扫描结果
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-scan-results
+          path: |
+            reports/
+            dependency-check-report.html
+          retention-days: 30
 
   # 代码安全扫描
   code-security-scan:
@@ -85,44 +85,44 @@ jobs:
     timeout-minutes: 20
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: 🔍 CodeQL 初始化
-      uses: github/codeql-action/init@v3
-      with:
-        languages: javascript
-        config-file: ./.github/codeql-config.yml
+      - name: 🔍 CodeQL 初始化
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          config-file: ./.github/codeql-config.yml
 
-    - name: 🚀 执行 CodeQL 分析
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:javascript"
+      - name: 🚀 执行 CodeQL 分析
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:javascript'
 
-    - name: 🛡️ Semgrep 安全扫描
-      uses: returntocorp/semgrep-action@v1
-      with:
-        config: p/security-audit
-        output: semgrep-results.json
-      env:
-        SEMGREP_RULES: p/security-audit
-      continue-on-error: true
+      - name: 🛡️ Semgrep 安全扫描
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: p/security-audit
+          output: semgrep-results.json
+        env:
+          SEMGREP_RULES: p/security-audit
+        continue-on-error: true
 
-    - name: 🔍 ESLint 安全规则
-      run: npx eslint src/ --ext .js --config .eslintrc.security.js
-      continue-on-error: true
+      - name: 🔍 ESLint 安全规则
+        run: npx eslint src/ --ext .js --config .eslintrc.security.js
+        continue-on-error: true
 
-    - name: 🏷️ 上传代码安全扫描结果
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: code-security-scan-results
-        path: |
-          semgrep-results.json
-          codeql-results.sarif
-        retention-days: 30
+      - name: 🏷️ 上传代码安全扫描结果
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: code-security-scan-results
+          path: |
+            semgrep-results.json
+            codeql-results.sarif
+          retention-days: 30
 
   # 容器安全扫描
   container-security-scan:
@@ -131,47 +131,47 @@ jobs:
     timeout-minutes: 25
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
 
-    - name: 🐳 构建 Docker 镜像
-      run: docker build -t frys-security-scan:${{ github.sha }} .
+      - name: 🐳 构建 Docker 镜像
+        run: docker build -t frys-security-scan:${{ github.sha }} .
 
-    - name: 🔍 Trivy 漏洞扫描
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'image'
-        scan-ref: 'frys-security-scan:${{ github.sha }}'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-      continue-on-error: true
+      - name: 🔍 Trivy 漏洞扫描
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          scan-ref: 'frys-security-scan:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+        continue-on-error: true
 
-    - name: 🛡️ Dockle 最佳实践检查
-      uses: goodwithtech/dockle-action@v1
-      with:
-        image: 'frys-security-scan:${{ github.sha }}'
-        format: 'sarif'
-        output: 'dockle-results.sarif'
-      continue-on-error: true
+      - name: 🛡️ Dockle 最佳实践检查
+        uses: goodwithtech/dockle-action@v1
+        with:
+          image: 'frys-security-scan:${{ github.sha }}'
+          format: 'sarif'
+          output: 'dockle-results.sarif'
+        continue-on-error: true
 
-    - name: 🔒 Hadolint Dockerfile 检查
-      uses: hadolint/hadolint-action@v3.1.0
-      with:
-        dockerfile: Dockerfile
-        format: sarif
-        output-file: hadolint-results.sarif
-      continue-on-error: true
+      - name: 🔒 Hadolint Dockerfile 检查
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          format: sarif
+          output-file: hadolint-results.sarif
+        continue-on-error: true
 
-    - name: 🏷️ 上传容器安全扫描结果
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: container-security-scan-results
-        path: |
-          trivy-results.sarif
-          dockle-results.sarif
-          hadolint-results.sarif
-        retention-days: 30
+      - name: 🏷️ 上传容器安全扫描结果
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: container-security-scan-results
+          path: |
+            trivy-results.sarif
+            dockle-results.sarif
+            hadolint-results.sarif
+          retention-days: 30
 
   # 基础设施安全扫描
   infrastructure-security-scan:
@@ -180,98 +180,104 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
 
-    - name: 🔍 Checkov IaC 扫描
-      uses: bridgecrewio/checkov-action@v12
-      with:
-        framework: dockerfile
-        output_format: sarif
-        output_file_path: checkov-results.sarif
-      continue-on-error: true
+      - name: 🔍 Checkov IaC 扫描
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          framework: dockerfile
+          output_format: sarif
+          output_file_path: checkov-results.sarif
+        continue-on-error: true
 
-    - name: 🛡️ KICS 基础设施扫描
-      uses: Checkmarx/kics-github-action@v2.0.2
-      with:
-        path: '.'
-        output_formats: 'sarif'
-        output_path: 'kics-results.sarif'
-      continue-on-error: true
+      - name: 🛡️ KICS 基础设施扫描
+        uses: Checkmarx/kics-github-action@v2.0.2
+        with:
+          path: '.'
+          output_formats: 'sarif'
+          output_path: 'kics-results.sarif'
+        continue-on-error: true
 
-    - name: 🏷️ 上传基础设施安全扫描结果
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: infrastructure-security-scan-results
-        path: |
-          checkov-results.sarif
-          kics-results.sarif
-        retention-days: 30
+      - name: 🏷️ 上传基础设施安全扫描结果
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: infrastructure-security-scan-results
+          path: |
+            checkov-results.sarif
+            kics-results.sarif
+          retention-days: 30
 
   # 安全审计报告生成
   security-audit-report:
     name: '安全审计报告'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [dependency-scan, code-security-scan, container-security-scan, infrastructure-security-scan]
+    needs:
+      [
+        dependency-scan,
+        code-security-scan,
+        container-security-scan,
+        infrastructure-security-scan,
+      ]
     if: always()
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
 
-    - name: 🛠️ 设置 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: 🛠️ 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: 📦 安装依赖
+        run: npm ci
 
-    - name: 📊 生成综合安全报告
-      run: node scripts/security-audit.js --ci --comprehensive
-      env:
-        CI: true
+      - name: 📊 生成综合安全报告
+        run: node scripts/security-audit.js --ci --comprehensive
+        env:
+          CI: true
 
-    - name: 📋 安全状态汇总
-      run: |
-        echo "# 🔒 安全扫描报告" > security-summary.md
-        echo "" >> security-summary.md
-        echo "## 扫描时间" >> security-summary.md
-        echo "$(date)" >> security-summary.md
-        echo "" >> security-summary.md
-        echo "## 扫描结果" >> security-summary.md
+      - name: 📋 安全状态汇总
+        run: |
+          echo "# 🔒 安全扫描报告" > security-summary.md
+          echo "" >> security-summary.md
+          echo "## 扫描时间" >> security-summary.md
+          echo "$(date)" >> security-summary.md
+          echo "" >> security-summary.md
+          echo "## 扫描结果" >> security-summary.md
 
-        # 检查是否有高危漏洞
-        if [ -f "security-audit-report.json" ]; then
-          high_vulns=$(jq '.summary.highSeverity' security-audit-report.json 2>/dev/null || echo "0")
-          if [ "$high_vulns" -gt 0 ]; then
-            echo "❌ 发现 $high_vulns 个高危安全问题" >> security-summary.md
-            echo "::error::发现 $high_vulns 个高危安全问题"
-          else
-            echo "✅ 未发现高危安全问题" >> security-summary.md
+          # 检查是否有高危漏洞
+          if [ -f "security-audit-report.json" ]; then
+            high_vulns=$(jq '.summary.highSeverity' security-audit-report.json 2>/dev/null || echo "0")
+            if [ "$high_vulns" -gt 0 ]; then
+              echo "❌ 发现 $high_vulns 个高危安全问题" >> security-summary.md
+              echo "::error::发现 $high_vulns 个高危安全问题"
+            else
+              echo "✅ 未发现高危安全问题" >> security-summary.md
+            fi
           fi
-        fi
 
-        echo "" >> security-summary.md
-        echo "## 详细报告" >> security-summary.md
-        echo "请查看附件中的详细安全扫描结果。" >> security-summary.md
+          echo "" >> security-summary.md
+          echo "## 详细报告" >> security-summary.md
+          echo "请查看附件中的详细安全扫描结果。" >> security-summary.md
 
-    - name: 🏷️ 上传安全审计报告
-      uses: actions/upload-artifact@v4
-      with:
-        name: security-audit-report
-        path: |
-          security-audit-report.json
-          security-summary.md
-          reports/
-        retention-days: 90
+      - name: 🏷️ 上传安全审计报告
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-report
+          path: |
+            security-audit-report.json
+            security-summary.md
+            reports/
+          retention-days: 90
 
-    - name: 🚨 安全警报 (高危漏洞)
-      if: failure()
-      run: |
-        echo "🚨 检测到严重安全问题！"
-        echo "请立即处理安全漏洞。"
-        # 这里可以发送通知到安全团队
+      - name: 🚨 安全警报 (高危漏洞)
+        if: failure()
+        run: |
+          echo "🚨 检测到严重安全问题！"
+          echo "请立即处理安全漏洞。"
+          # 这里可以发送通知到安全团队

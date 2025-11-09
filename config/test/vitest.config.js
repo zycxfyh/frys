@@ -3,7 +3,11 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'node',
-    setupFiles: ['./tests/setup.js', './tests/setup-testcontainers.js', './tests/setup-test-isolation.js'],
+    setupFiles: [
+      './tests/setup.js',
+      './tests/setup-testcontainers.js',
+      './tests/setup-test-isolation.js',
+    ],
     globals: true,
     // GitHub Actions最佳实践配置
     retry: process.env.CI ? 3 : 1, // CI环境重试更多次
@@ -42,9 +46,7 @@ export default defineConfig({
         'monitoring/',
         'examples/',
       ],
-      include: [
-        'src/**/*.{js,mjs}',
-      ],
+      include: ['src/**/*.{js,mjs}'],
       thresholds: {
         // CI环境更严格的阈值
         global: {
@@ -94,8 +96,12 @@ export default defineConfig({
       },
     },
     testTimeout: process.env.CI ? 15000 : 10000, // CI环境允许更长超时
-    maxConcurrency: process.env.CI ? Math.max(1, Math.floor(require('os').cpus().length / 2)) : 5,
-    maxWorkers: process.env.CI ? Math.max(1, Math.floor(require('os').cpus().length / 2)) : 5,
+    maxConcurrency: process.env.CI
+      ? Math.max(1, Math.floor(require('os').cpus().length / 2))
+      : 5,
+    maxWorkers: process.env.CI
+      ? Math.max(1, Math.floor(require('os').cpus().length / 2))
+      : 5,
     // 改进报告器配置
     reporters: process.env.CI
       ? ['json', 'junit', 'verbose']

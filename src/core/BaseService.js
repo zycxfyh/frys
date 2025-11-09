@@ -3,10 +3,10 @@
  * 为所有服务提供通用的导入和基础功能
  */
 
-import { logger } from '../shared/utils/logger.js';
-import { eventSystem } from './event/EventBus.js';
-import { errorHandler } from './ErrorHandlerConfig.js';
 import { config } from '../shared/utils/config.js';
+import { logger } from '../shared/utils/logger.js';
+import { errorHandler } from './ErrorHandlerConfig.js';
+import { eventSystem } from './event/EventBus.js';
 
 class BaseService {
   constructor(serviceName = 'BaseService') {

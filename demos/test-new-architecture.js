@@ -19,7 +19,7 @@ async function testPluginManager() {
   const plugins = manager.getPlugins();
 
   console.log(`📦 发现 ${plugins.length} 个插件：`);
-  plugins.forEach(plugin => {
+  plugins.forEach((plugin) => {
     console.log(`  - ${plugin.name}: ${plugin.displayName}`);
   });
 
@@ -138,7 +138,9 @@ async function testMessageProcessor() {
 async function testVariableReplacement() {
   console.log('\n🧪 测试变量替换...\n');
 
-  const { PlaceholderSystem } = await import('./src/core/utils/PlaceholderSystem.js');
+  const { PlaceholderSystem } = await import(
+    './src/core/utils/PlaceholderSystem.js'
+  );
   const placeholderSystem = new PlaceholderSystem();
 
   const testText = `当前时间：{{timestamp}}
@@ -149,7 +151,7 @@ async function testVariableReplacement() {
   const context = {
     user: { name: 'Alice', id: 123 },
     status: '正常运行',
-    timestamp: new Date().toLocaleString()
+    timestamp: new Date().toLocaleString(),
   };
 
   console.log('📝 原始文本:');
@@ -166,13 +168,13 @@ async function testVariableReplacement() {
 
 async function runAllTests() {
   console.log('🚀 开始测试新的VCPToolBox风格架构\n');
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
 
   const results = {
     pluginManager: false,
     instructionParser: false,
     messageProcessor: false,
-    variableReplacement: false
+    variableReplacement: false,
   };
 
   try {
@@ -191,7 +193,6 @@ async function runAllTests() {
     console.log('\n4️⃣ 测试变量替换');
     console.log('-'.repeat(30));
     results.variableReplacement = await testVariableReplacement();
-
   } catch (error) {
     console.error('\n❌ 测试过程中发生错误:', error);
   }
@@ -206,18 +207,21 @@ async function runAllTests() {
 
   Object.entries(results).forEach(([test, passed]) => {
     const status = passed ? '✅ 通过' : '❌ 失败';
-    const testName = {
-      pluginManager: '插件管理器',
-      instructionParser: '指令解析器',
-      messageProcessor: '消息处理器',
-      variableReplacement: '变量替换'
-    }[test] || test;
+    const testName =
+      {
+        pluginManager: '插件管理器',
+        instructionParser: '指令解析器',
+        messageProcessor: '消息处理器',
+        variableReplacement: '变量替换',
+      }[test] || test;
 
     console.log(`${status} ${testName}`);
   });
 
   console.log('\n📊 总体结果:');
-  console.log(`通过: ${passed}/${total} (${Math.round(passed/total*100)}%)`);
+  console.log(
+    `通过: ${passed}/${total} (${Math.round((passed / total) * 100)}%)`,
+  );
 
   if (passed === total) {
     console.log('\n🎉 所有测试通过！新的架构工作正常。');

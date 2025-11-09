@@ -145,7 +145,7 @@ class AgentContainer extends EventEmitter {
     }
   }
 
-  async runTask(taskFunction, context) {
+  runTask(taskFunction, context) {
     // 创建任务执行环境
     const executionContext = {
       agentId: this.agentId,
@@ -186,7 +186,7 @@ class AgentContainer extends EventEmitter {
     return this.permissions.has(permission);
   }
 
-  async initializeCapabilities() {
+  initializeCapabilities() {
     // 子类重写此方法来初始化特定能力
     throw new Error('initializeCapabilities must be implemented by subclass');
   }
@@ -201,7 +201,7 @@ class AgentContainer extends EventEmitter {
     // 子类可以重写此方法
   }
 
-  async cleanup() {
+  cleanup() {
     // 清理资源
     this.tasks.clear();
     this.memory.clear();
@@ -240,7 +240,7 @@ export class AIServiceAgent extends AgentContainer {
     };
   }
 
-  async initializeCapabilities() {
+  initializeCapabilities() {
     // 根据AI服务类型添加能力
     if (this.aiService.constructor.name.includes('OpenAI')) {
       this.addCapability('text-generation');
@@ -259,8 +259,8 @@ export class AIServiceAgent extends AgentContainer {
     // 其他服务类型...
   }
 
-  async executeAIRequest(taskId, request) {
-    return this.executeTask(taskId, async (_context) => {
+  executeAIRequest(taskId, request) {
+    return this.executeTask(taskId, async () => {
       this.serviceStats.requests++;
 
       try {
@@ -312,15 +312,15 @@ export class WorkflowAgent extends AgentContainer {
     this.activeWorkflows = new Map();
   }
 
-  async initializeCapabilities() {
+  initializeCapabilities() {
     this.addCapability('workflow-execution');
     this.addCapability('task-coordination');
     this.addCapability('error-recovery');
     this.addCapability('parallel-processing');
   }
 
-  async executeWorkflow(taskId, workflowDefinition, inputData) {
-    return this.executeTask(taskId, async (_context) => {
+  executeWorkflow(taskId, workflowDefinition, inputData) {
+    return this.executeTask(taskId, async () => {
       const workflowId = `wf_${taskId}_${Date.now()}`;
       this.activeWorkflows.set(workflowId, {
         definition: workflowDefinition,
@@ -375,15 +375,15 @@ export class MemoryAgent extends AgentContainer {
     this.semanticIndex = new Map();
   }
 
-  async initializeCapabilities() {
+  initializeCapabilities() {
     this.addCapability('memory-storage');
     this.addCapability('knowledge-graph');
     this.addCapability('semantic-search');
     this.addCapability('context-retrieval');
   }
 
-  async storeMemory(taskId, key, data, metadata = {}) {
-    return this.executeTask(taskId, async (_context) => {
+  storeMemory(taskId, key, data, metadata = {}) {
+    return this.executeTask(taskId, async () => {
       const memoryEntry = {
         key,
         data,
@@ -405,8 +405,8 @@ export class MemoryAgent extends AgentContainer {
     });
   }
 
-  async retrieveMemory(taskId, key, _options = {}) {
-    return this.executeTask(taskId, async (_context) => {
+  retrieveMemory(taskId, key) {
+    return this.executeTask(taskId, async () => {
       const entry = await this.memoryStore.get(key);
       if (!entry) return null;
 
@@ -419,8 +419,8 @@ export class MemoryAgent extends AgentContainer {
     });
   }
 
-  async semanticSearch(taskId, query, options = {}) {
-    return this.executeTask(taskId, async (_context) => {
+  semanticSearch(taskId, query, options = {}) {
+    return this.executeTask(taskId, () => {
       // 简单的语义搜索实现
       const results = [];
 
@@ -440,7 +440,7 @@ export class MemoryAgent extends AgentContainer {
     });
   }
 
-  updateKnowledgeGraph(key, data, _metadata) {
+  updateKnowledgeGraph(key, data) {
     // 构建简单的知识图谱关系
     const entities = this.extractEntities(data);
     const relations = this.extractRelations(data);
@@ -471,7 +471,7 @@ export class MemoryAgent extends AgentContainer {
     return entities;
   }
 
-  extractRelations(data) {
+  extractRelations() {
     // 简单的关系提取
     return []; // 可扩展实现
   }
@@ -515,17 +515,17 @@ export class AgentManager {
     this.agentRegistry.set('memory', MemoryAgent);
   }
 
-  async initialize() {
+  initialize() {
     // 初始化Agent管理器
     logger.debug('AgentManager initialized');
   }
 
-  async shutdown() {
+  shutdown() {
     // 关闭所有Agent
     for (const [agentId, agent] of this.agents) {
       try {
         if (agent.shutdown && typeof agent.shutdown === 'function') {
-          await agent.shutdown();
+          agent.shutdown();
         }
       } catch (error) {
         logger.error(`Failed to shutdown agent ${agentId}`, error);
@@ -540,7 +540,7 @@ export class AgentManager {
     logger.info(`Agent type '${type}' registered`);
   }
 
-  async createAgent(agentId, type, config = {}) {
+  createAgent(agentId, type, config = {}) {
     if (this.agents.has(agentId)) {
       throw frysError.conflict(`Agent ${agentId} already exists`);
     }
@@ -567,7 +567,7 @@ export class AgentManager {
     return agent;
   }
 
-  async getAgent(agentId) {
+  getAgent(agentId) {
     return this.agents.get(agentId);
   }
 
@@ -604,7 +604,7 @@ export class AgentManager {
     return true;
   }
 
-  async executeOnAgent(agentId, method, ...args) {
+  executeOnAgent(agentId, method, ...args) {
     const agent = this.agents.get(agentId);
     if (!agent) {
       throw frysError.notFound(`Agent ${agentId} not found`);
@@ -618,7 +618,7 @@ export class AgentManager {
 
     this.globalStats.totalTasks++;
     try {
-      return await agent[method](...args);
+      return agent[method](...args);
     } catch (error) {
       this.globalStats.totalErrors++;
       throw error;
@@ -653,15 +653,12 @@ export class AgentManager {
       }));
   }
 
-  async cleanup() {
-    const terminationPromises = [];
+  cleanup() {
     for (const [agentId, agent] of this.agents) {
       if (agent.state !== 'terminated') {
-        terminationPromises.push(this.terminateAgent(agentId));
+        this.terminateAgent(agentId);
       }
     }
-
-    await Promise.all(terminationPromises);
     logger.info('All agents cleaned up');
   }
 }
@@ -681,33 +678,33 @@ export class AgentSystem {
     logger.info('AgentSystem initialized with config:', this.config);
   }
 
-  async initialize() {
+  initialize() {
     if (this.initialized) return;
 
-    await this.agentManager.initialize();
+    this.agentManager.initialize();
     this.initialized = true;
     logger.info('AgentSystem fully initialized');
   }
 
-  async shutdown() {
+  shutdown() {
     if (!this.initialized) return;
 
-    await this.agentManager.shutdown();
+    this.agentManager.shutdown();
     this.initialized = false;
     logger.info('AgentSystem shut down');
   }
 
   // 代理AgentManager的方法
-  async createAgent(config) {
+  createAgent(config) {
     const { name, type, ...agentConfig } = config;
     return this.agentManager.createAgent(name, type, agentConfig);
   }
 
-  async getAgent(agentId) {
+  getAgent(agentId) {
     return this.agentManager.getAgent(agentId);
   }
 
-  async listAgents() {
+  listAgents() {
     return this.agentManager.listAgents();
   }
 

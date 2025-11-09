@@ -1,7 +1,7 @@
 name: 🐛 Bug 报告
 description: 报告一个错误或异常行为
-title: "[BUG] 简短描述问题"
-labels: ["bug", "triage"]
+title: '[BUG] 简短描述问题'
+labels: ['bug', 'triage']
 body:
   - type: textarea
     id: description
@@ -50,7 +50,7 @@ body:
     attributes:
       label: 🌐 浏览器信息
       description: 如果是前端问题，请提供浏览器信息
-      placeholder: "Chrome 120.0.0, Firefox 119.0, Safari 17.0"
+      placeholder: 'Chrome 120.0.0, Firefox 119.0, Safari 17.0'
 
   - type: textarea
     id: logs

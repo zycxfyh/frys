@@ -24,7 +24,7 @@ export function curry(fn) {
     if (args.length >= fn.length) {
       return fn.apply(this, args);
     } else {
-      return function(...args2) {
+      return function (...args2) {
         return curried.apply(this, args.concat(args2));
       };
     }
@@ -40,7 +40,7 @@ export function curry(fn) {
 export function memoize(fn, getKey = null) {
   const cache = new Map();
 
-  return function(...args) {
+  return function (...args) {
     const key = getKey ? getKey.apply(this, args) : JSON.stringify(args);
 
     if (cache.has(key)) {
@@ -78,9 +78,7 @@ export function compose(...fns) {
  * @returns {Function} 部分应用后的函数
  */
 export function partial(fn, ...presetArgs) {
-  return function(...laterArgs) {
-    return fn(...presetArgs, ...laterArgs);
-  };
+  return (...laterArgs) => fn(...presetArgs, ...laterArgs);
 }
 
 /**
@@ -91,7 +89,7 @@ export function partial(fn, ...presetArgs) {
  */
 export function throttle(fn, delay) {
   let lastCall = 0;
-  return function(...args) {
+  return function (...args) {
     const now = Date.now();
     if (now - lastCall >= delay) {
       lastCall = now;
@@ -108,7 +106,7 @@ export function throttle(fn, delay) {
  */
 export function debounce(fn, delay) {
   let timeoutId;
-  return function(...args) {
+  return function (...args) {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => fn.apply(this, args), delay);
   };
@@ -123,7 +121,7 @@ export function lazy(fn) {
   let result;
   let computed = false;
 
-  return function() {
+  return () => {
     if (!computed) {
       result = fn();
       computed = true;
@@ -139,7 +137,7 @@ export function lazy(fn) {
  * @returns {Function} 条件执行函数
  */
 export function when(predicate, fn) {
-  return function(...args) {
+  return function (...args) {
     if (predicate.apply(this, args)) {
       return fn.apply(this, args);
     }
@@ -153,7 +151,7 @@ export function when(predicate, fn) {
  * @returns {Function} 包装后的函数
  */
 export function withTiming(fn) {
-  return function(...args) {
+  return function (...args) {
     const start = performance.now();
     const result = fn.apply(this, args);
     const end = performance.now();
@@ -161,7 +159,7 @@ export function withTiming(fn) {
     logger.info('Function execution timing', {
       function: fn.name,
       duration: `${(end - start).toFixed(3)}ms`,
-      args: args.length
+      args: args.length,
     });
 
     return result;

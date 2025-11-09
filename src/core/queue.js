@@ -4,18 +4,23 @@
  */
 
 import Queue from 'bull';
-import Redis from 'ioredis';
-import { resolve } from './container.js';
-import { logger } from '../shared/utils/logger.js';
 import { config } from '../shared/utils/config.js';
+import { logger } from '../shared/utils/logger.js';
 
 // 队列配置
 const QUEUE_CONFIG = {
   redis: {
-    host: config.redis?.host || 'localhost',
-    port: config.redis?.port || 6379,
+    host: config.redis?.url
+      ? new URL(config.redis.url).hostname
+      : config.redis?.host || 'redis',
+    port: config.redis?.url
+      ? new URL(config.redis.url).port
+      : config.redis?.port || 6379,
     password: config.redis?.password,
     db: config.redis?.db || 0,
+    keyPrefix: config.redis?.keyPrefix || 'frys:',
+    retryDelayOnFailover: 100,
+    maxRetriesPerRequest: 3,
   },
   defaultJobOptions: {
     removeOnComplete: 50, // 完成任务保留数量
@@ -83,7 +88,7 @@ function setupQueueEvents(queue, queueName) {
     logger.debug(`📋 任务等待中 [${queueName}]: ${jobId}`);
   });
 
-  queue.on('active', (job, jobPromise) => {
+  queue.on('active', (job) => {
     logger.debug(`📋 任务开始执行 [${queueName}]: ${job.id}`);
   });
 

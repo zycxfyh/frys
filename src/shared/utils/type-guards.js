@@ -185,18 +185,14 @@ export function validateObject(obj, schema) {
  * 创建类型守卫函数
  */
 export function createTypeGuard(expectedType) {
-  return function (value) {
-    return typeof value === expectedType;
-  };
+  return (value) => typeof value === expectedType;
 }
 
 /**
  * 创建范围守卫
  */
 export function createRangeGuard(min, max) {
-  return function (value) {
-    return isNumber(value) && value >= min && value <= max;
-  };
+  return (value) => isNumber(value) && value >= min && value <= max;
 }
 
 /**
@@ -204,9 +200,7 @@ export function createRangeGuard(min, max) {
  */
 export function createEnumGuard(validValues) {
   const validSet = new Set(validValues);
-  return function (value) {
-    return validSet.has(value);
-  };
+  return (value) => validSet.has(value);
 }
 
 /**

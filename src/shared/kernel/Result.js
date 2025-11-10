@@ -171,5 +171,5 @@ export function combine(results) {
  * 尝试执行操作
  */
 export async function tryCatch(fn) {
-  return fromPromise(fn());
+  return await fromPromise(fn());
 }

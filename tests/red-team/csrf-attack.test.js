@@ -12,7 +12,7 @@ import {
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
+import HttpClient from '../../src/core/HttpClient.js';
 import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
 
 describe('CSRF跨站请求伪造攻击测试', () => {
@@ -21,7 +21,7 @@ describe('CSRF跨站请求伪造攻击测试', () => {
 
   beforeEach(() => {
     redTeam = new RedTeamFramework();
-    httpClient = new AxiosInspiredHTTP();
+    httpClient = new HttpClient();
 
     // 注册CSRF攻击向量
     redTeam.registerAttack(AttackVectors.CSRF_ATTACK, async (payload) => {

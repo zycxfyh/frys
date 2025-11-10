@@ -1,0 +1,432 @@
+{
+  "timestamp": "2025-11-10T13:46:21.875Z",
+  "summary": {
+    "totalVulnerabilities": 0,
+    "critical": 0,
+    "high": 0,
+    "moderate": 0,
+    "low": 0,
+    "info": 0,
+    "scannedFiles": 224,
+    "executionTime": 0
+  },
+  "vulnerabilities": [],
+  "securityIssues": [],
+  "configurationIssues": [],
+  "codeAnalysisIssues": [
+    {
+      "type": "eval_usage",
+      "severity": "critical",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\core\\TokenBucket.js",
+      "line": 182,
+      "message": "使用eval()函数，存在代码注入风险",
+      "code": "eval("
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 339,
+      "message": "发现硬编码的password: ***",
+      "code": "password='***'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 341,
+      "message": "发现硬编码的secret: ***",
+      "code": "secret='***'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 340,
+      "message": "发现硬编码的token: ***",
+      "code": "token='***'..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 181,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`SET statement_timeout = ${options.timeout}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 248,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`SET statement_timeout = ${options.timeout}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "line": 509,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`DEALLOCATE ${name}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\infrastructure\\database\\DatabaseOptimizer.js",
+      "line": 159,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`DROP INDEX CONCURRENTLY IF EXISTS ${indexName}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\infrastructure\\database\\DatabaseOptimizer.js",
+      "line": 176,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`ANALYZE ${tableName}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\infrastructure\\database\\DatabaseOptimizer.js",
+      "line": 192,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`REINDEX TABLE ${concurrentlyClause} ${tableName}`)..."
+    },
+    {
+      "type": "innerhtml_assignment",
+      "severity": "medium",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\shared\\services\\AIProviderUI.js",
+      "line": 32,
+      "message": "直接设置innerHTML，可能存在XSS风险",
+      "code": "innerHTML = t"
+    },
+    {
+      "type": "innerhtml_assignment",
+      "severity": "medium",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\shared\\services\\AIProviderUI.js",
+      "line": 509,
+      "message": "直接设置innerHTML，可能存在XSS风险",
+      "code": "innerHTML = `"
+    },
+    {
+      "type": "innerhtml_assignment",
+      "severity": "medium",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\shared\\services\\AIProviderUI.js",
+      "line": 522,
+      "message": "直接设置innerHTML，可能存在XSS风险",
+      "code": "innerHTML = t"
+    },
+    {
+      "type": "attribute_injection",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\src\\shared\\services\\AIProviderUI.js",
+      "line": 140,
+      "message": "在HTML属性中注入变量，可能存在属性注入攻击",
+      "code": "href=\"${"
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\config\\test-config.js",
+      "line": 296,
+      "message": "[测试文件] 发现硬编码的password: ********",
+      "code": "password: 'anything'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\auth\\authentication-fixed.test.js",
+      "line": 27,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\auth\\authentication-fixed.test.js",
+      "line": 94,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\auth\\authentication.test.js",
+      "line": 32,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\auth\\authentication.test.js",
+      "line": 120,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\auth\\authentication.test.js",
+      "line": 160,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\auth\\authentication.test.js",
+      "line": 169,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\auth\\authentication.test.js",
+      "line": 179,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\auth\\authentication.test.js",
+      "line": 220,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\auth\\authentication.test.js",
+      "line": 378,
+      "message": "[测试文件] 发现硬编码的password: wron*****word",
+      "code": "Password = 'wrongpassword'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\auth\\authentication.test.js",
+      "line": 507,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\auth\\authentication.test.js",
+      "line": 539,
+      "message": "[测试文件] 发现硬编码的secret: cust*****cret",
+      "code": "Secret: 'custom-secret'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\cache-system.test.js",
+      "line": 134,
+      "message": "[测试文件] 发现硬编码的token: sess*****oken",
+      "code": "token: 'session_token'..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\database-optimization.test.js",
+      "line": 319,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`SELECT ${i}`)..."
+    },
+    {
+      "type": "sql_injection_query",
+      "severity": "high",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\database-optimization.test.js",
+      "line": 399,
+      "message": "动态SQL查询可能存在注入风险",
+      "code": "query(`SELECT ${i} as id`)..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\input-validation.test.js",
+      "line": 218,
+      "message": "[测试文件] 发现硬编码的password: ***",
+      "code": "password: '123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\input-validation.test.js",
+      "line": 253,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\input-validation.test.js",
+      "line": 237,
+      "message": "[测试文件] 发现硬编码的bearer token: ********",
+      "code": "Bearer token123..."
+    },
+    {
+      "type": "function_constructor",
+      "severity": "medium",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\performance-monitoring.test.js",
+      "line": 121,
+      "message": "[测试文件] 使用Function构造函数，可能存在代码注入风险",
+      "code": "Function('test_data')"
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\security-integration.test.js",
+      "line": 215,
+      "message": "[测试文件] 发现硬编码的password: wron*****word",
+      "code": "password: 'wrongpassword'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\security-integration.test.js",
+      "line": 245,
+      "message": "[测试文件] 发现硬编码的password: ***",
+      "code": "password: '123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\security-integration.test.js",
+      "line": 252,
+      "message": "[测试文件] 发现硬编码的password: weak****word",
+      "code": "password: 'weakpassword'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\security-integration.test.js",
+      "line": 259,
+      "message": "[测试文件] 发现硬编码的password: Stro******123!",
+      "code": "password: 'StrongPass123!'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\security-integration.test.js",
+      "line": 408,
+      "message": "[测试文件] 发现硬编码的password: shou*********************onse",
+      "code": "password: 'should-not-appear-in-response'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\security-integration.test.js",
+      "line": 453,
+      "message": "[测试文件] 发现硬编码的password: Admi*****123!",
+      "code": "password: 'AdminPass123!'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\security-integration.test.js",
+      "line": 461,
+      "message": "[测试文件] 发现硬编码的password: User****456!",
+      "code": "password: 'UserPass456!'..."
+    },
+    {
+      "type": "function_constructor",
+      "severity": "medium",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\integration\\tracing\\distributed-tracing.test.js",
+      "line": 147,
+      "message": "[测试文件] 使用Function构造函数，可能存在代码注入风险",
+      "code": "Function('test')"
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\red-team\\auth-bypass.test.js",
+      "line": 154,
+      "message": "[测试文件] 发现硬编码的password: ****",
+      "code": "password: 'root'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\red-team\\auth-bypass.test.js",
+      "line": 156,
+      "message": "[测试文件] 发现硬编码的password: *****",
+      "code": "password: 'guest'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\red-team\\auth-bypass.test.js",
+      "line": 158,
+      "message": "[测试文件] 发现硬编码的password: ****",
+      "code": "password: 'user'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\red-team\\auth-bypass.test.js",
+      "line": 362,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\red-team\\auth-bypass.test.js",
+      "line": 428,
+      "message": "[测试文件] 发现硬编码的password: ****",
+      "code": "password: 'root'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\red-team\\auth-bypass.test.js",
+      "line": 430,
+      "message": "[测试文件] 发现硬编码的password: *****",
+      "code": "password: 'guest'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\red-team\\auth-bypass.test.js",
+      "line": 432,
+      "message": "[测试文件] 发现硬编码的password: ****",
+      "code": "password: 'user'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\red-team\\auth-bypass.test.js",
+      "line": 456,
+      "message": "[测试文件] 发现硬编码的password: *****",
+      "code": "password: 'wrong'..."
+    },
+    {
+      "type": "hardcoded_secret",
+      "severity": "low",
+      "file": "C:\\Users\\16663\\Desktop\\frys\\tests\\red-team\\auth-bypass.test.js",
+      "line": 457,
+      "message": "[测试文件] 发现硬编码的password: pass***d123",
+      "code": "password: 'password123'..."
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "critical",
+      "category": "code",
+      "message": "发现严重代码安全问题，需要立即修复",
+      "action": "检查代码分析报告中的关键问题"
+    },
+    {
+      "priority": "low",
+      "category": "general",
+      "message": "安全审计通过，建议定期运行安全扫描",
+      "action": "设置CI/CD中的定期安全审计"
+    }
+  ]
+}

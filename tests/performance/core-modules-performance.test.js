@@ -12,35 +12,43 @@ import {
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
+import HttpClient from '../../src/core/HttpClient.js';
 import DayJSInspiredDate from '../../src/core/DayJSInspiredDate.js';
-import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
+import JWTAuth from '../../src/core/JWTAuth.js';
 import LodashInspiredUtils from '../../src/core/LodashInspiredUtils.js';
 import NATSInspiredMessaging from '../../src/core/NATSInspiredMessaging.js';
 import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
+import TestServer from '../test-server.js';
 
 describe('核心模块性能测试', () => {
   let messaging, http, date, state, utils, jwt;
+  let testServer;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    // 启动测试服务器
+    testServer = new TestServer();
+    await testServer.start();
+
     messaging = new NATSInspiredMessaging();
-    http = new AxiosInspiredHTTP();
+    http = new HttpClient();
     date = new DayJSInspiredDate();
     state = new ZustandInspiredState();
     utils = new LodashInspiredUtils();
-    jwt = new JWTInspiredAuth();
+    jwt = new JWTAuth();
 
     // 设置JWT密钥用于性能测试
     jwt.setSecret('perf-key', 'performance-test-secret');
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    if (testServer) await testServer.stop();
     messaging = null;
     http = null;
     date = null;
     state = null;
     utils = null;
     jwt = null;
+    testServer = null;
   });
 
   describe('消息队列性能测试', () => {
@@ -162,7 +170,7 @@ describe('核心模块性能测试', () => {
   describe('HTTP客户端性能测试', () => {
     it('应该处理并发HTTP请求', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local',
+        baseURL: testServer.getUrl(),
         testMode: true, // 使用测试模式避免真实网络请求
       });
 
@@ -212,7 +220,7 @@ describe('核心模块性能测试', () => {
 
     it('应该处理大数据传输', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local',
+        baseURL: testServer.getUrl(),
         testMode: true, // 使用测试模式避免真实网络请求
       });
 
@@ -632,7 +640,7 @@ describe('核心模块性能测试', () => {
 
       // 2. HTTP请求负载
       const httpInstance = http.create({
-        baseURL: 'https://api.workflow.local',
+        baseURL: testServer.getUrl(),
         testMode: true,
       });
       const httpPromises = [];

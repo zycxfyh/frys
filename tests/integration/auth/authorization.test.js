@@ -18,6 +18,7 @@ import { AuthorizationService } from '../../../src/domain/services/auth/Authoriz
 // Mock repositories
 const mockUserRepository = {
   findById: vi.fn(),
+  count: vi.fn(),
 };
 
 const mockRoleRepository = {

@@ -12,17 +12,23 @@ import {
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
-import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
+import HttpClient from '../../src/core/HttpClient.js';
+import JWTAuth from '../../src/core/JWTAuth.js';
+import TestServer from '../test-server.js';
 
 describe('HTTP与认证系统集成测试', () => {
   let http;
   let jwt;
   let authToken;
+  let testServer;
 
   beforeEach(async () => {
-    http = new AxiosInspiredHTTP();
-    jwt = new JWTInspiredAuth();
+    // 启动测试服务器
+    testServer = new TestServer();
+    await testServer.start();
+
+    http = new HttpClient();
+    jwt = new JWTAuth();
 
     await http.initialize();
     await jwt.initialize();
@@ -45,15 +51,17 @@ describe('HTTP与认证系统集成测试', () => {
   afterEach(async () => {
     if (http) await http.destroy();
     if (jwt) await jwt.destroy();
+    if (testServer) await testServer.stop();
     http = null;
     jwt = null;
     authToken = null;
+    testServer = null;
   });
 
   describe('认证HTTP请求流程', () => {
     it('应该能发送带认证头的HTTP请求', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local',
+        baseURL: testServer.getUrl(),
         timeout: 5000,
       });
 
@@ -87,7 +95,7 @@ describe('HTTP与认证系统集成测试', () => {
 
     it('应该处理认证失败的场景', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local',
+        baseURL: testServer.getUrl(),
       });
 
       // 添加无效令牌
@@ -117,7 +125,7 @@ describe('HTTP与认证系统集成测试', () => {
 
     it('应该支持令牌刷新机制', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local',
+        baseURL: testServer.getUrl(),
       });
 
       let currentToken = authToken;
@@ -172,7 +180,7 @@ describe('HTTP与认证系统集成测试', () => {
       ];
 
       const instance = http.create({
-        baseURL: 'https://api.workflow.local',
+        baseURL: testServer.getUrl(),
       });
 
       const startTime = global.performanceMonitor.start();
@@ -235,7 +243,7 @@ describe('HTTP与认证系统集成测试', () => {
   describe('安全认证中间件集成', () => {
     it('应该验证请求频率限制与认证结合', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local',
+        baseURL: testServer.getUrl(),
       });
 
       let requestCount = 0;
@@ -300,7 +308,7 @@ describe('HTTP与认证系统集成测试', () => {
 
     it('应该处理认证过期时的自动重试', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local',
+        baseURL: testServer.getUrl(),
       });
 
       let retryCount = 0;
@@ -354,7 +362,7 @@ describe('HTTP与认证系统集成测试', () => {
   describe('跨模块状态同步', () => {
     it('应该在HTTP请求中同步认证状态', async () => {
       const instance = http.create({
-        baseURL: 'https://api.workflow.local',
+        baseURL: testServer.getUrl(),
       });
 
       // 模拟用户会话状态

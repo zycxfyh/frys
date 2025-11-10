@@ -3,7 +3,7 @@
  * 统一的错误创建和处理机制
  */
 
-import { logger } from '../shared/utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 /**
  * 错误类型枚举

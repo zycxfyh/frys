@@ -17,10 +17,10 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 const LightweightContainer = (
   await import('../../../src/core/LightweightContainer.js')
 ).LightweightContainer;
-const AxiosInspiredHTTP = (
-  await import('../../../src/core/AxiosInspiredHTTP.js')
+const HttpClient = (
+  await import('../../../src/core/HttpClient.js')
 ).default;
-const JWTInspiredAuth = (await import('../../../src/core/JWTInspiredAuth.js'))
+const JWTAuth = (await import('../../../src/core/JWTAuth.js'))
   .default;
 const ZustandInspiredState = (
   await import('../../../src/core/ZustandInspiredState.js')
@@ -44,8 +44,8 @@ describe('系统集成测试', () => {
     container = new LightweightContainer();
 
     // 注册核心服务
-    container.register('http', AxiosInspiredHTTP);
-    container.register('auth', JWTInspiredAuth);
+    container.register('http', HttpClient);
+    container.register('auth', JWTAuth);
     container.register('state', ZustandInspiredState);
     container.register('utils', LodashInspiredUtils);
 

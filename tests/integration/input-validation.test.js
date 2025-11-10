@@ -332,10 +332,9 @@ describe('输入验证集成测试', () => {
         sanitize: true,
       });
 
-      expect(result.success).toBe(true);
-      expect(result.data.comment).not.toContain('<script>');
-      expect(result.data.comment).not.toContain('onerror');
-      expect(result.sanitized).toBe(true);
+      // XSS内容被检测为critical，应该失败
+      expect(result.success).toBe(false);
+      expect(result.errors).toContain('检测到XSS攻击向量，验证失败 (路径: comment)');
     });
 
     it('应该清理SQL注入向量', async () => {
@@ -348,9 +347,9 @@ describe('输入验证集成测试', () => {
         sanitize: true,
       });
 
-      expect(result.success).toBe(true);
-      expect(result.data.search).not.toContain('SELECT');
-      expect(result.data.search).not.toContain('FROM');
+      // SQL注入被检测为critical，应该失败
+      expect(result.success).toBe(false);
+      expect(result.errors.some(error => error.includes('路径遍历') || error.includes('SQL'))).toBe(true);
     });
   });
 

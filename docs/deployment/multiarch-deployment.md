@@ -53,7 +53,7 @@ docker buildx build \
 | `NODE_ENV`     | Node.js 环境  | `production`         |
 | `PORT`         | 服务端口      | `3000`               |
 | `DATABASE_URL` | 数据库连接URL | -                    |
-| `REDIS_URL`    | Redis 连接URL | `redis://redis:6379` |
+| `REDIS_URL`    | Redis 连接URL | `redis://redis:6380` |
 | `JWT_SECRET`   | JWT 密钥      | -                    |
 
 ## 🏭 生产部署

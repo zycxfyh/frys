@@ -12,8 +12,8 @@ export default defineConfig({
     // 🚀 修复worker超时问题
     bail: 0, // 允许所有测试运行
     failOnOnly: false, // 允许.only标记用于调试
-    testTimeout: 30000, // 增加超时时间到30秒
-    hookTimeout: 10000, // hook超时10秒
+    testTimeout: 60000, // 增加超时时间到60秒
+    hookTimeout: 30000, // hook超时30秒
 
     // 🔒 禁用隔离避免worker问题
     isolate: false,
@@ -23,19 +23,32 @@ export default defineConfig({
       ? ['verbose', 'json', 'junit', 'github-actions']
       : ['verbose', 'json', 'junit'],
 
-    // 🏃‍♂️ 性能优化 - 简化配置避免worker超时
+    // 🏃‍♂️ 性能优化 - 修复内存问题和worker超时
     maxThreads: 1, // 单线程执行避免资源竞争
     minThreads: 1,
     retry: 0, // 禁用重试，快速失败
 
-    // 简化并行化配置
-    pool: 'threads',
+    // 内存优化配置 - 使用fork池减少内存使用
+    pool: 'forks',
     poolOptions: {
-      threads: {
-        singleThread: true, // 单线程模式
+      forks: {
+        singleFork: true, // 单进程模式
         isolate: false,
-        useAtomics: false,
+        // 减少内存限制避免溢出
+        maxOldSpaceSize: 2048, // 2GB内存限制
+        execArgv: [
+          '--max-old-space-size=2048',
+          '--optimize-for-size',
+          '--max-semi-space-size=16',
+          '--gc-interval=100'
+        ],
       },
+    },
+
+    // 序列化执行避免并发问题
+    sequence: {
+      concurrent: false, // 禁用并发测试
+      shuffle: false,
     },
     coverage: {
       provider: 'istanbul',

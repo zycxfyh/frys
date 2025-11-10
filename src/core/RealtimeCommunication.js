@@ -14,7 +14,7 @@ import { EventEmitter } from 'events';
 import fs from 'fs/promises';
 import path from 'path';
 import WebSocket from 'ws';
-import { logger } from '../shared/utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import { frysError } from './error-handler.js';
 
 class WebSocketManager extends EventEmitter {
@@ -28,6 +28,10 @@ class WebSocketManager extends EventEmitter {
       reconnectAttempts: 5,
       reconnectDelay: 1000,
       maxConnections: 1000,
+      routingAlgorithm: 'consistent_hashing', // consistent_hashing, pub_sub, adaptive
+      loadBalancing: true,
+      messagePrioritization: true,
+      connectionPooling: true,
       ...config,
     };
 
@@ -37,12 +41,27 @@ class WebSocketManager extends EventEmitter {
     this.heartbeatTimer = null;
     this.isRunning = false;
 
+    // 高级连接管理数据结构
+    this.connectionPool = new Map(); // 连接池
+    this.messageQueue = []; // 消息队列
+    this.consistentHashRing = new Map(); // 一致性哈希环
+    this.messagePriorities = new Map(); // 消息优先级
+    this.connectionMetrics = new Map(); // 连接指标
+    this.messageRoutingTable = new Map(); // 消息路由表
+
+    // 自适应算法参数
+    this.adaptiveWeights = new Map();
+    this.loadThreshold = 0.8;
+    this.messageBacklogThreshold = 100;
+
     this.stats = {
       totalConnections: 0,
       activeConnections: 0,
       messagesSent: 0,
       messagesReceived: 0,
       errors: 0,
+      avgResponseTime: 0,
+      messageBacklog: 0,
     };
   }
 
@@ -789,6 +808,17 @@ export class RealtimeCommunication extends EventEmitter {
   initialize() {
     // 初始化实时通信系统
     logger.debug('RealtimeCommunication initialized');
+  }
+
+  /**
+   * 订阅实时事件
+   * @param {string} event - 事件名称
+   * @param {Function} callback - 回调函数
+   * @returns {Function} 取消订阅函数
+   */
+  subscribe(event, callback) {
+    this.on(event, callback);
+    return () => this.off(event, callback);
   }
 
   async start() {

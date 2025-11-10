@@ -4,8 +4,8 @@
  */
 
 import Queue from 'bull';
-import { config } from '../shared/utils/config.js';
-import { logger } from '../shared/utils/logger.js';
+import { config } from '../../shared/utils/config.js';
+import { logger } from '../../shared/utils/logger.js';
 
 // 队列配置
 const QUEUE_CONFIG = {
@@ -14,13 +14,16 @@ const QUEUE_CONFIG = {
       ? new URL(config.redis.url).hostname
       : config.redis?.host || 'redis',
     port: config.redis?.url
-      ? new URL(config.redis.url).port
+      ? parseInt(new URL(config.redis.url).port) || 6379
       : config.redis?.port || 6379,
     password: config.redis?.password,
     db: config.redis?.db || 0,
     keyPrefix: config.redis?.keyPrefix || 'frys:',
     retryDelayOnFailover: 100,
-    maxRetriesPerRequest: 3,
+    // 添加连接选项，提高容错性
+    lazyConnect: true, // 延迟连接
+    enableReadyCheck: false,
+    maxRetriesPerRequest: null, // 禁用重试限制
   },
   defaultJobOptions: {
     removeOnComplete: 50, // 完成任务保留数量

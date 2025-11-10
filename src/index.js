@@ -1,529 +1,253 @@
 #!/usr/bin/env node
 
 /**
- * frys Production - 主入口文件
- * 企业级工作流管理系统 (基于开源项目重构)
+ * frys - 轻量级工作流编排引擎
+ * 重构后的主入口文件
  */
 
-import { pathToFileURL } from 'url';
-// 导入业务服务
-import { WorkflowEngine } from './application/services/WorkflowEngine.js';
-// 导入新的开源组件
-import { getContainer, registerValue } from './core/container.js';
-import { errorHandler } from './core/ErrorHandlerConfig.js';
-import { eventSystem } from './core/event/EventBus.js';
-import { pluginManager } from './core/PluginSystem.js';
-import { closeAllQueues, createWorker, getQueue } from './core/queue.js';
-import { startServer, stopServer } from './core/server.js';
-import { UserService } from './shared/services/UserService.js';
+import { WorkflowEngine } from './workflow/WorkflowEngine.js';
+import { TaskScheduler } from './workflow/TaskScheduler.js';
+import { WorkflowState } from './workflow/WorkflowState.js';
+import { WorkflowDefinition } from './workflow/WorkflowDefinition.js';
+import { WorkflowAPI } from './presentation/controllers/WorkflowAPI.js';
+import { HealthAPI } from './presentation/controllers/HealthAPI.js';
 import { config } from './shared/utils/config.js';
 import { logger } from './shared/utils/logger.js';
+import { EventBus } from './shared/kernel/EventBus.js';
+// 简单的依赖容器（可选）
 
-// 获取依赖注入容器
-const container = await getContainer();
+// 加载配置
+config.loadFromEnv();
 
-// 注册全局值
-registerValue('eventSystem', eventSystem);
-registerValue('errorHandler', errorHandler);
-registerValue('pluginManager', pluginManager);
+// 创建事件总线实例
+const eventBus = new EventBus();
 
-/**
- * frys Production - 基于开源项目的应用类
- */
-class frysProduction {
+class frysApp {
   constructor() {
-    this.container = container;
-    this.eventSystem = eventSystem;
+    this.workflowEngine = null;
+    this.taskScheduler = null;
+    this.workflowState = null;
     this.server = null;
-    this.initialized = false;
-    this.workers = new Map();
+    this.apis = [];
   }
 
   async initialize() {
-    try {
-      logger.info('🚀 初始化 frys Production 系统 (开源项目重构)');
-
-      // 1. 初始化错误处理器
-      await errorHandler.initialize();
-
-      // 2. 初始化插件系统
-      await pluginManager.initialize();
-
-      // 3. 初始化核心服务
-      await this.initializeCoreServices();
-
-      // 4. 设置事件监听器
-      await this.setupEventListeners();
-
-      // 5. 设置消息队列处理器
-      await this.setupQueueProcessors();
-
-      // 6. 更新系统状态
-      const state = container.resolve('state');
-      if (state && typeof state.setState === 'function') {
-        state.setState((currentState) => ({
-          system: {
-            ...currentState.system,
-            status: 'ready',
-            version: '3.0.0-open-source',
-            architecture: 'open-source-based',
-          },
-        }));
-      }
-
-      this.initialized = true;
-      logger.info('✅ frys Production 系统初始化完成 (开源项目重构)');
-    } catch (error) {
-      await errorHandler.handle(error, { context: 'system_initialization' });
-      throw error;
-    }
-  }
-
-  async initializeCoreServices() {
-    logger.debug('初始化核心服务...');
-
-    // 初始化 HTTP 客户端
-    const http = container.resolve('http');
-    if (http && typeof http.initialize === 'function') {
-      await http.initialize();
-    }
-
-    // 初始化认证服务
-    const auth = container.resolve('auth');
-    if (auth && typeof auth.setSecret === 'function') {
-      auth.setSecret('default', config.auth?.secret || 'default-secret');
-    }
-
-    // 初始化状态管理
-    const state = container.resolve('state');
-    if (state && typeof state.initialize === 'function') {
-      await state.initialize();
-    }
-
-    // 初始化消息适配器
-    const messaging = container.resolve('messaging');
-    if (messaging && typeof messaging.initialize === 'function') {
-      await messaging.initialize();
-    }
-
-    // 初始化业务服务
-    const workflowEngine = container.resolve('workflowEngine');
-    if (workflowEngine && typeof workflowEngine.initialize === 'function') {
-      await workflowEngine.initialize();
-    }
-
-    const userService = container.resolve('userService');
-    if (userService && typeof userService.initialize === 'function') {
-      await userService.initialize();
-    }
-
-    logger.debug('核心服务初始化完成');
-  }
-
-  async setupEventListeners() {
-    // 设置业务事件监听器
-    eventSystem.on('user.created', (user) => {
-      logger.info('新用户创建', { userId: user.id, username: user.username });
-      // 发布到消息队列
-      const userCreatedQueue = getQueue('user-events');
-      userCreatedQueue.add('user.created', user).catch((error) => {
-        logger.error('发布用户创建事件失败', error);
-      });
-    });
-
-    eventSystem.on('workflow.started', (workflow) => {
-      logger.info('工作流启动', {
-        workflowId: workflow.id,
-        name: workflow.name,
-      });
-      // 发布到消息队列
-      const workflowQueue = getQueue('workflow-events');
-      workflowQueue.add('workflow.started', workflow).catch((error) => {
-        logger.error('发布工作流启动事件失败', error);
-      });
-    });
-
-    eventSystem.on('task.completed', (task) => {
-      logger.info('任务完成', { taskId: task.id, workflowId: task.workflowId });
-      // 发布到消息队列
-      const taskQueue = getQueue('task-events');
-      taskQueue.add('task.completed', task).catch((error) => {
-        logger.error('发布任务完成事件失败', error);
-      });
-    });
-
-    eventSystem.on('system.error', async (error) => {
-      logger.error('系统错误', error);
-      await errorHandler.handle(error, { context: 'system_event' });
-    });
-
-    // 监听插件事件
-    pluginManager.hook('plugin:registered', (data) => {
-      logger.info(`插件已注册: ${data.plugin.name}`);
-    });
-
-    pluginManager.hook('plugin:started', (data) => {
-      logger.info(`插件已启动: ${data.plugin.name}`);
-    });
-
-    logger.debug('事件监听器设置完成');
-  }
-
-  async setupQueueProcessors() {
-    const workflowEngine = container.resolve('workflowEngine');
-    const userService = container.resolve('userService');
-
-    // 创建用户事件处理器
-    this.workers.set(
-      'user-events',
-      createWorker('user-events', async (job) => {
-        const { name, data } = job;
-        logger.debug(`处理用户事件: ${name}`, { userId: data.id });
-
-        // 这里可以添加用户事件的具体处理逻辑
-        // 例如：发送欢迎邮件、更新统计信息等
-      }),
-    );
-
-    // 创建工作流事件处理器
-    this.workers.set(
-      'workflow-events',
-      createWorker('workflow-events', async (job) => {
-        const { name, data } = job;
-        logger.debug(`处理工作流事件: ${name}`, { workflowId: data.id });
-
-        if (name === 'workflow.started') {
-          // 工作流启动后的处理逻辑
-          // 例如：通知相关人员、初始化监控等
-        }
-      }),
-    );
-
-    // 创建任务事件处理器
-    this.workers.set(
-      'task-events',
-      createWorker('task-events', async (job) => {
-        const { name, data } = job;
-        logger.debug(`处理任务事件: ${name}`, {
-          taskId: data.id,
-          workflowId: data.workflowId,
-        });
-
-        if (name === 'task.completed') {
-          // 任务完成后的处理逻辑
-          // 例如：检查工作流是否完成、触发下一个任务等
-          if (
-            workflowEngine &&
-            typeof workflowEngine.onTaskCompleted === 'function'
-          ) {
-            await workflowEngine.onTaskCompleted(data);
-          }
-        }
-      }),
-    );
-
-    // 创建失败任务重试处理器
-    this.workers.set(
-      'retry-queue',
-      createWorker('retry-queue', async (job) => {
-        const { name, data } = job;
-        logger.debug(`处理重试任务: ${name}`, { attempts: job.attemptsMade });
-
-        try {
-          if (name === 'retry-workflow') {
-            if (
-              workflowEngine &&
-              typeof workflowEngine.retryWorkflow === 'function'
-            ) {
-              await workflowEngine.retryWorkflow(data.workflowId, data.context);
-            }
-          } else if (name === 'retry-user-operation') {
-            if (
-              userService &&
-              typeof userService.retryOperation === 'function'
-            ) {
-              await userService.retryOperation(data.operation, data.params);
-            }
-          }
-        } catch (error) {
-          logger.error(`重试任务失败: ${name}`, error);
-          throw error; // 让 Bull.js 处理重试逻辑
-        }
-      }),
-    );
-
-    logger.info('消息队列处理器设置完成');
-  }
-
-  async start() {
-    if (!this.initialized) {
-      await this.initialize();
-    }
+    logger.info('🚀 初始化 frys 工作流引擎');
 
     try {
-      logger.info('🎯 frys Production 系统启动 (开源项目重构)');
+      // 初始化核心服务
+      this.taskScheduler = new TaskScheduler();
+      this.workflowState = new WorkflowState({ logger });
 
-      // 启动Web服务器
-      this.server = await startServer(config.port, config.host);
+      // 初始化工作流引擎
+      this.workflowEngine = new WorkflowEngine({
+        logger,
+        onWorkflowEvent: this.handleWorkflowEvent.bind(this),
+        onTaskEvent: this.handleTaskEvent.bind(this),
+      });
 
-      // 启动业务服务（允许失败）
-      try {
-        const workflowEngine = container.resolve('workflowEngine');
-        if (workflowEngine && typeof workflowEngine.start === 'function') {
-          await workflowEngine.start();
-          logger.debug('工作流引擎已启动');
-        }
+      // 服务已初始化
 
-        const userService = container.resolve('userService');
-        if (userService && typeof userService.start === 'function') {
-          await userService.start();
-          logger.debug('用户服务已启动');
-        }
-      } catch (serviceError) {
-        logger.warn(
-          '业务服务启动失败，但服务器将继续运行',
-          serviceError.message,
-        );
-        // 不抛出错误，让服务器继续运行
-      }
-
-      // 启动插件系统
-      await pluginManager.startAll();
-
-      logger.info('✅ 所有服务启动完成 (开源项目重构)');
-
-      // 保持进程运行
-      this.keepAlive();
-    } catch (error) {
-      await errorHandler.handle(error, { context: 'system_start' });
-      throw error;
-    }
-  }
-
-  keepAlive() {
-    // 定期健康检查
-    this.healthCheckTimer = setInterval(async () => {
-      try {
-        const health = await this.healthCheck();
-        if (!health.healthy) {
-          logger.warn('健康检查失败', health);
-          eventSystem.emit('system:health_check_failed', health);
-        } else {
-          eventSystem.emit('system:health_check_passed', health);
-        }
-      } catch (error) {
-        logger.error('健康检查异常', error);
-        await errorHandler.handle(error, { context: 'health_check' });
-      }
-    }, 30000); // 每30秒检查一次
-
-    // 优雅关闭处理
-    process.on('SIGTERM', () => this.gracefulShutdown('SIGTERM'));
-    process.on('SIGINT', () => this.gracefulShutdown('SIGINT'));
-    process.on('uncaughtException', (error) => {
-      logger.error('未捕获的异常', error);
-      this.gracefulShutdown('uncaughtException');
-    });
-    process.on('unhandledRejection', (reason, promise) => {
-      logger.error('未处理的Promise拒绝', { reason, promise });
-      this.gracefulShutdown('unhandledRejection');
-    });
-  }
-
-  async healthCheck() {
-    const checks = {
-      timestamp: Date.now(),
-      services: {},
-      container: container ? 'healthy' : 'unhealthy',
-      plugins: pluginManager ? await pluginManager.healthCheck() : 'unhealthy',
-      queues: {},
-    };
-
-    try {
-      // 检查核心服务状态
-      const serviceNames = [
-        'http',
-        'auth',
-        'state',
-        'date',
-        'utils',
-        'workflowEngine',
-        'userService',
+      // 初始化API
+      this.apis = [
+        new WorkflowAPI(this.workflowEngine, { logger }),
+        new HealthAPI({ logger }),
       ];
 
-      for (const serviceName of serviceNames) {
-        try {
-          const service = container.resolve(serviceName);
-          if (service && typeof service.healthCheck === 'function') {
-            checks.services[serviceName] = await service.healthCheck();
-          } else {
-            checks.services[serviceName] = service ? 'healthy' : 'unhealthy';
-          }
-        } catch (error) {
-          checks.services[serviceName] = 'error';
+      logger.info('✅ frys 初始化完成');
+    } catch (error) {
+      logger.error('❌ frys 初始化失败', error);
+      throw error;
+    }
+  }
+
+  handleWorkflowEvent(event, data) {
+    logger.info(`工作流事件: ${event}`, { workflowId: data.id });
+
+    // 发布到事件总线
+    eventBus.emit(`workflow:${event}`, data);
+
+    // 保存状态
+    if (this.workflowState) {
+      this.workflowState.saveWorkflow(data).catch(error => {
+        logger.error('保存工作流状态失败', error);
+      });
+    }
+  }
+
+  handleTaskEvent(event, data) {
+    logger.debug(`任务事件: ${event}`, {
+      workflowId: data.workflowId,
+      taskId: data.taskId,
+    });
+
+    // 发布到事件总线
+    eventBus.emit(`task:${event}`, data);
+  }
+
+  async createWorkflow(definition) {
+    // 验证定义
+    const validation = WorkflowDefinition.validate(definition);
+    if (!validation.isValid) {
+      throw new Error(`工作流定义无效: ${validation.errors.join(', ')}`);
+    }
+
+    // 创建工作流
+    const workflowId = this.workflowEngine.createWorkflow(definition);
+    logger.info(`工作流创建成功: ${definition.name} (${workflowId})`);
+
+    return workflowId;
+  }
+
+  async startWorkflow(workflowId, params = {}) {
+    await this.workflowEngine.startWorkflow(workflowId, params);
+    logger.info(`工作流启动成功: ${workflowId}`);
+  }
+
+  getWorkflow(workflowId) {
+    return this.workflowEngine.getWorkflow(workflowId);
+  }
+
+  getAllWorkflows() {
+    return this.workflowEngine.getAllWorkflows();
+  }
+
+  getRunningWorkflows() {
+    return this.workflowEngine.getRunningWorkflows();
+  }
+
+  getStats() {
+    const workflows = this.getAllWorkflows();
+    const running = this.getRunningWorkflows();
+
+    return {
+      total: workflows.length,
+      running: running.length,
+      byStatus: workflows.reduce((acc, wf) => {
+        acc[wf.status] = (acc[wf.status] || 0) + 1;
+        return acc;
+      }, {}),
+    };
+  }
+
+  // 启动HTTP服务器（可选）
+  async startServer(port = config.get('server.port')) {
+    try {
+      const express = await import('express');
+
+      const app = express.default();
+      app.use(express.json());
+
+      // 注册API路由
+      for (const api of this.apis) {
+        const routes = api.getRoutes();
+        for (const route of routes) {
+          const { method, path, handler, description } = route;
+          app[method.toLowerCase()](path, handler);
+          logger.debug(`注册路由: ${method} ${path} - ${description}`);
         }
       }
 
-      // 检查队列状态
-      try {
-        const { getAllQueuesStatus } = await import('./core/queue.js');
-        const queueStatus = await getAllQueuesStatus();
-        checks.queues = queueStatus;
-      } catch (error) {
-        checks.queues = { error: error.message };
-      }
-
-      // 检查系统状态
-      const state = container.resolve('state');
-      const systemState =
-        state && typeof state.getState === 'function' ? state.getState() : {};
-      checks.services.system =
-        systemState.system?.status === 'ready' ? 'healthy' : 'unhealthy';
-
-      // 检查错误处理器
-      checks.services.errorHandler = errorHandler
-        ? await errorHandler.healthCheck()
-        : 'unhealthy';
-
-      // 总体健康状态
-      const serviceStatuses = Object.values(checks.services);
-      const queueHealthy = !checks.queues.error;
-      checks.healthy =
-        serviceStatuses.every(
-          (status) =>
-            status === 'healthy' ||
-            (typeof status === 'object' && status.healthy !== false),
-        ) && queueHealthy;
-
-      checks.architecture = 'open-source-based';
-      checks.version = '3.0.0';
-    } catch (error) {
-      checks.healthy = false;
-      checks.error = error.message;
-      logger.error('健康检查失败', error);
-    }
-
-    return checks;
-  }
-
-  async gracefulShutdown(signal) {
-    logger.info(`收到 ${signal} 信号，开始优雅关闭 (开源项目重构)`);
-
-    try {
-      // 清理定时器
-      if (this.healthCheckTimer) {
-        clearInterval(this.healthCheckTimer);
-      }
-
-      // 停止Web服务器
-      if (this.server) {
-        await stopServer(this.server);
-        logger.debug('Web服务器已停止');
-      }
-
-      // 停止插件系统
-      await pluginManager.stopAll();
-
-      // 停止业务服务
-      const workflowEngine = container.resolve('workflowEngine');
-      if (workflowEngine && typeof workflowEngine.stop === 'function') {
-        await workflowEngine.stop();
-        logger.debug('工作流引擎已停止');
-      }
-
-      const userService = container.resolve('userService');
-      if (userService && typeof userService.stop === 'function') {
-        await userService.stop();
-        logger.debug('用户服务已停止');
-      }
-
-      // 停止消息队列工作进程和队列
-      await closeAllQueues();
-      logger.debug('消息队列已停止');
-
-      // 停止错误处理器
-      if (errorHandler && typeof errorHandler.destroy === 'function') {
-        await errorHandler.destroy();
-        logger.debug('错误处理器已停止');
-      }
-
-      logger.info('✅ 系统优雅关闭完成 (开源项目重构)');
-      process.exit(0);
-    } catch (error) {
-      logger.error('优雅关闭失败', error);
-      await errorHandler.handle(error, {
-        context: 'graceful_shutdown',
-        signal,
+      // 启动服务器
+      return new Promise((resolve, reject) => {
+        const server = app.listen(port, (error) => {
+          if (error) {
+            logger.error(`服务器启动失败: ${error.message}`);
+            reject(error);
+          } else {
+            logger.info(`✅ 服务器启动成功，监听端口 ${port}`);
+            this.server = server;
+            resolve(server);
+          }
+        });
       });
-      process.exit(1);
+    } catch (error) {
+      logger.warn('HTTP服务器不可用，使用命令行模式');
+      return null;
     }
   }
 
-  // 公开API接口 (开源项目重构)
+  async stop() {
+    logger.info('🛑 停止 frys 工作流引擎');
 
-  /**
-   * 获取指定服务
-   */
-  getService(name) {
-    return container.resolve(name);
+    if (this.server) {
+      this.server.close();
+      logger.debug('HTTP服务器已停止');
+    }
+
+    logger.info('✅ frys 已停止');
   }
 
-  /**
-   * 获取容器实例
-   */
-  getContainer() {
-    return container;
+  // 工具方法
+  createExampleWorkflow(name) {
+    return WorkflowDefinition.createExample(name);
   }
 
-  /**
-   * 获取事件系统
-   */
-  getEventSystem() {
-    return eventSystem;
+  validateWorkflowDefinition(definition) {
+    return WorkflowDefinition.validate(definition);
   }
 
-  /**
-   * 获取插件管理器
-   */
-  getPluginManager() {
-    return pluginManager;
-  }
-
-  /**
-   * 获取错误处理器
-   */
-  getErrorHandler() {
-    return errorHandler;
-  }
-
-  /**
-   * 获取系统状态
-   */
-  getSystemStatus() {
-    return {
-      initialized: this.initialized,
-      container: 'awilix',
-      eventSystem: 'eventemitter3',
-      messaging: 'bull',
-      webFramework: 'fastify',
-      errorHandler: 'sentry',
-      pluginSystem: 'fastify-plugin',
-      architecture: 'open-source-based',
-      version: '3.0.0',
-    };
+  analyzeWorkflowComplexity(definition) {
+    return WorkflowDefinition.analyzeComplexity(definition);
   }
 }
 
-// 创建全局实例
-const app = new frysProduction();
-
-// 导出供外部使用
-export { app, frysProduction };
+// 创建应用实例
+const app = new frysApp();
 
 // 如果直接运行此文件
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  app.start().catch((error) => {
+if (import.meta.url === `file://${process.argv[1]}`) {
+  app.initialize().then(async () => {
+    // 检查命令行参数
+    const args = process.argv.slice(2);
+
+    if (args.includes('--server') || args.includes('-s')) {
+      // 启动服务器模式
+      const port = config.get('server.port');
+      await app.startServer(port);
+
+      // 保持进程运行
+      process.on('SIGINT', async () => {
+        await app.stop();
+        process.exit(0);
+      });
+
+      process.on('SIGTERM', async () => {
+        await app.stop();
+        process.exit(0);
+      });
+    } else if (args.includes('--example') || args.includes('-e')) {
+      // 创建示例工作流
+      const example = app.createExampleWorkflow('示例工作流');
+      const workflowId = await app.createWorkflow(example);
+      await app.startWorkflow(workflowId);
+      logger.info(`示例工作流已启动: ${workflowId}`);
+    } else {
+      // 显示帮助信息
+      console.log(`
+frys - 轻量级工作流编排引擎
+
+使用方法:
+  node src/index.js --server          # 启动HTTP服务器
+  node src/index.js --example         # 运行示例工作流
+  node src/index.js --help           # 显示此帮助信息
+
+API端点 (服务器模式):
+  GET  /api/workflows              # 获取所有工作流
+  GET  /api/workflows/:id          # 获取指定工作流
+  POST /api/workflows              # 创建工作流
+  POST /api/workflows/:id/start    # 启动工作流
+  POST /api/workflows/:id/pause    # 暂停工作流
+  POST /api/workflows/:id/resume   # 恢复工作流
+  POST /api/workflows/:id/cancel   # 取消工作流
+  GET  /api/health                 # 健康检查
+      `);
+    }
+  }).catch((error) => {
     logger.error('应用启动失败', error);
     process.exit(1);
   });
 }
+
+// 导出供外部使用
+export { app, frysApp, WorkflowEngine, TaskScheduler, WorkflowState, WorkflowDefinition };

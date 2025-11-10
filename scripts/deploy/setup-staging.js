@@ -63,7 +63,7 @@ HOST=0.0.0.0
 
 # 数据库配置
 DATABASE_URL=sqlite://./data/staging.db
-REDIS_URL=redis://redis:6379
+REDIS_URL=redis://redis:6380
 
 # 安全配置
 JWT_SECRET=${this.generateSecret()}
@@ -268,7 +268,7 @@ scrape_configs:
 
   - job_name: 'redis'
     static_configs:
-      - targets: ['redis:6379']
+      - targets: ['redis:6380']
     scrape_interval: 30s
 
   - job_name: 'postgres'

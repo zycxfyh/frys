@@ -614,7 +614,7 @@ DB_SSL=false
 DB_MAX_CONNECTIONS=10
 
 # Redis 配置 (测试专用)
-REDIS_URL=redis://localhost:6380
+REDIS_URL=redis://localhost:6381
 REDIS_DB=1
 
 # JWT 配置 (测试密钥)

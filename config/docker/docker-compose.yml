@@ -5,7 +5,7 @@ services:
     image: redis:7-alpine
     container_name: frys-redis
     ports:
-      - '6380:6379'
+      - '6379:6379'
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -26,7 +26,7 @@ services:
       - DEEPSEEK_API_KEY=sk-777737d8d25a4b9b94f9f9024833d37a
       - REDIS_URL=redis://redis:6379
     ports:
-      - '3002:3000'
+      - '3001:3000'
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs

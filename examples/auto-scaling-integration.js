@@ -265,7 +265,7 @@ async function runAllExamples() {
     console.log('🎬 开始运行自动扩容策略集成示例\n');
 
     // 检查Docker是否可用
-    const { run_terminal_cmd } = await import('../src/utils/terminal.js');
+    const { run_terminal_cmd } = await import('../src/shared/utils/terminal.js');
     try {
       await run_terminal_cmd({
         command: 'docker --version',

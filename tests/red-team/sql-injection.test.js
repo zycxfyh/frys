@@ -12,7 +12,7 @@ import {
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import SQLiteInspiredDatabase from '../../src/core/SQLiteInspiredDatabase.js';
+import SQLiteDatabase from '../../src/core/SQLiteDatabase.js';
 import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
 
 describe('SQL注入攻击测试', () => {
@@ -21,7 +21,7 @@ describe('SQL注入攻击测试', () => {
 
   beforeEach(() => {
     redTeam = new RedTeamFramework();
-    db = new SQLiteInspiredDatabase();
+    db = new SQLiteDatabase();
 
     // 注册SQL注入攻击向量
     redTeam.registerAttack(AttackVectors.SQL_INJECTION, async (payload) => {

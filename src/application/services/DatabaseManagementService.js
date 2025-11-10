@@ -3,7 +3,7 @@
  * 提供高层数据库管理接口
  */
 
-import DatabaseService from '../../infrastructure/database/DatabaseService.js';
+// import DatabaseService from '../../infrastructure/database/DatabaseService.js'; // TODO: 如果需要使用
 import { BaseApplicationService } from '../../shared/kernel/BaseApplicationService.js';
 import { Failure, Success } from '../../shared/kernel/Result.js';
 import { logger } from '../../shared/utils/logger.js';
@@ -17,7 +17,7 @@ export class DatabaseManagementService extends BaseApplicationService {
   /**
    * 执行数据库健康检查
    */
-  async performHealthCheck(input = {}) {
+  async performHealthCheck(_input = {}) {
     try {
       const health = await this.databaseService.healthCheck();
 

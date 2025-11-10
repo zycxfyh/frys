@@ -3,8 +3,8 @@
  * 应用层的缓存管理服务
  */
 
-import CacheManager from '../../infrastructure/persistence/CacheManager.js';
-import CacheStrategies from '../../infrastructure/persistence/CacheStrategies.js';
+import CacheManager from '../../infrastructure/cache/CacheManager.js';
+import CacheStrategies from '../../infrastructure/cache/CacheStrategies.js';
 import { BaseApplicationService } from '../../shared/kernel/BaseApplicationService.js';
 import { logger } from '../../shared/utils/logger.js';
 
@@ -108,7 +108,7 @@ export class CacheService extends BaseApplicationService {
 
     await this.cacheManager.warmup(
       activeSessions,
-      async (sessionId) => ({ sessionId, data: `session_data_${sessionId}` }),
+      (sessionId) => ({ sessionId, data: `session_data_${sessionId}` }),
       { strategy: 'session' },
     );
   }
@@ -121,7 +121,7 @@ export class CacheService extends BaseApplicationService {
 
     await this.cacheManager.warmup(
       configKeys,
-      async (key) => ({ key, value: `config_value_${key}` }),
+      (key) => ({ key, value: `config_value_${key}` }),
       { strategy: 'config' },
     );
   }
@@ -134,7 +134,7 @@ export class CacheService extends BaseApplicationService {
 
     await this.cacheManager.warmup(
       queryKeys,
-      async (key) => ({ key, results: [`result_1_${key}`, `result_2_${key}`] }),
+      (key) => ({ key, results: [`result_1_${key}`, `result_2_${key}`] }),
       { strategy: 'database' },
     );
   }
@@ -297,7 +297,7 @@ export class CacheService extends BaseApplicationService {
       logger.error('缓存穿透保护失败', error);
 
       // 如果缓存失败，直接调用工厂函数
-      return await factory();
+      return factory();
     }
   }
 
@@ -393,6 +393,7 @@ export class CacheService extends BaseApplicationService {
   /**
    * 分析缓存性能
    */
+  /* eslint-disable max-lines-per-function */
   analyzeCachePerformance() {
     const stats = this.getCacheStats();
     const analysis = {
@@ -446,6 +447,7 @@ export class CacheService extends BaseApplicationService {
 
     return analysis;
   }
+  /* eslint-enable max-lines-per-function */
 
   /**
    * 优化缓存配置

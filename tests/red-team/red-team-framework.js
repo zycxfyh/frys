@@ -4,9 +4,9 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
-import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
-import SQLiteInspiredDatabase from '../../src/core/SQLiteInspiredDatabase.js';
+import HttpClient from '../../src/core/HttpClient.js';
+import JWTAuth from '../../src/core/JWTAuth.js';
+import SQLiteDatabase from '../../src/core/SQLiteDatabase.js';
 import { logger } from '../../src/shared/utils/logger.js';
 
 // 红客对抗测试框架

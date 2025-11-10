@@ -67,7 +67,7 @@ POSTGRES_DB=frys_prod
 DATABASE_URL=postgresql://frys_prod:your_super_strong_password_here@postgres:5432/frys_prod
 
 # Redis 配置
-REDIS_URL=redis://redis:6379
+REDIS_URL=redis://redis:6380
 
 # JWT 配置 (请使用32字符以上的强密钥)
 JWT_SECRET=your_very_strong_jwt_secret_key_at_least_32_chars

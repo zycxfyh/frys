@@ -10,8 +10,95 @@
  */
 
 import { EventEmitter } from 'events';
-import { logger } from '../shared/utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import { frysError } from './error-handler.js';
+
+/**
+ * 基础Agent类
+ */
+class BaseAgent extends AgentContainer {
+  constructor(agentId, config = {}) {
+    super(agentId, config);
+    this.type = 'base';
+  }
+
+  async process(task) {
+    // 基础处理逻辑
+    return { success: true, result: `Processed by ${this.agentId}` };
+  }
+}
+
+/**
+ * 分析Agent类
+ */
+class AnalysisAgent extends BaseAgent {
+  constructor(agentId, config = {}) {
+    super(agentId, config);
+    this.type = 'analysis';
+    this.capabilities.add('data_analysis');
+    this.capabilities.add('pattern_recognition');
+  }
+
+  async process(task) {
+    // 分析处理逻辑
+    const result = await super.process(task);
+    return {
+      ...result,
+      analysis: {
+        patterns: ['pattern1', 'pattern2'],
+        insights: ['insight1', 'insight2'],
+      },
+    };
+  }
+}
+
+/**
+ * 通信Agent类
+ */
+class CommunicationAgent extends BaseAgent {
+  constructor(agentId, config = {}) {
+    super(agentId, config);
+    this.type = 'communication';
+    this.capabilities.add('messaging');
+    this.capabilities.add('protocol_handling');
+  }
+
+  async process(task) {
+    // 通信处理逻辑
+    const result = await super.process(task);
+    return {
+      ...result,
+      communication: {
+        messages: [],
+        protocols: ['http', 'websocket'],
+      },
+    };
+  }
+}
+
+/**
+ * 研究Agent类
+ */
+class ResearchAgent extends BaseAgent {
+  constructor(agentId, config = {}) {
+    super(agentId, config);
+    this.type = 'research';
+    this.capabilities.add('information_gathering');
+    this.capabilities.add('synthesis');
+  }
+
+  async process(task) {
+    // 研究处理逻辑
+    const result = await super.process(task);
+    return {
+      ...result,
+      research: {
+        sources: ['source1', 'source2'],
+        findings: ['finding1', 'finding2'],
+      },
+    };
+  }
+}
 
 class AgentContainer extends EventEmitter {
   constructor(agentId, config = {}) {
@@ -680,6 +767,12 @@ export class AgentSystem {
 
   initialize() {
     if (this.initialized) return;
+
+    // 注册内置Agent类型
+    this.agentManager.registerAgentType('base', BaseAgent);
+    this.agentManager.registerAgentType('analysis', AnalysisAgent);
+    this.agentManager.registerAgentType('communication', CommunicationAgent);
+    this.agentManager.registerAgentType('research', ResearchAgent);
 
     this.agentManager.initialize();
     this.initialized = true;

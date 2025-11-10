@@ -4,7 +4,7 @@
  */
 
 import fp from 'fastify-plugin';
-import { logger } from '../shared/utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 // 插件注册表
 const pluginRegistry = new Map();

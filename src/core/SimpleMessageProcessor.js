@@ -8,7 +8,7 @@
  * - 极简设计：专注核心功能
  */
 
-import { logger } from '../shared/utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import { SimplePluginManager } from './plugin/SimplePluginManager.js';
 import { TextInstructionParser } from './plugin/TextInstructionParser.js';
 import { PlaceholderSystem } from './utils/PlaceholderSystem.js';

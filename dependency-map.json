@@ -1,0 +1,3030 @@
+{
+  "timestamp": "2025-11-10T16:35:24.722Z",
+  "summary": {
+    "totalModules": 191,
+    "totalDependencies": 0,
+    "cyclesFound": 0,
+    "avgDepsPerModule": 0
+  },
+  "largestFiles": [
+    [
+      "infrastructure/benchmarking/StressTester",
+      1600
+    ],
+    [
+      "infrastructure/benchmarking/PerformanceBenchmark",
+      1575
+    ],
+    [
+      "infrastructure/pooling/ResourcePoolManager",
+      1390
+    ],
+    [
+      "infrastructure/persistence/CacheManager",
+      1362
+    ],
+    [
+      "core/memory/MemoryNetwork",
+      1348
+    ],
+    [
+      "core/rollback/SmartRollbackManager",
+      1316
+    ],
+    [
+      "shared/services/AIProviderUI",
+      1204
+    ],
+    [
+      "infrastructure/web/VisualWorkflowDesigner",
+      1105
+    ],
+    [
+      "infrastructure/benchmarking/LoadTester",
+      1092
+    ],
+    [
+      "core/deployment/DistributedDeployment",
+      1020
+    ]
+  ],
+  "mostComplex": [
+    [
+      "infrastructure/benchmarking/PerformanceBenchmark",
+      164
+    ],
+    [
+      "infrastructure/persistence/CacheManager",
+      147
+    ],
+    [
+      "core/memory/MemoryNetwork",
+      143
+    ],
+    [
+      "infrastructure/pooling/ResourcePoolManager",
+      117
+    ],
+    [
+      "infrastructure/benchmarking/StressTester",
+      114
+    ],
+    [
+      "infrastructure/benchmarking/LoadTester",
+      103
+    ],
+    [
+      "core/utils/PlaceholderSystem",
+      102
+    ],
+    [
+      "infrastructure/exception-handling/ExceptionRecoveryStrategies",
+      95
+    ],
+    [
+      "core/rollback/SmartRollbackManager",
+      91
+    ],
+    [
+      "core/plugins/PluginManager",
+      87
+    ]
+  ],
+  "mostDeps": [
+    [
+      "index",
+      11
+    ],
+    [
+      "application/services/ai/LangChainService",
+      10
+    ],
+    [
+      "index-fixed",
+      10
+    ],
+    [
+      "core/Application",
+      8
+    ],
+    [
+      "core/adaptive/AdaptiveFramework",
+      6
+    ],
+    [
+      "core/RealtimeCommunication",
+      6
+    ],
+    [
+      "core/server",
+      6
+    ],
+    [
+      "domain/services/auth/AuthenticationService",
+      6
+    ],
+    [
+      "infrastructure/benchmarking/BenchmarkManager",
+      6
+    ],
+    [
+      "core/config/ConfigurationManager",
+      5
+    ]
+  ],
+  "mostDepended": [],
+  "cycles": [],
+  "modules": {
+    "application/services/ai/LangChainService": {
+      "path": "src\\application\\services\\ai\\LangChainService.js",
+      "relativePath": "application\\services\\ai\\LangChainService.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "@langchain/openai",
+        "@langchain/anthropic",
+        "@langchain/google-genai",
+        "@langchain/community",
+        "@langchain/core/memory",
+        "@langchain/core/prompts",
+        "../../../core/ErrorHandlerConfig.js",
+        "../../../core/events/EventSystem.js",
+        "../../../shared/utils/config.js",
+        "../../../shared/utils/logger.js"
+      ],
+      "complexity": 19,
+      "lines": 517
+    },
+    "application/services/CacheService": {
+      "path": "src\\application\\services\\CacheService.js",
+      "relativePath": "application\\services\\CacheService.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../infrastructure/persistence/CacheManager.js",
+        "../../infrastructure/persistence/CacheStrategies.js",
+        "../../shared/kernel/BaseApplicationService.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 25,
+      "lines": 549
+    },
+    "application/services/ConversationManager": {
+      "path": "src\\application\\services\\ConversationManager.js",
+      "relativePath": "application\\services\\ConversationManager.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../core/ErrorHandlerConfig.js",
+        "../../core/events/EventSystem.js",
+        "../../shared/utils/config.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 31,
+      "lines": 685
+    },
+    "application/services/DatabaseManagementService": {
+      "path": "src\\application\\services\\DatabaseManagementService.js",
+      "relativePath": "application\\services\\DatabaseManagementService.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../infrastructure/database/DatabaseService.js",
+        "../../shared/kernel/BaseApplicationService.js",
+        "../../shared/kernel/Result.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 18,
+      "lines": 494
+    },
+    "application/services/WorkflowEngine": {
+      "path": "src\\application\\services\\WorkflowEngine.js",
+      "relativePath": "application\\services\\WorkflowEngine.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../core/MessagingAdapter.js",
+        "../../shared/utils/config.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 29,
+      "lines": 441
+    },
+    "application/use-cases/CacheManagementUseCase": {
+      "path": "src\\application\\use-cases\\CacheManagementUseCase.js",
+      "relativePath": "application\\use-cases\\CacheManagementUseCase.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/kernel/BaseUseCase.js",
+        "../../shared/kernel/Result.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 11,
+      "lines": 423
+    },
+    "core/adaptive/AdaptiveFramework": {
+      "path": "src\\core\\adaptive\\AdaptiveFramework.js",
+      "relativePath": "core\\adaptive\\AdaptiveFramework.js",
+      "exports": [
+        "export class",
+        "export function"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../config/ConfigurationManager.js",
+        "..\\events\\EventSystem.js",
+        "../../shared/utils/MetricsCollectorUtils.js",
+        "../../shared/utils/ResourceCleanupUtils.js",
+        "../../shared/utils/TimerManager.js"
+      ],
+      "complexity": 62,
+      "lines": 784
+    },
+    "core/AgentSystem": {
+      "path": "src\\core\\AgentSystem.js",
+      "relativePath": "core\\AgentSystem.js",
+      "exports": [
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export const",
+        "export default"
+      ],
+      "imports": [
+        "events",
+        "../shared/utils/logger.js",
+        "./error-handler.js"
+      ],
+      "complexity": 60,
+      "lines": 821
+    },
+    "core/api/APIStandard": {
+      "path": "src\\core\\api\\APIStandard.js",
+      "relativePath": "core\\api\\APIStandard.js",
+      "exports": [
+        "export class",
+        "export function",
+        "export function",
+        "export function"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../../shared/utils/ErrorHandlerUtils.js",
+        "../../shared/utils/ResourceCleanupUtils.js"
+      ],
+      "complexity": 54,
+      "lines": 955
+    },
+    "core/Application": {
+      "path": "src\\core\\Application.js",
+      "relativePath": "core\\Application.js",
+      "exports": [
+        "export class",
+        "export function"
+      ],
+      "imports": [
+        "../shared/utils/logger.js",
+        "./config/ConfigurationManager.js",
+        "./di/Container.js",
+        "./modules/ModuleSystem.js",
+        "./plugins/PluginManager.js",
+        "../shared/utils/ErrorHandlerUtils.js",
+        "../shared/utils/ResourceCleanupUtils.js",
+        "../shared/utils/HealthCheckUtils.js"
+      ],
+      "complexity": 54,
+      "lines": 750
+    },
+    "core/BaseModule": {
+      "path": "src\\core\\BaseModule.js",
+      "relativePath": "core\\BaseModule.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../shared/utils/logger.js",
+        "./error-handler.js"
+      ],
+      "complexity": 2,
+      "lines": 180
+    },
+    "core/BaseService": {
+      "path": "src\\core\\BaseService.js",
+      "relativePath": "core\\BaseService.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/config.js",
+        "../shared/utils/logger.js",
+        "./ErrorHandlerConfig.js",
+        "./events/EventSystem.js"
+      ],
+      "complexity": 3,
+      "lines": 135
+    },
+    "core/BloomFilter": {
+      "path": "src\\core\\BloomFilter.js",
+      "relativePath": "core\\BloomFilter.js",
+      "exports": [
+        "export class",
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 29,
+      "lines": 346
+    },
+    "core/CircuitBreaker": {
+      "path": "src\\core\\CircuitBreaker.js",
+      "relativePath": "core\\CircuitBreaker.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 11,
+      "lines": 198
+    },
+    "core/config/ConfigurationManager": {
+      "path": "src\\core\\config\\ConfigurationManager.js",
+      "relativePath": "core\\config\\ConfigurationManager.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "crypto",
+        "../../shared/utils/logger.js",
+        "../../shared/utils/ConfigurationValidatorUtils.js",
+        "../../shared/utils/ResourceCleanupUtils.js",
+        "../../shared/utils/TimerManager.js"
+      ],
+      "complexity": 59,
+      "lines": 894
+    },
+    "core/ConsulDiscovery": {
+      "path": "src\\core\\ConsulDiscovery.js",
+      "relativePath": "core\\ConsulDiscovery.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 2,
+      "lines": 103
+    },
+    "core/container": {
+      "path": "src\\core\\container.js",
+      "relativePath": "core\\container.js",
+      "exports": [
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export default"
+      ],
+      "imports": [
+        "../application/services/ConversationManager.js",
+        "../application/services/WorkflowEngine.js",
+        "../shared/services/UserService.js",
+        "../shared/utils/config.js",
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 35,
+      "lines": 433
+    },
+    "core/D3Visualization": {
+      "path": "src\\core\\D3Visualization.js",
+      "relativePath": "core\\D3Visualization.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 2,
+      "lines": 61
+    },
+    "core/DayJSDate": {
+      "path": "src\\core\\DayJSDate.js",
+      "relativePath": "core\\DayJSDate.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js",
+        "./BaseModule.js"
+      ],
+      "complexity": 11,
+      "lines": 233
+    },
+    "core/deployment/DistributedDeployment": {
+      "path": "src\\core\\deployment\\DistributedDeployment.js",
+      "relativePath": "core\\deployment\\DistributedDeployment.js",
+      "exports": [
+        "export class",
+        "export const",
+        "export default"
+      ],
+      "imports": [
+        "events",
+        "os",
+        "../../shared/utils/logger.js",
+        "../error-handler.js"
+      ],
+      "complexity": 71,
+      "lines": 1020
+    },
+    "core/di/Container": {
+      "path": "src\\core\\di\\Container.js",
+      "relativePath": "core\\di\\Container.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../../shared/utils/ResourceCleanupUtils.js",
+        "../../shared/utils/ErrorHandlerUtils.js"
+      ],
+      "complexity": 51,
+      "lines": 594
+    },
+    "core/di/ServiceContainer": {
+      "path": "src\\core\\di\\ServiceContainer.js",
+      "relativePath": "core\\di\\ServiceContainer.js",
+      "exports": [
+        "export class",
+        "export function"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "./Container.js",
+        "../../shared/utils/ErrorHandlerUtils.js",
+        "../../shared/utils/ResourceCleanupUtils.js"
+      ],
+      "complexity": 44,
+      "lines": 564
+    },
+    "core/error-handler": {
+      "path": "src\\core\\error-handler.js",
+      "relativePath": "core\\error-handler.js",
+      "exports": [
+        "export const",
+        "export class",
+        "export const",
+        "export class",
+        "export const"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 7,
+      "lines": 190
+    },
+    "core/ErrorHandlerConfig": {
+      "path": "src\\core\\ErrorHandlerConfig.js",
+      "relativePath": "core\\ErrorHandlerConfig.js",
+      "exports": [
+        "export function",
+        "export const",
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "@sentry/node",
+        "@sentry/profiling-node",
+        "../shared/utils/config.js",
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 38,
+      "lines": 433
+    },
+    "core/ESLintLinting": {
+      "path": "src\\core\\ESLintLinting.js",
+      "relativePath": "core\\ESLintLinting.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 4,
+      "lines": 78
+    },
+    "core/event/EventBus": {
+      "path": "src\\core\\event\\EventBus.js",
+      "relativePath": "core\\event\\EventBus.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "eventemitter3",
+        "../../shared/utils/logger.js",
+        "../container.js"
+      ],
+      "complexity": 21,
+      "lines": 265
+    },
+    "core/events/EventSystem": {
+      "path": "src\\core\\events\\EventSystem.js",
+      "relativePath": "core\\events\\EventSystem.js",
+      "exports": [
+        "export class",
+        "export function",
+        "export const"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../../shared/utils/ErrorHandlerUtils.js",
+        "../../shared/utils/ResourceCleanupUtils.js",
+        "../../shared/utils/TimerManager.js"
+      ],
+      "complexity": 53,
+      "lines": 673
+    },
+    "core/events/OptimizedEventSystem": {
+      "path": "src\\core\\events\\OptimizedEventSystem.js",
+      "relativePath": "core\\events\\OptimizedEventSystem.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 32,
+      "lines": 423
+    },
+    "core/ExponentialBackoff": {
+      "path": "src\\core\\ExponentialBackoff.js",
+      "relativePath": "core\\ExponentialBackoff.js",
+      "exports": [
+        "export function",
+        "export function",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 12,
+      "lines": 134
+    },
+    "core/FastifyFramework": {
+      "path": "src\\core\\FastifyFramework.js",
+      "relativePath": "core\\FastifyFramework.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 2,
+      "lines": 68
+    },
+    "core/FluentdLogging": {
+      "path": "src\\core\\FluentdLogging.js",
+      "relativePath": "core\\FluentdLogging.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 5,
+      "lines": 105
+    },
+    "core/FunctionalUtils": {
+      "path": "src\\core\\FunctionalUtils.js",
+      "relativePath": "core\\FunctionalUtils.js",
+      "exports": [
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 30,
+      "lines": 168
+    },
+    "core/HttpClient": {
+      "path": "src\\core\\HttpClient.js",
+      "relativePath": "core\\HttpClient.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "axios",
+        "../shared/utils/logger.js",
+        "./BaseModule.js",
+        "./error-handler.js"
+      ],
+      "complexity": 26,
+      "lines": 412
+    },
+    "core/HuskyHooks": {
+      "path": "src\\core\\HuskyHooks.js",
+      "relativePath": "core\\HuskyHooks.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 5,
+      "lines": 55
+    },
+    "core/index": {
+      "path": "src\\core\\index.js",
+      "relativePath": "core\\index.js",
+      "exports": [],
+      "imports": [],
+      "complexity": 0,
+      "lines": 112
+    },
+    "core/interfaces/IModule": {
+      "path": "src\\core\\interfaces\\IModule.js",
+      "relativePath": "core\\interfaces\\IModule.js",
+      "exports": [
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class"
+      ],
+      "imports": [],
+      "complexity": 7,
+      "lines": 469
+    },
+    "core/JaegerTracing": {
+      "path": "src\\core\\JaegerTracing.js",
+      "relativePath": "core\\JaegerTracing.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 3,
+      "lines": 67
+    },
+    "core/JWTAuth": {
+      "path": "src\\core\\JWTAuth.js",
+      "relativePath": "core\\JWTAuth.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js",
+        "./BaseModule.js",
+        "./error-handler.js"
+      ],
+      "complexity": 22,
+      "lines": 325
+    },
+    "core/LernaMonorepo": {
+      "path": "src\\core\\LernaMonorepo.js",
+      "relativePath": "core\\LernaMonorepo.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 1,
+      "lines": 71
+    },
+    "core/LightweightContainer": {
+      "path": "src\\core\\LightweightContainer.js",
+      "relativePath": "core\\LightweightContainer.js",
+      "exports": [
+        "export class",
+        "export function",
+        "export function",
+        "export function",
+        "export const"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 27,
+      "lines": 303
+    },
+    "core/memory/MemoryNetwork": {
+      "path": "src\\core\\memory\\MemoryNetwork.js",
+      "relativePath": "core\\memory\\MemoryNetwork.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "events",
+        "../../shared/utils/logger.js",
+        "../error-handler.js"
+      ],
+      "complexity": 143,
+      "lines": 1348
+    },
+    "core/MessagingAdapter": {
+      "path": "src\\core\\MessagingAdapter.js",
+      "relativePath": "core\\MessagingAdapter.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js",
+        "./events/EventSystem.js"
+      ],
+      "complexity": 10,
+      "lines": 210
+    },
+    "core/MetricsCollector": {
+      "path": "src\\core\\MetricsCollector.js",
+      "relativePath": "core\\MetricsCollector.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 36,
+      "lines": 780
+    },
+    "core/MicroserviceRegistry": {
+      "path": "src\\core\\MicroserviceRegistry.js",
+      "relativePath": "core\\MicroserviceRegistry.js",
+      "exports": [
+        "export function",
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js",
+        "./error-handler.js"
+      ],
+      "complexity": 61,
+      "lines": 664
+    },
+    "core/modules/ModuleSystem": {
+      "path": "src\\core\\modules\\ModuleSystem.js",
+      "relativePath": "core\\modules\\ModuleSystem.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../interfaces/IModule.js",
+        "../../shared/utils/ErrorHandlerUtils.js",
+        "../../shared/utils/ResourceCleanupUtils.js"
+      ],
+      "complexity": 70,
+      "lines": 757
+    },
+    "core/NATSMessaging": {
+      "path": "src\\core\\NATSMessaging.js",
+      "relativePath": "core\\NATSMessaging.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js",
+        "./BaseModule.js"
+      ],
+      "complexity": 11,
+      "lines": 175
+    },
+    "core/OpenAPIDocs": {
+      "path": "src\\core\\OpenAPIDocs.js",
+      "relativePath": "core\\OpenAPIDocs.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 3,
+      "lines": 96
+    },
+    "core/OptimizedBloomFilter": {
+      "path": "src\\core\\OptimizedBloomFilter.js",
+      "relativePath": "core\\OptimizedBloomFilter.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 25,
+      "lines": 381
+    },
+    "core/OptimizedTokenBucket": {
+      "path": "src\\core\\OptimizedTokenBucket.js",
+      "relativePath": "core\\OptimizedTokenBucket.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 30,
+      "lines": 446
+    },
+    "core/platform/PlatformAdapter": {
+      "path": "src\\core\\platform\\PlatformAdapter.js",
+      "relativePath": "core\\platform\\PlatformAdapter.js",
+      "exports": [
+        "export class",
+        "export function",
+        "export function",
+        "export function"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../../shared/utils/ErrorHandlerUtils.js"
+      ],
+      "complexity": 84,
+      "lines": 608
+    },
+    "core/plugin/SimplePluginManager": {
+      "path": "src\\core\\plugin\\SimplePluginManager.js",
+      "relativePath": "core\\plugin\\SimplePluginManager.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "child_process",
+        "fs",
+        "path",
+        "../../shared/utils/logger.js",
+        "./TextInstructionParser.js"
+      ],
+      "complexity": 24,
+      "lines": 411
+    },
+    "core/plugin/TextInstructionParser": {
+      "path": "src\\core\\plugin\\TextInstructionParser.js",
+      "relativePath": "core\\plugin\\TextInstructionParser.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 40,
+      "lines": 383
+    },
+    "core/plugins/PluginManager": {
+      "path": "src\\core\\plugins\\PluginManager.js",
+      "relativePath": "core\\plugins\\PluginManager.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../interfaces/IModule.js",
+        "../../shared/utils/ErrorHandlerUtils.js",
+        "../../shared/utils/ResourceCleanupUtils.js"
+      ],
+      "complexity": 87,
+      "lines": 979
+    },
+    "core/PluginSystem": {
+      "path": "src\\core\\PluginSystem.js",
+      "relativePath": "core\\PluginSystem.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "fastify-plugin",
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 34,
+      "lines": 414
+    },
+    "core/PrettierFormatting": {
+      "path": "src\\core\\PrettierFormatting.js",
+      "relativePath": "core\\PrettierFormatting.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 1,
+      "lines": 128
+    },
+    "core/PrismaORM": {
+      "path": "src\\core\\PrismaORM.js",
+      "relativePath": "core\\PrismaORM.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 3,
+      "lines": 102
+    },
+    "core/ProtocolBuffersSerialization": {
+      "path": "src\\core\\ProtocolBuffersSerialization.js",
+      "relativePath": "core\\ProtocolBuffersSerialization.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 1,
+      "lines": 57
+    },
+    "core/queue": {
+      "path": "src\\core\\queue.js",
+      "relativePath": "core\\queue.js",
+      "exports": [
+        "export function",
+        "export function"
+      ],
+      "imports": [
+        "bull",
+        "../shared/utils/config.js",
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 31,
+      "lines": 330
+    },
+    "core/RealtimeCommunication": {
+      "path": "src\\core\\RealtimeCommunication.js",
+      "relativePath": "core\\RealtimeCommunication.js",
+      "exports": [
+        "export class",
+        "export const",
+        "export default"
+      ],
+      "imports": [
+        "events",
+        "fs/promises",
+        "path",
+        "ws",
+        "../shared/utils/logger.js",
+        "./error-handler.js"
+      ],
+      "complexity": 71,
+      "lines": 963
+    },
+    "core/rollback/SmartRollbackManager": {
+      "path": "src\\core\\rollback\\SmartRollbackManager.js",
+      "relativePath": "core\\rollback\\SmartRollbackManager.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "child_process",
+        "path",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 91,
+      "lines": 1316
+    },
+    "core/runtime/LightweightRuntime": {
+      "path": "src\\core\\runtime\\LightweightRuntime.js",
+      "relativePath": "core\\runtime\\LightweightRuntime.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../../shared/utils/TimerManager.js",
+        "../../shared/utils/MetricsCollectorUtils.js",
+        "../../shared/utils/ResourceCleanupUtils.js"
+      ],
+      "complexity": 69,
+      "lines": 783
+    },
+    "core/server": {
+      "path": "src\\core\\server.js",
+      "relativePath": "core\\server.js",
+      "exports": [],
+      "imports": [
+        "fastify",
+        "fastify-plugin",
+        "../shared/utils/config.js",
+        "../shared/utils/logger.js",
+        "./container.js",
+        "./PluginSystem.js"
+      ],
+      "complexity": 29,
+      "lines": 349
+    },
+    "core/SimpleMessageProcessor": {
+      "path": "src\\core\\SimpleMessageProcessor.js",
+      "relativePath": "core\\SimpleMessageProcessor.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js",
+        "./plugin/SimplePluginManager.js",
+        "./plugin/TextInstructionParser.js",
+        "./utils/PlaceholderSystem.js"
+      ],
+      "complexity": 25,
+      "lines": 359
+    },
+    "core/SQLiteDatabase": {
+      "path": "src\\core\\SQLiteDatabase.js",
+      "relativePath": "core\\SQLiteDatabase.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 8,
+      "lines": 81
+    },
+    "core/TokenBucket": {
+      "path": "src\\core\\TokenBucket.js",
+      "relativePath": "core\\TokenBucket.js",
+      "exports": [
+        "export function",
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 13,
+      "lines": 231
+    },
+    "core/utils/PlaceholderSystem": {
+      "path": "src\\core\\utils\\PlaceholderSystem.js",
+      "relativePath": "core\\utils\\PlaceholderSystem.js",
+      "exports": [
+        "export class",
+        "export const",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 102,
+      "lines": 727
+    },
+    "core/UUIDId": {
+      "path": "src\\core\\UUIDId.js",
+      "relativePath": "core\\UUIDId.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 7,
+      "lines": 159
+    },
+    "core/ViteBuild": {
+      "path": "src\\core\\ViteBuild.js",
+      "relativePath": "core\\ViteBuild.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 5,
+      "lines": 148
+    },
+    "core/VitestTesting": {
+      "path": "src\\core\\VitestTesting.js",
+      "relativePath": "core\\VitestTesting.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js"
+      ],
+      "complexity": 2,
+      "lines": 55
+    },
+    "core/workflow/AsyncExecutionEngine": {
+      "path": "src\\core\\workflow\\AsyncExecutionEngine.js",
+      "relativePath": "core\\workflow\\AsyncExecutionEngine.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "events",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 29,
+      "lines": 505
+    },
+    "core/workflow/AsyncWorkflowExecutor": {
+      "path": "src\\core\\workflow\\AsyncWorkflowExecutor.js",
+      "relativePath": "core\\workflow\\AsyncWorkflowExecutor.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "events",
+        "../../shared/utils/logger.js",
+        "../BaseModule.js"
+      ],
+      "complexity": 49,
+      "lines": 775
+    },
+    "core/workflow/BasicMemoryNetwork": {
+      "path": "src\\core\\workflow\\BasicMemoryNetwork.js",
+      "relativePath": "core\\workflow\\BasicMemoryNetwork.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 73,
+      "lines": 897
+    },
+    "core/workflow/OptimizedWorkflowExecutor": {
+      "path": "src\\core\\workflow\\OptimizedWorkflowExecutor.js",
+      "relativePath": "core\\workflow\\OptimizedWorkflowExecutor.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 43,
+      "lines": 450
+    },
+    "core/workflow/WorkflowExecutor": {
+      "path": "src\\core\\workflow\\WorkflowExecutor.js",
+      "relativePath": "core\\workflow\\WorkflowExecutor.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "events",
+        "../../shared/utils/logger.js",
+        "../ErrorHandlerConfig.js"
+      ],
+      "complexity": 75,
+      "lines": 798
+    },
+    "core/ZodValidation": {
+      "path": "src\\core\\ZodValidation.js",
+      "relativePath": "core\\ZodValidation.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/logger.js",
+        "../shared/utils/type-guards.js"
+      ],
+      "complexity": 52,
+      "lines": 426
+    },
+    "core/ZustandState": {
+      "path": "src\\core\\ZustandState.js",
+      "relativePath": "core\\ZustandState.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../shared/utils/FunctionalUtils.js",
+        "../shared/utils/logger.js",
+        "./BaseModule.js",
+        "./error-handler.js"
+      ],
+      "complexity": 38,
+      "lines": 361
+    },
+    "domain/entities/auth/Role": {
+      "path": "src\\domain\\entities\\auth\\Role.js",
+      "relativePath": "domain\\entities\\auth\\Role.js",
+      "exports": [
+        "export class",
+        "export class",
+        "export class"
+      ],
+      "imports": [
+        "../../../shared/kernel/BaseEntity.js"
+      ],
+      "complexity": 27,
+      "lines": 314
+    },
+    "domain/entities/auth/Token": {
+      "path": "src\\domain\\entities\\auth\\Token.js",
+      "relativePath": "domain\\entities\\auth\\Token.js",
+      "exports": [
+        "export class",
+        "export class",
+        "export class",
+        "export class"
+      ],
+      "imports": [
+        "../../../shared/kernel/BaseEntity.js",
+        "../../../shared/kernel/BaseValueObject.js"
+      ],
+      "complexity": 22,
+      "lines": 419
+    },
+    "domain/entities/auth/User": {
+      "path": "src\\domain\\entities\\auth\\User.js",
+      "relativePath": "domain\\entities\\auth\\User.js",
+      "exports": [
+        "export class",
+        "export class",
+        "export class"
+      ],
+      "imports": [
+        "../../../shared/kernel/BaseEntity.js",
+        "../../../shared/kernel/BaseValueObject.js"
+      ],
+      "complexity": 23,
+      "lines": 280
+    },
+    "domain/repositories/auth/RoleRepository": {
+      "path": "src\\domain\\repositories\\auth\\RoleRepository.js",
+      "relativePath": "domain\\repositories\\auth\\RoleRepository.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../../shared/kernel/BaseRepository.js"
+      ],
+      "complexity": 1,
+      "lines": 47
+    },
+    "domain/repositories/auth/SessionRepository": {
+      "path": "src\\domain\\repositories\\auth\\SessionRepository.js",
+      "relativePath": "domain\\repositories\\auth\\SessionRepository.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../../shared/kernel/BaseRepository.js"
+      ],
+      "complexity": 1,
+      "lines": 54
+    },
+    "domain/repositories/auth/TokenRepository": {
+      "path": "src\\domain\\repositories\\auth\\TokenRepository.js",
+      "relativePath": "domain\\repositories\\auth\\TokenRepository.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../../shared/kernel/BaseRepository.js"
+      ],
+      "complexity": 1,
+      "lines": 47
+    },
+    "domain/repositories/auth/UserRepository": {
+      "path": "src\\domain\\repositories\\auth\\UserRepository.js",
+      "relativePath": "domain\\repositories\\auth\\UserRepository.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../../shared/kernel/BaseRepository.js"
+      ],
+      "complexity": 1,
+      "lines": 54
+    },
+    "domain/services/auth/AuthenticationService": {
+      "path": "src\\domain\\services\\auth\\AuthenticationService.js",
+      "relativePath": "domain\\services\\auth\\AuthenticationService.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "crypto",
+        "jsonwebtoken",
+        "../../../core/UUIDId.js",
+        "../../../shared/utils/logger.js",
+        "../../entities/auth/Token.js",
+        "../../entities/auth/User.js"
+      ],
+      "complexity": 38,
+      "lines": 599
+    },
+    "domain/services/auth/AuthorizationService": {
+      "path": "src\\domain\\services\\auth\\AuthorizationService.js",
+      "relativePath": "domain\\services\\auth\\AuthorizationService.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../../shared/utils/logger.js"
+      ],
+      "complexity": 54,
+      "lines": 552
+    },
+    "index-fixed": {
+      "path": "src\\index-fixed.js",
+      "relativePath": "index-fixed.js",
+      "exports": [],
+      "imports": [
+        "./core/container.js",
+        "./core/ErrorHandlerConfig.js",
+        "./core/events/EventSystem.js",
+        "./core/PluginSystem.js",
+        "./core/server.js",
+        "./shared/utils/config.js",
+        "./shared/utils/logger.js",
+        "./core/queue.js",
+        "./application/services/WorkflowEngine.js",
+        "./shared/services/UserService.js"
+      ],
+      "complexity": 14,
+      "lines": 246
+    },
+    "index": {
+      "path": "src\\index.js",
+      "relativePath": "index.js",
+      "exports": [],
+      "imports": [
+        "url",
+        "./application/services/WorkflowEngine.js",
+        "./core/container.js",
+        "./core/ErrorHandlerConfig.js",
+        "./core/events/EventSystem.js",
+        "./core/PluginSystem.js",
+        "./core/queue.js",
+        "./core/server.js",
+        "./shared/services/UserService.js",
+        "./shared/utils/config.js",
+        "./shared/utils/logger.js"
+      ],
+      "complexity": 48,
+      "lines": 530
+    },
+    "infrastructure/auth/AuthenticationMiddleware": {
+      "path": "src\\infrastructure\\auth\\AuthenticationMiddleware.js",
+      "relativePath": "infrastructure\\auth\\AuthenticationMiddleware.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 34,
+      "lines": 372
+    },
+    "infrastructure/auth/index": {
+      "path": "src\\infrastructure\\auth\\index.js",
+      "relativePath": "infrastructure\\auth\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export function",
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 5,
+      "lines": 151
+    },
+    "infrastructure/benchmarking/BenchmarkManager": {
+      "path": "src\\infrastructure\\benchmarking\\BenchmarkManager.js",
+      "relativePath": "infrastructure\\benchmarking\\BenchmarkManager.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "fs/promises",
+        "path",
+        "../../shared/utils/logger.js",
+        "./LoadTester.js",
+        "./PerformanceBenchmark.js",
+        "./StressTester.js"
+      ],
+      "complexity": 50,
+      "lines": 693
+    },
+    "infrastructure/benchmarking/LoadTester": {
+      "path": "src\\infrastructure\\benchmarking\\LoadTester.js",
+      "relativePath": "infrastructure\\benchmarking\\LoadTester.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "./PerformanceBenchmark.js"
+      ],
+      "complexity": 103,
+      "lines": 1092
+    },
+    "infrastructure/benchmarking/PerformanceBenchmark": {
+      "path": "src\\infrastructure\\benchmarking\\PerformanceBenchmark.js",
+      "relativePath": "infrastructure\\benchmarking\\PerformanceBenchmark.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "events",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 164,
+      "lines": 1575
+    },
+    "infrastructure/benchmarking/StressTester": {
+      "path": "src\\infrastructure\\benchmarking\\StressTester.js",
+      "relativePath": "infrastructure\\benchmarking\\StressTester.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "./LoadTester.js"
+      ],
+      "complexity": 114,
+      "lines": 1600
+    },
+    "infrastructure/database/DatabaseConnectionPool": {
+      "path": "src\\infrastructure\\database\\DatabaseConnectionPool.js",
+      "relativePath": "infrastructure\\database\\DatabaseConnectionPool.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "pg",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 57,
+      "lines": 958
+    },
+    "infrastructure/database/DatabaseMonitor": {
+      "path": "src\\infrastructure\\database\\DatabaseMonitor.js",
+      "relativePath": "infrastructure\\database\\DatabaseMonitor.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 34,
+      "lines": 503
+    },
+    "infrastructure/database/DatabaseOptimizer": {
+      "path": "src\\infrastructure\\database\\DatabaseOptimizer.js",
+      "relativePath": "infrastructure\\database\\DatabaseOptimizer.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 19,
+      "lines": 478
+    },
+    "infrastructure/database/DatabaseService": {
+      "path": "src\\infrastructure\\database\\DatabaseService.js",
+      "relativePath": "infrastructure\\database\\DatabaseService.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "./DatabaseConnectionPool.js",
+        "./DatabaseMonitor.js",
+        "./DatabaseOptimizer.js",
+        "./MigrationManager.js"
+      ],
+      "complexity": 26,
+      "lines": 512
+    },
+    "infrastructure/database/index": {
+      "path": "src\\infrastructure\\database\\index.js",
+      "relativePath": "infrastructure\\database\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export function",
+        "export function",
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 7,
+      "lines": 167
+    },
+    "infrastructure/database/MigrationManager": {
+      "path": "src\\infrastructure\\database\\MigrationManager.js",
+      "relativePath": "infrastructure\\database\\MigrationManager.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "fs/promises",
+        "path",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 40,
+      "lines": 528
+    },
+    "infrastructure/database/OptimizedDatabaseConnectionPool": {
+      "path": "src\\infrastructure\\database\\OptimizedDatabaseConnectionPool.js",
+      "relativePath": "infrastructure\\database\\OptimizedDatabaseConnectionPool.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "pg",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 25,
+      "lines": 462
+    },
+    "infrastructure/exception-handling/CoreServiceProtector": {
+      "path": "src\\infrastructure\\exception-handling\\CoreServiceProtector.js",
+      "relativePath": "infrastructure\\exception-handling\\CoreServiceProtector.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/kernel/EventBus.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 28,
+      "lines": 450
+    },
+    "infrastructure/exception-handling/ExceptionRecoveryStrategies": {
+      "path": "src\\infrastructure\\exception-handling\\ExceptionRecoveryStrategies.js",
+      "relativePath": "infrastructure\\exception-handling\\ExceptionRecoveryStrategies.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/kernel/EventBus.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 95,
+      "lines": 810
+    },
+    "infrastructure/exception-handling/GlobalExceptionHandler": {
+      "path": "src\\infrastructure\\exception-handling\\GlobalExceptionHandler.js",
+      "relativePath": "infrastructure\\exception-handling\\GlobalExceptionHandler.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/kernel/EventBus.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 10,
+      "lines": 270
+    },
+    "infrastructure/exception-handling/GracefulShutdownManager": {
+      "path": "src\\infrastructure\\exception-handling\\GracefulShutdownManager.js",
+      "relativePath": "infrastructure\\exception-handling\\GracefulShutdownManager.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/kernel/EventBus.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 44,
+      "lines": 475
+    },
+    "infrastructure/exception-handling/index": {
+      "path": "src\\infrastructure\\exception-handling\\index.js",
+      "relativePath": "infrastructure\\exception-handling\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 14,
+      "lines": 319
+    },
+    "infrastructure/exception-handling/ResourceCleaner": {
+      "path": "src\\infrastructure\\exception-handling\\ResourceCleaner.js",
+      "relativePath": "infrastructure\\exception-handling\\ResourceCleaner.js",
+      "exports": [
+        "export class",
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 63,
+      "lines": 540
+    },
+    "infrastructure/health-checks/DockerHealthChecker": {
+      "path": "src\\infrastructure\\health-checks\\DockerHealthChecker.js",
+      "relativePath": "infrastructure\\health-checks\\DockerHealthChecker.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../../shared/utils/terminal.js"
+      ],
+      "complexity": 37,
+      "lines": 665
+    },
+    "infrastructure/health-checks/HealthChecker": {
+      "path": "src\\infrastructure\\health-checks\\HealthChecker.js",
+      "relativePath": "infrastructure\\health-checks\\HealthChecker.js",
+      "exports": [
+        "export class",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const"
+      ],
+      "imports": [
+        "../../shared/kernel/EventBus.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 61,
+      "lines": 621
+    },
+    "infrastructure/health-checks/HealthCheckMiddleware": {
+      "path": "src\\infrastructure\\health-checks\\HealthCheckMiddleware.js",
+      "relativePath": "infrastructure\\health-checks\\HealthCheckMiddleware.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 8,
+      "lines": 417
+    },
+    "infrastructure/health-checks/index": {
+      "path": "src\\infrastructure\\health-checks\\index.js",
+      "relativePath": "infrastructure\\health-checks\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 19,
+      "lines": 339
+    },
+    "infrastructure/health-checks/KubernetesHealthChecker": {
+      "path": "src\\infrastructure\\health-checks\\KubernetesHealthChecker.js",
+      "relativePath": "infrastructure\\health-checks\\KubernetesHealthChecker.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../../shared/utils/terminal.js",
+        "./HealthChecker.js"
+      ],
+      "complexity": 44,
+      "lines": 794
+    },
+    "infrastructure/health-checks/ResourceLimits": {
+      "path": "src\\infrastructure\\health-checks\\ResourceLimits.js",
+      "relativePath": "infrastructure\\health-checks\\ResourceLimits.js",
+      "exports": [
+        "export class",
+        "export class"
+      ],
+      "imports": [
+        "../../shared/kernel/EventBus.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 29,
+      "lines": 733
+    },
+    "infrastructure/index": {
+      "path": "src\\infrastructure\\index.js",
+      "relativePath": "infrastructure\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export class",
+        "export function",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 20,
+      "lines": 336
+    },
+    "infrastructure/middleware/CacheMiddleware": {
+      "path": "src\\infrastructure\\middleware\\CacheMiddleware.js",
+      "relativePath": "infrastructure\\middleware\\CacheMiddleware.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 18,
+      "lines": 401
+    },
+    "infrastructure/persistence/CacheManager": {
+      "path": "src\\infrastructure\\persistence\\CacheManager.js",
+      "relativePath": "infrastructure\\persistence\\CacheManager.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 147,
+      "lines": 1362
+    },
+    "infrastructure/persistence/CacheStrategies": {
+      "path": "src\\infrastructure\\persistence\\CacheStrategies.js",
+      "relativePath": "infrastructure\\persistence\\CacheStrategies.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 83,
+      "lines": 633
+    },
+    "infrastructure/persistence/index": {
+      "path": "src\\infrastructure\\persistence\\index.js",
+      "relativePath": "infrastructure\\persistence\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export function",
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 7,
+      "lines": 152
+    },
+    "infrastructure/persistence/OptimizedCacheManager": {
+      "path": "src\\infrastructure\\persistence\\OptimizedCacheManager.js",
+      "relativePath": "infrastructure\\persistence\\OptimizedCacheManager.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 48,
+      "lines": 525
+    },
+    "infrastructure/pooling/AbstractResourcePool": {
+      "path": "src\\infrastructure\\pooling\\AbstractResourcePool.js",
+      "relativePath": "infrastructure\\pooling\\AbstractResourcePool.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 40,
+      "lines": 531
+    },
+    "infrastructure/pooling/GenericObjectPool": {
+      "path": "src\\infrastructure\\pooling\\GenericObjectPool.js",
+      "relativePath": "infrastructure\\pooling\\GenericObjectPool.js",
+      "exports": [
+        "export class",
+        "export const"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "./AbstractResourcePool.js"
+      ],
+      "complexity": 35,
+      "lines": 260
+    },
+    "infrastructure/pooling/HttpClientPool": {
+      "path": "src\\infrastructure\\pooling\\HttpClientPool.js",
+      "relativePath": "infrastructure\\pooling\\HttpClientPool.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "axios",
+        "http",
+        "https",
+        "../../shared/utils/logger.js",
+        "./AbstractResourcePool.js"
+      ],
+      "complexity": 21,
+      "lines": 405
+    },
+    "infrastructure/pooling/index": {
+      "path": "src\\infrastructure\\pooling\\index.js",
+      "relativePath": "infrastructure\\pooling\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export function",
+        "export function",
+        "export function",
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 10,
+      "lines": 237
+    },
+    "infrastructure/pooling/OptimizedHttpClientPool": {
+      "path": "src\\infrastructure\\pooling\\OptimizedHttpClientPool.js",
+      "relativePath": "infrastructure\\pooling\\OptimizedHttpClientPool.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "axios",
+        "http",
+        "https",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 30,
+      "lines": 522
+    },
+    "infrastructure/pooling/ResourcePoolManager": {
+      "path": "src\\infrastructure\\pooling\\ResourcePoolManager.js",
+      "relativePath": "infrastructure\\pooling\\ResourcePoolManager.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../database/DatabaseConnectionPool.js",
+        "./GenericObjectPool.js",
+        "./HttpClientPool.js",
+        "./WorkerPool.js"
+      ],
+      "complexity": 117,
+      "lines": 1390
+    },
+    "infrastructure/pooling/WorkerPool": {
+      "path": "src\\infrastructure\\pooling\\WorkerPool.js",
+      "relativePath": "infrastructure\\pooling\\WorkerPool.js",
+      "exports": [
+        "export class",
+        "export function",
+        "export function",
+        "export function"
+      ],
+      "imports": [
+        "path",
+        "worker_threads",
+        "../../shared/utils/logger.js",
+        "./AbstractResourcePool.js"
+      ],
+      "complexity": 39,
+      "lines": 443
+    },
+    "infrastructure/scaling/AutoScalingManager": {
+      "path": "src\\infrastructure\\scaling\\AutoScalingManager.js",
+      "relativePath": "infrastructure\\scaling\\AutoScalingManager.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "./LoadBalancer.js",
+        "./ScalingMetrics.js",
+        "./ScalingPolicy.js"
+      ],
+      "complexity": 79,
+      "lines": 947
+    },
+    "infrastructure/scaling/ContainerOrchestrator": {
+      "path": "src\\infrastructure\\scaling\\ContainerOrchestrator.js",
+      "relativePath": "infrastructure\\scaling\\ContainerOrchestrator.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [],
+      "complexity": 1,
+      "lines": 52
+    },
+    "infrastructure/scaling/DockerContainerOrchestrator": {
+      "path": "src\\infrastructure\\scaling\\DockerContainerOrchestrator.js",
+      "relativePath": "infrastructure\\scaling\\DockerContainerOrchestrator.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "../../shared/utils/terminal.js",
+        "./ContainerOrchestrator.js"
+      ],
+      "complexity": 55,
+      "lines": 736
+    },
+    "infrastructure/scaling/index": {
+      "path": "src\\infrastructure\\scaling\\index.js",
+      "relativePath": "infrastructure\\scaling\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 14,
+      "lines": 332
+    },
+    "infrastructure/scaling/LoadBalancer": {
+      "path": "src\\infrastructure\\scaling\\LoadBalancer.js",
+      "relativePath": "infrastructure\\scaling\\LoadBalancer.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 54,
+      "lines": 716
+    },
+    "infrastructure/scaling/ScalingMetrics": {
+      "path": "src\\infrastructure\\scaling\\ScalingMetrics.js",
+      "relativePath": "infrastructure\\scaling\\ScalingMetrics.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "os",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 38,
+      "lines": 456
+    },
+    "infrastructure/scaling/ScalingPolicy": {
+      "path": "src\\infrastructure\\scaling\\ScalingPolicy.js",
+      "relativePath": "infrastructure\\scaling\\ScalingPolicy.js",
+      "exports": [
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 17,
+      "lines": 279
+    },
+    "infrastructure/tracing/index": {
+      "path": "src\\infrastructure\\tracing\\index.js",
+      "relativePath": "infrastructure\\tracing\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export function",
+        "export function",
+        "export function",
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 8,
+      "lines": 291
+    },
+    "infrastructure/tracing/SamplingStrategy": {
+      "path": "src\\infrastructure\\tracing\\SamplingStrategy.js",
+      "relativePath": "infrastructure\\tracing\\SamplingStrategy.js",
+      "exports": [
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 45,
+      "lines": 604
+    },
+    "infrastructure/tracing/Span": {
+      "path": "src\\infrastructure\\tracing\\Span.js",
+      "relativePath": "infrastructure\\tracing\\Span.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [],
+      "complexity": 14,
+      "lines": 335
+    },
+    "infrastructure/tracing/TraceContext": {
+      "path": "src\\infrastructure\\tracing\\TraceContext.js",
+      "relativePath": "infrastructure\\tracing\\TraceContext.js",
+      "exports": [
+        "export class",
+        "export const",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export class"
+      ],
+      "imports": [
+        "async_hooks"
+      ],
+      "complexity": 27,
+      "lines": 344
+    },
+    "infrastructure/tracing/Tracer": {
+      "path": "src\\infrastructure\\tracing\\Tracer.js",
+      "relativePath": "infrastructure\\tracing\\Tracer.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js",
+        "./SamplingStrategy.js",
+        "./Span.js",
+        "./TraceContext.js",
+        "./TracingReporter.js"
+      ],
+      "complexity": 35,
+      "lines": 463
+    },
+    "infrastructure/tracing/TracingMiddleware": {
+      "path": "src\\infrastructure\\tracing\\TracingMiddleware.js",
+      "relativePath": "infrastructure\\tracing\\TracingMiddleware.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 39,
+      "lines": 473
+    },
+    "infrastructure/tracing/TracingReporter": {
+      "path": "src\\infrastructure\\tracing\\TracingReporter.js",
+      "relativePath": "infrastructure\\tracing\\TracingReporter.js",
+      "exports": [
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class"
+      ],
+      "imports": [
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 30,
+      "lines": 479
+    },
+    "infrastructure/web/index": {
+      "path": "src\\infrastructure\\web\\index.js",
+      "relativePath": "infrastructure\\web\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export class",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 15,
+      "lines": 368
+    },
+    "infrastructure/web/VisualWorkflowDesigner": {
+      "path": "src\\infrastructure\\web\\VisualWorkflowDesigner.js",
+      "relativePath": "infrastructure\\web\\VisualWorkflowDesigner.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "events",
+        "../../shared/utils/logger.js",
+        "../../core/error-handler.js"
+      ],
+      "complexity": 78,
+      "lines": 1105
+    },
+    "presentation/controllers/AIController": {
+      "path": "src\\presentation\\controllers\\AIController.js",
+      "relativePath": "presentation\\controllers\\AIController.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/kernel/BaseController.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 16,
+      "lines": 320
+    },
+    "presentation/controllers/AuthController": {
+      "path": "src\\presentation\\controllers\\AuthController.js",
+      "relativePath": "presentation\\controllers\\AuthController.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../shared/kernel/BaseController.js",
+        "../../shared/kernel/Result.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 26,
+      "lines": 571
+    },
+    "presentation/controllers/index": {
+      "path": "src\\presentation\\controllers\\index.js",
+      "relativePath": "presentation\\controllers\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export class",
+        "export function",
+        "export function",
+        "export function",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 21,
+      "lines": 275
+    },
+    "presentation/index": {
+      "path": "src\\presentation\\index.js",
+      "relativePath": "presentation\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export class",
+        "export function",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 16,
+      "lines": 343
+    },
+    "presentation/middleware/index": {
+      "path": "src\\presentation\\middleware\\index.js",
+      "relativePath": "presentation\\middleware\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export class",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 30,
+      "lines": 371
+    },
+    "presentation/middleware/input-validation.middleware": {
+      "path": "src\\presentation\\middleware\\input-validation.middleware.js",
+      "relativePath": "presentation\\middleware\\input-validation.middleware.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../../core/ErrorHandlerConfig.js",
+        "../../core/ZodValidation.js"
+      ],
+      "complexity": 37,
+      "lines": 572
+    },
+    "presentation/middleware/performance-monitoring.middleware": {
+      "path": "src\\presentation\\middleware\\performance-monitoring.middleware.js",
+      "relativePath": "presentation\\middleware\\performance-monitoring.middleware.js",
+      "exports": [
+        "export default"
+      ],
+      "imports": [
+        "../../application/services/CacheService.js",
+        "../../core/MetricsCollector.js",
+        "../../infrastructure/middleware/CacheMiddleware.js",
+        "../../shared/utils/logger.js"
+      ],
+      "complexity": 29,
+      "lines": 491
+    },
+    "presentation/routes/ai.routes": {
+      "path": "src\\presentation\\routes\\ai.routes.js",
+      "relativePath": "presentation\\routes\\ai.routes.js",
+      "exports": [
+        "export function"
+      ],
+      "imports": [
+        "express",
+        "../controllers/AIController.js"
+      ],
+      "complexity": 1,
+      "lines": 43
+    },
+    "presentation/routes/auth.routes": {
+      "path": "src\\presentation\\routes\\auth.routes.js",
+      "relativePath": "presentation\\routes\\auth.routes.js",
+      "exports": [
+        "export function"
+      ],
+      "imports": [
+        "express",
+        "../../domain/services/auth/AuthorizationService.js",
+        "../../infrastructure/auth/AuthenticationMiddleware.js",
+        "../controllers/AuthController.js"
+      ],
+      "complexity": 1,
+      "lines": 67
+    },
+    "presentation/routes/index": {
+      "path": "src\\presentation\\routes\\index.js",
+      "relativePath": "presentation\\routes\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export class",
+        "export function",
+        "export function",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export function",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 33,
+      "lines": 421
+    },
+    "shared/config/ai-providers": {
+      "path": "src\\shared\\config\\ai-providers.js",
+      "relativePath": "shared\\config\\ai-providers.js",
+      "exports": [
+        "export const",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 11,
+      "lines": 136
+    },
+    "shared/constants/index": {
+      "path": "src\\shared\\constants\\index.js",
+      "relativePath": "shared\\constants\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 0,
+      "lines": 185
+    },
+    "shared/errors/index": {
+      "path": "src\\shared\\errors\\index.js",
+      "relativePath": "shared\\errors\\index.js",
+      "exports": [
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export const",
+        "export const",
+        "export const",
+        "export function",
+        "export function",
+        "export class",
+        "export function",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 25,
+      "lines": 393
+    },
+    "shared/index": {
+      "path": "src\\shared\\index.js",
+      "relativePath": "shared\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export class",
+        "export function",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 17,
+      "lines": 325
+    },
+    "shared/kernel/BaseApplicationService": {
+      "path": "src\\shared\\kernel\\BaseApplicationService.js",
+      "relativePath": "shared\\kernel\\BaseApplicationService.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [],
+      "complexity": 10,
+      "lines": 137
+    },
+    "shared/kernel/BaseController": {
+      "path": "src\\shared\\kernel\\BaseController.js",
+      "relativePath": "shared\\kernel\\BaseController.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [],
+      "complexity": 12,
+      "lines": 227
+    },
+    "shared/kernel/BaseEntity": {
+      "path": "src\\shared\\kernel\\BaseEntity.js",
+      "relativePath": "shared\\kernel\\BaseEntity.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [],
+      "complexity": 3,
+      "lines": 107
+    },
+    "shared/kernel/BaseRepository": {
+      "path": "src\\shared\\kernel\\BaseRepository.js",
+      "relativePath": "shared\\kernel\\BaseRepository.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [],
+      "complexity": 3,
+      "lines": 125
+    },
+    "shared/kernel/BaseUseCase": {
+      "path": "src\\shared\\kernel\\BaseUseCase.js",
+      "relativePath": "shared\\kernel\\BaseUseCase.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "./Result.js"
+      ],
+      "complexity": 7,
+      "lines": 117
+    },
+    "shared/kernel/BaseValueObject": {
+      "path": "src\\shared\\kernel\\BaseValueObject.js",
+      "relativePath": "shared\\kernel\\BaseValueObject.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [],
+      "complexity": 15,
+      "lines": 91
+    },
+    "shared/kernel/DependencyContainer": {
+      "path": "src\\shared\\kernel\\DependencyContainer.js",
+      "relativePath": "shared\\kernel\\DependencyContainer.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [],
+      "complexity": 18,
+      "lines": 225
+    },
+    "shared/kernel/errors/index": {
+      "path": "src\\shared\\kernel\\errors\\index.js",
+      "relativePath": "shared\\kernel\\errors\\index.js",
+      "exports": [
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class"
+      ],
+      "imports": [],
+      "complexity": 9,
+      "lines": 99
+    },
+    "shared/kernel/EventBus": {
+      "path": "src\\shared\\kernel\\EventBus.js",
+      "relativePath": "shared\\kernel\\EventBus.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [],
+      "complexity": 17,
+      "lines": 203
+    },
+    "shared/kernel/index": {
+      "path": "src\\shared\\kernel\\index.js",
+      "relativePath": "shared\\kernel\\index.js",
+      "exports": [
+        "export const",
+        "export class",
+        "export class",
+        "export class",
+        "export const",
+        "export const",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 3,
+      "lines": 218
+    },
+    "shared/kernel/Result": {
+      "path": "src\\shared\\kernel\\Result.js",
+      "relativePath": "shared\\kernel\\Result.js",
+      "exports": [
+        "export class",
+        "export function",
+        "export function",
+        "export function"
+      ],
+      "imports": [],
+      "complexity": 15,
+      "lines": 176
+    },
+    "shared/services/AIProviderManager": {
+      "path": "src\\shared\\services\\AIProviderManager.js",
+      "relativePath": "shared\\services\\AIProviderManager.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../utils/logger.js"
+      ],
+      "complexity": 5,
+      "lines": 100
+    },
+    "shared/services/AIProviderUI": {
+      "path": "src\\shared\\services\\AIProviderUI.js",
+      "relativePath": "shared\\services\\AIProviderUI.js",
+      "exports": [
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "../../core/events/EventSystem.js",
+        "../utils/logger.js",
+        "./AIProviderManager.js"
+      ],
+      "complexity": 40,
+      "lines": 1204
+    },
+    "shared/services/index": {
+      "path": "src\\shared\\services\\index.js",
+      "relativePath": "shared\\services\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export class",
+        "export function",
+        "export class",
+        "export function",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 15,
+      "lines": 303
+    },
+    "shared/services/UserService": {
+      "path": "src\\shared\\services\\UserService.js",
+      "relativePath": "shared\\services\\UserService.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "../../core/MessagingAdapter.js",
+        "../utils/config.js",
+        "../utils/logger.js"
+      ],
+      "complexity": 37,
+      "lines": 442
+    },
+    "shared/types/index": {
+      "path": "src\\shared\\types\\index.js",
+      "relativePath": "shared\\types\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 43,
+      "lines": 514
+    },
+    "shared/utils/BaseConfigurable": {
+      "path": "src\\shared\\utils\\BaseConfigurable.js",
+      "relativePath": "shared\\utils\\BaseConfigurable.js",
+      "exports": [
+        "export class",
+        "export const"
+      ],
+      "imports": [],
+      "complexity": 18,
+      "lines": 186
+    },
+    "shared/utils/BaseInitializable": {
+      "path": "src\\shared\\utils\\BaseInitializable.js",
+      "relativePath": "shared\\utils\\BaseInitializable.js",
+      "exports": [
+        "export class",
+        "export const"
+      ],
+      "imports": [
+        "./logger.js"
+      ],
+      "complexity": 24,
+      "lines": 385
+    },
+    "shared/utils/CacheDecorators": {
+      "path": "src\\shared\\utils\\CacheDecorators.js",
+      "relativePath": "shared\\utils\\CacheDecorators.js",
+      "exports": [
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function"
+      ],
+      "imports": [
+        "./logger.js"
+      ],
+      "complexity": 52,
+      "lines": 304
+    },
+    "shared/utils/config-legacy": {
+      "path": "src\\shared\\utils\\config-legacy.js",
+      "relativePath": "shared\\utils\\config-legacy.js",
+      "exports": [
+        "export const",
+        "export const"
+      ],
+      "imports": [
+        "fs",
+        "path",
+        "url"
+      ],
+      "complexity": 17,
+      "lines": 376
+    },
+    "shared/utils/config": {
+      "path": "src\\shared\\utils\\config.js",
+      "relativePath": "shared\\utils\\config.js",
+      "exports": [
+        "export class",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export default"
+      ],
+      "imports": [
+        "zod",
+        "fs",
+        "path"
+      ],
+      "complexity": 23,
+      "lines": 497
+    },
+    "shared/utils/ConfigurationValidatorUtils": {
+      "path": "src\\shared\\utils\\ConfigurationValidatorUtils.js",
+      "relativePath": "shared\\utils\\ConfigurationValidatorUtils.js",
+      "exports": [
+        "export class",
+        "export const"
+      ],
+      "imports": [
+        "./logger.js"
+      ],
+      "complexity": 70,
+      "lines": 437
+    },
+    "shared/utils/ErrorHandlerUtils": {
+      "path": "src\\shared\\utils\\ErrorHandlerUtils.js",
+      "relativePath": "shared\\utils\\ErrorHandlerUtils.js",
+      "exports": [
+        "export class",
+        "export const"
+      ],
+      "imports": [
+        "./logger.js"
+      ],
+      "complexity": 45,
+      "lines": 456
+    },
+    "shared/utils/FunctionalUtils": {
+      "path": "src\\shared\\utils\\FunctionalUtils.js",
+      "relativePath": "shared\\utils\\FunctionalUtils.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export class",
+        "export const",
+        "export const"
+      ],
+      "imports": [],
+      "complexity": 74,
+      "lines": 557
+    },
+    "shared/utils/HealthCheckUtils": {
+      "path": "src\\shared\\utils\\HealthCheckUtils.js",
+      "relativePath": "shared\\utils\\HealthCheckUtils.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "./logger.js"
+      ],
+      "complexity": 60,
+      "lines": 661
+    },
+    "shared/utils/index": {
+      "path": "src\\shared\\utils\\index.js",
+      "relativePath": "shared\\utils\\index.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export class",
+        "export function",
+        "export const",
+        "export const",
+        "export function",
+        "export default"
+      ],
+      "imports": [],
+      "complexity": 22,
+      "lines": 294
+    },
+    "shared/utils/logger": {
+      "path": "src\\shared\\utils\\logger.js",
+      "relativePath": "shared\\utils\\logger.js",
+      "exports": [
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const"
+      ],
+      "imports": [
+        "crypto",
+        "fs",
+        "os",
+        "path",
+        "url"
+      ],
+      "complexity": 56,
+      "lines": 687
+    },
+    "shared/utils/MetricsCollectorUtils": {
+      "path": "src\\shared\\utils\\MetricsCollectorUtils.js",
+      "relativePath": "shared\\utils\\MetricsCollectorUtils.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "./logger.js",
+        "os"
+      ],
+      "complexity": 60,
+      "lines": 482
+    },
+    "shared/utils/path-aliases": {
+      "path": "src\\shared\\utils\\path-aliases.js",
+      "relativePath": "shared\\utils\\path-aliases.js",
+      "exports": [
+        "export class",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export const",
+        "export function",
+        "export class",
+        "export default"
+      ],
+      "imports": [
+        "path",
+        "fs",
+        "url"
+      ],
+      "complexity": 36,
+      "lines": 279
+    },
+    "shared/utils/ResourceCleanupUtils": {
+      "path": "src\\shared\\utils\\ResourceCleanupUtils.js",
+      "relativePath": "shared\\utils\\ResourceCleanupUtils.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "./logger.js"
+      ],
+      "complexity": 66,
+      "lines": 693
+    },
+    "shared/utils/secret-manager": {
+      "path": "src\\shared\\utils\\secret-manager.js",
+      "relativePath": "shared\\utils\\secret-manager.js",
+      "exports": [
+        "export class",
+        "export const",
+        "export const",
+        "export const",
+        "export const"
+      ],
+      "imports": [
+        "crypto",
+        "fs",
+        "path",
+        "url",
+        "./logger.js"
+      ],
+      "complexity": 27,
+      "lines": 606
+    },
+    "shared/utils/StatsReporterUtils": {
+      "path": "src\\shared\\utils\\StatsReporterUtils.js",
+      "relativePath": "shared\\utils\\StatsReporterUtils.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "./logger.js"
+      ],
+      "complexity": 57,
+      "lines": 492
+    },
+    "shared/utils/terminal": {
+      "path": "src\\shared\\utils\\terminal.js",
+      "relativePath": "shared\\utils\\terminal.js",
+      "exports": [],
+      "imports": [
+        "child_process",
+        "util"
+      ],
+      "complexity": 6,
+      "lines": 50
+    },
+    "shared/utils/ThresholdManager": {
+      "path": "src\\shared\\utils\\ThresholdManager.js",
+      "relativePath": "shared\\utils\\ThresholdManager.js",
+      "exports": [
+        "export class"
+      ],
+      "imports": [
+        "./logger.js"
+      ],
+      "complexity": 58,
+      "lines": 771
+    },
+    "shared/utils/TimerManager": {
+      "path": "src\\shared\\utils\\TimerManager.js",
+      "relativePath": "shared\\utils\\TimerManager.js",
+      "exports": [
+        "export class",
+        "export const"
+      ],
+      "imports": [
+        "./logger.js"
+      ],
+      "complexity": 42,
+      "lines": 505
+    },
+    "shared/utils/type-guards": {
+      "path": "src\\shared\\utils\\type-guards.js",
+      "relativePath": "shared\\utils\\type-guards.js",
+      "exports": [
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function",
+        "export function"
+      ],
+      "imports": [],
+      "complexity": 52,
+      "lines": 233
+    }
+  },
+  "dependencies": {},
+  "reverseDependencies": {}
+}

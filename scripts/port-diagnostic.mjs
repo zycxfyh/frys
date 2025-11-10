@@ -38,7 +38,7 @@ try {
 		console.log("\n💡 解决方案:");
 		console.log("1. 停止占用6379端口的进程");
 		console.log("2. 或修改docker-compose.yml中的Redis端口映射");
-		console.log('3. 例如改为: ports: ["6380:6379"]');
+		console.log('3. 例如改为: ports: ["6381:6379"]');
 	} else {
 		console.log("✅ 端口6379未被占用");
 	}
@@ -75,7 +75,7 @@ try {
 console.log("\n🛠️ 4. 推荐解决方案:");
 console.log("=====================================");
 console.log("方案A - 修改Redis端口映射:");
-console.log("  在docker-compose.yml中将Redis端口改为6380:6379");
+console.log("  在docker-compose.yml中将Redis端口改为6381:6379");
 console.log("");
 console.log("方案B - 停止冲突进程:");
 console.log("  使用任务管理器或命令行停止占用6379端口的进程");

@@ -5,8 +5,8 @@
 
 import Fastify from 'fastify';
 import fastifyPlugin from 'fastify-plugin';
-import { config } from '../shared/utils/config.js';
-import { logger } from '../shared/utils/logger.js';
+import { config } from '../../shared/utils/config.js';
+import { logger } from '../../shared/utils/logger.js';
 import { resolve } from './container.js';
 
 // 导入插件

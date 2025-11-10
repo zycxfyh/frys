@@ -1,0 +1,5 @@
+
+> frys@1.0.0 test:coverage
+> vitest run --coverage --reporter=json --run
+
+/c/nvm4w/nodejs/npm: line 65:  2309 Segmentation fault      "$NODE_EXE" "$NPM_CLI_JS" "$@"

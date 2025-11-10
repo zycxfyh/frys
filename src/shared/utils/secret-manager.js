@@ -14,7 +14,7 @@ import crypto from 'crypto';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { logger } from '../shared/utils/logger.js';
+import { logger } from './logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

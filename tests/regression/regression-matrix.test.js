@@ -12,8 +12,8 @@ import {
  */
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
-import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
+import HttpClient from '../../src/core/HttpClient.js';
+import JWTAuth from '../../src/core/JWTAuth.js';
 import { LightweightContainer } from '../../src/core/LightweightContainer.js';
 import LodashInspiredUtils from '../../src/core/LodashInspiredUtils.js';
 import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
@@ -27,8 +27,8 @@ describe('回归测试矩阵', () => {
 
   beforeAll(async () => {
     container = new LightweightContainer();
-    container.register('http', AxiosInspiredHTTP);
-    container.register('auth', JWTInspiredAuth);
+    container.register('http', HttpClient);
+    container.register('auth', JWTAuth);
     container.register('state', ZustandInspiredState);
     container.register('utils', LodashInspiredUtils);
 

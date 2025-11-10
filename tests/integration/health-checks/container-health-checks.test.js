@@ -47,7 +47,7 @@ vi.spyOn(logger, 'debug').mockImplementation(() => {});
 global.fetch = vi.fn();
 
 // Mock terminal commands for Docker/Kubernetes
-vi.mock('../../../src/utils/terminal.js', () => ({
+vi.mock('../../../src/shared/utils/terminal.js', () => ({
   run_terminal_cmd: vi.fn(),
 }));
 
@@ -58,8 +58,18 @@ describe('容器健康检查集成测试', () => {
   beforeAll(() => {
     eventBus = new EventBus();
     mockTerminalCmd = vi.mocked(
-      require('../../../src/utils/terminal.js').run_terminal_cmd,
+      require('../../../src/shared/utils/terminal.js').run_terminal_cmd,
     );
+
+    // 设置默认的mock行为
+    if (mockTerminalCmd && typeof mockTerminalCmd.mockResolvedValue === 'function') {
+      mockTerminalCmd.mockResolvedValue({
+        success: true,
+        stdout: '',
+        stderr: '',
+        code: 0
+      });
+    }
   });
 
   describe('基础健康检查器', () => {

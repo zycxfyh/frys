@@ -12,21 +12,27 @@ import {
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
+import HttpClient from '../../src/core/HttpClient.js';
 import DayJSInspiredDate from '../../src/core/DayJSInspiredDate.js';
-import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
+import JWTAuth from '../../src/core/JWTAuth.js';
 import LodashInspiredUtils from '../../src/core/LodashInspiredUtils.js';
 import NATSInspiredMessaging from '../../src/core/NATSInspiredMessaging.js';
 import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
+import TestServer from '../test-server.js';
 
 describe('端到端工作流测试', () => {
   let http, jwt, state, utils, messaging, date;
   let workflowStore, httpInstance, messagingConnection;
+  let testServer;
 
   beforeEach(async () => {
+    // 启动测试服务器
+    testServer = new TestServer();
+    await testServer.start();
+
     // 初始化所有核心模块
-    http = new AxiosInspiredHTTP();
-    jwt = new JWTInspiredAuth();
+    http = new HttpClient();
+    jwt = new JWTAuth();
     state = new ZustandInspiredState();
     utils = new LodashInspiredUtils();
     messaging = new NATSInspiredMessaging();
@@ -44,7 +50,7 @@ describe('端到端工作流测试', () => {
 
     // 创建HTTP实例
     httpInstance = http.create({
-      baseURL: 'https://api.workflow.local',
+      baseURL: testServer.getUrl(),
       timeout: 10000,
     });
 
@@ -203,6 +209,7 @@ describe('端到端工作流测试', () => {
     if (utils) await utils.destroy();
     if (messaging) await messaging.destroy();
     if (date) await date.destroy();
+    if (testServer) await testServer.stop();
     http = null;
     jwt = null;
     state = null;
@@ -210,6 +217,7 @@ describe('端到端工作流测试', () => {
     messaging = null;
     date = null;
     workflowStore = null;
+    testServer = null;
     httpInstance = null;
     messagingConnection = null;
   });

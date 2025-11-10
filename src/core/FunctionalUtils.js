@@ -3,7 +3,7 @@
  * 提供管道、柯里化、记忆化等函数式编程原语
  */
 
-import { logger } from '../shared/utils/logger.js';
+import { logger } from '../../shared/utils/logger.js';
 
 /**
  * 管道函数 - 从左到右执行函数组合

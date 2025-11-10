@@ -41,7 +41,7 @@ const mockOrchestrator = {
 };
 
 // Mock run_terminal_cmd
-vi.mock('../../../src/utils/terminal.js', () => ({
+vi.mock('../../../src/shared/utils/terminal.js', () => ({
   run_terminal_cmd: vi.fn(),
 }));
 
@@ -56,9 +56,8 @@ describe('自动扩容集成测试', () => {
     vi.spyOn(logger, 'error').mockImplementation(() => {});
     vi.spyOn(logger, 'debug').mockImplementation(() => {});
 
-    mockTerminalCmd = vi.mocked(
-      require('../../../src/utils/terminal.js').run_terminal_cmd,
-    );
+    const terminalModule = require('../../../src/shared/utils/terminal.js');
+    mockTerminalCmd = vi.mocked(terminalModule.run_terminal_cmd);
   });
 
   afterAll(() => {
@@ -83,7 +82,11 @@ describe('自动扩容集成测试', () => {
     });
     mockOrchestrator.stopInstance.mockResolvedValue(true);
     mockOrchestrator.healthCheck.mockResolvedValue({ status: 'healthy' });
-    mockTerminalCmd.mockResolvedValue({ code: 0, stdout: '', stderr: '' });
+
+    // 设置terminal mock
+    if (mockTerminalCmd && typeof mockTerminalCmd.mockResolvedValue === 'function') {
+      mockTerminalCmd.mockResolvedValue({ code: 0, stdout: '', stderr: '' });
+    }
 
     // 创建自动扩容管理器实例
     autoScalingManager = new AutoScalingManager({

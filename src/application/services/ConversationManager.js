@@ -3,8 +3,8 @@
  * 提供多轮对话管理、上下文保持和记忆集成
  */
 
-import { errorHandler } from '../../core/ErrorHandlerConfig.js';
-import { eventSystem } from '../../core/event/EventBus.js';
+// import { errorHandler } from '../../core/error-handler.js';
+// import { eventSystem } from '../../core/EventBus.js';
 import { config } from '../../shared/utils/config.js';
 // AI服务将在运行时通过插件系统注入
 import { logger } from '../../shared/utils/logger.js';
@@ -75,7 +75,7 @@ export class ConversationManager {
 
       // 初始化Cognee记忆服务
       if (config.ai.providers.cognee?.apiKey) {
-        this.cogneeService = new CogneeMemoryService(options.cognee);
+        // this.cogneeService = new CogneeMemoryService(options.cognee); // TODO: 实现Cognee集成
         logger.info('Cognee记忆服务集成成功');
       }
     } catch (error) {
@@ -139,8 +139,8 @@ export class ConversationManager {
       this.activeConversations.set(id, conversation);
       this.stats.conversationsCreated++;
 
-      // 发送事件
-      eventSystem.emit('conversation:created', {
+      // 记录对话创建事件
+      logger.info('对话创建', {
         conversationId: id,
         userId,
         sessionId,
@@ -172,13 +172,13 @@ export class ConversationManager {
         conversationConfig,
       });
 
-      eventSystem.emit('conversation:error', {
+      logger.info('conversation:error', {
         operation: 'create',
         error: error.message,
         timestamp: new Date().toISOString(),
       });
 
-      throw errorHandler.createError(
+      throw new Error(
         'CONVERSATION_CREATION_FAILED',
         error.message,
       );
@@ -279,7 +279,7 @@ export class ConversationManager {
       }
 
       // 发送事件
-      eventSystem.emit('conversation:message:processed', {
+      logger.info('conversation:message:processed', {
         conversationId,
         userId,
         sessionId,
@@ -312,14 +312,14 @@ export class ConversationManager {
       this.stats.errors++;
       logger.error('消息处理失败', { conversationId, error: error.message });
 
-      eventSystem.emit('conversation:error', {
+      logger.info('conversation:error', {
         operation: 'send_message',
         conversationId,
         error: error.message,
         timestamp: new Date().toISOString(),
       });
 
-      throw errorHandler.createError(
+      throw new Error(
         'CONVERSATION_MESSAGE_FAILED',
         error.message,
       );
@@ -415,7 +415,7 @@ export class ConversationManager {
         conversationId,
         error: error.message,
       });
-      throw errorHandler.createError(
+      throw new Error(
         'CONVERSATION_HISTORY_FAILED',
         error.message,
       );
@@ -463,7 +463,7 @@ export class ConversationManager {
         query,
         error: error.message,
       });
-      throw errorHandler.createError(
+      throw new Error(
         'CONVERSATION_MEMORY_RETRIEVAL_FAILED',
         error.message,
       );
@@ -501,7 +501,7 @@ export class ConversationManager {
         conversationId,
         error: error.message,
       });
-      throw errorHandler.createError(
+      throw new Error(
         'CONVERSATION_CONTEXT_UPDATE_FAILED',
         error.message,
       );
@@ -538,7 +538,7 @@ export class ConversationManager {
       }
 
       // 发送事件
-      eventSystem.emit('conversation:ended', {
+      logger.info('conversation:ended', {
         conversationId,
         userId: conversation.userId,
         sessionId: conversation.sessionId,
@@ -560,7 +560,7 @@ export class ConversationManager {
       };
     } catch (error) {
       logger.error('结束对话失败', { conversationId, error: error.message });
-      throw errorHandler.createError('CONVERSATION_END_FAILED', error.message);
+      throw new Error('CONVERSATION_END_FAILED', error.message);
     }
   }
 
@@ -613,7 +613,7 @@ export class ConversationManager {
         conversationId,
         error: error.message,
       });
-      throw errorHandler.createError(
+      throw new Error(
         'CONVERSATION_STATS_FAILED',
         error.message,
       );

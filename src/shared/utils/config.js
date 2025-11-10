@@ -373,3 +373,9 @@ if (config.app.env === 'development') {
     monitoring: config.monitoring.enabled,
   });
 }
+
+// 添加loadFromEnv方法到config对象
+config.loadFromEnv = loadEnvConfig;
+
+// 默认验证配置
+validateConfig();

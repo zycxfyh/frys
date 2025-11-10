@@ -1,0 +1,715 @@
+{
+  "timestamp": "2025-11-10T14:32:37.813Z",
+  "summary": {
+    "totalFeatures": 33,
+    "retainCount": 8,
+    "optimizeCount": 3,
+    "renameCount": 21,
+    "removeCount": 1
+  },
+  "recommendations": {
+    "retain": [
+      {
+        "name": "core/AsyncWorkflowExecutor",
+        "category": "CORE_WORKFLOW",
+        "value": "CRITICAL",
+        "reason": "实现了4种高级调度算法，复杂依赖分析，是系统核心",
+        "lines": 775,
+        "dependencies": 3,
+        "recommendation": "保留并优化 - 这是系统的核心竞争力",
+        "complexity": 49,
+        "score": 100
+      },
+      {
+        "name": "core/SmartRollbackManager",
+        "category": "CORE_ROLLBACK",
+        "value": "CRITICAL",
+        "reason": "5种回退策略，企业级故障恢复机制",
+        "lines": 1316,
+        "dependencies": 3,
+        "recommendation": "保留 - 企业级高可用性保障",
+        "complexity": 91,
+        "score": 100
+      },
+      {
+        "name": "core/MemoryNetwork",
+        "category": "CORE_AI",
+        "value": "HIGH",
+        "reason": "跨会话记忆，知识图谱，AI会话增强功能",
+        "lines": 1348,
+        "dependencies": 3,
+        "recommendation": "保留 - AI功能增强，考虑独立模块",
+        "complexity": 143,
+        "score": 95
+      },
+      {
+        "name": "core/DistributedDeployment",
+        "category": "CORE_DISTRIBUTED",
+        "value": "HIGH",
+        "reason": "分布式节点管理，智能负载均衡，集群部署",
+        "lines": 1020,
+        "dependencies": 4,
+        "recommendation": "保留 - 云原生分布式支持",
+        "complexity": 71,
+        "score": 95
+      },
+      {
+        "name": "infrastructure/benchmarking/StressTester",
+        "category": "INFRA_TESTING",
+        "value": "HIGH",
+        "reason": "企业级压力测试，6种测试模式，故障注入，混沌工程",
+        "lines": 1600,
+        "dependencies": 2,
+        "recommendation": "保留 - 专业级测试工具，可考虑开源独立",
+        "complexity": 114,
+        "score": 95
+      },
+      {
+        "name": "infrastructure/database/DatabaseConnectionPool",
+        "category": "INFRA_DATABASE",
+        "value": "HIGH",
+        "reason": "高级连接池算法，自适应扩展，健康检查",
+        "lines": 958,
+        "dependencies": 2,
+        "recommendation": "保留 - 生产级数据库管理",
+        "complexity": 57,
+        "score": 90
+      },
+      {
+        "name": "infrastructure/scaling/AutoScalingManager",
+        "category": "INFRA_SCALING",
+        "value": "HIGH",
+        "reason": "预测性扩容，成本优化，多策略融合",
+        "lines": 947,
+        "dependencies": 4,
+        "recommendation": "保留 - 云原生自动扩容",
+        "complexity": 79,
+        "score": 90
+      },
+      {
+        "name": "infrastructure/tracing/SamplingStrategy",
+        "category": "INFRA_TRACING",
+        "value": "HIGH",
+        "reason": "6种采样策略，机器学习采样，智能采样率调整",
+        "lines": 1176,
+        "dependencies": 1,
+        "recommendation": "保留 - 可观测性核心组件",
+        "complexity": 95,
+        "score": 95
+      }
+    ],
+    "optimize": [
+      {
+        "name": "infrastructure/persistence/CacheManager",
+        "category": "INFRA_CACHE",
+        "value": "MEDIUM",
+        "reason": "复杂的缓存策略实现，多层缓存管理",
+        "lines": 1362,
+        "dependencies": 1,
+        "recommendation": "优化 - 简化配置，提高易用性",
+        "complexity": 147,
+        "score": 75
+      },
+      {
+        "name": "core/AxiosInspiredHTTP",
+        "category": "UTIL_HTTP",
+        "value": "MEDIUM",
+        "reason": "axios封装，测试模式支持，请求拦截",
+        "lines": 412,
+        "dependencies": 4,
+        "recommendation": "重命名并优化 - 移除Inspired后缀，标准化命名",
+        "complexity": 26,
+        "score": 60
+      },
+      {
+        "name": "core/PrometheusInspiredMetrics",
+        "category": "UTIL_METRICS",
+        "value": "MEDIUM",
+        "reason": "完整的指标收集系统，多种指标类型",
+        "lines": 780,
+        "dependencies": 1,
+        "recommendation": "重命名 - MetricsCollector，集成到监控系统",
+        "complexity": 36,
+        "score": 60
+      }
+    ],
+    "rename": [
+      {
+        "name": "core/ZodInspiredValidation",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "ZodValidation功能的封装实现",
+        "lines": 426,
+        "dependencies": 2,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 52,
+        "score": 70
+      },
+      {
+        "name": "core/ZustandInspiredState",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "ZustandState功能的封装实现",
+        "lines": 361,
+        "dependencies": 4,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 38,
+        "score": 60
+      },
+      {
+        "name": "core/VitestInspiredTesting",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "VitestTesting功能的封装实现",
+        "lines": 55,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 2,
+        "score": 50
+      },
+      {
+        "name": "core/ViteInspiredBuild",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "ViteBuild功能的封装实现",
+        "lines": 148,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 5,
+        "score": 50
+      },
+      {
+        "name": "core/UUIDInspiredId",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "UUIDId功能的封装实现",
+        "lines": 159,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 7,
+        "score": 50
+      },
+      {
+        "name": "core/SQLiteInspiredDatabase",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "SQLiteDatabase功能的封装实现",
+        "lines": 81,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 8,
+        "score": 50
+      },
+      {
+        "name": "core/ProtocolBuffersInspiredSerialization",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "ProtocolBuffersSerialization功能的封装实现",
+        "lines": 57,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 1,
+        "score": 50
+      },
+      {
+        "name": "core/PrismaInspiredORM",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "PrismaORM功能的封装实现",
+        "lines": 102,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 3,
+        "score": 50
+      },
+      {
+        "name": "core/PrettierInspiredFormatting",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "PrettierFormatting功能的封装实现",
+        "lines": 128,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 1,
+        "score": 50
+      },
+      {
+        "name": "core/OpenAPIInspiredDocs",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "OpenAPIDocs功能的封装实现",
+        "lines": 96,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 3,
+        "score": 50
+      },
+      {
+        "name": "core/NATSInspiredMessaging",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "NATSMessaging功能的封装实现",
+        "lines": 175,
+        "dependencies": 2,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 11,
+        "score": 60
+      },
+      {
+        "name": "core/LernaInspiredMonorepo",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "LernaMonorepo功能的封装实现",
+        "lines": 71,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 1,
+        "score": 50
+      },
+      {
+        "name": "core/JWTInspiredAuth",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "JWTAuth功能的封装实现",
+        "lines": 325,
+        "dependencies": 3,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 22,
+        "score": 60
+      },
+      {
+        "name": "core/JaegerInspiredTracing",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "JaegerTracing功能的封装实现",
+        "lines": 67,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 3,
+        "score": 50
+      },
+      {
+        "name": "core/HuskyInspiredHooks",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "HuskyHooks功能的封装实现",
+        "lines": 55,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 5,
+        "score": 50
+      },
+      {
+        "name": "core/FluentdInspiredLogging",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "FluentdLogging功能的封装实现",
+        "lines": 105,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 5,
+        "score": 50
+      },
+      {
+        "name": "core/FastifyInspiredFramework",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "FastifyFramework功能的封装实现",
+        "lines": 68,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 2,
+        "score": 50
+      },
+      {
+        "name": "core/ESLintInspiredLinting",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "ESLintLinting功能的封装实现",
+        "lines": 78,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 4,
+        "score": 50
+      },
+      {
+        "name": "core/DayJSInspiredDate",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "DayJSDate功能的封装实现",
+        "lines": 233,
+        "dependencies": 2,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 11,
+        "score": 60
+      },
+      {
+        "name": "core/D3InspiredVisualization",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "D3Visualization功能的封装实现",
+        "lines": 61,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 2,
+        "score": 50
+      },
+      {
+        "name": "core/ConsulInspiredDiscovery",
+        "category": "UTIL_INSPIRED",
+        "value": "MEDIUM",
+        "reason": "ConsulDiscovery功能的封装实现",
+        "lines": 103,
+        "dependencies": 1,
+        "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+        "complexity": 2,
+        "score": 50
+      }
+    ],
+    "remove": [
+      {
+        "name": "core/LodashInspiredUtils",
+        "category": "UTIL_TOOLS",
+        "value": "LOW",
+        "reason": "简单的工具函数集合，lodash可以替代",
+        "lines": 441,
+        "dependencies": 4,
+        "recommendation": "移除 - 使用lodash库替代",
+        "complexity": 51,
+        "score": 50
+      }
+    ]
+  },
+  "detailedAssessments": {
+    "core/AsyncWorkflowExecutor": {
+      "category": "CORE_WORKFLOW",
+      "value": "CRITICAL",
+      "reason": "实现了4种高级调度算法，复杂依赖分析，是系统核心",
+      "lines": 775,
+      "dependencies": 3,
+      "recommendation": "保留并优化 - 这是系统的核心竞争力",
+      "complexity": 49,
+      "score": 100
+    },
+    "core/SmartRollbackManager": {
+      "category": "CORE_ROLLBACK",
+      "value": "CRITICAL",
+      "reason": "5种回退策略，企业级故障恢复机制",
+      "lines": 1316,
+      "dependencies": 3,
+      "recommendation": "保留 - 企业级高可用性保障",
+      "complexity": 91,
+      "score": 100
+    },
+    "core/MemoryNetwork": {
+      "category": "CORE_AI",
+      "value": "HIGH",
+      "reason": "跨会话记忆，知识图谱，AI会话增强功能",
+      "lines": 1348,
+      "dependencies": 3,
+      "recommendation": "保留 - AI功能增强，考虑独立模块",
+      "complexity": 143,
+      "score": 95
+    },
+    "core/DistributedDeployment": {
+      "category": "CORE_DISTRIBUTED",
+      "value": "HIGH",
+      "reason": "分布式节点管理，智能负载均衡，集群部署",
+      "lines": 1020,
+      "dependencies": 4,
+      "recommendation": "保留 - 云原生分布式支持",
+      "complexity": 71,
+      "score": 95
+    },
+    "infrastructure/benchmarking/StressTester": {
+      "category": "INFRA_TESTING",
+      "value": "HIGH",
+      "reason": "企业级压力测试，6种测试模式，故障注入，混沌工程",
+      "lines": 1600,
+      "dependencies": 2,
+      "recommendation": "保留 - 专业级测试工具，可考虑开源独立",
+      "complexity": 114,
+      "score": 95
+    },
+    "infrastructure/database/DatabaseConnectionPool": {
+      "category": "INFRA_DATABASE",
+      "value": "HIGH",
+      "reason": "高级连接池算法，自适应扩展，健康检查",
+      "lines": 958,
+      "dependencies": 2,
+      "recommendation": "保留 - 生产级数据库管理",
+      "complexity": 57,
+      "score": 90
+    },
+    "infrastructure/scaling/AutoScalingManager": {
+      "category": "INFRA_SCALING",
+      "value": "HIGH",
+      "reason": "预测性扩容，成本优化，多策略融合",
+      "lines": 947,
+      "dependencies": 4,
+      "recommendation": "保留 - 云原生自动扩容",
+      "complexity": 79,
+      "score": 90
+    },
+    "infrastructure/tracing/SamplingStrategy": {
+      "category": "INFRA_TRACING",
+      "value": "HIGH",
+      "reason": "6种采样策略，机器学习采样，智能采样率调整",
+      "lines": 1176,
+      "dependencies": 1,
+      "recommendation": "保留 - 可观测性核心组件",
+      "complexity": 95,
+      "score": 95
+    },
+    "infrastructure/persistence/CacheManager": {
+      "category": "INFRA_CACHE",
+      "value": "MEDIUM",
+      "reason": "复杂的缓存策略实现，多层缓存管理",
+      "lines": 1362,
+      "dependencies": 1,
+      "recommendation": "优化 - 简化配置，提高易用性",
+      "complexity": 147,
+      "score": 75
+    },
+    "core/AxiosInspiredHTTP": {
+      "category": "UTIL_HTTP",
+      "value": "MEDIUM",
+      "reason": "axios封装，测试模式支持，请求拦截",
+      "lines": 412,
+      "dependencies": 4,
+      "recommendation": "重命名并优化 - 移除Inspired后缀，标准化命名",
+      "complexity": 26,
+      "score": 60
+    },
+    "core/PrometheusInspiredMetrics": {
+      "category": "UTIL_METRICS",
+      "value": "MEDIUM",
+      "reason": "完整的指标收集系统，多种指标类型",
+      "lines": 780,
+      "dependencies": 1,
+      "recommendation": "重命名 - MetricsCollector，集成到监控系统",
+      "complexity": 36,
+      "score": 60
+    },
+    "core/LodashInspiredUtils": {
+      "category": "UTIL_TOOLS",
+      "value": "LOW",
+      "reason": "简单的工具函数集合，lodash可以替代",
+      "lines": 441,
+      "dependencies": 4,
+      "recommendation": "移除 - 使用lodash库替代",
+      "complexity": 51,
+      "score": 50
+    },
+    "core/ZodInspiredValidation": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "ZodValidation功能的封装实现",
+      "lines": 426,
+      "dependencies": 2,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 52,
+      "score": 70
+    },
+    "core/ZustandInspiredState": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "ZustandState功能的封装实现",
+      "lines": 361,
+      "dependencies": 4,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 38,
+      "score": 60
+    },
+    "core/VitestInspiredTesting": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "VitestTesting功能的封装实现",
+      "lines": 55,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 2,
+      "score": 50
+    },
+    "core/ViteInspiredBuild": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "ViteBuild功能的封装实现",
+      "lines": 148,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 5,
+      "score": 50
+    },
+    "core/UUIDInspiredId": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "UUIDId功能的封装实现",
+      "lines": 159,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 7,
+      "score": 50
+    },
+    "core/SQLiteInspiredDatabase": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "SQLiteDatabase功能的封装实现",
+      "lines": 81,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 8,
+      "score": 50
+    },
+    "core/ProtocolBuffersInspiredSerialization": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "ProtocolBuffersSerialization功能的封装实现",
+      "lines": 57,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 1,
+      "score": 50
+    },
+    "core/PrismaInspiredORM": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "PrismaORM功能的封装实现",
+      "lines": 102,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 3,
+      "score": 50
+    },
+    "core/PrettierInspiredFormatting": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "PrettierFormatting功能的封装实现",
+      "lines": 128,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 1,
+      "score": 50
+    },
+    "core/OpenAPIInspiredDocs": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "OpenAPIDocs功能的封装实现",
+      "lines": 96,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 3,
+      "score": 50
+    },
+    "core/NATSInspiredMessaging": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "NATSMessaging功能的封装实现",
+      "lines": 175,
+      "dependencies": 2,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 11,
+      "score": 60
+    },
+    "core/LernaInspiredMonorepo": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "LernaMonorepo功能的封装实现",
+      "lines": 71,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 1,
+      "score": 50
+    },
+    "core/JWTInspiredAuth": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "JWTAuth功能的封装实现",
+      "lines": 325,
+      "dependencies": 3,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 22,
+      "score": 60
+    },
+    "core/JaegerInspiredTracing": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "JaegerTracing功能的封装实现",
+      "lines": 67,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 3,
+      "score": 50
+    },
+    "core/HuskyInspiredHooks": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "HuskyHooks功能的封装实现",
+      "lines": 55,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 5,
+      "score": 50
+    },
+    "core/FluentdInspiredLogging": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "FluentdLogging功能的封装实现",
+      "lines": 105,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 5,
+      "score": 50
+    },
+    "core/FastifyInspiredFramework": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "FastifyFramework功能的封装实现",
+      "lines": 68,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 2,
+      "score": 50
+    },
+    "core/ESLintInspiredLinting": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "ESLintLinting功能的封装实现",
+      "lines": 78,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 4,
+      "score": 50
+    },
+    "core/DayJSInspiredDate": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "DayJSDate功能的封装实现",
+      "lines": 233,
+      "dependencies": 2,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 11,
+      "score": 60
+    },
+    "core/D3InspiredVisualization": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "D3Visualization功能的封装实现",
+      "lines": 61,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 2,
+      "score": 50
+    },
+    "core/ConsulInspiredDiscovery": {
+      "category": "UTIL_INSPIRED",
+      "value": "MEDIUM",
+      "reason": "ConsulDiscovery功能的封装实现",
+      "lines": 103,
+      "dependencies": 1,
+      "recommendation": "重命名 - 移除Inspired后缀，使用标准名称",
+      "complexity": 2,
+      "score": 50
+    }
+  }
+}

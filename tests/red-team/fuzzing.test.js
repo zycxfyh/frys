@@ -12,9 +12,9 @@ import {
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
-import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
-import SQLiteInspiredDatabase from '../../src/core/SQLiteInspiredDatabase.js';
+import HttpClient from '../../src/core/HttpClient.js';
+import JWTAuth from '../../src/core/JWTAuth.js';
+import SQLiteDatabase from '../../src/core/SQLiteDatabase.js';
 import RedTeamFramework, { AttackVectors } from './red-team-framework.js';
 
 describe('模糊测试', () => {
@@ -25,9 +25,9 @@ describe('模糊测试', () => {
 
   beforeEach(() => {
     redTeam = new RedTeamFramework();
-    auth = new JWTInspiredAuth();
-    http = new AxiosInspiredHTTP();
-    db = new SQLiteInspiredDatabase();
+    auth = new JWTAuth();
+    http = new HttpClient();
+    db = new SQLiteDatabase();
 
     // 设置测试环境
     auth.setSecret('test-key', 'test-secret');

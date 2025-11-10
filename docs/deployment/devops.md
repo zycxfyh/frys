@@ -1395,7 +1395,7 @@ scrape_configs:
 
   - job_name: 'redis'
     static_configs:
-      - targets: ['redis:6379']
+      - targets: ['redis:6380']
     scrape_interval: 30s
 
   - job_name: 'rabbitmq'

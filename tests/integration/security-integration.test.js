@@ -12,18 +12,24 @@ import {
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import AxiosInspiredHTTP from '../../src/core/AxiosInspiredHTTP.js';
-import JWTInspiredAuth from '../../src/core/JWTInspiredAuth.js';
+import HttpClient from '../../src/core/HttpClient.js';
+import JWTAuth from '../../src/core/JWTAuth.js';
 import LodashInspiredUtils from '../../src/core/LodashInspiredUtils.js';
 import ZustandInspiredState from '../../src/core/ZustandInspiredState.js';
+import TestServer from '../test-server.js';
 
 describe('安全集成测试', () => {
   let http, jwt, state, utils;
   let httpInstance, secureStore;
+  let testServer;
 
   beforeEach(async () => {
-    http = new AxiosInspiredHTTP();
-    jwt = new JWTInspiredAuth();
+    // 启动测试服务器
+    testServer = new TestServer();
+    await testServer.start();
+
+    http = new HttpClient();
+    jwt = new JWTAuth();
     state = new ZustandInspiredState();
     utils = new LodashInspiredUtils();
 
@@ -37,7 +43,7 @@ describe('安全集成测试', () => {
 
     // 创建HTTP实例
     httpInstance = http.create({
-      baseURL: 'https://secure-api.workflow.local',
+      baseURL: testServer.getUrl(),
       timeout: 5000,
     });
 
@@ -180,11 +186,13 @@ describe('安全集成测试', () => {
     if (jwt) await jwt.destroy();
     if (state) await state.destroy();
     if (utils) await utils.destroy();
+    if (testServer) await testServer.stop();
     http = null;
     jwt = null;
     state = null;
     utils = null;
     httpInstance = null;
+    testServer = null;
     secureStore = null;
   });
 

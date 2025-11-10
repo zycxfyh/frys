@@ -1,4 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+import { cpus } from 'os';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -13,7 +16,7 @@ export default defineConfig({
   retries: process.env.CI ? 3 : 1,
   /* Workers based on available resources */
   workers: process.env.CI
-    ? Math.max(1, Math.floor(require('os').cpus().length / 4))
+    ? Math.max(1, Math.floor(cpus().length / 4))
     : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
@@ -90,8 +93,8 @@ export default defineConfig({
       },
 
   /* Global Setup */
-  globalSetup: require.resolve('./tests/e2e-ui/global-setup'),
+  globalSetup: resolve('./tests/e2e-ui/global-setup'),
 
   /* Global Teardown */
-  globalTeardown: require.resolve('./tests/e2e-ui/global-teardown'),
+  globalTeardown: resolve('./tests/e2e-ui/global-teardown'),
 });

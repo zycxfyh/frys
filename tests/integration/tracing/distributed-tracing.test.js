@@ -21,16 +21,16 @@ import {
   it,
   vi,
 } from 'vitest';
+import { Tracer } from '../../../src/infrastructure/tracing/Tracer.js';
 import {
-  AlwaysOnSampling,
   SamplingStrategy,
+  AlwaysOnSampling,
 } from '../../../src/infrastructure/tracing/SamplingStrategy.js';
 import { Span } from '../../../src/infrastructure/tracing/Span.js';
 import {
   TraceContext,
   TraceContextManager,
 } from '../../../src/infrastructure/tracing/TraceContext.js';
-import { Tracer } from '../../../src/infrastructure/tracing/Tracer.js';
 import { TracingMiddleware } from '../../../src/infrastructure/tracing/TracingMiddleware.js';
 import { ConsoleReporter } from '../../../src/infrastructure/tracing/TracingReporter.js';
 import { logger } from '../../../src/shared/utils/logger.js';

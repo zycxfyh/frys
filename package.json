@@ -12,6 +12,7 @@
     "dev": "node --watch src/index.js --server",
     "example": "node src/index.js --example",
     "test": "vitest run",
+    "test:unit": "vitest run tests/unit/",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src --ext .js",

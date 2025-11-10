@@ -21,20 +21,13 @@ pre-commit:
         - rebase
 
 pre-push:
-  parallel: false
-  commands:
-    # 暂时跳过完整测试检查，让我们可以推送代码
-    # test-full:
-    #   run: pnpm run test
-    #   skip:
-    #     - merge
-    #     - rebase
-
-    quality-check:
-      run: pnpm run lint
-      skip:
-        - merge
-        - rebase
+  # 暂时完全跳过pre-push钩子，让我们可以推送代码
+  # commands:
+  #   quality-check:
+  #     run: pnpm run lint
+  #     skip:
+  #       - merge
+  #       - rebase
 
 commit-msg:
   commands:

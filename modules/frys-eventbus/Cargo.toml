@@ -1,0 +1,55 @@
+[package]
+name = "frys-eventbus"
+version = "0.1.0"
+edition = "2021"
+description = "Frys EventBus - High-performance lock-free event system"
+license = "MIT"
+authors = ["Frys Team"]
+repository = "https://github.com/frys/frys-eventbus"
+keywords = ["eventbus", "pubsub", "lock-free", "async", "high-performance"]
+categories = ["concurrency", "asynchronous", "data-structures"]
+
+# 零依赖核心 - 不依赖任何外部crate (除必要的运行时)
+[lib]
+name = "frys_eventbus"
+path = "src/lib.rs"
+
+# 性能优化配置
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+
+[profile.dev]
+opt-level = 0
+debug = true
+overflow-checks = true
+
+# 特性开关 (虽然追求零依赖，但保留接口用于未来扩展)
+[features]
+default = ["std"]
+# 标准库支持
+std = []
+# SIMD优化
+simd = []
+# 基准测试模式
+benchmarks = ["criterion"]
+
+# 核心依赖 (最小化依赖)
+[dependencies]
+# 锁-free数据结构 (zero-cost抽象)
+crossbeam = { version = "0.8", default-features = false, features = ["std"] }
+# 异步运行时支持
+tokio = { version = "1.28", features = ["full"], optional = true }
+# 序列化支持 (可选)
+serde = { version = "1.0", features = ["derive"], optional = true }
+
+# 开发依赖
+[dev-dependencies]
+tokio = { version = "1.28", features = ["full"] }
+criterion = { version = "0.5", features = ["html_reports"], optional = true }
+serde_json = "1.0"
+proptest = "1.0"

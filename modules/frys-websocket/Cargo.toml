@@ -1,0 +1,72 @@
+[package]
+name = "frys-websocket"
+version = "0.1.0"
+edition = "2021"
+description = "Frys WebSocket - High-performance WebSocket server with pub/sub, clustering, and real-time communication"
+license = "MIT"
+authors = ["Frys Team"]
+repository = "https://github.com/frys/frys-websocket"
+keywords = ["websocket", "pubsub", "realtime", "cluster", "broadcast"]
+categories = ["network-programming", "web-programming", "concurrency"]
+
+[lib]
+name = "frys_websocket"
+path = "src/lib.rs"
+
+[features]
+default = ["std", "server", "client", "pubsub", "cluster", "tls"]
+std = []
+server = ["dep:tokio-tungstenite", "dep:futures-util", "dep:http"]
+client = ["dep:tokio-tungstenite", "dep:futures-util"]
+pubsub = ["dep:redis"]
+cluster = ["dep:redis", "dep:tokio", "dep:flume"]
+broadcast = []
+tls = ["dep:rustls", "dep:tokio-rustls"]
+compression = ["dep:flate2"]
+authentication = ["dep:jsonwebtoken", "dep:bcrypt"]
+authorization = []
+rate_limiting = ["dep:governor"]
+monitoring = ["dep:prometheus"]
+benchmarks = ["dep:criterion"]
+
+[dependencies]
+async-trait = "0.1"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+regex = "1.7"
+rand = "0.8"
+futures = "0.3"
+tokio = { version = "1.28", features = ["full"], optional = true }
+flume = { version = "0.11", optional = true }
+
+# WebSocket support
+tokio-tungstenite = { version = "0.18", optional = true }
+futures-util = { version = "0.3", optional = true }
+http = { version = "0.2", optional = true }
+
+# Clustering and pub/sub
+redis = { version = "0.24", features = ["tokio-comp"], optional = true }
+
+# TLS support
+rustls = { version = "0.21", optional = true }
+tokio-rustls = { version = "0.24", optional = true }
+
+# Compression
+flate2 = { version = "1.0", optional = true }
+
+# Authentication
+jsonwebtoken = { version = "8.0", optional = true }
+bcrypt = { version = "0.15", optional = true }
+
+# Rate limiting
+governor = { version = "0.5", optional = true }
+
+# Monitoring
+prometheus = { version = "0.13", optional = true }
+
+[dev-dependencies]
+tokio = { version = "1.28", features = ["full"] }
+criterion = { version = "0.5", optional = true }
+tempfile = "3.0"

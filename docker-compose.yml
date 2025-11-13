@@ -1,0 +1,312 @@
+version: '3.8'
+
+# Frys - Complete development and production environment
+# ============================================================================
+# This compose file provides:
+# - Development environment with hot reload
+# - Testing environment with dependencies
+# - Production-like environment for staging
+# - Monitoring and observability stack
+# ============================================================================
+
+services:
+  # -----------------------------------------------------------------------------
+  # Main Frys Application
+  # -----------------------------------------------------------------------------
+  frys:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: frys-app
+    ports:
+      - "8080:8080"    # Main API port
+      - "9090:9090"    # Monitoring/metrics port
+      - "9443:9443"    # HTTPS port
+    environment:
+      - RUST_LOG=info,frys=debug
+      - FRYS_ENVIRONMENT=development
+      - FRYS_DATABASE_URL=postgresql://frys:frys@postgres:5432/frys
+      - FRYS_REDIS_URL=redis://redis:6379
+      - FRYS_CONFIG_PATH=/app/config
+      - FRYS_ENABLE_METRICS=true
+      - FRYS_ENABLE_TRACING=true
+    volumes:
+      - ./config:/app/config:ro
+      - frys_data:/app/data
+      - frys_logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+    networks:
+      - frys-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # -----------------------------------------------------------------------------
+  # Frontend Application (Development)
+  # -----------------------------------------------------------------------------
+  frys-frontend:
+    build:
+      context: ./ui/frys-admin-ui
+      dockerfile: Dockerfile
+    container_name: frys-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8080
+    volumes:
+      - ./ui/frys-admin-ui:/app
+      - /app/node_modules
+    depends_on:
+      - frys
+    networks:
+      - frys-network
+    command: npm run dev
+
+  # -----------------------------------------------------------------------------
+  # Database Services
+  # -----------------------------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: frys-postgres
+    environment:
+      - POSTGRES_DB=frys
+      - POSTGRES_USER=frys
+      - POSTGRES_PASSWORD=frys
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - frys-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U frys -d frys"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: frys-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./config/redis.conf:/etc/redis/redis.conf:ro
+    networks:
+      - frys-network
+    restart: unless-stopped
+    command: redis-server /etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # -----------------------------------------------------------------------------
+  # Search and Analytics
+  # -----------------------------------------------------------------------------
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: frys-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.watcher.enabled=false
+      - xpack.ml.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - frys-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: frys-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - frys-network
+    restart: unless-stopped
+
+  # -----------------------------------------------------------------------------
+  # Message Queue
+  # -----------------------------------------------------------------------------
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: frys-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=frys
+      - RABBITMQ_DEFAULT_PASS=frys
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - frys-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # -----------------------------------------------------------------------------
+  # Monitoring Stack (Prometheus + Grafana)
+  # -----------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: frys-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - frys-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: frys-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - frys-network
+    restart: unless-stopped
+
+  # -----------------------------------------------------------------------------
+  # Load Testing and Benchmarking
+  # -----------------------------------------------------------------------------
+  k6:
+    image: grafana/k6:latest
+    container_name: frys-k6
+    volumes:
+      - ./scripts/benchmark:/scripts
+    networks:
+      - frys-network
+    profiles:
+      - benchmark
+    command: ["run", "/scripts/load-test.js"]
+
+  # -----------------------------------------------------------------------------
+  # Development Tools
+  # -----------------------------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: frys-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@frys.io
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - frys-network
+    profiles:
+      - dev-tools
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: frys-redis-insight
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redis
+    networks:
+      - frys-network
+    profiles:
+      - dev-tools
+
+  # -----------------------------------------------------------------------------
+  # CI/CD Tools (for local development)
+  # -----------------------------------------------------------------------------
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: frys-jenkins
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - frys-network
+    profiles:
+      - ci
+    privileged: true
+
+# -----------------------------------------------------------------------------
+# Networks
+# -----------------------------------------------------------------------------
+networks:
+  frys-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# -----------------------------------------------------------------------------
+# Volumes
+# -----------------------------------------------------------------------------
+volumes:
+  # Application data
+  frys_data:
+  frys_logs:
+
+  # Database data
+  postgres_data:
+  redis_data:
+  elasticsearch_data:
+  rabbitmq_data:
+
+  # Monitoring data
+  prometheus_data:
+  grafana_data:
+
+  # CI/CD data
+  jenkins_data:

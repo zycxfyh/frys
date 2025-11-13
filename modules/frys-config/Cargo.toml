@@ -1,0 +1,59 @@
+[package]
+name = "frys-config"
+version = "0.1.0"
+edition = "2021"
+description = "Frys Config - Hierarchical configuration management with hot reload"
+license = "MIT"
+authors = ["Frys Team"]
+repository = "https://github.com/frys/frys-config"
+keywords = ["config", "configuration", "hot-reload", "validation", "hierarchical"]
+categories = ["config", "filesystem", "asynchronous"]
+
+# 零依赖核心 - 不依赖任何外部crate (除必要的运行时)
+[lib]
+name = "frys_config"
+path = "src/lib.rs"
+
+# 性能优化配置
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+
+[profile.dev]
+opt-level = 0
+debug = true
+overflow-checks = true
+
+# 特性开关
+[features]
+default = ["std", "serde"]
+# 标准库支持
+std = []
+# 序列化支持 (可选)
+serde = ["dep:serde"]
+# 热重载支持
+hot_reload = []
+# 文件监控
+file_watching = ["hot_reload"]
+# 环境变量支持
+env_support = []
+# 远程配置支持
+remote_config = []
+
+# 核心依赖 (最小化依赖)
+[dependencies]
+# 序列化支持
+serde = { version = "1.0", features = ["derive"], optional = true }
+# 异步运行时
+tokio = { version = "1.28", features = ["full"], optional = true }
+
+# 开发依赖
+[dev-dependencies]
+tokio = { version = "1.28", features = ["full"] }
+serde_json = "1.0"
+tempfile = "3.0"
+proptest = "1.0"

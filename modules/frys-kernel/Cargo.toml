@@ -1,0 +1,71 @@
+[package]
+name = "frys-kernel"
+version = "0.1.0"
+edition = "2021"
+description = "Frys Kernel - Core runtime environment for the Frys system"
+license = "MIT"
+authors = ["Frys Team"]
+repository = "https://github.com/frys/frys-kernel"
+keywords = ["kernel", "runtime", "high-performance", "memory-pool", "thread-pool"]
+categories = ["embedded", "no-std", "concurrency"]
+
+# 核心依赖 (虽然追求零依赖，但为实现完整性保留必要依赖)
+spin = "0.9.8"
+tokio = { version = "1.28", features = ["full"] }
+
+[lib]
+name = "frys_kernel"
+path = "src/lib.rs"
+
+# 性能优化配置
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+
+[profile.dev]
+opt-level = 0
+debug = true
+overflow-checks = true
+
+# 基准测试配置
+[profile.bench]
+opt-level = 3
+lto = true
+codegen-units = 1
+debug = false
+
+# 工作空间配置
+[workspace]
+members = []
+
+# 文档配置
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+# 构建配置
+[build-dependencies]
+
+# 开发依赖
+[dev-dependencies]
+proptest = "1.0"
+
+# 特性开关 (虽然我们追求零依赖，但保留接口用于未来扩展)
+[features]
+default = ["std"]
+# 标准库支持
+std = []
+# SIMD指令支持
+simd = []
+# io_uring支持 (Linux)
+uring = []
+# 大页内存支持
+hugepages = []
+# 调试模式 (增加一些运行时检查)
+debug-mode = []
+# TLS支持
+tls = []

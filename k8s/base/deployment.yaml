@@ -1,0 +1,180 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frys-app
+  namespace: frys-system
+  labels:
+    app.kubernetes.io/name: frys
+    app.kubernetes.io/component: application
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: frys
+      app.kubernetes.io/component: application
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: frys
+        app.kubernetes.io/component: application
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: frys-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: frys
+        image: frys:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        - containerPort: 9443
+          name: https
+          protocol: TCP
+        env:
+        - name: RUST_LOG
+          value: "info,frys=debug,tower_http=debug"
+        - name: FRYS_ENVIRONMENT
+          value: "production"
+        - name: FRYS_CONFIG_PATH
+          value: "/app/config"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: frys-secrets
+              key: database-password
+        - name: REDIS_URL
+          value: "redis://frys-redis:6379"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: frys-secrets
+              key: jwt-secret
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: frys-secrets
+              key: openai-api-key
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: frys-secrets
+              key: anthropic-api-key
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+        - name: data-volume
+          mountPath: /app/data
+        - name: logs-volume
+          mountPath: /app/logs
+        - name: plugins-volume
+          mountPath: /app/plugins
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+
+      # Init container for database migration
+      initContainers:
+      - name: db-migration
+        image: frys:latest
+        command: ["/app/frys", "migrate", "up"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: frys-secrets
+              key: database-password
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+      volumes:
+      - name: config-volume
+        configMap:
+          name: frys-config
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: frys-data-pvc
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: frys-logs-pvc
+      - name: plugins-volume
+        persistentVolumeClaim:
+          claimName: frys-plugins-pvc
+
+      # Affinity and anti-affinity rules
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - frys
+              topologyKey: kubernetes.io/hostname
+
+      # Node selector for production workloads
+      nodeSelector:
+        environment: production
+        workload: application
+
+      # Tolerations for production workloads
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "application"
+        effect: "NoSchedule"
+
+      # Pod disruption budget compatible
+      terminationGracePeriodSeconds: 30

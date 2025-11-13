@@ -1,0 +1,40 @@
+[package]
+name = "frys-plugin-system"
+version = "0.1.0"
+edition = "2021"
+description = "Frys Plugin System - Secure, sandboxed plugin architecture with hot-loading"
+license = "MIT"
+authors = ["Frys Team"]
+repository = "https://github.com/frys/frys-plugin-system"
+keywords = ["plugin", "sandbox", "hot-loading", "wasm", "isolation"]
+categories = ["plugin-system", "wasm", "sandboxing", "asynchronous"]
+
+[lib]
+name = "frys_plugin_system"
+path = "src/lib.rs"
+
+[features]
+default = ["std", "wasm", "hot_reload"]
+std = []
+wasm = ["dep:wasmtime", "dep:wasm-bindgen"]
+hot_reload = []
+sandbox = ["wasm"]
+isolation = []
+communication = []
+registry = []
+metrics = []
+debug = []
+
+[dependencies]
+wasmtime = { version = "12.0", optional = true }
+wasm-bindgen = { version = "0.2", optional = true }
+libloading = { version = "0.8", optional = true }
+tokio = { version = "1.28", features = ["full"], optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
+uuid = { version = "1.0", features = ["v4"], optional = true }
+async-trait = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1.28", features = ["full"] }
+serde_json = "1.0"
+tempfile = "3.0"

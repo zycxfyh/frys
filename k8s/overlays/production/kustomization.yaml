@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: frys-production
+
+bases:
+  - ../../base
+
+# Production-specific patches
+patchesStrategicMerge:
+  - deployment-patch.yaml
+  - security-patch.yaml
+
+# Production images
+images:
+  - name: frys
+    newTag: v1.0.0
+
+# Production labels
+commonLabels:
+  environment: production
+  tier: backend
+
+# Resource modifications for production
+replicas:
+  - name: frys-app
+    count: 5
+
+# Production secrets (would be encrypted in real setup)
+secretGenerator:
+  - name: frys-production-secrets
+    literals:
+      - jwt-secret=YOUR_PRODUCTION_JWT_SECRET
+      - database-password=YOUR_PRODUCTION_DB_PASSWORD

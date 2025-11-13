@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: frys-system
+  labels:
+    name: frys-system
+    app.kubernetes.io/name: frys
+    app.kubernetes.io/component: system
+  annotations:
+    description: "Namespace for Frys application and related services"

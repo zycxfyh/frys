@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: frys-development
+
+bases:
+  - ../../base
+
+# Development-specific patches
+patchesStrategicMerge:
+  - deployment-patch.yaml
+  - configmap-patch.yaml
+
+# Development-specific images
+images:
+  - name: frys
+    newTag: dev-latest
+
+# Development labels
+commonLabels:
+  environment: development
+  tier: frontend
+
+# Resource modifications for development
+replicas:
+  - name: frys-app
+    count: 1
+
+# ConfigMap generator for development
+configMapGenerator:
+  - name: frys-dev-config
+    literals:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=debug
+      - DEBUG_MODE=true

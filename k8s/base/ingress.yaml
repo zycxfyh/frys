@@ -1,0 +1,93 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frys-ingress
+  namespace: frys-system
+  annotations:
+    # NGINX Ingress Controller annotations
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+
+    # Cert Manager annotations (if using cert-manager)
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # External DNS annotations (if using external-dns)
+    external-dns.alpha.kubernetes.io/hostname: "api.frys.io,dashboard.frys.io"
+
+    # Prometheus monitoring
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "10254"
+
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - api.frys.io
+    - dashboard.frys.io
+    secretName: frys-tls-cert
+  rules:
+  # Main API
+  - host: api.frys.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frys-service
+            port:
+              number: 80
+      - path: /metrics
+        pathType: Exact
+        backend:
+          service:
+            name: frys-metrics
+            port:
+              number: 9090
+
+  # Dashboard
+  - host: dashboard.frys.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frys-frontend-service
+            port:
+              number: 80
+
+---
+# WebSocket Ingress for real-time features
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frys-websocket-ingress
+  namespace: frys-system
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+    nginx.ingress.kubernetes.io/websocket-services: "frys-service"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ws.frys.io
+    secretName: frys-tls-cert
+  rules:
+  - host: ws.frys.io
+    http:
+      paths:
+      - path: /ws
+        pathType: Prefix
+        backend:
+          service:
+            name: frys-service
+            port:
+              number: 80

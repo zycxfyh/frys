@@ -1,0 +1,54 @@
+[package]
+name = "frys-plugin-network"
+version = "0.1.0"
+edition = "2021"
+description = "Frys Network Plugin - Advanced network capabilities for the Frys ecosystem"
+license = "MIT"
+authors = ["Frys Team"]
+repository = "https://github.com/frys/frys-plugin-network"
+keywords = ["network", "plugin", "http", "websocket", "messaging"]
+categories = ["network-programming", "web-programming", "plugins"]
+
+[lib]
+name = "frys_plugin_network"
+path = "src/lib.rs"
+
+[features]
+default = ["std", "http", "websocket", "messaging"]
+std = []
+http = ["dep:reqwest", "dep:axum", "dep:tower"]
+websocket = ["dep:tokio-tungstenite", "dep:futures-util"]
+messaging = ["dep:redis", "dep:kafka"]
+distributed = ["dep:serde", "dep:bincode"]
+security = ["dep:ring", "dep:rustls"]
+
+[dependencies]
+frys-plugin-system = { path = "../frys-plugin-system" }
+serde = { version = "1.0", features = ["derive"], optional = true }
+bincode = { version = "1.3", optional = true }
+async-trait = "0.1"
+tokio = { version = "1.28", features = ["full"] }
+futures = "0.3"
+
+# HTTP dependencies
+reqwest = { version = "0.11", features = ["json"], optional = true }
+axum = { version = "0.6", optional = true }
+tower = { version = "0.4", optional = true }
+
+# WebSocket dependencies
+tokio-tungstenite = { version = "0.18", optional = true }
+futures-util = { version = "0.3", optional = true }
+
+# Messaging dependencies
+redis = { version = "0.24", optional = true }
+rdkafka = { version = "0.33", optional = true, features = ["cmake-build"] }
+
+# Security dependencies
+ring = { version = "0.16", optional = true }
+rustls = { version = "0.21", optional = true }
+
+uuid = { version = "1.0", features = ["v4"] }
+rand = "0.8"
+
+[dev-dependencies]
+tokio = { version = "1.28", features = ["full"] }

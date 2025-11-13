@@ -1,0 +1,80 @@
+[package]
+name = "frys-cache"
+version = "0.1.0"
+edition = "2021"
+description = "Frys Cache - Multi-level caching system with LRU, persistence, and distribution"
+license = "MIT"
+authors = ["Frys Team"]
+repository = "https://github.com/frys/frys-cache"
+keywords = ["cache", "lru", "persistence", "distributed", "redis", "sled"]
+categories = ["caching", "data-structures", "database", "asynchronous"]
+
+# 零依赖核心 - 不依赖任何外部crate (除必要的运行时)
+[lib]
+name = "frys_cache"
+path = "src/lib.rs"
+
+# 性能优化配置
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+
+[profile.dev]
+opt-level = 0
+debug = true
+overflow-checks = true
+
+# 特性开关
+[features]
+default = ["std", "lru", "persistence"]
+# 标准库支持
+std = []
+# LRU缓存支持
+lru = ["dep:lru"]
+# 持久化存储支持 (Sled)
+persistence = ["dep:sled", "dep:zstd"]
+# 分布式缓存支持 (Redis)
+distributed = ["dep:redis", "dep:tokio"]
+# 压缩支持
+compression = ["dep:zstd"]
+# 序列化支持
+serde = ["dep:serde"]
+# 统计监控
+metrics = []
+# 异步支持
+async = ["dep:tokio"]
+# 基准测试
+benchmarks = ["dep:criterion"]
+
+# 核心依赖 (最小化依赖)
+[dependencies]
+# LRU缓存
+lru = { version = "0.12", optional = true }
+# 持久化存储
+sled = { version = "0.34", optional = true }
+# 压缩
+zstd = { version = "0.13", optional = true }
+# 分布式缓存
+redis = { version = "0.24", features = ["tokio-comp", "cluster"], optional = true }
+# 异步运行时
+tokio = { version = "1.28", features = ["full"], optional = true }
+# 序列化
+serde = { version = "1.0", features = ["derive"], optional = true }
+# 异步trait支持
+async-trait = "0.1"
+
+# 开发依赖
+[dev-dependencies]
+tokio = { version = "1.28", features = ["full"] }
+criterion = { version = "0.5", optional = true }
+serde_json = "1.0"
+
+# 基准测试
+[[bench]]
+name = "cache_benchmark"
+harness = false
+required-features = ["benchmarks"]

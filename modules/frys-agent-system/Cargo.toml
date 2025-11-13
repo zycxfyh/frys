@@ -1,0 +1,60 @@
+[package]
+name = "frys-agent-system"
+version = "0.1.0"
+edition = "2021"
+description = "Frys Agent System - Intelligent autonomous agents with advanced reasoning capabilities"
+license = "MIT"
+authors = ["Frys Team"]
+repository = "https://github.com/frys/frys-agent-system"
+keywords = ["agent", "ai", "autonomous", "reasoning", "llm", "planning"]
+categories = ["artificial-intelligence", "machine-learning", "concurrency"]
+
+[lib]
+name = "frys_agent_system"
+path = "src/lib.rs"
+
+[features]
+default = ["std", "llm", "planning", "memory", "distributed"]
+std = []
+llm = ["dep:candle-core", "dep:candle-nn", "dep:tokenizers", "dep:tiktoken-rs"]
+planning = ["dep:petgraph"]
+memory = ["dep:rusqlite", "dep:serde", "dep:sled"]
+distributed = ["dep:redis", "dep:tokio", "dep:flume"]
+monitoring = ["dep:prometheus"]
+benchmarks = ["dep:criterion"]
+
+[dependencies]
+async-trait = "0.1"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+regex = "1.7"
+rand = "0.8"
+futures = "0.3"
+tokio = { version = "1.28", features = ["full"], optional = true }
+flume = { version = "0.11", optional = true }
+
+# LLM support
+candle-core = { version = "0.2", optional = true }
+candle-nn = { version = "0.2", optional = true }
+tokenizers = { version = "0.13", optional = true }
+tiktoken-rs = { version = "0.5", optional = true }
+
+# Planning
+petgraph = { version = "0.6", optional = true }
+
+# Memory
+rusqlite = { version = "0.29", features = ["bundled"], optional = true }
+sled = { version = "0.34", optional = true }
+
+# Distributed
+redis = { version = "0.24", features = ["tokio-comp"], optional = true }
+
+# Monitoring
+prometheus = { version = "0.13", optional = true }
+
+[dev-dependencies]
+tokio = { version = "1.28", features = ["full"] }
+criterion = { version = "0.5", optional = true }
+tempfile = "3.0"

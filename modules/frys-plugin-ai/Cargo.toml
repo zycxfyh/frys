@@ -1,0 +1,51 @@
+[package]
+name = "frys-plugin-ai"
+version = "0.1.0"
+edition = "2021"
+description = "Frys AI Plugin - Advanced AI capabilities for the Frys ecosystem"
+license = "MIT"
+authors = ["Frys Team"]
+repository = "https://github.com/frys/frys-plugin-ai"
+keywords = ["ai", "plugin", "machine-learning", "neural-networks"]
+categories = ["api-bindings", "science", "plugins"]
+
+[lib]
+name = "frys_plugin_ai"
+path = "src/lib.rs"
+
+[features]
+default = ["std", "ml", "nlp", "vision"]
+std = []
+ml = ["dep:tch", "dep:candle-core", "dep:candle-nn"]
+nlp = ["dep:tokenizers", "dep:hf-hub"]
+vision = ["dep:image", "dep:opencv"]
+gpu = ["tch/cuda", "candle-core/cuda"]
+embeddings = ["dep:hf-hub", "dep:serde_json"]
+
+[dependencies]
+frys-plugin-system = { path = "../frys-plugin-system" }
+frys-ai-system = { path = "../frys-ai-system", optional = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+async-trait = "0.1"
+tokio = { version = "1.28", features = ["full"] }
+uuid = { version = "1.0", features = ["v4"] }
+rand = "0.8"
+futures = "0.3"
+
+# ML dependencies
+tch = { version = "0.10", optional = true }
+candle-core = { version = "0.2", optional = true }
+candle-nn = { version = "0.2", optional = true }
+
+# NLP dependencies
+tokenizers = { version = "0.13", optional = true }
+hf-hub = { version = "0.3", optional = true }
+
+# Vision dependencies
+image = { version = "0.24", optional = true, default-features = false, features = ["png", "jpeg"] }
+opencv = { version = "0.80", optional = true }
+
+[dev-dependencies]
+tokio = { version = "1.28", features = ["full"] }
+serde_json = "1.0"

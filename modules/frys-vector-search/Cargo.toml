@@ -1,0 +1,45 @@
+[package]
+name = "frys-vector-search"
+version = "0.1.0"
+edition = "2021"
+description = "Frys Vector Search - High-performance vector similarity search with advanced algorithms"
+license = "MIT"
+authors = ["Frys Team"]
+repository = "https://github.com/frys/frys-vector-search"
+keywords = ["vector-search", "similarity", "hNSW", "faiss", "embeddings"]
+categories = ["algorithms", "search", "machine-learning", "database"]
+
+[lib]
+name = "frys_vector_search"
+path = "src/lib.rs"
+
+[features]
+default = ["std", "hnsw", "faiss", "distributed"]
+std = []
+hnsw = ["dep:space", "dep:rayon"]
+faiss = ["dep:faiss"]
+distributed = ["dep:redis", "dep:tokio"]
+gpu = ["dep:candle-core", "dep:candle-nn"]
+quantization = []
+persistence = ["dep:serde", "dep:sled"]
+monitoring = []
+
+[dependencies]
+space = { version = "0.14", optional = true }
+rayon = { version = "1.7", optional = true }
+faiss = { version = "0.12", optional = true }
+redis = { version = "0.24", features = ["tokio-comp"], optional = true }
+tokio = { version = "1.28", features = ["full"], optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
+sled = { version = "0.34", optional = true }
+candle-core = { version = "0.2", optional = true }
+candle-nn = { version = "0.2", optional = true }
+async-trait = "0.1"
+uuid = { version = "1.0", features = ["v4"] }
+rand = "0.8"
+ndarray = "0.15"
+
+[dev-dependencies]
+tokio = { version = "1.28", features = ["full"] }
+criterion = "0.5"
+serde_json = "1.0"

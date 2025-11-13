@@ -1,0 +1,237 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frys-config
+  namespace: frys-system
+data:
+  # Application configuration
+  app-config.yaml: |
+    server:
+      host: "0.0.0.0"
+      port: "8080"
+      tls:
+        enabled: false
+        cert_file: ""
+        key_file: ""
+
+    database:
+      type: "postgresql"
+      host: "frys-postgres"
+      port: "5432"
+      database: "frys"
+      username: "frys"
+      max_connections: 20
+      connection_timeout: 30
+
+    redis:
+      host: "frys-redis"
+      port: "6379"
+      password: ""
+      db: 0
+      pool_size: 10
+
+    elasticsearch:
+      hosts:
+        - "http://frys-elasticsearch:9200"
+      index_prefix: "frys"
+
+    rabbitmq:
+      host: "frys-rabbitmq"
+      port: "5672"
+      username: "frys"
+      password: "frys"
+      vhost: "/"
+
+    logging:
+      level: "info"
+      format: "json"
+      outputs:
+        - type: "stdout"
+        - type: "elasticsearch"
+
+    metrics:
+      enabled: true
+      path: "/metrics"
+      interval: "15s"
+
+    tracing:
+      enabled: true
+      service_name: "frys"
+      jaeger_endpoint: "http://jaeger-collector:14268/api/traces"
+
+    plugins:
+      enabled: true
+      paths:
+        - "/app/plugins"
+      auto_load: true
+
+  # Workflow configuration
+  workflow-config.yaml: |
+    engine:
+      max_concurrent_workflows: 1000
+      max_concurrent_tasks: 100
+      execution_timeout: "1h"
+      retry_policy:
+        max_attempts: 3
+        backoff_multiplier: 2.0
+        initial_delay: "5s"
+
+    scheduler:
+      type: "distributed"
+      pool_size: 50
+      queue_size: 10000
+
+    plugins:
+      ai_enabled: true
+      monitoring_enabled: true
+      persistence_enabled: true
+
+    storage:
+      type: "postgresql"
+      retention_days: 90
+      archive_enabled: true
+
+  # AI configuration
+  ai-config.yaml: |
+    providers:
+      - name: "openai"
+        api_key: "${OPENAI_API_KEY}"
+        base_url: "https://api.openai.com/v1"
+        models:
+          - "gpt-4"
+          - "gpt-3.5-turbo"
+          - "text-embedding-ada-002"
+
+      - name: "anthropic"
+        api_key: "${ANTHROPIC_API_KEY}"
+        base_url: "https://api.anthropic.com"
+        models:
+          - "claude-3-opus"
+          - "claude-3-sonnet"
+
+    caching:
+      enabled: true
+      ttl: "1h"
+      max_size: "1GB"
+
+    monitoring:
+      enabled: true
+      metrics_interval: "30s"
+      cost_tracking: true
+
+    plugins:
+      enabled: true
+      paths:
+        - "/app/ai-plugins"
+
+  # Security configuration
+  security-config.yaml: |
+    authentication:
+      enabled: true
+      provider: "jwt"
+      jwt_secret: "${JWT_SECRET}"
+      token_ttl: "24h"
+      refresh_token_ttl: "168h"
+
+    authorization:
+      enabled: true
+      rbac_enabled: true
+      default_role: "viewer"
+
+    tls:
+      enabled: true
+      cert_file: "/etc/ssl/certs/frys.crt"
+      key_file: "/etc/ssl/private/frys.key"
+      min_version: "TLS1.2"
+
+    cors:
+      allowed_origins:
+        - "https://*.frys.io"
+        - "http://localhost:3000"
+      allowed_methods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "DELETE"
+        - "OPTIONS"
+      allowed_headers:
+        - "Content-Type"
+        - "Authorization"
+        - "X-Requested-With"
+      allow_credentials: true
+
+    rate_limiting:
+      enabled: true
+      requests_per_minute: 1000
+      burst_limit: 100
+
+  # Monitoring configuration
+  monitoring-config.yaml: |
+    prometheus:
+      enabled: true
+      path: "/metrics"
+      namespace: "frys"
+
+    health_check:
+      enabled: true
+      path: "/health"
+      interval: "30s"
+
+    alerting:
+      enabled: true
+      rules_file: "/etc/frys/alerting/rules.yml"
+      smtp:
+        server: "${SMTP_SERVER}"
+        port: "${SMTP_PORT}"
+        username: "${SMTP_USERNAME}"
+        password: "${SMTP_PASSWORD}"
+        from: "alerts@frys.io"
+
+    logging:
+      level: "info"
+      format: "json"
+      outputs:
+        - type: "stdout"
+        - type: "loki"
+          url: "http://loki:3100"
+
+    tracing:
+      enabled: true
+      service_name: "frys"
+      jaeger:
+        endpoint: "http://jaeger-collector:14268/api/traces"
+      sampling_rate: 0.1
+
+  # Plugin configuration
+  plugin-config.yaml: |
+    system:
+      enabled: true
+      registry_type: "kubernetes"
+      discovery_interval: "30s"
+      health_check_interval: "60s"
+
+    marketplace:
+      enabled: true
+      url: "https://plugins.frys.io"
+      auto_update: true
+      update_interval: "24h"
+
+    security:
+      signature_verification: true
+      trusted_publishers:
+        - "frys-official"
+        - "verified-partners"
+
+    isolation:
+      enabled: true
+      sandbox: "wasm"
+      resource_limits:
+        memory: "512Mi"
+        cpu: "500m"
+        disk: "1Gi"
+
+    hot_reload:
+      enabled: true
+      watch_paths:
+        - "/app/plugins"
+      reload_strategy: "rolling"

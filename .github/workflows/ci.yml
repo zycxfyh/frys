@@ -1,780 +1,406 @@
-name: 🚀 frys CI/CD Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
-    types: [opened, synchronize, reopened, ready_for_review]
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: '部署环境'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-        - staging
-        - production
+  release:
+    types: [ published ]
 
 env:
-  NODE_VERSION: '18'
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  # 缓存策略
-  CACHE_KEY: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-  # 并发控制
-  CONCURRENCY_GROUP: ${{ github.workflow }}-${{ github.ref }}
-  CONCURRENCY_CANCEL_IN_PROGRESS: true
-
-# 并发控制 - 取消同一分支的旧运行
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
-  # 1️⃣ 本地验证 - 依赖安装和环境检查
-  validate:
-    name: '1️⃣ 本地验证'
+  # -----------------------------------------------------------------------------
+  # Security and Code Quality Checks
+  # -----------------------------------------------------------------------------
+  security:
+    name: Security & Quality Checks
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    outputs:
-      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run cargo audit
+        uses: actions-rs/cargo@v1
+        with:
+          command: audit
+          args: --format json
+
+  # -----------------------------------------------------------------------------
+  # Testing Job
+  # -----------------------------------------------------------------------------
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🟢 设置 Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
 
-    - name: 📦 缓存依赖
-      id: cache-deps
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.npm
-          node_modules
-        key: ${{ env.CACHE_KEY }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+      - name: Cache Cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
 
-    - name: 📦 安装依赖
-      run: |
-        if [ "${{ steps.cache-deps.outputs.cache-hit }}" = "true" ]; then
-          echo "✅ 使用缓存的依赖"
-        else
-          npm ci
-          echo "✅ 依赖安装完成"
-        fi
+      - name: Check formatting
+        run: cargo fmt --all -- --check
 
-    - name: 🔍 环境和依赖检查
-      run: |
-        echo "Node.js 版本: $(node --version)"
-        echo "NPM 版本: $(npm --version)"
-        echo "项目根目录: $(pwd)"
+      - name: Run clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
-        # 检查关键文件存在
-        [ -f package.json ] || (echo "❌ package.json 不存在" && exit 1)
-        [ -f src/index.js ] || (echo "❌ 主入口文件不存在" && exit 1)
-        [ -d src/ ] || (echo "❌ src 目录不存在" && exit 1)
-        [ -d tests/ ] || (echo "❌ tests 目录不存在" && exit 1)
+      - name: Run tests
+        run: cargo test --verbose --all-features
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/frys_test
+          REDIS_URL: redis://localhost:6379
 
-        # 检查依赖完整性
-        npm ls --depth=0 > /dev/null || (echo "❌ 依赖不完整" && exit 1)
+      - name: Generate test coverage
+        uses: actions-rs/cargo@v1
+        with:
+          command: tarpaulin
+          args: --out Xml --output-dir coverage
+        continue-on-error: true
 
-        echo "✅ 环境和依赖检查通过"
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: coverage/cobertura.xml
+          fail_ci_if_error: false
 
-    - name: 📋 项目结构验证
-      run: |
-        echo "📊 项目结构概览:"
-        find . -maxdepth 2 -type f -name "*.js" -o -name "*.json" -o -name "*.md" | head -20
-        echo ""
-        echo "📈 代码统计:"
-        echo "JavaScript 文件: $(find src -name "*.js" | wc -l)"
-        echo "测试文件: $(find tests -name "*.test.js" | wc -l)"
-        echo "配置大小: $(du -sh . | cut -f1)"
-        echo "✅ 项目结构验证完成"
-
-  # 2️⃣ 自动化测试 - 矩阵测试策略
-  test:
-    name: '2️⃣ 自动化测试'
+  # -----------------------------------------------------------------------------
+  # Build and Package
+  # -----------------------------------------------------------------------------
+  build:
+    name: Build & Package
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: validate
+    needs: [security, test]
     strategy:
       matrix:
-        test-type: [lint, unit, integration]
-      fail-fast: false
+        target:
+          - x86_64-unknown-linux-gnu
+          - aarch64-unknown-linux-gnu
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🟢 设置 Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
 
-    - name: 📦 安装依赖
-      run: npm ci
+      - name: Cache Cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
 
-    - name: 🔍 ESLint 代码质量检查
-      if: matrix.test-type == 'lint'
-      run: |
-        echo "🔍 执行代码质量检查..."
-        npm run lint
-        npm run format:check
-        echo "✅ ESLint 和格式检查通过"
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
 
-    - name: 🔧 自动修复
-      if: matrix.test-type == 'lint' && failure()
-      run: |
-        echo "🔧 尝试自动修复代码问题..."
-        npm run fix:auto:ci
-        echo "✅ 自动修复完成"
+      - name: Build Docker image
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          tags: frys:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-    - name: 🧪 单元测试
-      if: matrix.test-type == 'unit'
-      run: |
-        echo "🧪 执行单元测试..."
-        npm run test:ci:unit
-        echo "✅ 单元测试通过"
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frys-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/frys
+          retention-days: 30
 
-    - name: 🔗 集成测试
-      if: matrix.test-type == 'integration'
-      run: |
-        echo "🔗 执行集成测试..."
-        npm run test:ci:integration
-        echo "✅ 集成测试通过"
-
-    - name: 📊 生成测试报告和覆盖率
-      if: matrix.test-type == 'unit' || matrix.test-type == 'integration'
-      run: |
-        echo "📊 生成测试报告..."
-        npm run test:aggregate:ci
-        echo "✅ 测试聚合报告生成完成"
-
-    - name: 📤 上传测试产物
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results-${{ matrix.test-type }}
-        path: |
-          test-results/
-          coverage/
-          reports/
-        retention-days: 30
-
-  # 3️⃣ 安全检查 - 全面安全扫描
-  security:
-    name: '3️⃣ 安全检查'
+  # -----------------------------------------------------------------------------
+  # Integration Tests
+  # -----------------------------------------------------------------------------
+  integration-test:
+    name: Integration Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: validate
-    permissions:
-      security-events: write
-      contents: read
-      actions: read
-
-    steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: 🟢 设置 Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-
-    - name: 📦 安装依赖
-      run: npm ci
-
-    - name: 🔒 GitHub 代码扫描 (CodeQL)
-      uses: github/codeql-action/init@v3
-      with:
-        languages: javascript
-        config-file: ./.github/codeql-config.yml
-
-    - name: 🔍 执行 CodeQL 分析
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:javascript"
-
-    - name: 🔒 NPM 安全审计
-      run: |
-        echo "🔍 执行NPM安全审计..."
-        npm audit --audit-level=moderate --json > npm-audit-results.json || true
-
-        # 检查审计结果
-        if [ -f npm-audit-results.json ]; then
-          VULNERABILITIES=$(cat npm-audit-results.json | jq '.metadata.vulnerabilities.total // 0')
-          echo "发现安全漏洞: $VULNERABILITIES"
-
-          if [ "$VULNERABILITIES" -gt 0 ]; then
-            echo "⚠️  发现 $VULNERABILITIES 个安全漏洞"
-            cat npm-audit-results.json | jq '.vulnerabilities // {}' | head -50
-            if [ "${{ github.event_name }}" = "pull_request" ]; then
-              echo "在PR中允许安全漏洞，但建议修复"
-            else
-              exit 1
-            fi
-          else
-            echo "✅ NPM 安全审计通过"
-          fi
-        fi
-
-    - name: 🛡️ 工业级安全扫描
-      run: |
-        echo "🛡️ 执行工业级安全扫描..."
-        node scripts/security-audit.js --ci
-        echo "✅ 工业级安全扫描完成"
-
-    - name: 🔐 依赖检查 (Dependency Review)
-      if: github.event_name == 'pull_request'
-      uses: actions/dependency-review-action@v4
-      with:
-        config-file: ./.github/dependency-review-config.yml
-
-    - name: 📋 安全报告汇总
-      run: |
-        echo "📋 生成安全报告..."
-
-        # 汇总所有安全检查结果
-        cat > security-summary.json << EOF
-        {
-          "timestamp": "$(date -Iseconds)",
-          "commit": "${{ github.sha }}",
-          "branch": "${{ github.ref }}",
-          "checks": {
-            "codeql": "completed",
-            "npm_audit": "completed",
-            "industrial_scan": "completed",
-            "dependency_review": "${{ github.event_name == 'pull_request' && 'completed' || 'skipped' }}"
-          },
-          "summary": "安全检查完成，详细结果请查看各步骤输出"
-        }
-        EOF
-
-        echo "✅ 安全检查汇总完成"
-
-    - name: 📤 上传安全报告
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: security-reports
-        path: |
-          security-audit-report.json
-          npm-audit-results.json
-          security-summary.json
-        retention-days: 30
-
-  # 4️⃣ 端到端测试 - 用户界面和API测试
-  e2e:
-    name: '4️⃣ 端到端测试'
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: [test, security]
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-
-    steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
-
-    - name: 🟢 设置 Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-
-    - name: 📦 安装依赖
-      run: npm ci
-
-    - name: 🔗 端到端测试
-      run: |
-        echo "🔗 执行端到端测试..."
-        npm run test:e2e:ci
-        echo "✅ 端到端测试通过"
-
-    - name: 📊 生成E2E测试报告
-      run: |
-        npm run test:report
-        echo "✅ E2E测试报告生成完成"
-
-    - name: 📤 上传E2E测试结果
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: e2e-test-results
-        path: |
-          test-results/
-          playwright-report/
-        retention-days: 30
-
-  # 5️⃣ PR审核 - 自动代码审查
-  pr-review:
-    name: '5️⃣ PR审核'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    if: github.event_name == 'pull_request'
-    needs: [validate, test, security]
-    permissions:
-      contents: read
-      pull-requests: write
-
-    steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: 🟢 设置 Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-
-    - name: 📦 安装依赖
-      run: npm ci
-
-    - name: 🔍 PR 质量检查
-      run: |
-        echo "🔍 执行PR质量检查..."
-        npm run pr:analyze:ci
-        echo "✅ PR质量检查完成"
-
-    - name: 📊 分析测试覆盖率变化
-      run: |
-        echo "📊 分析测试覆盖率变化..."
-
-        # 获取基准覆盖率
-        if [ -f coverage/coverage-summary.json ]; then
-          CURRENT_COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
-          echo "当前覆盖率: ${CURRENT_COVERAGE}%"
-
-          # 这里可以添加与基准分支的比较逻辑
-          echo "覆盖率检查完成"
-        fi
-
-    - name: 📋 生成PR审查报告
-      run: |
-        echo "📋 生成PR审查报告..."
-
-        # 收集所有检查结果
-        VALIDATE_STATUS="${{ needs.validate.result }}"
-        TEST_STATUS="${{ needs.test.result }}"
-        SECURITY_STATUS="${{ needs.security.result }}"
-
-        cat > pr-review-report.json << EOF
-        {
-          "timestamp": "$(date -Iseconds)",
-          "pr_number": ${{ github.event.pull_request.number }},
-          "commit": "${{ github.sha }}",
-          "author": "${{ github.event.pull_request.user.login }}",
-          "branch": "${{ github.head_ref }}",
-          "base_branch": "${{ github.base_ref }}",
-          "checks": {
-            "validate": {
-              "status": "$VALIDATE_STATUS",
-              "description": "本地验证和依赖检查"
-            },
-            "test": {
-              "status": "$TEST_STATUS",
-              "description": "自动化测试 (单元+集成)"
-            },
-            "security": {
-              "status": "$SECURITY_STATUS",
-              "description": "安全扫描和审计"
-            }
-          },
-          "summary": {
-            "status": "$([ "$VALIDATE_STATUS" = "success" ] && [ "$TEST_STATUS" = "success" ] && [ "$SECURITY_STATUS" = "success" ] && echo "PASSED" || echo "FAILED")",
-            "total_checks": 3,
-            "passed_checks": $([ "$VALIDATE_STATUS" = "success" ] && echo 1 || echo 0)+$([ "$TEST_STATUS" = "success" ] && echo 1 || echo 0)+$([ "$SECURITY_STATUS" = "success" ] && echo 1 || echo 0),
-            "failed_checks": $([ "$VALIDATE_STATUS" != "success" ] && echo 1 || echo 0)+$([ "$TEST_STATUS" != "success" ] && echo 1 || echo 0)+$([ "$SECURITY_STATUS" != "success" ] && echo 1 || echo 0)
-          },
-          "recommendations": [
-            "确保所有检查都通过",
-            "查看测试覆盖率报告",
-            "确认安全扫描结果",
-            "考虑添加集成测试",
-            "检查性能影响"
-          ]
-        }
-        EOF
-
-        echo "✅ PR审查报告生成完成"
-
-    - name: 💬 PR 审查评论
-      if: always()
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const fs = require('fs');
-          if (fs.existsSync('pr-review-report.json')) {
-            const report = JSON.parse(fs.readFileSync('pr-review-report.json', 'utf8'));
-
-            const statusEmoji = report.summary.status === 'PASSED' ? '✅' : '❌';
-            const comment = `## 🔍 自动PR审查报告
-
-**状态**: ${statusEmoji} **${report.summary.status}**
-
-### 📊 检查结果
-
-| 检查项目 | 状态 | 描述 |
-|---------|------|------|
-| 🔍 本地验证 | ${report.checks.validate.status === 'success' ? '✅' : '❌'} | ${report.checks.validate.description} |
-| 🧪 自动化测试 | ${report.checks.test.status === 'success' ? '✅' : '❌'} | ${report.checks.test.description} |
-| 🔒 安全检查 | ${report.checks.security.status === 'success' ? '✅' : '❌'} | ${report.checks.security.description} |
-
-### 📈 统计信息
-- **总检查数**: ${report.summary.total_checks}
-- **通过检查**: ${report.summary.passed_checks}
-- **失败检查**: ${report.summary.failed_checks}
-
-### 💡 建议
-${report.recommendations.map(r => `- ${r}`).join('\n')}
-
----
-*此报告由 frys CI/CD 流水线自动生成 | [查看详细报告](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})*`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
-          }
-
-  # 6️⃣ 构建和打包
-  build:
-    name: '🏗️ 构建打包'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: [validate, test, security, e2e]
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-
-    steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
-
-    - name: 🟢 设置 Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-
-    - name: 📦 安装依赖
-      run: npm ci
-
-    - name: 🏗️ 生产构建
-      run: |
-        echo "🏗️ 开始生产构建..."
-        npm run build:prod
-        echo "✅ 生产构建完成"
-
-        # 验证构建产物
-        if [ -d dist ]; then
-          echo "构建产物大小: $(du -sh dist | cut -f1)"
-          echo "构建产物文件数: $(find dist -type f | wc -l)"
-        else
-          echo "❌ 构建产物目录不存在"
-          exit 1
-        fi
-
-    - name: 🐳 设置 Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: 🔐 登录到容器注册表
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: 🐳 构建并推送 Docker 镜像
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        labels: |
-          org.opencontainers.image.title=${{ github.repository }}
-          org.opencontainers.image.description=frys Production - 企业级工作流管理系统
-          org.opencontainers.image.source=https://github.com/${{ github.repository }}
-          org.opencontainers.image.version=${{ github.sha }}
-          org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
-          org.opencontainers.image.revision=${{ github.sha }}
-
-    - name: 📋 生成构建报告
-      run: |
-        echo "📋 生成构建报告..."
-        cat > build-report.json << EOF
-        {
-          "timestamp": "$(date -Iseconds)",
-          "commit": "${{ github.sha }}",
-          "branch": "${{ github.ref }}",
-          "build": {
-            "status": "success",
-            "duration": "$(($(date +%s) - $(date -r dist +%s 2>/dev/null || echo $(date +%s))))",
-            "artifacts": {
-              "dist_size": "$(du -sh dist 2>/dev/null | cut -f1 || echo 'N/A')",
-              "dist_files": "$(find dist -type f 2>/dev/null | wc -l || echo '0')",
-              "docker_image": "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-            }
-          },
-          "environment": {
-            "node_version": "$(node --version)",
-            "npm_version": "$(npm --version)",
-            "docker_version": "$(docker --version)"
-          }
-        }
-        EOF
-        echo "✅ 构建报告生成完成"
-
-    - name: 📤 上传构建产物
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifacts-${{ github.sha }}
-        path: |
-          dist/
-          build-report.json
-          docker-compose*.yml
-          Dockerfile
-        retention-days: 30
-
-  # 7️⃣ Staging 部署验证
-  staging-validation:
-    name: '6️⃣ Staging验证'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
     needs: build
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+
+      elasticsearch:
+        image: elasticsearch:8.11.0
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: false
+          "ES_JAVA_OPTS": "-Xms512m -Xmx512m"
+        ports:
+          - 9200:9200
+
+      rabbitmq:
+        image: rabbitmq:3-management
+        env:
+          RABBITMQ_DEFAULT_USER: frys
+          RABBITMQ_DEFAULT_PASS: frys
+        ports:
+          - 5672:5672
+          - 15672:15672
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: frys-x86_64-unknown-linux-gnu
+          path: ./bin/
+
+      - name: Make binary executable
+        run: chmod +x ./bin/frys
+
+      - name: Run integration tests
+        run: |
+          export PATH=$PWD/bin:$PATH
+          cargo test --test integration --verbose
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/frys_test
+          REDIS_URL: redis://localhost:6379
+          ELASTICSEARCH_URL: http://localhost:9200
+          RABBITMQ_URL: amqp://frys:frys@localhost:5672
+
+  # -----------------------------------------------------------------------------
+  # Performance Benchmarking
+  # -----------------------------------------------------------------------------
+  benchmark:
+    name: Performance Benchmark
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: frys-x86_64-unknown-linux-gnu
+          path: ./bin/
+
+      - name: Make binary executable
+        run: chmod +x ./bin/frys
+
+      - name: Run benchmarks
+        run: |
+          export PATH=$PWD/bin:$PATH
+          cargo bench --bench metrics_benchmark
+
+      - name: Store benchmark results
+        uses: benchmark-action/github-action-benchmark@v1
+        if: github.event_name != 'pull_request'
+        with:
+          name: Rust Benchmark
+          tool: 'cargo'
+          output-file-path: output.txt
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+
+  # -----------------------------------------------------------------------------
+  # Deploy to Staging
+  # -----------------------------------------------------------------------------
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, integration-test, benchmark]
+    if: github.ref == 'refs/heads/develop'
     environment: staging
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🔐 下载构建产物
-      uses: actions/download-artifact@v4
-      with:
-        name: build-artifacts-${{ github.sha }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-    - name: 🚀 Staging 环境部署
-      run: |
-        echo "🚀 开始Staging环境部署..."
-        ./scripts/deploy.sh --env=staging --image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-        echo "✅ Staging部署完成"
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-    - name: 🧪 部署健康检查
-      run: |
-        echo "🧪 执行部署健康检查..."
-        node scripts/deployment-verification.js --env=staging --quick
-        echo "✅ Staging部署验证通过"
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/frys:staging-${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/frys:staging-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-  # 8️⃣ 回归测试矩阵
-  regression-matrix:
-    name: '7️⃣ 回归测试'
+      - name: Update staging deployment
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name frys-staging
+          kubectl set image deployment/frys-app frys=${{ steps.login-ecr.outputs.registry }}/frys:staging-${{ github.sha }}
+          kubectl rollout status deployment/frys-app
+
+  # -----------------------------------------------------------------------------
+  # Deploy to Production
+  # -----------------------------------------------------------------------------
+  deploy-production:
+    name: Deploy to Production
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: staging-validation
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
-
-    - name: 🟢 设置 Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-
-    - name: 📦 安装依赖
-      run: npm ci
-
-    - name: 🔄 执行回归测试矩阵
-      run: |
-        echo "🔄 执行回归测试矩阵..."
-        node scripts/regression-matrix.js --env=staging --matrix
-        echo "✅ 回归测试矩阵完成"
-
-    - name: 📊 性能基准对比
-      run: |
-        echo "📊 执行性能基准测试..."
-        npm run benchmark -- --compare
-        echo "✅ 性能基准测试完成"
-
-    - name: 📤 上传回归测试报告
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: regression-results-${{ github.sha }}
-        path: |
-          regression-test-results/
-          benchmark-results/
-          performance-comparison.json
-        retention-days: 30
-
-  # 9️⃣ 生产部署
-  production-deploy:
-    name: '8️⃣ 生产部署'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs: [build, regression-matrix]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build, integration-test, benchmark]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'release'
     environment: production
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🔐 下载构建产物
-      uses: actions/download-artifact@v4
-      with:
-        name: build-artifacts-${{ github.sha }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-    - name: 🚀 生产环境部署
-      run: |
-        echo "🚀 开始生产环境部署..."
-        ./scripts/deploy.sh --env=production --image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-        echo "✅ 生产部署完成"
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-    - name: 🧪 生产环境验证
-      run: |
-        echo "🧪 执行生产环境验证..."
-        node scripts/deployment-verification.js --env=production
-        echo "✅ 生产环境验证通过"
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/frys:${{ github.event.release.tag_name }}
+            ${{ steps.login-ecr.outputs.registry }}/frys:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-    - name: 📊 SLO 检查
-      run: |
-        echo "📊 执行服务水平目标检查..."
-        node scripts/slo-check.js --baseline
-        echo "✅ SLO检查完成"
+      - name: Update production deployment
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name frys-production
+          kubectl set image deployment/frys-app frys=${{ steps.login-ecr.outputs.registry }}/frys:${{ github.event.release.tag_name }}
+          kubectl rollout status deployment/frys-app
 
-  # 🔍 部署监控与回溯
-  deployment-monitoring:
-    name: '9️⃣ 部署监控'
+      - name: Run production smoke tests
+        run: |
+          # Wait for rollout to complete
+          kubectl wait --for=condition=available --timeout=300s deployment/frys-app
+
+          # Run smoke tests
+          ./scripts/ci/smoke-test.sh ${{ github.event.release.tag_name }}
+
+  # -----------------------------------------------------------------------------
+  # Release Management
+  # -----------------------------------------------------------------------------
+  release:
+    name: Create Release
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [staging-validation, production-deploy]
-    if: always()
+    needs: deploy-production
+    if: github.event_name == 'release'
 
     steps:
-    - name: 📥 检出代码
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: 📊 收集部署监控指标
-      run: |
-        echo "📊 收集部署监控指标..."
-        node scripts/monitoring-rollback.js --check --comprehensive
-        echo "✅ 监控指标收集完成"
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: frys-x86_64-unknown-linux-gnu
+          path: ./bin/linux/
 
-    - name: 📋 生成部署报告
-      run: |
-        echo "📋 生成完整部署报告..."
+      - name: Download macOS build
+        uses: actions/download-artifact@v3
+        with:
+          name: frys-x86_64-apple-darwin
+          path: ./bin/darwin/
 
-        STAGING_STATUS="${{ needs.staging-validation.result }}"
-        PRODUCTION_STATUS="${{ needs.production-deploy.result }}"
+      - name: Create release archives
+        run: |
+          cd bin
+          tar -czf frys-linux-amd64.tar.gz -C linux .
+          tar -czf frys-darwin-amd64.tar.gz -C darwin .
 
-        cat > deployment-report.json << EOF
-        {
-          "timestamp": "$(date -Iseconds)",
-          "commit": "${{ github.sha }}",
-          "branch": "${{ github.ref }}",
-          "environments": {
-            "staging": {
-              "status": "$STAGING_STATUS",
-              "deployed_at": "$(date -Iseconds)",
-              "image": "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-            },
-            "production": {
-              "status": "$PRODUCTION_STATUS",
-              "deployed_at": "$(date -Iseconds)",
-              "image": "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-            }
-          },
-          "pipeline": {
-            "status": "$([ "$STAGING_STATUS" = "success" ] && [ "$PRODUCTION_STATUS" = "success" ] && echo "success" || echo "partial")",
-            "duration": "$(($(date +%s) - $(date -r .git +%s)))",
-            "stages_completed": 9
-          },
-          "monitoring": {
-            "enabled": true,
-            "rollback_ready": true,
-            "alerts_configured": true
-          }
-        }
-        EOF
-
-        echo "✅ 部署报告生成完成"
-
-    - name: 📤 上传部署监控报告
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: deployment-report-${{ github.sha }}
-        path: |
-          deployment-report.json
-          deployment-verification-*.json
-          monitoring-*.log
-          slo-baseline.json
-        retention-days: 30
-
-    - name: 🎯 部署完成通知
-      if: always()
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const stagingStatus = '${{ needs.staging-validation.result }}';
-          const productionStatus = '${{ needs.production-deploy.result }}';
-
-          const overallStatus = (stagingStatus === 'success' && productionStatus === 'success') ? '✅' :
-                               (stagingStatus === 'success' || productionStatus === 'success') ? '⚠️' : '❌';
-
-          const message = `${overallStatus} **frys 部署完成报告**
-
-**提交**: \`${context.sha.substring(0, 7)}\`
-**分支**: ${context.ref.replace('refs/heads/', '')}
-**时间**: ${new Date().toISOString()}
-
-### 🌐 环境部署状态
-- **Staging**: ${stagingStatus === 'success' ? '✅ 成功' : '❌ 失败'}
-- **Production**: ${productionStatus === 'success' ? '✅ 成功' : '❌ 失败'}
-
-### 📊 流水线概览
-- **总阶段**: 9个
-- **构建产物**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${context.sha.substring(0, 7)}
-- **监控**: ✅ 已启用
-- **回滚**: ✅ 已准备
-
-### 🔗 相关链接
-- [📋 详细部署报告](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-- [📊 监控面板](https://grafana.frys.com)
-- [🚨 告警中心](https://alertmanager.frys.com)
-
----
-*自动生成 by frys CI/CD Pipeline*`;
-
-          if (context.issue) {
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: message
-            });
-          }
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bin/frys-linux-amd64.tar.gz
+            bin/frys-darwin-amd64.tar.gz
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

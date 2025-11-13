@@ -1,0 +1,167 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frys-network-policy
+  namespace: frys-system
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: frys
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from ingress controller
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9443
+
+  # Allow traffic from monitoring namespace
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 9090  # Metrics port
+
+  # Allow traffic from other Frys services
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: frys
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090
+
+  # Allow health checks from kube-system
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: TCP
+      port: 8080
+
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+
+  # Allow HTTPS outbound (for external APIs)
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+
+  # Allow database connections
+  - to:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+
+  # Allow Redis connections
+  - to:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+
+  # Allow Elasticsearch connections
+  - to:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: elasticsearch
+    ports:
+    - protocol: TCP
+      port: 9200
+
+  # Allow RabbitMQ connections
+  - to:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: rabbitmq
+    ports:
+    - protocol: TCP
+      port: 5672
+
+---
+# Database network policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frys-database-policy
+  namespace: frys-system
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Only allow traffic from Frys application
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: frys
+    ports:
+    - protocol: TCP
+      port: 5432
+
+  # Allow traffic from database migration jobs
+  - from:
+    - podSelector:
+        matchLabels:
+          job-name: frys-migration
+    ports:
+    - protocol: TCP
+      port: 5432
+
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+
+---
+# Monitoring network policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frys-monitoring-policy
+  namespace: frys-system
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: monitoring
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from anywhere (for metrics scraping)
+  - from: []
+    ports:
+    - protocol: TCP
+      port: 9090
+
+  egress:
+  # Allow all outbound traffic for monitoring
+  - to: []
+    ports: []

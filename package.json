@@ -87,7 +87,7 @@
     "prettier": "^3.0.0",
     "testcontainers": "^11.8.0",
     "vitest": "^4.0.7",
-    "zx": "^7.2.3"
+    "zx": "^8.8.5"
   },
   "eslintConfig": {
     "env": {

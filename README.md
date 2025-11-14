@@ -580,6 +580,7 @@ cargo build --release --package frys-plugin-my-feature
 - [插件开发指南](docs/plugin-development.md)
 
 ### 🎯 核心指导文档
+- [**AOS技术栈全景图**](AOS_TECHNOLOGY_STACK_BLUEPRINT.md) - 从理论到落地的完整技术路线图
 - [**Frys创世星环宪法**](FRYS_CREATION_RING_CONSTITUTION.md) - AI文明蓝图和根本原则
 - [**Frys世界模型框架**](FRYS_WORLD_MODEL_FRAMEWORK.md) - AI大统一理论和核心哲学
 - [**AI前沿研究对Frys的启示**](AI_FRONTIER_INSIGHTS_FOR_FRYS.md) - 基于最新AI研究的战略方向

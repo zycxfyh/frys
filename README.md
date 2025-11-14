@@ -589,6 +589,21 @@ cargo build --release --package frys-plugin-my-feature
 - [**VCP借鉴架构设计**](cg/FRYS_VCP_INSPIRED_ARCHITECTURE.md) - 自主知识产权的技术架构
 - [**混合架构设计**](HYBRID_ARCHITECTURE_DESIGN.md) - 分层微服务+微内核插件融合
 
+### 📚 模块发展指南 (AOS哲学)
+基于"张量原生、自组织、自主试错学习"的核心哲学，每个模块的发展指南：
+
+- [**内核发展指南**](modules/frys-kernel/DEVELOPMENT_GUIDE.md) - 张量原生基础设施
+- [**AI系统发展指南**](modules/frys-ai-system/DEVELOPMENT_GUIDE.md) - 张量原生推理大脑
+- [**事件总线发展指南**](modules/frys-eventbus/DEVELOPMENT_GUIDE.md) - 张量原生神经通信
+- [**配置系统发展指南**](modules/frys-config/DEVELOPMENT_GUIDE.md) - 张量原生智能配置
+- [**向量搜索发展指南**](modules/frys-vector-search/DEVELOPMENT_GUIDE.md) - 张量原生记忆神经元
+- [**插件系统发展指南**](modules/frys-plugin-system/DEVELOPMENT_GUIDE.md) - 张量原生扩展能力
+- [**监控系统发展指南**](modules/frys-monitoring/DEVELOPMENT_GUIDE.md) - 张量原生智能观测
+- [**网关发展指南**](modules/frys-gateway/DEVELOPMENT_GUIDE.md) - 张量原生流量枢纽
+- [**WebSocket发展指南**](modules/frys-websocket/DEVELOPMENT_GUIDE.md) - 张量原生实时协作
+- [**代理系统发展指南**](modules/frys-agent-system/DEVELOPMENT_GUIDE.md) - 张量原生智能代理
+- [**缓存系统发展指南**](modules/frys-cache/DEVELOPMENT_GUIDE.md) - 张量原生智能加速器
+
 ### 🎓 学习资源
 - [示例项目](examples/)
 - [最佳实践](docs/best-practices.md)

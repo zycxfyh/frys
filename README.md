@@ -585,6 +585,8 @@ cargo build --release --package frys-plugin-my-feature
 - [**Frys世界模型框架**](FRYS_WORLD_MODEL_FRAMEWORK.md) - AI大统一理论和核心哲学
 - [**AI前沿研究对Frys的启示**](AI_FRONTIER_INSIGHTS_FOR_FRYS.md) - 基于最新AI研究的战略方向
 - [**AOS工作流架构设计**](AOS_WORKFLOW_ARCHITECTURE.md) - Agent协作社会的操作系统
+- [**AOS工作流落地指南**](AOS_WORKFLOW_LANDING_GUIDE.md) - 框架、业务逻辑、落地方式和实际作用
+- [**AOS工作流实施细节**](AOS_WORKFLOW_IMPLEMENTATION_DETAILS.md) - API设计、监控安全、迁移策略
 - [**工作流引擎架构设计**](WORKFLOW_ENGINE_ARCHITECTURE.md) - 张量原生自组织工作流系统
 - [**工作流引擎AOS融合**](WORKFLOW_ENGINE_AOS_INTEGRATION.md) - 工作流与AOS技术栈的实用融合
 - [**VCP借鉴架构设计**](cg/FRYS_VCP_INSPIRED_ARCHITECTURE.md) - 自主知识产权的技术架构

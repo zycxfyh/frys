@@ -1,1 +1,0 @@
-{"rustc":2490638836439573635,"features":"[]","declared_features":"[\"alloc\", \"serde\", \"std\"]","target":6619567058538150391,"profile":2241668132362809309,"path":8680185745420671695,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"debug\\.fingerprint\\sha1_smol-8964268875d71c77\\dep-lib-sha1_smol","checksum":false}}],"rustflags":[],"config":2069994364910194474,"compile_kind":0}

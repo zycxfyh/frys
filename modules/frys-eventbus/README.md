@@ -1,10 +1,100 @@
 # Frys EventBus (frys-eventbus)
 
-Frys EventBus 是系统的分布式事件总线，提供了高性能的事件发布订阅机制，支持模块间解耦通信、分布式事件路由和实时事件处理。
+## 🎯 使命：为工作流引擎提供Agent协作通信
 
-## 🎯 设计理念
+**Frys EventBus 是工作流引擎的"神经系统"**，它提供了**张量原生通信**、**自组织协调**和**自主学习同步**所需的高性能事件总线。
 
-**高性能分布式事件总线，为模块化系统提供可靠的事件通信基础设施**
+**不再是传统的"消息队列"，而是AI Agent协作社会的神经网络**，让智能体们能够实时协作、协调决策、同步学习。
+
+### 🌟 核心定位
+- **📡 工作流的通信枢纽**：为张量原生工作流提供低延迟事件通信
+- **🤝 Agent的协作网络**：为自组织Agent提供实时协作和协商能力
+- **🧬 进化的信息流**：为自主学习系统提供经验同步和知识共享
+
+## 🧬 世界模型支撑：Agent协作的神经网络
+
+基于Frys世界模型框架，事件总线采用了革命性的设计理念：
+
+### 1. **张量原生事件通信** - 数学消息的原生传输
+```rust
+// 张量原生事件 - 直接传输workflow_tensor
+pub struct TensorNativeEvent {
+    pub event_type: TensorEventType,
+    pub tensor_payload: Tensor,
+    pub metadata: EventMetadata,
+}
+
+#[derive(Clone)]
+pub enum TensorEventType {
+    WorkflowTensorUpdate,      // 工作流张量更新
+    AgentCollaborationProposal, // Agent协作提议
+    LearningExperienceShare,   // 学习经验分享
+    ResourceAllocationRequest, // 资源分配请求
+}
+
+impl TensorNativeEvent {
+    // 零拷贝张量传输
+    pub fn zero_copy_transmit(&self, destination: &AgentId) -> Result<(), TransmissionError> {
+        // 直接内存映射传输张量，无需序列化
+        // 支持workflow_tensor的实时同步
+    }
+}
+```
+
+### 2. **自组织Agent协调** - 协作网络的智能路由
+```rust
+// 自组织事件路由器 - 支持Agent动态协作
+pub struct SelfOrganizingEventRouter {
+    pub agent_registry: AgentRegistry,
+    pub collaboration_graph: CollaborationGraph,
+    pub routing_optimizer: RoutingOptimizer,
+}
+
+impl SelfOrganizingEventRouter {
+    // 根据Agent协作关系动态路由事件
+    pub async fn route_collaboration_event(&self, event: &CollaborationEvent, collaborators: &[AgentId]) -> Result<RoutingPlan, RoutingError> {
+        // 1. 分析协作关系图
+        let collaboration_context = self.analyze_collaboration_context(collaborators)?;
+
+        // 2. 计算最优路由路径
+        let optimal_routes = self.compute_optimal_routes(&collaboration_context, event)?;
+
+        // 3. 动态调整路由权重
+        let adaptive_routes = self.adapt_routes_based_on_performance(&optimal_routes)?;
+
+        Ok(RoutingPlan { routes: adaptive_routes })
+    }
+}
+```
+
+### 3. **自主学习同步器** - 经验共享的进化加速器
+```rust
+// 自主学习事件同步器 - 支持经验张量的分布式共享
+pub struct AutonomousLearningSynchronizer {
+    pub experience_pool: DistributedExperiencePool,
+    pub learning_coordinator: LearningCoordinator,
+    pub synchronization_engine: SynchronizationEngine,
+}
+
+impl AutonomousLearningSynchronizer {
+    // 同步Agent学习经验到整个协作网络
+    pub async fn synchronize_learning_experience(&self, source_agent: &AgentId, experience: &Tensor) -> Result<SyncResult, SyncError> {
+        // 1. 评估经验的价值和相关性
+        let experience_value = self.evaluate_experience_value(experience)?;
+
+        // 2. 识别需要同步的Agent群体
+        let target_agents = self.identify_relevant_agents(source_agent, &experience_value)?;
+
+        // 3. 协调分布式经验同步
+        let sync_result = self.coordinate_distributed_sync(&target_agents, experience).await?;
+
+        // 4. 更新协作网络的学习状态
+        self.update_collaboration_learning_state(&sync_result)?;
+
+        Ok(sync_result)
+    }
+}
+```
 
 ### 核心特性
 - **⚡ 高性能**: 基于锁自由数据结构的异步事件处理

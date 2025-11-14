@@ -1,10 +1,71 @@
 # Frys Kernel (frys-kernel)
 
-Frys Kernel 是整个系统的微内核运行时，提供了最基础的系统服务和资源管理。它采用Rust实现，具有极高的性能和安全性。
+## 🎯 使命：为工作流引擎提供极致性能基础设施
 
-## 🎯 设计理念
+**Frys Kernel 是工作流引擎的"心脏"**，它提供了**张量原生计算**、**自组织调度**和**自主进化**所需的高性能基础设施。
 
-**极致性能的微内核架构，为上层业务提供可靠的运行时环境**
+**不再是传统的"操作系统内核"，而是AI Agent协作社会的性能基石**，为智能体们提供无与伦比的执行效率。
+
+### 🌟 核心定位
+- **⚡ 工作流的动力源**：为张量原生工作流提供SIMD加速和并行计算
+- **🤝 Agent的舞台**：为自组织Agent提供高并发通信和资源管理
+- **🧬 进化的催化剂**：为自主学习系统提供高效的内存管理和存储优化
+
+## 🧬 世界模型支撑：性能基础设施的进化
+
+基于Frys世界模型框架，内核采用了革命性的设计理念：
+
+### 1. **张量原生计算引擎** - 数学运算的硬件加速
+```rust
+// SIMD张量运算 - 为工作流提供并行计算能力
+#[cfg(target_feature = "avx512")]
+pub unsafe fn tensor_matmul_simd(a: &[f32], b: &[f32], c: &mut [f32]) {
+    // AVX-512 SIMD指令直接操作张量
+    // 支持workflow_tensor的并行处理
+}
+
+// 零拷贝张量传输 - 消除数据拷贝开销
+pub fn zero_copy_tensor_transfer(src: &Tensor, dst: &mut Tensor) {
+    // 直接内存映射，无需拷贝
+    // 支持Agent间的高效协作
+}
+```
+
+### 2. **自组织资源调度器** - Agent协作的资源保障
+```rust
+// 工作窃取调度器 - 支持Agent的自组织协作
+pub struct WorkStealingScheduler {
+    workers: Vec<WorkerThread>,
+    global_queue: Injector<Task>,
+    local_queues: Vec<StealDeque<Task>>,
+}
+
+impl WorkStealingScheduler {
+    // 动态分配资源给协作中的Agent
+    pub fn schedule_collaborative_agents(&self, agents: &[AgentId], task: &Task) {
+        // 根据Agent协作模式动态分配CPU核心
+        // 支持张量计算的并行执行
+    }
+}
+```
+
+### 3. **自主学习存储引擎** - 经验积累的持久化
+```rust
+// LSM树存储引擎 - 支持经验张量的快速读写
+pub struct LSMExperienceStore {
+    memtable: MemTable<Tensor>,
+    sstables: Vec<SSTable<Tensor>>,
+    wal: WriteAheadLog,
+}
+
+impl LSMExperienceStore {
+    // 存储Agent学习到的经验张量
+    pub async fn store_experience(&self, agent_id: &AgentId, experience: &Tensor) {
+        // WAL保证一致性
+        // LSM树支持高并发读写
+    }
+}
+```
 
 ### 核心特性
 - **🔥 极致性能**: SIMD优化，零拷贝网络，异步并发

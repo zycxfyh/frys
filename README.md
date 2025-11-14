@@ -581,7 +581,9 @@ cargo build --release --package frys-plugin-my-feature
 
 ### 🎯 核心指导文档
 - [**Frys创世星环宪法**](FRYS_CREATION_RING_CONSTITUTION.md) - AI文明蓝图和根本原则
+- [**Frys世界模型框架**](FRYS_WORLD_MODEL_FRAMEWORK.md) - AI大统一理论和核心哲学
 - [**AI前沿研究对Frys的启示**](AI_FRONTIER_INSIGHTS_FOR_FRYS.md) - 基于最新AI研究的战略方向
+- [**工作流引擎架构设计**](WORKFLOW_ENGINE_ARCHITECTURE.md) - 张量原生自组织工作流系统
 - [**VCP借鉴架构设计**](cg/FRYS_VCP_INSPIRED_ARCHITECTURE.md) - 自主知识产权的技术架构
 - [**混合架构设计**](HYBRID_ARCHITECTURE_DESIGN.md) - 分层微服务+微内核插件融合
 

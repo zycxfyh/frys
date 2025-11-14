@@ -93,11 +93,13 @@ pub mod designer;
 pub mod events;
 pub mod versioning;
 pub mod analytics;
+pub mod architecture;
 
 // Re-exports for convenience
 pub use core::*;
 pub use engine::*;
 pub use executor::*;
+pub use architecture::*;
 pub use nodes::*;
 pub use flows::*;
 pub use concurrent::*;
